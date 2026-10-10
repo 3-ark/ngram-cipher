@@ -1,90 +1,19 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from "vite";
-import fs from "fs";
-import path from "path";
-
-let outDir = "";
-let configStore;
 
 export default defineConfig({
-  // 配置选项
   test: {
-    coverage: {
-      exclude: [
-        "vite.config.js",
-        "dist",
-        "JavyInputAppendix.js",
-        "src/javascript/unishox2.js",
-        "src/javascript/CSPRNGHelper.js",
-        "src/javascript/otplib.d.ts",
-        "docs",
-        "src/javascript/main.d.ts",
-        "src/javascript/utils.js",
-        "src/javascript/utils_next.js",
-      ],
-    },
+    environment: "node",
   },
   build: {
-    outDir: "dist", // 将打包后的文件输出到 dist 目录
+    outDir: "dist",
     minify: true,
     sourcemap: true,
     lib: {
-      entry: "./src/javascript/main.js",
-      name: "abracadabra-cn",
-      fileName: "abracadabra-cn",
-    },
-    rollupOptions: {
-      external: ["crypto"],
+      entry: "./src/index.ts",
+      name: "ngram-cipher",
+      fileName: "ngram-cipher",
+      formats: ["es", "cjs"],
     },
   },
-  plugins: [
-    {
-      name: "Abracadabra-Javy-Artifact",
-      apply: "build", // 只在生产构建时生效
-      configResolved(config) {
-        // 保存最终输出目录路径
-        outDir = path.resolve(config.root, config.build.outDir);
-        configStore = config;
-      },
-      async writeBundle() {
-        const AppendContentPath = path.join(
-          configStore.root,
-          "JavyInputAppendix.js"
-        );
-        const appendContent = fs.readFileSync(AppendContentPath, "utf8");
-
-        const TargetContentPath = path.join(outDir, "abracadabra-cn.js");
-        let TargetContent = fs.readFileSync(TargetContentPath, "utf8");
-
-        // 利用正则，修改库的 export，将其转为全局变量挂载
-        const exportRegex =
-          /export\s*\{\s*([a-zA-Z0-9_$]+)\s+as\s+Abracadabra\s*\};?/;
-
-        if (exportRegex.test(TargetContent)) {
-          // 将其替换为 globalThis.Abracadabra = XXX;
-          TargetContent = TargetContent.replace(
-            exportRegex,
-            (match, internalName) => {
-              return `globalThis.Abracadabra = ${internalName}; ${match}`;
-            }
-          );
-        }
-
-        // 组合内容
-        const cleanedContent = `${TargetContent}\n${appendContent}`;
-
-        // 创建无任何注释的全新文件
-        const newFilePath = path.join(outDir, "abracadabra-cn-javy.js");
-        fs.writeFileSync(newFilePath, cleanedContent);
-
-        // 复制 TypeScript 声明文件到输出目录
-        const dtsSourcePath = path.join(
-          configStore.root,
-          "src/javascript/main.d.ts"
-        );
-        const dtsTargetPath = path.join(outDir, "abracadabra-cn.d.ts");
-        fs.copyFileSync(dtsSourcePath, dtsTargetPath);
-      },
-    },
-  ],
 });
