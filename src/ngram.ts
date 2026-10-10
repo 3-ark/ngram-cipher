@@ -95,48 +95,58 @@ export async function decryptBytes(payload: Uint8Array, password: string): Promi
 }
 
 /**
- * Categorized 256 unique English dictionary words for 8-bit token encoding.
- * Each candidate list contains exactly 256 unique English words (2^8 = 256).
+ * A compact, more natural English vocabulary tuned for readable output.
+ * The list is generated from a curated set of meaningful roots so the output
+ * feels calmer and more intentional while still remaining lossless.
  */
-const ENGLISH_256_WORDS = [
-  "the", "a", "this", "that", "my", "your", "his", "her", "our", "their", "every", "some",
-  "any", "no", "one", "each", "another", "such", "what", "which", "many", "few", "all", "both",
-  "time", "person", "year", "way", "day", "thing", "man", "world", "life", "hand", "part", "child",
-  "eye", "woman", "place", "work", "week", "case", "point", "government", "company", "number", "group", "problem",
-  "idea", "water", "money", "story", "fact", "month", "lot", "right", "study", "book", "cloud",
-  "job", "word", "business", "issue", "side", "kind", "head", "house", "service", "friend", "father", "power",
-  "hour", "game", "line", "end", "member", "law", "car", "city", "community", "name", "president", "team",
-  "minute", "kid", "body", "information", "back", "parent", "face", "others", "level", "office", "door",
-  "health", "art", "war", "history", "party", "result", "change", "morning", "reason", "research", "girl",
-  "guy", "moment", "air", "teacher", "force", "education", "foot", "boy", "age", "policy", "music", "market",
-  "sense", "nation", "plan", "college", "interest", "death", "experience", "effect", "use", "class", "control", "care",
-  "field", "development", "role", "effort", "rate", "heart", "drug", "show", "leader", "light", "voice", "wife",
-  "whole", "police", "mind", "final", "report", "decision", "son", "view", "relationship", "town", "road", "arm",
-  "difference", "thank", "value", "building", "action", "full", "model", "season", "society", "tax", "director", "position",
-  "player", "record", "paper", "space", "ground", "form", "event", "official", "matter", "center", "couple", "site",
-  "project", "activity", "star", "table", "need", "court", "american", "oil", "situation", "cost", "industry", "figure",
-  "street", "image", "data", "phone", "cover", "source", "author", "picture", "trade", "term", "degree", "stage",
-  "land", "type", "south", "north", "east", "west", "surface", "truth", "network", "range", "past", "future",
-  "movement", "nature", "quality", "memory", "unit", "science", "sound", "peace", "river", "tree", "plant",
-  "window", "winter", "summer", "spring", "autumn", "letter", "claim", "choice", "corner", "valley", "island",
-  "stone", "shadow", "flight", "beauty", "sign", "signal", "garden", "forest", "harbor", "journey", "ocean",
-  "bridge", "silence", "horizon", "breeze", "whisper", "stream", "mountain", "feather", "meadow", "blossom", "shelter",
-  "harvest", "wonder", "compass", "passage", "echo", "flame", "silver", "golden", "crystal", "starlight", "sunshine",
-  "miracle", "fountain", "twilight", "orchard", "beacon", "voyage", "solitude", "harmony", "symphony", "treasure", "tapestry",
-  "rhythm", "serenity", "zenith", "velvet", "amber", "emerald", "sapphire", "autumnal", "celestial", "tranquil", "radiant",
-  "vibrant", "endless", "graceful", "timeless", "precious", "splendid", "sublime", "peaceful", "infinite", "majestic", "glorious"
+const CORE_WORDS = [
+  "a", "act", "age", "air", "amber", "anchor", "angel", "any", "apex", "arch", "arm",
+  "art", "ash", "ask", "at", "autumn", "back", "beacon", "beam", "bird", "blossom", "blue",
+  "body", "book", "brave", "bright", "brook", "build", "calm", "care", "cast", "cause",
+  "change", "charm", "city", "clear", "cloud", "coast", "code", "cold", "come", "compass",
+  "corner", "country", "course", "craft", "crest", "dance", "dawn", "day", "deep", "dream",
+  "drift", "earth", "echo", "ember", "end", "even", "ever", "face", "faith", "fall", "field",
+  "fire", "first", "flame", "flow", "forest", "form", "frame", "friend", "garden", "gift",
+  "glow", "gold", "good", "grain", "grass", "green", "ground", "guide", "hand", "harbor",
+  "harmony", "heart", "help", "hill", "home", "hope", "hour", "house", "idea", "image",
+  "island", "journey", "joy", "keep", "kind", "knight", "lake", "land", "learn", "light",
+  "limit", "line", "listen", "live", "look", "love", "map", "meadow", "memory", "mind",
+  "moment", "moon", "mountain", "music", "name", "nature", "need", "night", "north", "note",
+  "ocean", "open", "orbit", "order", "origin", "paper", "path", "peace", "people", "petal",
+  "phase", "picture", "place", "plan", "play", "point", "power", "quiet", "rain", "range",
+  "reach", "record", "river", "road", "rock", "rose", "route", "rule", "safe", "sage",
+  "science", "sea", "season", "shadow", "shore", "signal", "silence", "silver", "sky", "small",
+  "soft", "song", "sound", "south", "space", "spark", "spring", "star", "state", "stone",
+  "story", "storm", "street", "sun", "sway", "table", "take", "talk", "teach", "team", "temple",
+  "thing", "thought", "time", "trail", "travel", "trust", "truth", "turn", "under", "unity",
+  "value", "voice", "water", "wave", "way", "weather", "whisper", "white", "wind", "window",
+  "winter", "wonder", "wood", "word", "world", "year", "young", "zen"
 ];
 
+const VOCAB_SUFFIXES = ["", "s", "ed", "ing", "ly", "ful", "less", "er", "al", "ward"];
+
 function createVocabulary(): string[] {
-  const vocabSet = new Set<string>();
-  for (const w of ENGLISH_256_WORDS) {
-    vocabSet.add(w.toLowerCase());
+  const vocab = new Set<string>();
+
+  for (const word of CORE_WORDS) {
+    for (const suffix of VOCAB_SUFFIXES) {
+      const candidate = `${word}${suffix}`.toLowerCase();
+      if (!candidate) continue;
+      if (candidate.length > 0 && candidate.length <= 12) {
+        vocab.add(candidate);
+      }
+      if (vocab.size >= 256) {
+        return Array.from(vocab).slice(0, 256);
+      }
+    }
   }
-  const result = Array.from(vocabSet);
-  if (result.length < 256) {
-    throw new Error(`ENGLISH_256_WORDS needs 256 unique items, but has ${result.length}`);
+
+  const fallback = Array.from(vocab);
+  if (fallback.length < 256) {
+    throw new Error(`Vocabulary generation failed: expected 256 words, got ${fallback.length}`);
   }
-  return result.slice(0, 256);
+
+  return fallback.slice(0, 256);
 }
 
 export const VOCABULARY = createVocabulary();
@@ -152,13 +162,12 @@ VOCABULARY.forEach((word, index) => {
 export function bytesToEnglishText(bytes: Uint8Array): string {
   const words: string[] = [];
   let wordsInSentence = 0;
-  let targetSentenceLength = 8;
+  let targetSentenceLength = 5;
 
   for (let i = 0; i < bytes.length; i++) {
     const byte = bytes[i];
     let word = VOCABULARY[byte];
 
-    // Sentence structure formatting
     if (wordsInSentence === 0) {
       word = word.charAt(0).toUpperCase() + word.slice(1);
     }
@@ -168,7 +177,7 @@ export function bytesToEnglishText(bytes: Uint8Array): string {
     if (wordsInSentence >= targetSentenceLength || i === bytes.length - 1) {
       word += ".";
       wordsInSentence = 0;
-      targetSentenceLength = 6 + (byte % 5); // Vary sentence lengths naturally (6-10 words)
+      targetSentenceLength = 3 + (byte % 4); // Shorter, more readable prose (3-6 words)
     }
 
     words.push(word);
