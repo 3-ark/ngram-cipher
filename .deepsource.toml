@@ -1,6 +1,0 @@
-version = 1
-
-exclude_patterns = ["src/javascript/unishox2.js"]
-
-[[analyzers]]
-name = "javascript"
