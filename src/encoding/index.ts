@@ -6,14 +6,18 @@ import { EncodingError, EncodingConfig, DEFAULT_CONFIG } from "../config/index.j
 import {
   TEMPLATES,
   POS_WORD_TO_INDEX,
-  Slot
 } from "../nlg/index.js";
+import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
+
+export { BitStreamReader, BitStreamWriter };
 
 const SENTENCE_ENDINGS = [".", "!", "?", "..."];
-
-function pickFiller(list: string[], sentenceIdx: number, slotIdx: number): string {
-  return list[(sentenceIdx * 7 + slotIdx * 3) % list.length];
-}
+const ENDING_TO_CODE: Record<string, number> = {
+  ".": 0,
+  "!": 1,
+  "?": 2,
+  "...": 3,
+};
 
 function capitalise(w: string): string {
   return w.charAt(0).toUpperCase() + w.slice(1);
@@ -26,38 +30,38 @@ export function bytesToEnglishText(
   bytes: Uint8Array,
   config: EncodingConfig = DEFAULT_CONFIG.encoding
 ): string {
+  if (!bytes || bytes.length === 0) {
+    return "";
+  }
+
+  const reader = new BitStreamReader(bytes);
   const sentences: string[] = [];
-  let byteIdx = 0;
   let sentenceIdx = 0;
 
-  while (byteIdx < bytes.length) {
+  while (reader.hasBits) {
     const template = TEMPLATES[sentenceIdx % TEMPLATES.length];
     const words: string[] = [];
-    let slotIdx = 0;
 
     for (const slot of template) {
-      if (byteIdx >= bytes.length && slot.type === "data") {
+      if (!reader.hasBits) {
         break;
       }
 
-      if (slot.type === "filler") {
-        const w = pickFiller(slot.list, sentenceIdx, slotIdx);
-        words.push(w);
-      } else {
-        const byteVal = bytes[byteIdx];
-        const w = slot.list[byteVal % slot.list.length];
-        words.push(w);
-        byteIdx++;
-      }
-      slotIdx++;
+      const val = reader.readBits(8);
+      const w = slot.list[val % slot.list.length];
+      words.push(w);
     }
 
     if (words.length === 0) break;
 
     words[0] = capitalise(words[0]);
-    const ending = config.sentenceEndingVariance
-      ? SENTENCE_ENDINGS[sentenceIdx % SENTENCE_ENDINGS.length]
-      : ".";
+
+    let ending = ".";
+    if (config.sentenceEndingVariance) {
+      const endingCode = reader.hasBits ? reader.readBits(2) : 0;
+      ending = SENTENCE_ENDINGS[endingCode % SENTENCE_ENDINGS.length];
+    }
+
     const sentence = words.join(" ") + ending;
     sentences.push(sentence);
     sentenceIdx++;
@@ -69,24 +73,48 @@ export function bytesToEnglishText(
 /**
  * Decodes English cipher prose back into the exact Uint8Array byte stream.
  */
-export function englishTextToBytes(text: string): Uint8Array {
+export function englishTextToBytes(
+  text: string,
+  config: EncodingConfig = DEFAULT_CONFIG.encoding
+): Uint8Array {
   if (!text || typeof text !== "string" || text.trim().length === 0) {
     return new Uint8Array(0);
   }
 
   const cleanText = text.replace(/[\r\n]+/g, " ").trim();
 
-  const rawSentences = (cleanText.match(/[^.!?]+[.!?]+|[^.!?]+$/g) ?? [])
-    .map(s => s.trim())
-    .filter(s => s.length > 0)
-    .map(s => s.replace(/[.!?]+$/g, ""));
+  // Match sentences along with their punctuation endings
+  const sentenceMatches = cleanText.match(/.*?(?:\.\.\.|[.!?]+|$)/g) || [];
 
-  const bytes: number[] = [];
+  const rawSentences: { sentenceStr: string; endingStr: string }[] = [];
+
+  for (const match of sentenceMatches) {
+    const trimmed = match.trim();
+    if (!trimmed) continue;
+
+    let endingStr = ".";
+    let sentenceStr = trimmed;
+
+    if (trimmed.endsWith("...")) {
+      endingStr = "...";
+      sentenceStr = trimmed.slice(0, -3).trim();
+    } else if (/[.!?]$/.test(trimmed)) {
+      endingStr = trimmed.slice(-1);
+      sentenceStr = trimmed.slice(0, -1).trim();
+    }
+
+    if (sentenceStr.length > 0) {
+      rawSentences.push({ sentenceStr, endingStr });
+    }
+  }
+
+  const writer = new BitStreamWriter();
 
   for (let sentenceIdx = 0; sentenceIdx < rawSentences.length; sentenceIdx++) {
     const template = TEMPLATES[sentenceIdx % TEMPLATES.length];
-    const tokens = rawSentences[sentenceIdx].split(/\s+/).filter(t => t.length > 0);
+    const { sentenceStr, endingStr } = rawSentences[sentenceIdx];
 
+    const tokens = sentenceStr.split(/\s+/).filter(t => t.length > 0);
     let tokenIdx = 0;
 
     for (const slot of template) {
@@ -94,11 +122,6 @@ export function englishTextToBytes(text: string): Uint8Array {
 
       const rawToken = tokens[tokenIdx];
       const cleanWord = rawToken.replace(/[.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
-
-      if (slot.type === "filler") {
-        tokenIdx++;
-        continue;
-      }
 
       const posMap = POS_WORD_TO_INDEX[slot.label];
       if (!posMap) {
@@ -113,10 +136,15 @@ export function englishTextToBytes(text: string): Uint8Array {
         );
       }
 
-      bytes.push(index);
+      writer.writeBits(index, 8);
       tokenIdx++;
+    }
+
+    if (config.sentenceEndingVariance && tokens.length === template.length) {
+      const endingCode = ENDING_TO_CODE[endingStr] ?? 0;
+      writer.writeBits(endingCode, 2);
     }
   }
 
-  return new Uint8Array(bytes);
+  return writer.toBytes();
 }

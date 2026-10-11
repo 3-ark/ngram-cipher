@@ -6,13 +6,17 @@ import {
   ADJECTIVES,
   ADVERBS,
   PROPER_NOUNS,
+  DETERMINERS,
+  PREPOSITIONS,
+  CONJUNCTIONS,
+  RELATIVES,
   VOCABULARY,
   TEMPLATES,
   analyzeCarrierText
 } from "./nlg/index.js";
 
 describe("Natural Language Generation & Analysis Module", () => {
-  it("should verify that each POS list contains at least 256 unique entries", () => {
+  it("should verify that each POS list contains 256 unique entries", () => {
     const posLists = [
       { name: "NOUNS", list: NOUNS },
       { name: "VERBS", list: VERBS },
@@ -20,21 +24,25 @@ describe("Natural Language Generation & Analysis Module", () => {
       { name: "ADJECTIVES", list: ADJECTIVES },
       { name: "ADVERBS", list: ADVERBS },
       { name: "PROPER_NOUNS", list: PROPER_NOUNS },
+      { name: "DETERMINERS", list: DETERMINERS },
+      { name: "PREPOSITIONS", list: PREPOSITIONS },
+      { name: "CONJUNCTIONS", list: CONJUNCTIONS },
+      { name: "RELATIVES", list: RELATIVES },
     ];
 
     for (const { name, list } of posLists) {
-      expect(list.length).toBeGreaterThanOrEqual(256);
+      expect(list.length).toBe(256);
       const unique = new Set(list.map(w => w.toLowerCase()));
-      expect(unique.size).toBeGreaterThanOrEqual(256);
+      expect(unique.size).toBe(256);
     }
   });
 
-  it("should contain valid templates with data and filler slots", () => {
+  it("should contain valid templates with 100% data slots carrying bits", () => {
     expect(TEMPLATES.length).toBeGreaterThan(0);
     for (const template of TEMPLATES) {
       expect(template.length).toBeGreaterThan(0);
       const dataSlots = template.filter(s => s.type === "data");
-      expect(dataSlots.length).toBeGreaterThan(0);
+      expect(dataSlots.length).toBe(template.length);
     }
   });
 
