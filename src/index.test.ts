@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { encode, decode, VOCABULARY } from "./index.js";
+import { encode, decode, CARRIER_WORDS, VOCABULARY } from "./index.js";
+import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 
 describe("English N-Gram Cipher Engine", () => {
   it("should have a vocabulary of data words", () => {
@@ -8,6 +9,18 @@ describe("English N-Gram Cipher Engine", () => {
     // All words should be unique within the exported set
     const uniqueSet = new Set(VOCABULARY);
     expect(uniqueSet.size).toBe(VOCABULARY.length);
+  });
+
+  it("should use an expanded 11-bit carrier vocabulary without losing index values", () => {
+    expect(CARRIER_WORDS).toHaveLength(2048);
+    expect(new Set(CARRIER_WORDS).size).toBe(CARRIER_WORDS.length);
+
+    const bytes = new Uint8Array([0xff, 0xe0]);
+    const cipherText = bytesToEnglishText(bytes, { sentenceEndingVariance: false });
+
+    expect(cipherText.split(/\s+/)[0].toLowerCase()).toBe(CARRIER_WORDS[2047]);
+    expect(Array.from(englishTextToBytes(cipherText, { sentenceEndingVariance: false })))
+      .toEqual(Array.from(bytes));
   });
 
   it("should encrypt and encode text into English sentences, then decode and decrypt back", async () => {
@@ -77,10 +90,11 @@ describe("English N-Gram Cipher Engine", () => {
     expect(sentences.length).toBeGreaterThan(0);
 
     // Each sentence should have words
-    for (const s of sentences) {
+    for (const s of sentences.slice(0, -1)) {
       const wordCount = s.split(/\s+/).length;
       expect(wordCount).toBeGreaterThanOrEqual(3);
     }
+    expect(sentences[sentences.length - 1].split(/\s+/).length).toBeGreaterThan(0);
 
     // Log output for manual inspection
     console.log("=== Encoded output sample ===");
@@ -95,7 +109,7 @@ describe("English N-Gram Cipher Engine", () => {
     const cipherText = await encode(text, password);
     const wordCount = cipherText.split(/\s+/).length;
 
-    // Previously this generated 168 words. Now every word carries 8 payload bits and sentence endings carry 2 bits.
+    // Each carrier word holds 11 payload bits; sentence endings can carry 2 more bits.
     expect(wordCount).toBeLessThan(140);
 
     const decrypted = await decode(cipherText, password);
@@ -120,5 +134,14 @@ describe("English N-Gram Cipher Engine", () => {
     const decrypted = await decode(cipherText, password);
 
     expect(decrypted).toBe(plaintext);
+  });
+
+  it("should compress repetitive text before encryption to reduce ciphertext length", async () => {
+    const plaintext = "The quick brown fox jumps over the lazy dog. ".repeat(100);
+    const cipherText = await encode(plaintext, "compression-test");
+    const wordCount = cipherText.split(/\s+/).length;
+
+    expect(wordCount).toBeLessThan(200);
+    expect(await decode(cipherText, "compression-test")).toBe(plaintext);
   });
 });

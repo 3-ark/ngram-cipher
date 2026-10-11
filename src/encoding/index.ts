@@ -4,8 +4,9 @@
 
 import { EncodingError, EncodingConfig, DEFAULT_CONFIG } from "../config/index.js";
 import {
+  CARRIER_WORDS,
+  CARRIER_WORD_TO_INDEX,
   TEMPLATES,
-  POS_WORD_TO_INDEX,
 } from "../nlg/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
@@ -24,7 +25,7 @@ function capitalise(w: string): string {
 }
 
 /**
- * Encodes a Uint8Array byte stream into natural English prose.
+ * Encodes a Uint8Array byte stream into English-like carrier text.
  */
 export function bytesToEnglishText(
   bytes: Uint8Array,
@@ -47,8 +48,8 @@ export function bytesToEnglishText(
         break;
       }
 
-      const val = reader.readBits(8);
-      const w = slot.list[val % slot.list.length];
+      const val = reader.readBits(11);
+      const w = CARRIER_WORDS[val];
       words.push(w);
     }
 
@@ -71,7 +72,7 @@ export function bytesToEnglishText(
 }
 
 /**
- * Decodes English cipher prose back into the exact Uint8Array byte stream.
+ * Decodes carrier text back into the encoded Uint8Array byte stream.
  */
 export function englishTextToBytes(
   text: string,
@@ -123,20 +124,15 @@ export function englishTextToBytes(
       const rawToken = tokens[tokenIdx];
       const cleanWord = rawToken.replace(/[.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 
-      const posMap = POS_WORD_TO_INDEX[slot.label];
-      if (!posMap) {
-        throw new EncodingError(`Unknown POS label "${slot.label}" in template.`);
-      }
-
-      const index = posMap.get(cleanWord);
+      const index = CARRIER_WORD_TO_INDEX.get(cleanWord);
       if (index === undefined) {
         throw new EncodingError(
           `Invalid or unrecognized token in cipher text: "${rawToken}" ` +
-          `(expected POS: ${slot.label}, sentence ${sentenceIdx + 1})`
+          `(not in carrier vocabulary, sentence ${sentenceIdx + 1})`
         );
       }
 
-      writer.writeBits(index, 8);
+      writer.writeBits(index, 11);
       tokenIdx++;
     }
 

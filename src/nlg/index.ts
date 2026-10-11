@@ -1308,7 +1308,12 @@ export const VOCABULARY: string[] = (() => {
   return Array.from(all);
 })();
 
-// Templates (All slots are data slots carrying 8 bits each)
+export const CARRIER_WORDS = VOCABULARY.slice(0, 2048);
+export const CARRIER_WORD_TO_INDEX = new Map(
+  CARRIER_WORDS.map((word, index) => [word, index])
+);
+
+// Templates determine sentence shape; each word carries an 11-bit index.
 export const TEMPLATES: Slot[][] = [
   // Short templates (3-5 words)
   [D(DETERMINERS,"d"), D(NOUNS,"N"), D(VERBS_PAST,"VP")],
