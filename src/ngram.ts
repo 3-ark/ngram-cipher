@@ -9,13 +9,12 @@ import {
   mergeConfig,
   validatePassword,
   validatePlaintext,
-  StegoOptions,
-  StegoError
+  StegoOptions
 } from "./config/index.js";
 import { encryptBytes, decryptBytes } from "./crypto/index.js";
 import { packFrame, unpackFrame } from "./framing/index.js";
 import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
-import { VOCABULARY, analyzeCarrierText, CarrierAnalysis } from "./nlg/index.js";
+import { VOCABULARY, analyzeCarrierText, type CarrierAnalysis } from "./nlg/index.js";
 
 export {
   encryptBytes,
@@ -23,9 +22,10 @@ export {
   bytesToEnglishText,
   englishTextToBytes,
   VOCABULARY,
-  analyzeCarrierText,
-  CarrierAnalysis
+  analyzeCarrierText
 };
+
+export type { CarrierAnalysis };
 
 export * from "./config/index.js";
 export * from "./crypto/index.js";
