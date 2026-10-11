@@ -11,5 +11,12 @@ export {
   decryptBytes,
   bytesToEnglishText,
   englishTextToBytes,
-  VOCABULARY
+  VOCABULARY,
+  analyzeCarrierText
 } from "./ngram.js";
+
+export * from "./config/index.js";
+export * from "./crypto/index.js";
+export * from "./framing/index.js";
+export * from "./encoding/index.js";
+export * from "./nlg/index.js";
