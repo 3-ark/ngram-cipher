@@ -97,6 +97,15 @@ describe("English N-Gram Cipher Engine", () => {
     expect(Array.from(recovered)).toEqual(Array.from(testBytes));
   });
 
+  it("should vary sentence endings instead of forcing periods", async () => {
+    const plaintext = "Sentence punctuation should feel natural.";
+    const cipherText = await encode(plaintext, "punctuation-test");
+    const sentenceEnders = [...cipherText.matchAll(/[!?\.]{1,3}/g)].map(m => m[0]);
+
+    expect(sentenceEnders.length).toBeGreaterThan(0);
+    expect(new Set(sentenceEnders).size).toBeGreaterThan(1);
+  });
+
   it("should handle large messages without data loss", async () => {
     // Generate a longer message
     const plaintext = "The quick brown fox jumps over the lazy dog. ".repeat(10);

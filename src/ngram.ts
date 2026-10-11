@@ -463,6 +463,15 @@ const TEMPLATES: Slot[][] = [
 
   // 9: "The former leader strongly defended the national security policy." (5 data bytes)
   [F(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(ADVERBS,"R"), D(VERBS_PAST,"VP"), F(DETERMINERS,"d"), D(NOUNS,"N")],
+
+  // 10: "Several analysts warn that the public response remains deeply uncertain." (7 data bytes)
+  [D(ADJECTIVES,"A"), D(NOUNS,"N"), D(ADVERBS,"R"), D(VERBS,"V"), F(["that"],"r"), F(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(VERBS,"V"), D(ADVERBS,"R")],
+
+  // 11: "Authorities in Brussels have quietly expanded the new defense framework." (8 data bytes)
+  [D(NOUNS,"N"), F(PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP"), D(VERBS_PAST,"VP"), D(ADVERBS,"R"), D(VERBS_PAST,"VP"), F(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUNS,"N")],
+
+  // 12: "The university system increasingly supports the regional healthcare network." (8 data bytes)
+  [F(DETERMINERS,"d"), D(NOUNS,"N"), D(NOUNS,"N"), D(ADVERBS,"R"), D(VERBS,"V"), F(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUNS,"N")],
 ];
 
 /** Returns the data-byte capacity of a template. */
@@ -544,6 +553,8 @@ function capitalise(w: string): string {
  * POS-specific 256-word list. Filler words (determiners, prepositions,
  * conjunctions) are inserted for grammar but carry no data.
  */
+const SENTENCE_ENDINGS = [".", "!", "?", "..."];
+
 export function bytesToEnglishText(bytes: Uint8Array): string {
   const sentences: string[] = [];
   let byteIdx = 0;
@@ -576,9 +587,9 @@ export function bytesToEnglishText(bytes: Uint8Array): string {
 
     if (words.length === 0) break;
 
-    // Capitalise first word, add period
     words[0] = capitalise(words[0]);
-    const sentence = words.join(" ") + ".";
+    const ending = SENTENCE_ENDINGS[sentenceIdx % SENTENCE_ENDINGS.length];
+    const sentence = words.join(" ") + ending;
     sentences.push(sentence);
     sentenceIdx++;
   }
@@ -600,11 +611,11 @@ export function englishTextToBytes(text: string): Uint8Array {
   // Normalize: collapse whitespace, trim
   const cleanText = text.replace(/[\r\n]+/g, " ").trim();
 
-  // Split into sentences on period boundaries
-  const rawSentences = cleanText
-    .split(/\.\s*/)
+  // Split on sentence-ending punctuation while keeping the punctuation as a boundary.
+  const rawSentences = (cleanText.match(/[^.!?]+[.!?]+|[^.!?]+$/g) ?? [])
     .map(s => s.trim())
-    .filter(s => s.length > 0);
+    .filter(s => s.length > 0)
+    .map(s => s.replace(/[.!?]+$/g, ""));
 
   const bytes: number[] = [];
 
@@ -619,7 +630,7 @@ export function englishTextToBytes(text: string): Uint8Array {
       if (tokenIdx >= tokens.length) break;
 
       const rawToken = tokens[tokenIdx];
-      const cleanWord = rawToken.replace(/[.,!?;:]+$/g, "").toLowerCase();
+      const cleanWord = rawToken.replace(/[.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 
       if (slot.type === "filler") {
         // Filler — skip this token (it carries no data)
