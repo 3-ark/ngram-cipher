@@ -67,8 +67,8 @@ export interface StegoOptions {
 
 export const DEFAULT_CONFIG: StegoConfig = {
   crypto: {
-    pbkdf2Iterations: 10000,
-    saltByteLength: 8,
+    pbkdf2Iterations: 100000,
+    saltByteLength: 16,
     ivByteLength: 12,
   },
   framing: {

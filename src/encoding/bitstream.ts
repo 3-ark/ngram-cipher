@@ -12,7 +12,7 @@ export class BitStreamReader {
   }
 
   get remainingBits(): number {
-    return (this.bytes.length - this.byteIndex) * 8 - this.bitIndex;
+    return Math.max(0, (this.bytes.length - this.byteIndex) * 8 - this.bitIndex);
   }
 
   get hasBits(): boolean {
@@ -34,7 +34,7 @@ export class BitStreamReader {
         }
       }
     }
-    return result;
+    return result >>> 0;
   }
 }
 
@@ -42,7 +42,7 @@ export class BitStreamWriter {
   private bytes: number[] = [];
   private currentByte = 0;
   private bitCount = 0;
-  private totalBitsWritten = 0;
+  public totalBitsWritten = 0;
 
   writeBits(value: number, count: number): void {
     for (let i = count - 1; i >= 0; i--) {

@@ -8,6 +8,9 @@ import {
   CARRIER_WORD_TO_INDEX,
   TEMPLATES,
   rankCandidates,
+  valToRank,
+  rankToVal,
+  matchTemplate,
 } from "../nlg/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
@@ -36,30 +39,38 @@ export function bytesToEnglishText(
     return "";
   }
 
-  const reader = new BitStreamReader(bytes);
+  // Prepend payload length (32 bits uint32) to the bitstream
+  const payloadLength = bytes.length;
+  const lengthBytes = new Uint8Array(4);
+  const view = new DataView(lengthBytes.buffer);
+  view.setUint32(0, payloadLength, false);
+
+  const fullPayload = new Uint8Array(4 + bytes.length);
+  fullPayload.set(lengthBytes, 0);
+  fullPayload.set(bytes, 4);
+
+  const reader = new BitStreamReader(fullPayload);
   const sentences: string[] = [];
   let sentenceIdx = 0;
 
   while (reader.hasBits) {
-    const template = TEMPLATES[sentenceIdx % TEMPLATES.length];
-    const words: string[] = [];
+    const templateIdx = sentenceIdx % TEMPLATES.length;
+    const template = TEMPLATES[templateIdx];
 
+    const words: string[] = [];
     const context: string[] = [];
 
     for (const slot of template) {
-      if (!reader.hasBits) {
-        break;
-      }
-
       const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
       const bitCount = Math.floor(Math.log2(list.length)) || 8;
       const ranked = rankCandidates(list, context);
 
-      const val = reader.readBits(bitCount);
-      const chosenWord = ranked[val % ranked.length];
+      const val = reader.hasBits ? reader.readBits(bitCount) : 0;
+      const rank = valToRank(val, bitCount, list.length);
+      const chosenWord = ranked[rank % ranked.length];
 
       words.push(chosenWord);
-      context.push(chosenWord);
+      context.push(chosenWord.toLowerCase());
     }
 
     if (words.length === 0) break;
@@ -118,15 +129,17 @@ export function englishTextToBytes(
     }
   }
 
-  const writer = new BitStreamWriter();
+  const rawWriter = new BitStreamWriter();
 
   for (let sentenceIdx = 0; sentenceIdx < rawSentences.length; sentenceIdx++) {
-    const template = TEMPLATES[sentenceIdx % TEMPLATES.length];
     const { sentenceStr, endingStr } = rawSentences[sentenceIdx];
-
     const tokens = sentenceStr.split(/\s+/).filter(t => t.length > 0);
-    let tokenIdx = 0;
+    if (tokens.length === 0) continue;
 
+    const templateIdx = matchTemplate(tokens);
+    const template = TEMPLATES[templateIdx];
+
+    let tokenIdx = 0;
     const context: string[] = [];
 
     for (const slot of template) {
@@ -139,28 +152,34 @@ export function englishTextToBytes(
       const bitCount = Math.floor(Math.log2(list.length)) || 8;
       const ranked = rankCandidates(list, context);
 
-      let index = ranked.findIndex(w => w.toLowerCase() === cleanWord);
-      if (index === -1) {
-        const fallback = CARRIER_WORD_TO_INDEX.get(cleanWord);
-        if (fallback === undefined) {
-          throw new EncodingError(
-            `Invalid or unrecognized token in cipher text: "${rawToken}" ` +
-            `(not in carrier vocabulary, sentence ${sentenceIdx + 1})`
-          );
-        }
-        index = fallback;
+      const rank = ranked.findIndex(w => w.toLowerCase() === cleanWord);
+
+      if (rank === -1) {
+        throw new EncodingError(
+          `Invalid or unrecognized token in cipher text: "${rawToken}" ` +
+          `(not in carrier vocabulary, sentence ${sentenceIdx + 1})`
+        );
       }
 
-      writer.writeBits(index, bitCount);
+      const val = rankToVal(rank, bitCount, list.length);
+      rawWriter.writeBits(val, bitCount);
       context.push(cleanWord);
       tokenIdx++;
     }
 
-    if (config.sentenceEndingVariance && tokens.length === template.length) {
+    if (config.sentenceEndingVariance) {
       const endingCode = ENDING_TO_CODE[endingStr] ?? 0;
-      writer.writeBits(endingCode, 2);
+      rawWriter.writeBits(endingCode, 2);
     }
   }
 
-  return writer.toBytes();
+  const payloadStream = rawWriter.toBytes();
+  if (payloadStream.length < 4) {
+    return new Uint8Array(0);
+  }
+
+  const view = new DataView(payloadStream.buffer, payloadStream.byteOffset, payloadStream.byteLength);
+  const payloadLength = view.getUint32(0, false);
+
+  return payloadStream.subarray(4, 4 + payloadLength);
 }

@@ -1,5 +1,5 @@
 /**
- * 1-4 Gram N-Gram Language Model Calculation & Context Scoring Engine
+ * 1-4 Gram N-Gram Language Model Calculation Engine
  */
 
 // Common English Bigram Transitions (w1 -> Set/Map of w2 -> weight)
@@ -166,7 +166,6 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
   }
 
   // 4. Unigram Naturalness Score (weight = 1)
-  // Give slight preference to non-obscure words
   if (w.length >= 2 && w.length <= 12) {
     score += 1;
   }
@@ -198,4 +197,15 @@ export function rankCandidates(candidates: string[], context: string[]): string[
   });
 
   return scored.map(item => item.word);
+}
+
+/**
+ * 1-to-1 bijective mapping between bit val (0..N-1) and candidate rank (0..N-1).
+ */
+export function valToRank(val: number, _bitCount: number, N: number): number {
+  return val % N;
+}
+
+export function rankToVal(rank: number, _bitCount: number, N: number): number {
+  return rank % N;
 }
