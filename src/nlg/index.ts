@@ -2,6 +2,8 @@
  * Natural Language Generation Dictionaries, Templates, and Carrier-Text Analysis
  */
 
+export * from "./ngram_model.js";
+
 export type SlotType = "data" | "filler";
 
 export interface Slot {

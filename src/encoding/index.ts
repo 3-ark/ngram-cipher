@@ -7,6 +7,7 @@ import {
   CARRIER_WORDS,
   CARRIER_WORD_TO_INDEX,
   TEMPLATES,
+  rankCandidates,
 } from "../nlg/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
@@ -43,14 +44,22 @@ export function bytesToEnglishText(
     const template = TEMPLATES[sentenceIdx % TEMPLATES.length];
     const words: string[] = [];
 
+    const context: string[] = [];
+
     for (const slot of template) {
       if (!reader.hasBits) {
         break;
       }
 
-      const val = reader.readBits(11);
-      const w = CARRIER_WORDS[val];
-      words.push(w);
+      const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
+      const bitCount = Math.floor(Math.log2(list.length)) || 8;
+      const ranked = rankCandidates(list, context);
+
+      const val = reader.readBits(bitCount);
+      const chosenWord = ranked[val % ranked.length];
+
+      words.push(chosenWord);
+      context.push(chosenWord);
     }
 
     if (words.length === 0) break;
@@ -118,21 +127,32 @@ export function englishTextToBytes(
     const tokens = sentenceStr.split(/\s+/).filter(t => t.length > 0);
     let tokenIdx = 0;
 
+    const context: string[] = [];
+
     for (const slot of template) {
       if (tokenIdx >= tokens.length) break;
 
       const rawToken = tokens[tokenIdx];
       const cleanWord = rawToken.replace(/[.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 
-      const index = CARRIER_WORD_TO_INDEX.get(cleanWord);
-      if (index === undefined) {
-        throw new EncodingError(
-          `Invalid or unrecognized token in cipher text: "${rawToken}" ` +
-          `(not in carrier vocabulary, sentence ${sentenceIdx + 1})`
-        );
+      const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
+      const bitCount = Math.floor(Math.log2(list.length)) || 8;
+      const ranked = rankCandidates(list, context);
+
+      let index = ranked.findIndex(w => w.toLowerCase() === cleanWord);
+      if (index === -1) {
+        const fallback = CARRIER_WORD_TO_INDEX.get(cleanWord);
+        if (fallback === undefined) {
+          throw new EncodingError(
+            `Invalid or unrecognized token in cipher text: "${rawToken}" ` +
+            `(not in carrier vocabulary, sentence ${sentenceIdx + 1})`
+          );
+        }
+        index = fallback;
       }
 
-      writer.writeBits(index, 11);
+      writer.writeBits(index, bitCount);
+      context.push(cleanWord);
       tokenIdx++;
     }
 
