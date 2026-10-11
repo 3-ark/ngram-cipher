@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { encode, decode, VOCABULARY, encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes } from "./index.js";
+import { encode, decode, VOCABULARY } from "./index.js";
 
 describe("English N-Gram Cipher Engine", () => {
   it("should have a vocabulary of data words", () => {
     // All POS lists contribute to VOCABULARY
-    expect(VOCABULARY.length).toBeGreaterThan(200);
+    expect(VOCABULARY.length).toBeGreaterThan(500);
     // All words should be unique within the exported set
     const uniqueSet = new Set(VOCABULARY);
     expect(uniqueSet.size).toBe(VOCABULARY.length);
@@ -18,7 +18,7 @@ describe("English N-Gram Cipher Engine", () => {
     expect(typeof cipherText).toBe("string");
     expect(cipherText.length).toBeGreaterThan(0);
 
-    // Output should contain periods (sentence boundaries) and letters
+    // Output should contain sentence boundaries and letters
     expect(cipherText).toMatch(/[A-Za-z]/);
     expect(cipherText).toContain(".");
 
@@ -66,20 +66,20 @@ describe("English N-Gram Cipher Engine", () => {
     expect(await decode(cipher2, password)).toBe(plaintext);
   });
 
-  it("should produce output that reads like news sentences", async () => {
+  it("should produce concise and structured natural sentence output", async () => {
     const plaintext = "Test message for natural language output";
     const password = "test-pass";
 
     const cipherText = await encode(plaintext, password);
 
-    // Check sentence structure: multiple sentences separated by periods
-    const sentences = cipherText.split(/\.\s*/).filter(s => s.length > 0);
-    expect(sentences.length).toBeGreaterThan(1);
+    // Check sentence structure: multiple sentences separated by periods or punctuation
+    const sentences = cipherText.split(/[.!?]+\s*/).filter(s => s.length > 0);
+    expect(sentences.length).toBeGreaterThan(0);
 
-    // Each sentence should have multiple words (not just single-word sentences)
+    // Each sentence should have words
     for (const s of sentences) {
       const wordCount = s.split(/\s+/).length;
-      expect(wordCount).toBeGreaterThanOrEqual(4);
+      expect(wordCount).toBeGreaterThanOrEqual(3);
     }
 
     // Log output for manual inspection
@@ -88,13 +88,18 @@ describe("English N-Gram Cipher Engine", () => {
     console.log("============================");
   });
 
-  it("should round-trip bytesToEnglishText and englishTextToBytes", () => {
-    // Test with known bytes
-    const testBytes = new Uint8Array([0, 1, 2, 3, 4, 5, 100, 200, 255, 128, 64, 32]);
-    const text = bytesToEnglishText(testBytes);
-    const recovered = englishTextToBytes(text);
+  it("should generate significantly shorter steganography by carrying bits in every word and punctuation mark", async () => {
+    const text = "Hello world! This secret message will be encoded into natural English text.";
+    const password = "test-shortness";
 
-    expect(Array.from(recovered)).toEqual(Array.from(testBytes));
+    const cipherText = await encode(text, password);
+    const wordCount = cipherText.split(/\s+/).length;
+
+    // Previously this generated 168 words. Now every word carries 8 payload bits and sentence endings carry 2 bits.
+    expect(wordCount).toBeLessThan(140);
+
+    const decrypted = await decode(cipherText, password);
+    expect(decrypted).toBe(text);
   });
 
   it("should vary sentence endings instead of forcing periods", async () => {

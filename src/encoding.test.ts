@@ -23,7 +23,7 @@ describe("Reversible Encoding and Decoding Module", () => {
       expect(ender).toBe(".");
     }
 
-    const recovered = englishTextToBytes(text);
+    const recovered = englishTextToBytes(text, { sentenceEndingVariance: false });
     expect(Array.from(recovered)).toEqual(Array.from(testBytes));
   });
 
