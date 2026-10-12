@@ -54,8 +54,8 @@ export function bytesToEnglishText(
   let sentenceIdx = 0;
 
   while (reader.hasBits) {
-    const templateIdx = sentenceIdx % TEMPLATES.length;
-    const template = TEMPLATES[templateIdx];
+    const templateIdx = reader.hasBits ? reader.readBits(3) : 0;
+    const template = TEMPLATES[templateIdx % TEMPLATES.length];
 
     const words: string[] = [];
     const context: string[] = [];
@@ -137,6 +137,8 @@ export function englishTextToBytes(
     if (tokens.length === 0) continue;
 
     const templateIdx = matchTemplate(tokens);
+    rawWriter.writeBits(templateIdx, 3);
+
     const template = TEMPLATES[templateIdx];
 
     let tokenIdx = 0;
