@@ -102,9 +102,13 @@ export function xorBytes(data: Uint8Array, keystream: Uint8Array): Uint8Array {
 }
 
 /**
- * Derives a keystream of specified length from a password using Web Crypto SHA-256 HKDF/PBKDF2.
+ * Derives a keystream of specified length from a password and salt using Web Crypto SHA-256.
  */
-export async function deriveKeystream(password: string, length: number): Promise<Uint8Array> {
+export async function deriveKeystream(
+  password: string,
+  salt: Uint8Array,
+  length: number
+): Promise<Uint8Array> {
   const enc = new TextEncoder();
   const passwordBytes = enc.encode(password);
   const keystream = new Uint8Array(length);
@@ -113,10 +117,11 @@ export async function deriveKeystream(password: string, length: number): Promise
   let filled = 0;
 
   while (filled < length) {
-    const blockInput = new Uint8Array(passwordBytes.length + 4);
+    const blockInput = new Uint8Array(passwordBytes.length + salt.length + 4);
     blockInput.set(passwordBytes, 0);
+    blockInput.set(salt, passwordBytes.length);
     const view = new DataView(blockInput.buffer);
-    view.setUint32(passwordBytes.length, counter++, false);
+    view.setUint32(passwordBytes.length + salt.length, counter++, false);
 
     const hashBuffer = await webCrypto.subtle.digest("SHA-256", blockInput);
     const hashBytes = new Uint8Array(hashBuffer);
