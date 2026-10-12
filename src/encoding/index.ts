@@ -8,7 +8,7 @@ import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
 export { BitStreamReader, BitStreamWriter };
 
-const BITS_PER_WORD = 4;
+const BITS_PER_WORD = 8;
 const WORD_OPTIONS = 1 << BITS_PER_WORD;
 const WORDS_PER_SENTENCE = 12;
 
@@ -26,9 +26,10 @@ export function bytesToEnglishText(
     return "";
   }
 
-  const fullPayload = new Uint8Array(bytes.length + 4);
+  const fullPayloadLength = Math.ceil((bytes.length + 4) / 3) * 3;
+  const fullPayload = new Uint8Array(fullPayloadLength);
   fullPayload.set(bytes);
-  new DataView(fullPayload.buffer).setUint32(bytes.length, bytes.length, false);
+  new DataView(fullPayload.buffer).setUint32(fullPayloadLength - 4, bytes.length, false);
 
   const reader = new BitStreamReader(fullPayload);
   const words: string[] = [];
