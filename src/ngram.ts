@@ -12,7 +12,7 @@ import {
   validatePlaintext,
   StegoOptions
 } from "./config/index.js";
-import { encryptBytes, decryptBytes } from "./crypto/index.js";
+import { encryptBytes, decryptBytes, deriveKeystream, xorBytes } from "./crypto/index.js";
 import { packFrame, unpackFrame } from "./framing/index.js";
 import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 import { VOCABULARY, analyzeCarrierText, type CarrierAnalysis } from "./nlg/index.js";
@@ -88,8 +88,13 @@ export async function encode(
   // 2. Pack encrypted ciphertext into binary frame envelope
   const framed = packFrame(encrypted, config.framing);
 
-  // 3. Encode binary frame into English prose
-  return bytesToEnglishText(framed, config.encoding);
+  // 3. Whitening: XOR framed binary envelope with password-derived keystream before POS encoding
+  // This removes static magic headers (0x4e 0x47) and zero padding, randomizing initial sentence templates & word selections!
+  const keystream = await deriveKeystream(password, framed.length);
+  const whitened = xorBytes(framed, keystream);
+
+  // 4. Encode whitened binary stream into English prose
+  return bytesToEnglishText(whitened, config.encoding);
 }
 
 /**
@@ -104,8 +109,19 @@ export async function decode(
   validatePassword(password);
 
   const config = mergeConfig(options);
-  const bytes = englishTextToBytes(cipherText, config.encoding);
-  const { payload } = unpackFrame(bytes, config.framing);
+  const whitenedBytes = englishTextToBytes(cipherText, config.encoding);
+
+  // Reverse whitening
+  const keystream = await deriveKeystream(password, whitenedBytes.length);
+  const framedBytes = xorBytes(whitenedBytes, keystream);
+
+  let payload: Uint8Array;
+  try {
+    const unpacked = unpackFrame(framedBytes, config.framing);
+    payload = unpacked.payload;
+  } catch {
+    throw new CryptoError("Decryption failed: Incorrect password or corrupted text.");
+  }
 
   // Decrypt payload
   const decryptedBytes = await decryptBytes(payload, password, config.crypto);

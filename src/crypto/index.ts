@@ -90,6 +90,45 @@ export async function encryptBytes(
 /**
  * Decrypts AES-GCM payload formatted as [Salt (saltByteLength)][IV (ivByteLength)][Ciphertext + AuthTag].
  */
+/**
+ * XORs a data buffer with a keystream buffer in-place or returning a new buffer.
+ */
+export function xorBytes(data: Uint8Array, keystream: Uint8Array): Uint8Array {
+  const result = new Uint8Array(data.length);
+  for (let i = 0; i < data.length; i++) {
+    result[i] = data[i] ^ (keystream[i % keystream.length] || 0);
+  }
+  return result;
+}
+
+/**
+ * Derives a keystream of specified length from a password using Web Crypto SHA-256 HKDF/PBKDF2.
+ */
+export async function deriveKeystream(password: string, length: number): Promise<Uint8Array> {
+  const enc = new TextEncoder();
+  const passwordBytes = enc.encode(password);
+  const keystream = new Uint8Array(length);
+
+  let counter = 0;
+  let filled = 0;
+
+  while (filled < length) {
+    const blockInput = new Uint8Array(passwordBytes.length + 4);
+    blockInput.set(passwordBytes, 0);
+    const view = new DataView(blockInput.buffer);
+    view.setUint32(passwordBytes.length, counter++, false);
+
+    const hashBuffer = await webCrypto.subtle.digest("SHA-256", blockInput);
+    const hashBytes = new Uint8Array(hashBuffer);
+
+    const toCopy = Math.min(hashBytes.length, length - filled);
+    keystream.set(hashBytes.subarray(0, toCopy), filled);
+    filled += toCopy;
+  }
+
+  return keystream;
+}
+
 export async function decryptBytes(
   payload: Uint8Array,
   password: string,
