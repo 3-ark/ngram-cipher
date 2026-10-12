@@ -127,6 +127,11 @@ const FOURGRAM_MAP: Record<string, Record<string, number>> = {
   "the United States": { announced: 10, signed: 9, warned: 8, supported: 8 }
 };
 
+import newsNGrams from "./news_ngrams.json" with { type: "json" };
+
+const CORPUS_BIGRAMS: Record<string, Record<string, number>> = (newsNGrams as any).bigrams || {};
+const CORPUS_TRIGRAMS: Record<string, Record<string, number>> = (newsNGrams as any).trigrams || {};
+
 /**
  * Calculates 1-4 gram language model score for a candidate word given prior context words.
  */
@@ -155,6 +160,10 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
     if (map3 && map3[w]) {
       score += 100 * map3[w];
     }
+    const corpusTrigram = CORPUS_TRIGRAMS[key3];
+    if (corpusTrigram && corpusTrigram[w]) {
+      score += 100 * corpusTrigram[w];
+    }
   }
 
   // 3. 2-Gram Score (weight = 10)
@@ -162,6 +171,10 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
     const map2 = BIGRAM_MAP[w1];
     if (map2 && map2[w]) {
       score += 10 * map2[w];
+    }
+    const corpusBigram = CORPUS_BIGRAMS[w1];
+    if (corpusBigram && corpusBigram[w]) {
+      score += 10 * corpusBigram[w];
     }
   }
 
