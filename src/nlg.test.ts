@@ -12,10 +12,21 @@ import {
   RELATIVES,
   VOCABULARY,
   TEMPLATES,
-  analyzeCarrierText
+  analyzeCarrierText,
+  getCandidates
 } from "./nlg/index.js";
 
 describe("Natural Language Generation & Analysis Module", () => {
+  it("should generate dynamic candidate word lists using Google Books N-grams", () => {
+    const candidatesStart = getCandidates([], 256);
+    expect(candidatesStart.length).toBe(256);
+    expect(candidatesStart).toContain("the");
+
+    const candidatesInThe = getCandidates(["in", "the"], 256);
+    expect(candidatesInThe.length).toBe(256);
+    expect(candidatesInThe).toContain("united");
+  });
+
   it("should verify that each POS list contains 256 unique entries", () => {
     const posLists = [
       { name: "NOUNS", list: NOUNS },

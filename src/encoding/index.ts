@@ -1,17 +1,9 @@
 /**
- * Reversible Encoding and Decoding Engine
+ * Dynamic N-Gram Reversible Encoding and Decoding Engine
  */
 
 import { EncodingError, EncodingConfig, DEFAULT_CONFIG } from "../config/index.js";
-import {
-  CARRIER_WORDS,
-  CARRIER_WORD_TO_INDEX,
-  TEMPLATES,
-  rankCandidates,
-  valToRank,
-  rankToVal,
-  matchTemplate,
-} from "../nlg/index.js";
+import { getCandidates } from "../nlg/ngram_model.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
 export { BitStreamReader, BitStreamWriter };
@@ -29,7 +21,7 @@ function capitalise(w: string): string {
 }
 
 /**
- * Encodes a Uint8Array byte stream into English-like carrier text.
+ * Encodes a Uint8Array byte stream into English prose using dynamic Google Books N-Grams.
  */
 export function bytesToEnglishText(
   bytes: Uint8Array,
@@ -51,23 +43,26 @@ export function bytesToEnglishText(
 
   const reader = new BitStreamReader(fullPayload);
   const sentences: string[] = [];
-  let sentenceIdx = 0;
+  const context: string[] = [];
 
   while (reader.hasBits) {
-    const templateIdx = reader.hasBits ? reader.readBits(3) : 0;
-    const template = TEMPLATES[templateIdx % TEMPLATES.length];
+    // 3 bits for sentence word count (3 to 10 words)
+    const lenCode = reader.hasBits ? reader.readBits(3) : 0;
+    const wordCount = 3 + lenCode;
+
+    // 2 bits for sentence ending punctuation
+    let endingCode = 0;
+    if (config.sentenceEndingVariance && reader.hasBits) {
+      endingCode = reader.readBits(2);
+    }
+    const ending = SENTENCE_ENDINGS[endingCode % SENTENCE_ENDINGS.length];
 
     const words: string[] = [];
-    const context: string[] = [];
 
-    for (const slot of template) {
-      const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
-      const bitCount = Math.floor(Math.log2(list.length)) || 8;
-      const ranked = rankCandidates(list, context);
-
-      const val = reader.hasBits ? reader.readBits(bitCount) : 0;
-      const rank = valToRank(val, bitCount, list.length);
-      const chosenWord = ranked[rank % ranked.length];
+    for (let i = 0; i < wordCount; i++) {
+      const candidates = getCandidates(context, 256);
+      const val = reader.hasBits ? reader.readBits(8) : 0;
+      const chosenWord = candidates[val % candidates.length];
 
       words.push(chosenWord);
       context.push(chosenWord.toLowerCase());
@@ -76,23 +71,15 @@ export function bytesToEnglishText(
     if (words.length === 0) break;
 
     words[0] = capitalise(words[0]);
-
-    let ending = ".";
-    if (config.sentenceEndingVariance) {
-      const endingCode = reader.hasBits ? reader.readBits(2) : 0;
-      ending = SENTENCE_ENDINGS[endingCode % SENTENCE_ENDINGS.length];
-    }
-
     const sentence = words.join(" ") + ending;
     sentences.push(sentence);
-    sentenceIdx++;
   }
 
   return sentences.join(" ");
 }
 
 /**
- * Decodes carrier text back into the encoded Uint8Array byte stream.
+ * Decodes carrier text back into the original encoded Uint8Array byte stream.
  */
 export function englishTextToBytes(
   text: string,
@@ -130,48 +117,38 @@ export function englishTextToBytes(
   }
 
   const rawWriter = new BitStreamWriter();
+  const context: string[] = [];
 
   for (let sentenceIdx = 0; sentenceIdx < rawSentences.length; sentenceIdx++) {
     const { sentenceStr, endingStr } = rawSentences[sentenceIdx];
     const tokens = sentenceStr.split(/\s+/).filter(t => t.length > 0);
     if (tokens.length === 0) continue;
 
-    const templateIdx = matchTemplate(tokens);
-    rawWriter.writeBits(templateIdx, 3);
-
-    const template = TEMPLATES[templateIdx];
-
-    let tokenIdx = 0;
-    const context: string[] = [];
-
-    for (const slot of template) {
-      if (tokenIdx >= tokens.length) break;
-
-      const rawToken = tokens[tokenIdx];
-      const cleanWord = rawToken.replace(/[.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
-
-      const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
-      const bitCount = Math.floor(Math.log2(list.length)) || 8;
-      const ranked = rankCandidates(list, context);
-
-      const rank = ranked.findIndex(w => w.toLowerCase() === cleanWord);
-
-      if (rank === -1) {
-        throw new EncodingError(
-          `Invalid or unrecognized token in cipher text: "${rawToken}" ` +
-          `(not in carrier vocabulary, sentence ${sentenceIdx + 1})`
-        );
-      }
-
-      const val = rankToVal(rank, bitCount, list.length);
-      rawWriter.writeBits(val, bitCount);
-      context.push(cleanWord);
-      tokenIdx++;
-    }
+    const wordCount = tokens.length;
+    const lenCode = Math.min(7, Math.max(0, wordCount - 3));
+    rawWriter.writeBits(lenCode, 3);
 
     if (config.sentenceEndingVariance) {
       const endingCode = ENDING_TO_CODE[endingStr] ?? 0;
       rawWriter.writeBits(endingCode, 2);
+    }
+
+    for (let tokenIdx = 0; tokenIdx < tokens.length; tokenIdx++) {
+      const rawToken = tokens[tokenIdx];
+      const cleanWord = rawToken.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+
+      const candidates = getCandidates(context, 256);
+      const rank = candidates.indexOf(cleanWord);
+
+      if (rank === -1) {
+        throw new EncodingError(
+          `Invalid or unrecognized token in cipher text: "${rawToken}" ` +
+          `(not in dynamic N-gram vocabulary for sentence ${sentenceIdx + 1})`
+        );
+      }
+
+      rawWriter.writeBits(rank, 8);
+      context.push(cleanWord);
     }
   }
 
