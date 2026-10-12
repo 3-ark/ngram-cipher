@@ -10,20 +10,20 @@ describe("English N-Gram Cipher Engine", () => {
     expect(uniqueSet.size).toBe(VOCABULARY.length);
   });
 
-  it("should encode six data bits using 64 context-ranked n-gram continuations", () => {
+  it("should encode eight data bits using 256 context-ranked n-gram continuations", () => {
     const bytes = new Uint8Array([0xff, 0xe0, 0x31]);
     const cipherText = bytesToEnglishText(bytes);
 
     const tokens = cipherText.toLowerCase().match(/[a-z0-9]+/g) || [];
     const paddedByteLength = Math.ceil((bytes.length + 4) / 3) * 3;
-    const encodedTokenCount = paddedByteLength * 8 / 6;
+    const encodedTokenCount = paddedByteLength;
     let context: string[] = [];
     for (const token of tokens.slice(0, encodedTokenCount)) {
-      expect(getCandidates(context, 64)).toContain(token);
+      expect(getCandidates(context, 256)).toContain(token);
       context = [...context, token].slice(-4);
     }
     expect(tokens).toHaveLength(encodedTokenCount);
-    expect(tokens[0]).toBe(getCandidates([], 64)[bytes[0] >> 2]);
+    expect(tokens[0]).toBe(getCandidates([], 256)[bytes[0]]);
     expect(Array.from(englishTextToBytes(cipherText))).toEqual(Array.from(bytes));
   });
 
