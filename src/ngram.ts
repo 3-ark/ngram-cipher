@@ -12,7 +12,7 @@ import {
   validatePlaintext,
   StegoOptions
 } from "./config/index.js";
-import { encryptBytes, decryptBytes } from "./crypto/index.js";
+import { encryptBytes, decryptBytes, deriveKeystream, xorBytes } from "./crypto/index.js";
 import { packFrame, unpackFrame } from "./framing/index.js";
 import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 import { VOCABULARY, analyzeCarrierText, type CarrierAnalysis } from "./nlg/index.js";
@@ -88,8 +88,23 @@ export async function encode(
   // 2. Pack encrypted ciphertext into binary frame envelope
   const framed = packFrame(encrypted, config.framing);
 
-  // 3. Encode binary frame into English prose
-  return bytesToEnglishText(framed, config.encoding);
+  // 3. Stego Whitening Layer:
+  // Salt (16 B) is placed at offset 0 of framed envelope.
+  // To whiten salt at offset 0..15: XOR with passwordKeystream = SHA256(password).
+  // Since salt is pure random hardware entropy per message, (salt ^ SHA256(password)) is 100% random per run!
+  // The remainder of the frame (offset 16..N) is whitened with keystream derived from (password + salt).
+  const saltLength = config.crypto.saltByteLength;
+  const salt = encrypted.subarray(0, saltLength);
+
+  const passwordKeystream = await deriveKeystream(password, new Uint8Array(0), saltLength);
+  const payloadKeystream = await deriveKeystream(password, salt, framed.length - saltLength);
+
+  const whitenedFrame = new Uint8Array(framed.length);
+  whitenedFrame.set(xorBytes(framed.subarray(0, saltLength), passwordKeystream), 0);
+  whitenedFrame.set(xorBytes(framed.subarray(saltLength), payloadKeystream), saltLength);
+
+  // 4. Encode whitened binary stream into English prose
+  return bytesToEnglishText(whitenedFrame, config.encoding);
 }
 
 /**
@@ -104,8 +119,32 @@ export async function decode(
   validatePassword(password);
 
   const config = mergeConfig(options);
-  const bytes = englishTextToBytes(cipherText, config.encoding);
-  const { payload } = unpackFrame(bytes, config.framing);
+  const whitenedBytes = englishTextToBytes(cipherText, config.encoding);
+
+  const saltLength = config.crypto.saltByteLength;
+  if (whitenedBytes.length < saltLength) {
+    throw new CryptoError("Invalid ciphertext: Payload too short.");
+  }
+
+  // Recover salt at offset 0 by un-whitening with passwordKeystream = SHA256(password)
+  const passwordKeystream = await deriveKeystream(password, new Uint8Array(0), saltLength);
+  const recoveredSalt = xorBytes(whitenedBytes.subarray(0, saltLength), passwordKeystream);
+
+  // Un-whiten payload using keystream derived from (password + recoveredSalt)
+  const payloadKeystream = await deriveKeystream(password, recoveredSalt, whitenedBytes.length - saltLength);
+  const unwhitenedPayload = xorBytes(whitenedBytes.subarray(saltLength), payloadKeystream);
+
+  const framedBytes = new Uint8Array(whitenedBytes.length);
+  framedBytes.set(recoveredSalt, 0);
+  framedBytes.set(unwhitenedPayload, saltLength);
+
+  let payload: Uint8Array;
+  try {
+    const unpacked = unpackFrame(framedBytes, config.framing);
+    payload = unpacked.payload;
+  } catch {
+    throw new CryptoError("Decryption failed: Incorrect password or corrupted text.");
+  }
 
   // Decrypt payload
   const decryptedBytes = await decryptBytes(payload, password, config.crypto);

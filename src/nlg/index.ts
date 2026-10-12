@@ -115,28 +115,28 @@ export const CARRIER_WORD_TO_INDEX = new Map(
 
 // 8 Distinct Word-Length Grammatical Templates for Bulletproof Dynamic Matching
 export const TEMPLATES: Slot[][] = [
-  // 0: Length 3
-  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(VERBS_PAST,"VP")],
+  // 0: Length 3 (Proper Noun + Verb Past + Noun)
+  [D(PROPER_NOUNS,"NP"), D(VERBS_PAST,"VP"), D(NOUNS,"N")],
 
-  // 1: Length 4
-  [D(PROPER_NOUNS,"NP"), D(VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(NOUNS,"N")],
+  // 1: Length 4 (Determiner + Adjective + Noun + Verb Past)
+  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(VERBS_PAST,"VP")],
 
-  // 2: Length 5
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(VERBS_PAST,"VP"), D(PREPOSITIONS,"p")],
+  // 2: Length 5 (Adverb + Proper Noun + Verb Past + Determiner + Noun)
+  [D(ADVERBS,"R"), D(PROPER_NOUNS,"NP"), D(VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(NOUNS,"N")],
 
-  // 3: Length 6
-  [D(PROPER_NOUNS,"NP"), D(ADVERBS,"R"), D(VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
+  // 3: Length 6 (Preposition + Proper Noun + Noun + Verb Past + Adjective + Noun)
+  [D(PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP"), D(NOUNS,"N"), D(VERBS_PAST,"VP"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
 
-  // 4: Length 7
+  // 4: Length 7 (Determiner + Adjective + Noun + Verb + Preposition + Determiner + Noun)
   [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(VERBS,"V"), D(PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N")],
 
-  // 5: Length 8
-  [D(PROPER_NOUNS,"NP"), D(ADVERBS,"R"), D(VERBS_PAST,"VP"), D(PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(PREPOSITIONS,"p")],
+  // 5: Length 8 (Adverb + Determiner + Adjective + Noun + Verb Past + Preposition + Proper Noun + Noun)
+  [D(ADVERBS,"R"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(VERBS_PAST,"VP"), D(PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP"), D(NOUNS,"N")],
 
-  // 6: Length 9
-  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(ADVERBS,"R"), D(VERBS,"V"), D(CONJUNCTIONS,"c"), D(PROPER_NOUNS,"NP"), D(VERBS_PAST,"VP"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
+  // 6: Length 9 (Proper Noun + Adverb + Verb Past + Determiner + Adjective + Noun + Preposition + Determiner + Noun)
+  [D(PROPER_NOUNS,"NP"), D(ADVERBS,"R"), D(VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N")],
 
-  // 7: Length 10
+  // 7: Length 10 (Determiner + Adjective + Noun + Verb Past + Preposition + Determiner + Adjective + Noun + Adverb + Verb)
   [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(VERBS_PAST,"VP"), D(PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(ADVERBS,"R"), D(VERBS,"V")]
 ];
 

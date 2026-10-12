@@ -39,22 +39,23 @@ export function bytesToEnglishText(
     return "";
   }
 
-  // Prepend payload length (32 bits uint32) to the bitstream
+  // Append payload length (16-bit uint16) to the END of fullPayload so bit 0 comes directly from bytes[0]!
+  // This guarantees that bit 0 comes from whitened AES salt, making sentence 1 opening words 100% random and unique per run!
   const payloadLength = bytes.length;
-  const lengthBytes = new Uint8Array(4);
+  const lengthBytes = new Uint8Array(2);
   const view = new DataView(lengthBytes.buffer);
-  view.setUint32(0, payloadLength, false);
+  view.setUint16(0, payloadLength, false);
 
-  const fullPayload = new Uint8Array(4 + bytes.length);
-  fullPayload.set(lengthBytes, 0);
-  fullPayload.set(bytes, 4);
+  const fullPayload = new Uint8Array(bytes.length + 2);
+  fullPayload.set(bytes, 0);
+  fullPayload.set(lengthBytes, bytes.length);
 
   const reader = new BitStreamReader(fullPayload);
   const sentences: string[] = [];
   let sentenceIdx = 0;
 
   while (reader.hasBits) {
-    const templateIdx = sentenceIdx % TEMPLATES.length;
+    const templateIdx = reader.hasBits ? reader.readBits(3) : 0;
     const template = TEMPLATES[templateIdx];
 
     const words: string[] = [];
@@ -137,6 +138,7 @@ export function englishTextToBytes(
     if (tokens.length === 0) continue;
 
     const templateIdx = matchTemplate(tokens);
+    rawWriter.writeBits(templateIdx, 3);
     const template = TEMPLATES[templateIdx];
 
     let tokenIdx = 0;
@@ -174,12 +176,13 @@ export function englishTextToBytes(
   }
 
   const payloadStream = rawWriter.toBytes();
-  if (payloadStream.length < 4) {
+  if (payloadStream.length < 2) {
     return new Uint8Array(0);
   }
 
   const view = new DataView(payloadStream.buffer, payloadStream.byteOffset, payloadStream.byteLength);
-  const payloadLength = view.getUint32(0, false);
+  // Payload length is stored in the last 2 bytes of payloadStream
+  const payloadLength = view.getUint16(payloadStream.length - 2, false);
 
-  return payloadStream.subarray(4, 4 + payloadLength);
+  return payloadStream.subarray(0, Math.min(payloadLength, payloadStream.length - 2));
 }
