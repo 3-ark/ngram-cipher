@@ -4,95 +4,69 @@
 
 import googleNGrams from "./google_books_ngrams.json" with { type: "json" };
 
-export const UNIGRAMS: Record<string, number> = (googleNGrams as any).unigrams || {};
-export const BIGRAMS: Record<string, Record<string, number>> = (googleNGrams as any).bigrams || {};
-export const TRIGRAMS: Record<string, Record<string, number>> = (googleNGrams as any).trigrams || {};
-export const FOURGRAMS: Record<string, Record<string, number>> = (googleNGrams as any).fourgrams || {};
-export const FIVEGRAMS: Record<string, Record<string, number>> = (googleNGrams as any).fivegrams || {};
+interface GoogleBooksNGramData {
+  unigrams: Record<string, number>;
+  bigrams: Record<string, Record<string, number>>;
+  trigrams: Record<string, Record<string, number>>;
+  fourgrams: Record<string, Record<string, number>>;
+  fivegrams: Record<string, Record<string, number>>;
+}
 
-export const TOP_UNIGRAMS: string[] = Object.keys(UNIGRAMS).sort((a, b) => (UNIGRAMS[b] || 0) - (UNIGRAMS[a] || 0));
+const model: GoogleBooksNGramData = googleNGrams;
+
+export const UNIGRAMS = model.unigrams;
+export const BIGRAMS = model.bigrams;
+export const TRIGRAMS = model.trigrams;
+export const FOURGRAMS = model.fourgrams;
+export const FIVEGRAMS = model.fivegrams;
+
+const isWord = (word: string): boolean => /^[a-z0-9]+$/i.test(word);
+
+export const TOP_UNIGRAMS: string[] = Object.keys(UNIGRAMS)
+  .filter(isWord)
+  .sort((a, b) => UNIGRAMS[b] - UNIGRAMS[a] || a.localeCompare(b));
 
 /**
  * Dynamically builds N candidate continuations given prior context words using Google Books 1-5 Grams.
  */
 export function getCandidates(context: string[], N: number = 256): string[] {
-  const candScores: Record<string, number> = {};
-  const len = context.length;
-  const w1 = len >= 1 ? context[len - 1].toLowerCase() : "";
-  const w2 = len >= 2 ? context[len - 2].toLowerCase() : "";
-  const w3 = len >= 3 ? context[len - 3].toLowerCase() : "";
-  const w4 = len >= 4 ? context[len - 4].toLowerCase() : "";
+  if (!Number.isInteger(N) || N <= 0) return [];
 
-  // 1. 5-gram continuations
-  if (w1 && w2 && w3 && w4) {
-    const key5 = `${w4} ${w3} ${w2} ${w1}`;
-    const map5 = FIVEGRAMS[key5];
-    if (map5) {
-      for (const [w, freq] of Object.entries(map5)) {
-        candScores[w] = (candScores[w] || 0) + 1000000 * Math.log10(freq + 1);
-      }
-    }
-  }
+  const words = context.slice(-4).map(word => word.toLowerCase());
+  const candidateMaps: (Record<string, number> | undefined)[] = [];
 
-  // 2. 4-gram continuations
-  if (w1 && w2 && w3) {
-    const key4 = `${w3} ${w2} ${w1}`;
-    const map4 = FOURGRAMS[key4];
-    if (map4) {
-      for (const [w, freq] of Object.entries(map4)) {
-        candScores[w] = (candScores[w] || 0) + 100000 * Math.log10(freq + 1);
-      }
-    }
-  }
-
-  // 3. 3-gram continuations
-  if (w1 && w2) {
-    const key3 = `${w2} ${w1}`;
-    const map3 = TRIGRAMS[key3];
-    if (map3) {
-      for (const [w, freq] of Object.entries(map3)) {
-        candScores[w] = (candScores[w] || 0) + 10000 * Math.log10(freq + 1);
-      }
-    }
-  }
-
-  // 4. 2-gram continuations
-  if (w1) {
-    const map2 = BIGRAMS[w1];
-    if (map2) {
-      for (const [w, freq] of Object.entries(map2)) {
-        candScores[w] = (candScores[w] || 0) + 100 * Math.log10(freq + 1);
-      }
-    }
-  }
-
-  // Sort matched candidates by score
-  const matched = Object.keys(candScores).sort((a, b) => {
-    if (candScores[b] !== candScores[a]) return candScores[b] - candScores[a];
-    const uA = UNIGRAMS[a] || 0;
-    const uB = UNIGRAMS[b] || 0;
-    if (uB !== uA) return uB - uA;
-    return a.localeCompare(b);
-  });
+  if (words.length >= 4) candidateMaps.push(FIVEGRAMS[words.slice(-4).join(" ")]);
+  if (words.length >= 3) candidateMaps.push(FOURGRAMS[words.slice(-3).join(" ")]);
+  if (words.length >= 2) candidateMaps.push(TRIGRAMS[words.slice(-2).join(" ")]);
+  if (words.length >= 1) candidateMaps.push(BIGRAMS[words[words.length - 1]]);
 
   const candidates: string[] = [];
-  const set = new Set<string>();
-  for (const c of matched) {
-    if (!set.has(c)) {
-      set.add(c);
-      candidates.push(c);
-      if (candidates.length >= N) break;
+  const seen = new Set<string>();
+
+  const addCandidates = (frequencies: Record<string, number>): void => {
+    const ranked = Object.entries(frequencies)
+      .filter(([word]) => isWord(word))
+      .sort(([wordA, countA], [wordB, countB]) => countB - countA || wordA.localeCompare(wordB));
+
+    for (const [word] of ranked) {
+      if (!seen.has(word)) {
+        seen.add(word);
+        candidates.push(word);
+        if (candidates.length >= N) return;
+      }
     }
+  };
+
+  for (const frequencies of candidateMaps) {
+    if (frequencies) addCandidates(frequencies);
+    if (candidates.length >= N) return candidates;
   }
 
-  // Fill remaining slots up to N with top unigrams
-  if (candidates.length < N) {
-    for (const u of TOP_UNIGRAMS) {
-      if (!set.has(u)) {
-        set.add(u);
-        candidates.push(u);
-        if (candidates.length >= N) break;
-      }
+  for (const word of TOP_UNIGRAMS) {
+    if (!seen.has(word)) {
+      seen.add(word);
+      candidates.push(word);
+      if (candidates.length >= N) break;
     }
   }
 

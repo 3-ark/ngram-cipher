@@ -104,7 +104,7 @@ export async function encode(
   whitenedFrame.set(xorBytes(framed.subarray(saltLength), payloadKeystream), saltLength);
 
   // 4. Encode whitened binary stream into English prose
-  return bytesToEnglishText(whitenedFrame, config.encoding);
+  return bytesToEnglishText(whitenedFrame);
 }
 
 /**
@@ -119,7 +119,7 @@ export async function decode(
   validatePassword(password);
 
   const config = mergeConfig(options);
-  const whitenedBytes = englishTextToBytes(cipherText, config.encoding);
+  const whitenedBytes = englishTextToBytes(cipherText);
 
   const saltLength = config.crypto.saltByteLength;
   if (whitenedBytes.length < saltLength) {

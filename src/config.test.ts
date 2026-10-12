@@ -38,7 +38,6 @@ describe("Configuration and Validation Module", () => {
     expect(merged.crypto.pbkdf2Iterations).toBe(50000);
     expect(merged.crypto.saltByteLength).toBe(DEFAULT_CONFIG.crypto.saltByteLength);
     expect(merged.framing.enableChecksum).toBe(false);
-    expect(merged.encoding.sentenceEndingVariance).toBe(true);
   });
 
   it("should validate passwords correctly", () => {

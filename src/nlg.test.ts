@@ -1,63 +1,35 @@
 import { describe, it, expect } from "vitest";
 import {
-  NOUNS,
-  VERBS,
-  VERBS_PAST,
-  ADJECTIVES,
-  ADVERBS,
-  PROPER_NOUNS,
-  DETERMINERS,
-  PREPOSITIONS,
-  CONJUNCTIONS,
-  RELATIVES,
   VOCABULARY,
-  TEMPLATES,
+  UNIGRAMS,
   analyzeCarrierText,
   getCandidates
 } from "./nlg/index.js";
 
-describe("Natural Language Generation & Analysis Module", () => {
-  it("should generate dynamic candidate word lists using Google Books N-grams", () => {
-    const candidatesStart = getCandidates([], 256);
-    expect(candidatesStart.length).toBe(256);
-    expect(candidatesStart).toContain("the");
+describe("Google Books N-gram language model", () => {
+  it("builds candidate lists from Google Books counts with n-gram backoff", () => {
+    const candidatesStart = getCandidates([], 4);
+    expect(candidatesStart).toHaveLength(4);
+    expect(candidatesStart[0]).toBe("the");
 
-    const candidatesInThe = getCandidates(["in", "the"], 256);
-    expect(candidatesInThe.length).toBe(256);
+    const candidatesAfterThe = getCandidates(["the"], 2);
+    expect(candidatesAfterThe).toHaveLength(2);
+    expect(candidatesAfterThe).toContain("same");
+
+    const candidatesInThe = getCandidates(["in", "the"], 4);
+    expect(candidatesInThe).toHaveLength(4);
     expect(candidatesInThe).toContain("united");
   });
 
-  it("should verify that each POS list contains 256 unique entries", () => {
-    const posLists = [
-      { name: "NOUNS", list: NOUNS },
-      { name: "VERBS", list: VERBS },
-      { name: "VERBS_PAST", list: VERBS_PAST },
-      { name: "ADJECTIVES", list: ADJECTIVES },
-      { name: "ADVERBS", list: ADVERBS },
-      { name: "PROPER_NOUNS", list: PROPER_NOUNS },
-      { name: "DETERMINERS", list: DETERMINERS },
-      { name: "PREPOSITIONS", list: PREPOSITIONS },
-      { name: "CONJUNCTIONS", list: CONJUNCTIONS },
-      { name: "RELATIVES", list: RELATIVES },
-    ];
-
-    for (const { name, list } of posLists) {
-      expect(list.length).toBe(256);
-      const unique = new Set(list.map(w => w.toLowerCase()));
-      expect(unique.size).toBe(256);
-    }
+  it("derives its vocabulary from the Google Books unigram model", () => {
+    expect(VOCABULARY.length).toBeGreaterThan(500);
+    expect(new Set(VOCABULARY).size).toBe(VOCABULARY.length);
+    expect(VOCABULARY).toContain("the");
+    expect(VOCABULARY).toContain("united");
+    expect(VOCABULARY).toHaveLength(Object.keys(UNIGRAMS).filter(word => /^[a-z0-9]+$/i.test(word)).length);
   });
 
-  it("should contain valid templates with 100% data slots carrying bits", () => {
-    expect(TEMPLATES.length).toBeGreaterThan(0);
-    for (const template of TEMPLATES) {
-      expect(template.length).toBeGreaterThan(0);
-      const dataSlots = template.filter(s => s.type === "data");
-      expect(dataSlots.length).toBe(template.length);
-    }
-  });
-
-  it("should perform carrier text statistical analysis and perplexity estimation", () => {
+  it("analyzes carrier text using the model vocabulary and unigram frequencies", () => {
     const sampleText = "The major report confirms the national policy. Washington reportedly announced a significant agreement.";
     const analysis = analyzeCarrierText(sampleText);
 
@@ -70,7 +42,7 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(analysis.perplexityEstimate).toBeGreaterThan(0);
   });
 
-  it("should return default metrics for empty carrier text", () => {
+  it("returns default metrics for empty carrier text", () => {
     const analysis = analyzeCarrierText("");
     expect(analysis.wordCount).toBe(0);
     expect(analysis.sentenceCount).toBe(0);

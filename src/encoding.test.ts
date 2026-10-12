@@ -16,14 +16,14 @@ describe("Reversible Encoding and Decoding Module", () => {
 
   it("should support fixed period ending configuration", () => {
     const testBytes = new Uint8Array([10, 20, 30, 40, 50, 60]);
-    const text = bytesToEnglishText(testBytes, { sentenceEndingVariance: false });
+    const text = bytesToEnglishText(testBytes);
 
     const sentenceEnders = [...text.matchAll(/[!?\.]+/g)].map(m => m[0]);
     for (const ender of sentenceEnders) {
       expect(ender).toBe(".");
     }
 
-    const recovered = englishTextToBytes(text, { sentenceEndingVariance: false });
+    const recovered = englishTextToBytes(text);
     expect(Array.from(recovered)).toEqual(Array.from(testBytes));
   });
 

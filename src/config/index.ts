@@ -49,20 +49,14 @@ export interface FramingConfig {
   enableChecksum: boolean;
 }
 
-export interface EncodingConfig {
-  sentenceEndingVariance: boolean;
-}
-
 export interface StegoConfig {
   crypto: CryptoConfig;
   framing: FramingConfig;
-  encoding: EncodingConfig;
 }
 
 export interface StegoOptions {
   crypto?: Partial<CryptoConfig>;
   framing?: Partial<FramingConfig>;
-  encoding?: Partial<EncodingConfig>;
 }
 
 export const DEFAULT_CONFIG: StegoConfig = {
@@ -76,16 +70,12 @@ export const DEFAULT_CONFIG: StegoConfig = {
     version: 1,
     enableChecksum: true,
   },
-  encoding: {
-    sentenceEndingVariance: true,
-  },
 };
 
 export function mergeConfig(options?: StegoOptions): StegoConfig {
   return {
     crypto: { ...DEFAULT_CONFIG.crypto, ...options?.crypto },
     framing: { ...DEFAULT_CONFIG.framing, ...options?.framing },
-    encoding: { ...DEFAULT_CONFIG.encoding, ...options?.encoding },
   };
 }
 

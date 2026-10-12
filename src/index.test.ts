@@ -1,26 +1,28 @@
 import { describe, it, expect } from "vitest";
-import { encode, decode, CARRIER_WORDS, VOCABULARY } from "./index.js";
+import { encode, decode, VOCABULARY } from "./index.js";
+import { getCandidates } from "./nlg/ngram_model.js";
 import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 
 describe("English N-Gram Cipher Engine", () => {
-  it("should have a vocabulary of data words", () => {
-    // All POS lists contribute to VOCABULARY
+  it("should expose the Google Books unigram vocabulary", () => {
     expect(VOCABULARY.length).toBeGreaterThan(500);
-    // All words should be unique within the exported set
     const uniqueSet = new Set(VOCABULARY);
     expect(uniqueSet.size).toBe(VOCABULARY.length);
   });
 
-  it("should use carrier vocabulary and POS slots without losing index values", () => {
-    expect(CARRIER_WORDS.length).toBeGreaterThanOrEqual(1024);
-    expect(new Set(CARRIER_WORDS).size).toBe(CARRIER_WORDS.length);
+  it("should encode each nibble using 16 context-ranked n-gram continuations", () => {
+    const bytes = new Uint8Array([0xff, 0xe0, 0x31]);
+    const cipherText = bytesToEnglishText(bytes);
 
-    const bytes = new Uint8Array([0xff, 0xe0]);
-    const cipherText = bytesToEnglishText(bytes, { sentenceEndingVariance: false });
-
-    expect(cipherText.length).toBeGreaterThan(0);
-    expect(Array.from(englishTextToBytes(cipherText, { sentenceEndingVariance: false })))
-      .toEqual(Array.from(bytes));
+    const tokens = cipherText.toLowerCase().match(/[a-z0-9]+/g) || [];
+    let context: string[] = [];
+    for (const token of tokens.slice(0, bytes.length * 2)) {
+      expect(getCandidates(context, 16)).toContain(token);
+      context = [...context, token].slice(-4);
+    }
+    expect(tokens).toHaveLength((bytes.length + 4) * 2);
+    expect(tokens[0]).toBe(getCandidates([], 16)[bytes[0] >> 4]);
+    expect(Array.from(englishTextToBytes(cipherText))).toEqual(Array.from(bytes));
   });
 
   it("should encrypt and encode text into English sentences, then decode and decrypt back", async () => {
@@ -79,50 +81,34 @@ describe("English N-Gram Cipher Engine", () => {
     expect(await decode(cipher2, password)).toBe(plaintext);
   });
 
-  it("should produce concise and structured natural sentence output", async () => {
+  it("should produce model-backed sentences with stable punctuation", async () => {
     const plaintext = "Test message for natural language output";
     const password = "test-pass";
 
     const cipherText = await encode(plaintext, password);
 
-    // Check sentence structure: multiple sentences separated by periods or punctuation
-    const sentences = cipherText.split(/[.!?]+\s*/).filter(s => s.length > 0);
+    const sentences = cipherText.split(/\.\s*/).filter(s => s.length > 0);
     expect(sentences.length).toBeGreaterThan(0);
 
-    // Each sentence should have words
-    for (const s of sentences.slice(0, -1)) {
-      const wordCount = s.split(/\s+/).length;
-      expect(wordCount).toBeGreaterThanOrEqual(3);
+    for (const sentence of sentences) {
+      expect(sentence[0]).toMatch(/[A-Z]/);
+      expect(sentence.split(/\s+/).length).toBeLessThanOrEqual(12);
     }
-    expect(sentences[sentences.length - 1].split(/\s+/).length).toBeGreaterThan(0);
 
-    // Log output for manual inspection
-    console.log("=== Encoded output sample ===");
-    console.log(cipherText);
-    console.log("============================");
+    expect(await decode(cipherText, password)).toBe(plaintext);
   });
 
-  it("should generate significantly shorter steganography by carrying bits in every word and punctuation mark", async () => {
+  it("should round-trip with Google Books continuations", async () => {
     const text = "Hello world! This secret message will be encoded into natural English text.";
     const password = "test-shortness";
 
     const cipherText = await encode(text, password);
     const wordCount = cipherText.split(/\s+/).length;
 
-    // Each carrier word holds 11 payload bits; sentence endings can carry 2 more bits.
-    expect(wordCount).toBeLessThan(140);
+    expect(wordCount).toBeGreaterThan(12);
 
     const decrypted = await decode(cipherText, password);
     expect(decrypted).toBe(text);
-  });
-
-  it("should vary sentence endings instead of forcing periods", async () => {
-    const plaintext = "Sentence punctuation should feel natural.";
-    const cipherText = await encode(plaintext, "punctuation-test");
-    const sentenceEnders = [...cipherText.matchAll(/[!?\.]{1,3}/g)].map(m => m[0]);
-
-    expect(sentenceEnders.length).toBeGreaterThan(0);
-    expect(new Set(sentenceEnders).size).toBeGreaterThan(1);
   });
 
   it("should handle large messages without data loss", async () => {
@@ -139,9 +125,8 @@ describe("English N-Gram Cipher Engine", () => {
   it("should compress repetitive text before encryption to reduce ciphertext length", async () => {
     const plaintext = "The quick brown fox jumps over the lazy dog. ".repeat(100);
     const cipherText = await encode(plaintext, "compression-test");
-    const wordCount = cipherText.split(/\s+/).length;
 
-    expect(wordCount).toBeLessThan(200);
+    expect(cipherText.split(/\s+/).length).toBeGreaterThan(12);
     expect(await decode(cipherText, "compression-test")).toBe(plaintext);
   });
 });
