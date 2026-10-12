@@ -1,5 +1,6 @@
 /**
  * Dynamic 1-5 Gram Google Books N-Gram Language Model Candidate Builder
+ * with Punctuation Integration
  */
 
 import googleNGrams from "./google_books_ngrams.json" with { type: "json" };
@@ -20,11 +21,31 @@ export const TRIGRAMS = model.trigrams;
 export const FOURGRAMS = model.fourgrams;
 export const FIVEGRAMS = model.fivegrams;
 
-const isWord = (word: string): boolean => /^[a-z0-9]+$/i.test(word);
+// Natural English punctuation frequencies
+export const PUNCTUATION_UNIGRAMS: Record<string, number> = {
+  ".": 6000000000,
+  ",": 5000000000,
+  "?": 500000000,
+  "!": 300000000,
+  ";": 200000000,
+  ":": 200000000
+};
 
-export const TOP_UNIGRAMS: string[] = Object.keys(UNIGRAMS)
-  .filter(isWord)
-  .sort((a, b) => UNIGRAMS[b] - UNIGRAMS[a] || a.localeCompare(b));
+export const isWord = (token: string): boolean => /^[a-z0-9]+$/i.test(token);
+
+export const isValidToken = (token: string): boolean =>
+  isWord(token) || /^[.,!?;:"]$/.test(token);
+
+export const TOP_UNIGRAMS: string[] = [
+  ...Object.keys(UNIGRAMS),
+  ...Object.keys(PUNCTUATION_UNIGRAMS)
+]
+  .filter(isValidToken)
+  .sort((a, b) => {
+    const countA = UNIGRAMS[a] ?? PUNCTUATION_UNIGRAMS[a] ?? 1;
+    const countB = UNIGRAMS[b] ?? PUNCTUATION_UNIGRAMS[b] ?? 1;
+    return countB - countA || a.localeCompare(b);
+  });
 
 /**
  * Dynamically builds N candidate continuations given prior context words using Google Books 1-5 Grams.
@@ -32,26 +53,29 @@ export const TOP_UNIGRAMS: string[] = Object.keys(UNIGRAMS)
 export function getCandidates(context: string[], N: number = 256): string[] {
   if (!Number.isInteger(N) || N <= 0) return [];
 
-  const words = context.slice(-4).map(word => word.toLowerCase());
+  const tokens = context.slice(-4).map(word => word.toLowerCase());
+  const lastToken = tokens.length > 0 ? tokens[tokens.length - 1] : "";
+  const isAfterSentenceEnd = tokens.length === 0 || [".", "?", "!"].includes(lastToken);
+
   const candidateMaps: (Record<string, number> | undefined)[] = [];
 
-  if (words.length >= 4) candidateMaps.push(FIVEGRAMS[words.slice(-4).join(" ")]);
-  if (words.length >= 3) candidateMaps.push(FOURGRAMS[words.slice(-3).join(" ")]);
-  if (words.length >= 2) candidateMaps.push(TRIGRAMS[words.slice(-2).join(" ")]);
-  if (words.length >= 1) candidateMaps.push(BIGRAMS[words[words.length - 1]]);
+  if (tokens.length >= 4) candidateMaps.push(FIVEGRAMS[tokens.slice(-4).join(" ")]);
+  if (tokens.length >= 3) candidateMaps.push(FOURGRAMS[tokens.slice(-3).join(" ")]);
+  if (tokens.length >= 2) candidateMaps.push(TRIGRAMS[tokens.slice(-2).join(" ")]);
+  if (tokens.length >= 1) candidateMaps.push(BIGRAMS[tokens[tokens.length - 1]]);
 
   const candidates: string[] = [];
   const seen = new Set<string>();
 
   const addCandidates = (frequencies: Record<string, number>): void => {
     const ranked = Object.entries(frequencies)
-      .filter(([word]) => isWord(word))
-      .sort(([wordA, countA], [wordB, countB]) => countB - countA || wordA.localeCompare(wordB));
+      .filter(([token]) => (isAfterSentenceEnd ? isWord(token) : isValidToken(token)))
+      .sort(([tokenA, countA], [tokenB, countB]) => countB - countA || tokenA.localeCompare(tokenB));
 
-    for (const [word] of ranked) {
-      if (!seen.has(word)) {
-        seen.add(word);
-        candidates.push(word);
+    for (const [token] of ranked) {
+      if (!seen.has(token)) {
+        seen.add(token);
+        candidates.push(token);
         if (candidates.length >= N) return;
       }
     }
@@ -59,18 +83,19 @@ export function getCandidates(context: string[], N: number = 256): string[] {
 
   for (const frequencies of candidateMaps) {
     if (frequencies) addCandidates(frequencies);
-    if (candidates.length >= N) return candidates;
+    if (candidates.length >= N) return candidates.slice(0, N);
   }
 
-  for (const word of TOP_UNIGRAMS) {
-    if (!seen.has(word)) {
-      seen.add(word);
-      candidates.push(word);
+  const unigramList = isAfterSentenceEnd ? TOP_UNIGRAMS.filter(isWord) : TOP_UNIGRAMS;
+  for (const token of unigramList) {
+    if (!seen.has(token)) {
+      seen.add(token);
+      candidates.push(token);
       if (candidates.length >= N) break;
     }
   }
 
-  return candidates;
+  return candidates.slice(0, N);
 }
 
 /**

@@ -6,7 +6,7 @@ export * from "./ngram_model.js";
 
 import { UNIGRAMS } from "./ngram_model.js";
 
-export const VOCABULARY = Object.keys(UNIGRAMS);
+export const VOCABULARY = Object.keys(UNIGRAMS).filter(word => /^[a-z0-9]+$/i.test(word));
 
 export interface CarrierAnalysis {
   wordCount: number;
