@@ -9,9 +9,10 @@ import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
 export { BitStreamReader, BitStreamWriter };
 
-const BITS_PER_TOKEN = 8;
-const TOKEN_OPTIONS = 1 << BITS_PER_TOKEN; // 256
+const BITS_PER_TOKEN = 5;
+const TOKEN_OPTIONS = 1 << BITS_PER_TOKEN; // 32
 const TOKEN_REGEX = /[a-zA-Z0-9]+|[.,!?;:"]/g;
+const LCM_BITS = 40; // LCM(5, 8) = 40 bits = 5 bytes = 8 tokens
 
 function capitalise(w: string): string {
   return w.charAt(0).toUpperCase() + w.slice(1);
@@ -27,11 +28,15 @@ export function bytesToEnglishText(
     return "";
   }
 
-  // Prepend payload length framing (uint32)
-  const fullPayloadLength = Math.ceil((bytes.length + 4) / 3) * 3;
-  const fullPayload = new Uint8Array(fullPayloadLength);
-  fullPayload.set(bytes);
-  new DataView(fullPayload.buffer).setUint32(fullPayloadLength - 4, bytes.length, false);
+  // Exact 40-bit (5-byte / 8-token) chunk alignment
+  const minBitsNeeded = (bytes.length + 4) * 8;
+  const totalBits = Math.ceil(minBitsNeeded / LCM_BITS) * LCM_BITS;
+  const totalBytes = totalBits / 8;
+  const tokenCount = totalBits / BITS_PER_TOKEN;
+
+  const fullPayload = new Uint8Array(totalBytes);
+  fullPayload.set(bytes, 0);
+  new DataView(fullPayload.buffer).setUint32(totalBytes - 4, bytes.length, false);
 
   const reader = new BitStreamReader(fullPayload);
   const context: string[] = [];
@@ -39,7 +44,7 @@ export function bytesToEnglishText(
   let formattedText = "";
   let isNewSentence = true;
 
-  while (reader.hasBits) {
+  for (let i = 0; i < tokenCount; i++) {
     const candidates = getCandidates(context, TOKEN_OPTIONS);
     if (candidates.length !== TOKEN_OPTIONS) {
       throw new EncodingError("Google Books N-gram model produced too few candidate tokens.");
