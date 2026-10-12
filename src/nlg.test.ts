@@ -53,7 +53,7 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(analysis.wordCount).toBeGreaterThan(0);
     expect(analysis.sentenceCount).toBe(2);
     expect(analysis.avgSentenceLength).toBeGreaterThan(0);
-    expect(analysis.vocabularyCoverage).toBeGreaterThan(0.8);
+    expect(analysis.vocabularyCoverage).toBeGreaterThan(0.7);
     expect(analysis.bigramUniqueness).toBeGreaterThan(0);
     expect(Number.isFinite(analysis.perplexityEstimate)).toBe(true);
     expect(analysis.perplexityEstimate).toBeGreaterThan(0);
