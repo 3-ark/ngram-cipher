@@ -116,30 +116,48 @@ export function englishTextToBytes(
     return new Uint8Array(0);
   }
 
-  const cleanText = text.replace(/[\r\n]+/g, " ").trim();
-
-  // Match sentences along with their punctuation endings
-  const sentenceMatches = cleanText.match(/.*?(?:\.\.\.|[.!?]+|$)/g) || [];
-
   const rawSentences: { sentenceStr: string; endingStr: string }[] = [];
 
-  for (const match of sentenceMatches) {
-    const trimmed = match.trim();
-    if (!trimmed) continue;
+  if (config.style === "haiku" && text.includes("\n")) {
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+    for (const line of lines) {
+      let endingStr = ".";
+      let sentenceStr = line;
 
-    let endingStr = ".";
-    let sentenceStr = trimmed;
+      if (line.endsWith("...")) {
+        endingStr = "...";
+        sentenceStr = line.slice(0, -3).trim();
+      } else if (/[.!?]$/.test(line)) {
+        endingStr = line.slice(-1);
+        sentenceStr = line.slice(0, -1).trim();
+      }
 
-    if (trimmed.endsWith("...")) {
-      endingStr = "...";
-      sentenceStr = trimmed.slice(0, -3).trim();
-    } else if (/[.!?]$/.test(trimmed)) {
-      endingStr = trimmed.slice(-1);
-      sentenceStr = trimmed.slice(0, -1).trim();
+      if (sentenceStr.length > 0) {
+        rawSentences.push({ sentenceStr, endingStr });
+      }
     }
+  } else {
+    const cleanText = text.replace(/[\r\n]+/g, " ").trim();
+    const sentenceMatches = cleanText.match(/.*?(?:\.\.\.|[.!?]+|$)/g) || [];
 
-    if (sentenceStr.length > 0) {
-      rawSentences.push({ sentenceStr, endingStr });
+    for (const match of sentenceMatches) {
+      const trimmed = match.trim();
+      if (!trimmed) continue;
+
+      let endingStr = ".";
+      let sentenceStr = trimmed;
+
+      if (trimmed.endsWith("...")) {
+        endingStr = "...";
+        sentenceStr = trimmed.slice(0, -3).trim();
+      } else if (/[.!?]$/.test(trimmed)) {
+        endingStr = trimmed.slice(-1);
+        sentenceStr = trimmed.slice(0, -1).trim();
+      }
+
+      if (sentenceStr.length > 0) {
+        rawSentences.push({ sentenceStr, endingStr });
+      }
     }
   }
 

@@ -76,7 +76,79 @@ export const PRONOUNS: string[] = [
   "they","we","he","she","it","I","you","one"
 ];
 
-// POS Map
+// Syllable-controlled Haiku word sub-lists for authentic poetic rhythm
+export const HAIKU_NOUNS_1 = [
+  "moon","wind","rain","snow","cloud","sky","sea","tree",
+  "branch","leaf","bird","stone","shore","lake","stream","dawn",
+  "dusk","night","star","flame","field","sun","frost","mist",
+  "shade","hill","pond","peak","crest","wood","ice","spring"
+];
+export const HAIKU_NOUNS_2 = [
+  "river","forest","ocean","flower","mountain","valley","meadow","shadow",
+  "garden","silence","season","winter","autumn","summer","morning","twilight",
+  "blossom","harbor","whisper","spirit","island","canyon","sunlight","moonlight",
+  "starlight","tempest","feather","echo","willow","woodland","sandstone","songbird"
+];
+
+export const HAIKU_VERBS_1 = [
+  "slept","glowed","danced","fell","rose","flowed","bloomed","called",
+  "moved","turned","passed","breathed","stirred","broke","shone","swayed",
+  "sang","dreamed","paused","dropped","cleared","dimmed","chilled","warmed",
+  "gleamed","flared","burned","swept","crept","wove","spun","grew"
+];
+export const HAIKU_VERBS_2 = [
+  "drifted","shimmered","rested","wandered","whispered","faded","gathered","waited",
+  "lingered","trembled","appeared","vanished","echoed","opened","softened","brightened",
+  "deepened","broadened","blackened","widened","quickened","darkened","stiffened","slackened",
+  "lengthened","shortened","moistened","ripened","weakened","strengthened","lessened","heightened"
+];
+
+export const HAIKU_ADJECTIVES_1 = [
+  "pale","soft","wild","dark","bright","still","cold","warm",
+  "blue","green","red","white","faint","deep","new","calm",
+  "clear","fresh","pure","chill","sharp","high","low","gray",
+  "sweet","rare","swift","grand","dense","dim","rich","dry"
+];
+export const HAIKU_ADJECTIVES_2 = [
+  "quiet","silver","gentle","distant","golden","autumn","winter","hollow",
+  "lonely","misty","silent","shallow","sleeping","fallen","hidden","ancient",
+  "morning","frozen","solemn","velvet","crystal","starlit","sunlit","secret",
+  "endless","steady","noble","timeless","tranquil","verdant","azure","amber"
+];
+
+export const HAIKU_DETERMINERS_1 = [
+  "the","a","this","that","some","one","my","your",
+  "his","her","its","each","no","all","both","such"
+];
+
+export const HAIKU_PREPOSITIONS_1 = [
+  "in","on","through","near","past","by","from","with",
+  "off","down","up","till","for","to","at","round"
+];
+export const HAIKU_PREPOSITIONS_2 = [
+  "above","below","beside","beyond","beneath","over","under","across",
+  "around","among","within","behind","against","toward","upon","amid"
+];
+
+export const HAIKU_CONJUNCTIONS_1 = [
+  "and","while","as","but","yet","though","where","when"
+];
+
+export const HAIKU_ADVERBS_2 = [
+  "slowly","softly","gently","alone","away","brightly","faintly","deeply",
+  "wildly","lightly","calmly","nearby","swiftly","truly","mildly","sweetly"
+];
+
+// Combined lists for backward compatibility and slot flexibility
+export const HAIKU_NOUNS = [...HAIKU_NOUNS_1, ...HAIKU_NOUNS_2];
+export const HAIKU_VERBS_PAST = [...HAIKU_VERBS_1, ...HAIKU_VERBS_2];
+export const HAIKU_ADJECTIVES = [...HAIKU_ADJECTIVES_1, ...HAIKU_ADJECTIVES_2];
+export const HAIKU_DETERMINERS = HAIKU_DETERMINERS_1;
+export const HAIKU_PREPOSITIONS = [...HAIKU_PREPOSITIONS_1, ...HAIKU_PREPOSITIONS_2];
+export const HAIKU_CONJUNCTIONS = HAIKU_CONJUNCTIONS_1;
+export const HAIKU_ADVERBS = HAIKU_ADVERBS_2;
+
+// POS Map including Haiku vocabulary lists
 export const POS_LISTS: Record<string, string[]> = {
   N: NOUNS,
   V: VERBS,
@@ -89,6 +161,17 @@ export const POS_LISTS: Record<string, string[]> = {
   c: CONJUNCTIONS,
   r: RELATIVES,
   pronoun: PRONOUNS,
+  haikuNouns1: HAIKU_NOUNS_1,
+  haikuNouns2: HAIKU_NOUNS_2,
+  haikuVerbs1: HAIKU_VERBS_1,
+  haikuVerbs2: HAIKU_VERBS_2,
+  haikuAdj1: HAIKU_ADJECTIVES_1,
+  haikuAdj2: HAIKU_ADJECTIVES_2,
+  haikuDet1: HAIKU_DETERMINERS_1,
+  haikuPrep1: HAIKU_PREPOSITIONS_1,
+  haikuPrep2: HAIKU_PREPOSITIONS_2,
+  haikuConj1: HAIKU_CONJUNCTIONS_1,
+  haikuAdv2: HAIKU_ADVERBS_2,
 };
 
 export const POS_SETS: Record<string, Set<string>> = {};
@@ -168,50 +251,31 @@ export const TEMPLATES: Slot[][] = [
   [D(DETERMINERS,"d"), D(NOUNS,"N"), D(RELATIVE_CLAUSE_MARKERS,"REL"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")]
 ];
 
-const HAIKU_NOUNS = [
-  "moon","river","forest","ocean","wind","rain","snow","cloud",
-  "sky","sea","tree","branch","leaf","flower","bird","stone",
-  "mountain","valley","meadow","shore","lake","stream","shadow","dawn",
-  "dusk","night","star","flame","garden","field","silence","season"
-];
-const HAIKU_VERBS_PAST = [
-  "slept","glowed","drifted","shimmered","rested","wandered","whispered","faded",
-  "gathered","danced","fell","rose","flowed","bloomed","called","waited",
-  "lingered","trembled","moved","turned","passed","appeared","vanished","echoed",
-  "breathed","stirred","broke","shone","swayed","sang","dreamed","opened"
-];
-const HAIKU_ADJECTIVES = [
-  "quiet","silver","pale","gentle","soft","wild","distant","dark",
-  "bright","still","golden","autumn","winter","cold","warm","blue",
-  "green","red","white","faint","hollow","lonely","misty","silent",
-  "shallow","deep","sleeping","fallen","hidden","ancient","new","morning"
-];
-const HAIKU_DETERMINERS = [
-  "the","a","this","that","some","one","our","my",
-  "your","his","her","its","each","every","another","any"
-];
-const HAIKU_PREPOSITIONS = [
-  "above","below","beside","beyond","beneath","near","through","over",
-  "under","across","around","among","within","behind","against","toward"
-];
-const HAIKU_CONJUNCTIONS = [
-  "and","while","as","but","yet","though","because","where"
-];
-const HAIKU_ADVERBS = [
-  "quietly","slowly","softly","gently","here","there","alone","away",
-  "brightly","faintly","still","deeply","wildly","lightly","calmly","nearby"
-];
-
-// Haiku-inspired sentence patterns; their lines evoke poetry but do not enforce syllable counts.
+// Syllable-structured Haiku sentence patterns; short lines strictly produce classic 5- and 7-syllable poetic rhythms.
 export const HAIKU_TEMPLATES: Slot[][] = [
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_VERBS_PAST,"VP")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_PREPOSITIONS,"p"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_PREPOSITIONS,"p"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
-  [D(HAIKU_ADVERBS,"R"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")]
+  // 0: Length 3 (5 Syllables: 1 + 2 + 2) -> "The river drifted"
+  [D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_NOUNS_2,"N"), D(HAIKU_VERBS_2,"VP")],
+
+  // 1: Length 4 (5 Syllables: 1 + 1 + 1 + 2) -> "The pale moon drifted"
+  [D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_ADJECTIVES_1,"A"), D(HAIKU_NOUNS_1,"N"), D(HAIKU_VERBS_2,"VP")],
+
+  // 2: Length 5 (7 Syllables: 1 + 1 + 1 + 2 + 2) -> "The pale moon slept above river"
+  [D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_ADJECTIVES_1,"A"), D(HAIKU_NOUNS_1,"N"), D(HAIKU_PREPOSITIONS_2,"p"), D(HAIKU_NOUNS_2,"N")],
+
+  // 3: Length 6 (7 Syllables: 1 + 1 + 1 + 1 + 2 + 1) -> "The pale moon slept above lake"
+  [D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_ADJECTIVES_1,"A"), D(HAIKU_NOUNS_1,"N"), D(HAIKU_VERBS_1,"VP"), D(HAIKU_PREPOSITIONS_2,"p"), D(HAIKU_NOUNS_1,"N")],
+
+  // 4: Length 7 (7 Syllables: 1 + 1 + 1 + 1 + 1 + 1 + 1) -> "The soft rain fell and the sky"
+  [D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_ADJECTIVES_1,"A"), D(HAIKU_NOUNS_1,"N"), D(HAIKU_VERBS_1,"VP"), D(HAIKU_CONJUNCTIONS_1,"c"), D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_NOUNS_1,"N")],
+
+  // 5: Length 8 (9 Syllables: 1 + 1 + 1 + 1 + 1 + 1 + 2 + 1) -> "The soft rain fell in a quiet sky"
+  [D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_ADJECTIVES_1,"A"), D(HAIKU_NOUNS_1,"N"), D(HAIKU_VERBS_1,"VP"), D(HAIKU_PREPOSITIONS_1,"p"), D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_ADJECTIVES_2,"A"), D(HAIKU_NOUNS_1,"N")],
+
+  // 6: Length 9 (10 Syllables: 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 2)
+  [D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_ADJECTIVES_1,"A"), D(HAIKU_NOUNS_1,"N"), D(HAIKU_VERBS_1,"VP"), D(HAIKU_CONJUNCTIONS_1,"c"), D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_ADJECTIVES_1,"A"), D(HAIKU_NOUNS_1,"N"), D(HAIKU_VERBS_2,"VP")],
+
+  // 7: Length 10 (12 Syllables: 2 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 2)
+  [D(HAIKU_ADVERBS_2,"R"), D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_ADJECTIVES_1,"A"), D(HAIKU_NOUNS_1,"N"), D(HAIKU_VERBS_1,"VP"), D(HAIKU_CONJUNCTIONS_1,"c"), D(HAIKU_DETERMINERS_1,"d"), D(HAIKU_ADJECTIVES_1,"A"), D(HAIKU_NOUNS_1,"N"), D(HAIKU_VERBS_2,"VP")]
 ];
 
 /**

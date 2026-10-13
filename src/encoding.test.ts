@@ -24,6 +24,24 @@ describe("Reversible Encoding and Decoding Module", () => {
     expect(Array.from(englishTextToBytes(text, config))).toEqual(Array.from(testBytes));
   });
 
+  it("should round-trip multi-stanza Haiku text with punctuation variance and fixed period settings", () => {
+    const testPayload = new Uint8Array([12, 34, 56, 78, 90, 123, 145, 167, 189, 201, 223, 245, 255, 0, 15, 30, 45, 60]);
+
+    // Test with sentence ending variance (punctuation variance: . ! ? ...)
+    const configVar = { style: "haiku" as const, sentenceEndingVariance: true };
+    const haikuTextVar = bytesToEnglishText(testPayload, configVar);
+    expect(haikuTextVar).toContain("\n");
+    const stanzasVar = haikuTextVar.split("\n\n");
+    expect(stanzasVar.length).toBeGreaterThanOrEqual(1);
+    expect(Array.from(englishTextToBytes(haikuTextVar, configVar))).toEqual(Array.from(testPayload));
+
+    // Test with fixed period ending setting
+    const configFixed = { style: "haiku" as const, sentenceEndingVariance: false };
+    const haikuTextFixed = bytesToEnglishText(testPayload, configFixed);
+    expect(haikuTextFixed).toContain("\n");
+    expect(Array.from(englishTextToBytes(haikuTextFixed, configFixed))).toEqual(Array.from(testPayload));
+  });
+
   it("should support fixed period ending configuration", () => {
     const testBytes = new Uint8Array([10, 20, 30, 40, 50, 60]);
     const text = bytesToEnglishText(testBytes, { sentenceEndingVariance: false });

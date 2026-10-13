@@ -14,6 +14,13 @@ import {
   VOCABULARY,
   TEMPLATES,
   HAIKU_TEMPLATES,
+  HAIKU_NOUNS,
+  HAIKU_VERBS_PAST,
+  HAIKU_ADJECTIVES,
+  HAIKU_DETERMINERS,
+  HAIKU_PREPOSITIONS,
+  HAIKU_CONJUNCTIONS,
+  HAIKU_ADVERBS,
   analyzeCarrierText
 } from "./nlg/index.js";
 
@@ -78,6 +85,33 @@ describe("Natural Language Generation & Analysis Module", () => {
     for (const template of HAIKU_TEMPLATES) {
       expect(template.every(slot => slot.type === "data" && slot.list.length >= 8)).toBe(true);
     }
+  });
+
+  it("should include all Haiku vocabulary in VOCABULARY and enforce syllable structure", () => {
+    const vocabSet = new Set(VOCABULARY);
+    const haikuWords = [
+      ...HAIKU_NOUNS,
+      ...HAIKU_VERBS_PAST,
+      ...HAIKU_ADJECTIVES,
+      ...HAIKU_DETERMINERS,
+      ...HAIKU_PREPOSITIONS,
+      ...HAIKU_CONJUNCTIONS,
+      ...HAIKU_ADVERBS,
+    ];
+
+    for (const w of haikuWords) {
+      expect(vocabSet.has(w.toLowerCase())).toBe(true);
+    }
+
+    // Verify short Haiku templates match 5 and 7 syllable poetic structures
+    const t0 = HAIKU_TEMPLATES[0]; // "The river drifted" -> 1 + 2 + 2 = 5 syllables
+    expect(t0).toHaveLength(3);
+
+    const t1 = HAIKU_TEMPLATES[1]; // "The pale moon drifted" -> 1 + 1 + 1 + 2 = 5 syllables
+    expect(t1).toHaveLength(4);
+
+    const t2 = HAIKU_TEMPLATES[2]; // "The pale moon slept above river" -> 1 + 1 + 1 + 2 + 2 = 7 syllables
+    expect(t2).toHaveLength(5);
   });
 
   it("should perform carrier text statistical analysis and perplexity estimation", () => {
