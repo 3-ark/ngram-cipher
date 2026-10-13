@@ -168,50 +168,70 @@ export const TEMPLATES: Slot[][] = [
   [D(DETERMINERS,"d"), D(NOUNS,"N"), D(RELATIVE_CLAUSE_MARKERS,"REL"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")]
 ];
 
-const HAIKU_NOUNS = [
+const POETRY_NOUNS = [
   "moon","river","forest","ocean","wind","rain","snow","cloud",
   "sky","sea","tree","branch","leaf","flower","bird","stone",
   "mountain","valley","meadow","shore","lake","stream","shadow","dawn",
   "dusk","night","star","flame","garden","field","silence","season"
 ];
-const HAIKU_VERBS_PAST = [
+const POETRY_VERBS_PAST = [
   "slept","glowed","drifted","shimmered","rested","wandered","whispered","faded",
   "gathered","danced","fell","rose","flowed","bloomed","called","waited",
   "lingered","trembled","moved","turned","passed","appeared","vanished","echoed",
   "breathed","stirred","broke","shone","swayed","sang","dreamed","opened"
 ];
-const HAIKU_ADJECTIVES = [
+const POETRY_ADJECTIVES = [
   "quiet","silver","pale","gentle","soft","wild","distant","dark",
   "bright","still","golden","autumn","winter","cold","warm","blue",
   "green","red","white","faint","hollow","lonely","misty","silent",
   "shallow","deep","sleeping","fallen","hidden","ancient","new","morning"
 ];
-const HAIKU_DETERMINERS = [
+const POETRY_DETERMINERS = [
   "the","a","this","that","some","one","our","my",
   "your","his","her","its","each","every","another","any"
 ];
-const HAIKU_PREPOSITIONS = [
+const POETRY_PREPOSITIONS = [
   "above","below","beside","beyond","beneath","near","through","over",
   "under","across","around","among","within","behind","against","toward"
 ];
-const HAIKU_CONJUNCTIONS = [
-  "and","while","as","but","yet","though","because","where"
+// Coordinating conjunctions that can grammatically join two verb predicates ("sang and danced", "fell yet bloomed")
+const POETRY_COORDINATING_CONJUNCTIONS = [
+  "and","yet","but","or"
 ];
-const HAIKU_ADVERBS = [
+// Full conjunctions for joining full clauses (Subject + Verb + Conj + Subject + Verb)
+const POETRY_CLAUSE_CONJUNCTIONS = [
+  "and","while","as","but","yet","though","because","when"
+];
+const POETRY_ADVERBS = [
   "quietly","slowly","softly","gently","here","there","alone","away",
   "brightly","faintly","still","deeply","wildly","lightly","calmly","nearby"
 ];
 
-// Haiku-inspired sentence patterns; their lines evoke poetry but do not enforce syllable counts.
-export const HAIKU_TEMPLATES: Slot[][] = [
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_VERBS_PAST,"VP")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_PREPOSITIONS,"p"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_PREPOSITIONS,"p"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N")],
-  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
-  [D(HAIKU_ADVERBS,"R"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")]
+// 8 Distinct Word-Length Grammatical Poetry Templates (Lengths 3, 4, 5, 6, 7, 8, 9, 10)
+export const POETRY_TEMPLATES: Slot[][] = [
+  // 0: Length 3 (e.g. "The moon slept")
+  [D(POETRY_DETERMINERS,"d"), D(POETRY_NOUNS,"N"), D(POETRY_VERBS_PAST,"VP")],
+
+  // 1: Length 4 (e.g. "A gentle river flowed")
+  [D(POETRY_DETERMINERS,"d"), D(POETRY_ADJECTIVES,"A"), D(POETRY_NOUNS,"N"), D(POETRY_VERBS_PAST,"VP")],
+
+  // 2: Length 5 (Compound predicate with coordinating conjunction: "Our rain whispered and wandered")
+  [D(POETRY_DETERMINERS,"d"), D(POETRY_NOUNS,"N"), D(POETRY_VERBS_PAST,"VP"), D(POETRY_COORDINATING_CONJUNCTIONS,"c"), D(POETRY_VERBS_PAST,"VP")],
+
+  // 3: Length 6 (e.g. "The moon slept above the river")
+  [D(POETRY_DETERMINERS,"d"), D(POETRY_NOUNS,"N"), D(POETRY_VERBS_PAST,"VP"), D(POETRY_PREPOSITIONS,"p"), D(POETRY_DETERMINERS,"d"), D(POETRY_NOUNS,"N")],
+
+  // 4: Length 7 (Full clause + clause conjunction + full clause: "The dusk fell while a river danced")
+  [D(POETRY_DETERMINERS,"d"), D(POETRY_NOUNS,"N"), D(POETRY_VERBS_PAST,"VP"), D(POETRY_CLAUSE_CONJUNCTIONS,"c"), D(POETRY_DETERMINERS,"d"), D(POETRY_NOUNS,"N"), D(POETRY_VERBS_PAST,"VP")],
+
+  // 5: Length 8 (e.g. "A quiet flame danced beside each dark shore")
+  [D(POETRY_DETERMINERS,"d"), D(POETRY_ADJECTIVES,"A"), D(POETRY_NOUNS,"N"), D(POETRY_VERBS_PAST,"VP"), D(POETRY_PREPOSITIONS,"p"), D(POETRY_DETERMINERS,"d"), D(POETRY_ADJECTIVES,"A"), D(POETRY_NOUNS,"N")],
+
+  // 6: Length 9 (Adjective clause + clause conjunction + adjective clause: "A bright silence gathered while each autumn tree appeared")
+  [D(POETRY_DETERMINERS,"d"), D(POETRY_ADJECTIVES,"A"), D(POETRY_NOUNS,"N"), D(POETRY_VERBS_PAST,"VP"), D(POETRY_CLAUSE_CONJUNCTIONS,"c"), D(POETRY_DETERMINERS,"d"), D(POETRY_ADJECTIVES,"A"), D(POETRY_NOUNS,"N"), D(POETRY_VERBS_PAST,"VP")],
+
+  // 7: Length 10 (Adverb opener + full clause + clause conjunction + full clause)
+  [D(POETRY_ADVERBS,"R"), D(POETRY_DETERMINERS,"d"), D(POETRY_ADJECTIVES,"A"), D(POETRY_NOUNS,"N"), D(POETRY_VERBS_PAST,"VP"), D(POETRY_CLAUSE_CONJUNCTIONS,"c"), D(POETRY_DETERMINERS,"d"), D(POETRY_ADJECTIVES,"A"), D(POETRY_NOUNS,"N"), D(POETRY_VERBS_PAST,"VP")]
 ];
 
 /**

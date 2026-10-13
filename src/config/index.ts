@@ -51,7 +51,7 @@ export interface FramingConfig {
 
 export interface EncodingConfig {
   sentenceEndingVariance: boolean;
-  style?: "news" | "haiku";
+  style?: "news" | "poetry";
 }
 
 export interface StegoConfig {

@@ -15,10 +15,14 @@ describe("Reversible Encoding and Decoding Module", () => {
     expect(Array.from(recoveredBytes)).toEqual(Array.from(testBytes));
   });
 
-  it("should round-trip byte arrays in Haiku-inspired style", () => {
+  it("should round-trip byte arrays in poetry style with varied stanzas and poetic punctuation", () => {
     const testBytes = new Uint8Array([0, 1, 2, 255, 128, 64, 32, 16, 8, 4, 2, 1]);
-    const config = { style: "haiku" as const, sentenceEndingVariance: true };
+    const config = { style: "poetry" as const, sentenceEndingVariance: true };
     const text = bytesToEnglishText(testBytes, config);
+
+    console.log("=== GENERATED POEM SAMPLE ===");
+    console.log(text);
+    console.log("=============================");
 
     expect(text).toContain("\n");
     expect(Array.from(englishTextToBytes(text, config))).toEqual(Array.from(testBytes));

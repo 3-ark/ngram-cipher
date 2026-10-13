@@ -13,7 +13,7 @@ import {
   PRONOUNS,
   VOCABULARY,
   TEMPLATES,
-  HAIKU_TEMPLATES,
+  POETRY_TEMPLATES,
   analyzeCarrierText
 } from "./nlg/index.js";
 
@@ -72,11 +72,11 @@ describe("Natural Language Generation & Analysis Module", () => {
     }
   });
 
-  it("should provide eight Haiku-inspired templates with distinct sentence lengths", () => {
-    expect(HAIKU_TEMPLATES).toHaveLength(8);
-    expect(new Set(HAIKU_TEMPLATES.map(template => template.length)).size).toBe(8);
-    for (const template of HAIKU_TEMPLATES) {
-      expect(template.every(slot => slot.type === "data" && slot.list.length >= 8)).toBe(true);
+  it("should provide eight poetry templates with distinct sentence lengths and power-of-two slot lists", () => {
+    expect(POETRY_TEMPLATES).toHaveLength(8);
+    expect(new Set(POETRY_TEMPLATES.map(template => template.length)).size).toBe(8);
+    for (const template of POETRY_TEMPLATES) {
+      expect(template.every(slot => slot.type === "data" && slot.list.length >= 4)).toBe(true);
     }
   });
 

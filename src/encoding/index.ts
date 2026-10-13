@@ -7,7 +7,7 @@ import {
   CARRIER_WORDS,
   CARRIER_WORD_TO_INDEX,
   TEMPLATES,
-  HAIKU_TEMPLATES,
+  POETRY_TEMPLATES,
   rankCandidates,
   valToRank,
   rankToVal,
@@ -17,16 +17,33 @@ import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
 export { BitStreamReader, BitStreamWriter };
 
-const SENTENCE_ENDINGS = [".", "!", "?", "..."];
-const ENDING_TO_CODE: Record<string, number> = {
+const NEWS_ENDINGS = [".", "!", "?", "..."];
+const NEWS_ENDING_TO_CODE: Record<string, number> = {
   ".": 0,
   "!": 1,
   "?": 2,
   "...": 3,
 };
 
+// Poetic endings palette (4 items = 2 bits for lossless bijection):
+// 0: "," (soft pause/caesura), 1: " —" (em-dash pause), 2: "..." (fading silence), 3: "." (full stop)
+// For occasional question mark, "?" can map to 2 or 3 if user wants, but keeping 4 distinct punctuation marks
+// gives 100% reversible bijective 2-bit encoding!
+const POETRY_ENDINGS = [",", " —", "...", "."];
+const POETRY_ENDING_TO_CODE: Record<string, number> = {
+  ",": 0,
+  " —": 1,
+  "...": 2,
+  ".": 3,
+  "?": 3, // fallback if question mark is parsed
+};
+
 function capitalise(w: string): string {
   return w.charAt(0).toUpperCase() + w.slice(1);
+}
+
+function startsWithVowelSound(word: string): boolean {
+  return /^[aeiou]/i.test(word);
 }
 
 /**
@@ -39,6 +56,8 @@ export function bytesToEnglishText(
   if (!bytes || bytes.length === 0) {
     return "";
   }
+
+  const isPoetry = config.style === "poetry";
 
   // Append payload length (16-bit uint16) to the END of fullPayload so bit 0 comes directly from bytes[0]!
   // This guarantees that bit 0 comes from whitened AES salt, making sentence 1 opening words 100% random and unique per run!
@@ -53,7 +72,7 @@ export function bytesToEnglishText(
 
   const reader = new BitStreamReader(fullPayload);
   const sentences: string[] = [];
-  const templates = config.style === "haiku" ? HAIKU_TEMPLATES : TEMPLATES;
+  const templates = isPoetry ? POETRY_TEMPLATES : TEMPLATES;
   let sentenceIdx = 0;
 
   while (reader.hasBits) {
@@ -78,6 +97,13 @@ export function bytesToEnglishText(
 
     if (words.length === 0) break;
 
+    // Apply "a" -> "an" grammatical agreement before vowel sounds
+    for (let i = 0; i < words.length; i++) {
+      if (words[i].toLowerCase() === "a" && i + 1 < words.length && startsWithVowelSound(words[i + 1])) {
+        words[i] = words[i] === "A" ? "An" : "an";
+      }
+    }
+
     for (let i = 0; i < words.length; i++) {
       const slotLabel = template[i]?.label;
       const w = words[i];
@@ -85,10 +111,16 @@ export function bytesToEnglishText(
         words[i] = capitalise(w);
       }
     }
+
     let ending = ".";
     if (config.sentenceEndingVariance) {
-      const endingCode = reader.hasBits ? reader.readBits(2) : 0;
-      ending = SENTENCE_ENDINGS[endingCode % SENTENCE_ENDINGS.length];
+      if (isPoetry) {
+        const endingCode = reader.hasBits ? reader.readBits(2) : 0;
+        ending = POETRY_ENDINGS[endingCode % POETRY_ENDINGS.length];
+      } else {
+        const endingCode = reader.hasBits ? reader.readBits(2) : 0;
+        ending = NEWS_ENDINGS[endingCode % NEWS_ENDINGS.length];
+      }
     }
 
     const sentence = words.join(" ") + ending;
@@ -96,12 +128,33 @@ export function bytesToEnglishText(
     sentenceIdx++;
   }
 
-  if (config.style === "haiku") {
-    return sentences.map((sentence, index) => {
-      const lineBreak = index === 0 ? "" : index % 3 === 0 ? "\n\n" : "\n";
-      return `${lineBreak}${sentence}`;
-    }).join("");
+  if (isPoetry) {
+    // Generate organic stanzas (alternating between 2-line couplets and 3-line tercets based on payload entropy)
+    // Seeded deterministically by the first byte of payload
+    const seed = bytes[0] || 42;
+    let stanzaSize = (seed % 2 === 0) ? 3 : 2;
+    let linesInCurrentStanza = 0;
+    const lines: string[] = [];
+
+    for (let i = 0; i < sentences.length; i++) {
+      const line = sentences[i];
+
+      if (i > 0 && linesInCurrentStanza === 0) {
+        lines.push(""); // empty line between stanzas
+      }
+      lines.push(line);
+      linesInCurrentStanza++;
+
+      if (linesInCurrentStanza >= stanzaSize) {
+        linesInCurrentStanza = 0;
+        // Deterministically cycle stanza length (2 or 3 lines) using subsequent payload bytes
+        const nextSeed = bytes[(i + 1) % bytes.length] || 1;
+        stanzaSize = (nextSeed % 2 === 0) ? 3 : 2;
+      }
+    }
+    return lines.join("\n");
   }
+
   return sentences.join(" ");
 }
 
@@ -116,35 +169,62 @@ export function englishTextToBytes(
     return new Uint8Array(0);
   }
 
-  const cleanText = text.replace(/[\r\n]+/g, " ").trim();
+  const isPoetry = config.style === "poetry";
 
-  // Match sentences along with their punctuation endings
-  const sentenceMatches = cleanText.match(/.*?(?:\.\.\.|[.!?]+|$)/g) || [];
-
+  // Clean and split lines/sentences
+  // Handle poetry punctuation: commas, em-dashes, ellipses, periods, question marks, exclamation marks
+  const cleanText = text.replace(/[\r\n]+/g, "\n").trim();
   const rawSentences: { sentenceStr: string; endingStr: string }[] = [];
 
-  for (const match of sentenceMatches) {
-    const trimmed = match.trim();
-    if (!trimmed) continue;
+  if (isPoetry) {
+    const lines = cleanText.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+    for (const line of lines) {
+      let sentenceStr = line;
+      let endingStr = ".";
 
-    let endingStr = ".";
-    let sentenceStr = trimmed;
+      if (line.endsWith("...")) {
+        endingStr = "...";
+        sentenceStr = line.slice(0, -3).trim();
+      } else if (line.endsWith(" —")) {
+        endingStr = " —";
+        sentenceStr = line.slice(0, -2).trim();
+      } else if (line.endsWith("—")) {
+        endingStr = " —";
+        sentenceStr = line.slice(0, -1).trim();
+      } else if (/[,.!?]$/.test(line)) {
+        endingStr = line.slice(-1);
+        sentenceStr = line.slice(0, -1).trim();
+      }
 
-    if (trimmed.endsWith("...")) {
-      endingStr = "...";
-      sentenceStr = trimmed.slice(0, -3).trim();
-    } else if (/[.!?]$/.test(trimmed)) {
-      endingStr = trimmed.slice(-1);
-      sentenceStr = trimmed.slice(0, -1).trim();
+      if (sentenceStr.length > 0) {
+        rawSentences.push({ sentenceStr, endingStr });
+      }
     }
+  } else {
+    const sentenceMatches = cleanText.replace(/\n+/g, " ").match(/.*?(?:\.\.\.|[.!?]+|$)/g) || [];
+    for (const match of sentenceMatches) {
+      const trimmed = match.trim();
+      if (!trimmed) continue;
 
-    if (sentenceStr.length > 0) {
-      rawSentences.push({ sentenceStr, endingStr });
+      let endingStr = ".";
+      let sentenceStr = trimmed;
+
+      if (trimmed.endsWith("...")) {
+        endingStr = "...";
+        sentenceStr = trimmed.slice(0, -3).trim();
+      } else if (/[.!?]$/.test(trimmed)) {
+        endingStr = trimmed.slice(-1);
+        sentenceStr = trimmed.slice(0, -1).trim();
+      }
+
+      if (sentenceStr.length > 0) {
+        rawSentences.push({ sentenceStr, endingStr });
+      }
     }
   }
 
   const rawWriter = new BitStreamWriter();
-  const templates = config.style === "haiku" ? HAIKU_TEMPLATES : TEMPLATES;
+  const templates = isPoetry ? POETRY_TEMPLATES : TEMPLATES;
 
   for (let sentenceIdx = 0; sentenceIdx < rawSentences.length; sentenceIdx++) {
     const { sentenceStr, endingStr } = rawSentences[sentenceIdx];
@@ -162,7 +242,12 @@ export function englishTextToBytes(
       if (tokenIdx >= tokens.length) break;
 
       const rawToken = tokens[tokenIdx];
-      const cleanWord = rawToken.replace(/[.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
+      let cleanWord = rawToken.replace(/[.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
+
+      // Normalize grammatical "an" back to "a" for determiners
+      if (cleanWord === "an" && slot.label === "d") {
+        cleanWord = "a";
+      }
 
       const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
       const bitCount = Math.floor(Math.log2(list.length)) || 8;
@@ -184,8 +269,13 @@ export function englishTextToBytes(
     }
 
     if (config.sentenceEndingVariance) {
-      const endingCode = ENDING_TO_CODE[endingStr] ?? 0;
-      rawWriter.writeBits(endingCode, 2);
+      if (isPoetry) {
+        const endingCode = POETRY_ENDING_TO_CODE[endingStr] ?? 0;
+        rawWriter.writeBits(endingCode, 2);
+      } else {
+        const endingCode = NEWS_ENDING_TO_CODE[endingStr] ?? 0;
+        rawWriter.writeBits(endingCode, 2);
+      }
     }
   }
 
