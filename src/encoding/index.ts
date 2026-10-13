@@ -76,7 +76,13 @@ export function bytesToEnglishText(
 
     if (words.length === 0) break;
 
-    words[0] = capitalise(words[0]);
+    for (let i = 0; i < words.length; i++) {
+      const slotLabel = template[i]?.label;
+      const w = words[i];
+      if (i === 0 || slotLabel === "NP") {
+        words[i] = capitalise(w);
+      }
+    }
 
     let ending = ".";
     if (config.sentenceEndingVariance) {
@@ -175,14 +181,24 @@ export function englishTextToBytes(
     }
   }
 
-  const payloadStream = rawWriter.toBytes();
-  if (payloadStream.length < 2) {
+  const rawStream = rawWriter.toBytes();
+  if (rawStream.length < 2) {
     return new Uint8Array(0);
   }
 
-  const view = new DataView(payloadStream.buffer, payloadStream.byteOffset, payloadStream.byteLength);
-  // Payload length is stored in the last 2 bytes of payloadStream
-  const payloadLength = view.getUint16(payloadStream.length - 2, false);
+  let payloadLength = -1;
+  // Scan rawStream for payload length p where rawStream[p..p+1] === p
+  for (let p = rawStream.length - 2; p >= 0; p--) {
+    const len = (rawStream[p] << 8) | rawStream[p + 1];
+    if (len === p) {
+      payloadLength = len;
+      break;
+    }
+  }
 
-  return payloadStream.subarray(0, Math.min(payloadLength, payloadStream.length - 2));
+  if (payloadLength === -1) {
+    return new Uint8Array(0);
+  }
+
+  return rawStream.subarray(0, payloadLength);
 }
