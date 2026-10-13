@@ -157,4 +157,18 @@ describe("English N-Gram Cipher Engine", () => {
     expect(wordCount).toBeLessThanOrEqual(210);
     expect(await decode(cipherText, "compression-test")).toBe(plaintext);
   });
+
+  it("should encode and decode messages into realistic news sentences with long complex grammatical structures", async () => {
+    const plaintext = "Breaking News: Global economic summit concludes with international agreement in Geneva.";
+    const password = "news-complex-structure-key";
+
+    const ciphertext = await encode(plaintext, password);
+    expect(ciphertext).toBeTruthy();
+
+    const sentences = ciphertext.split(/[.!?]+\s*/).filter(s => s.length > 0);
+    expect(sentences.length).toBeGreaterThan(0);
+
+    const decrypted = await decode(ciphertext, password);
+    expect(decrypted).toBe(plaintext);
+  });
 });

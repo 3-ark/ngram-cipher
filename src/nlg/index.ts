@@ -140,29 +140,29 @@ const RELATIVE_CLAUSE_MARKERS = ["that","which"];
 
 // 8 Distinct Word-Length Grammatical News Templates for Natural Prose Matching
 export const TEMPLATES: Slot[][] = [
-  // 0: Length 3 (Determiner + Noun + Intransitive Verb Past)
-  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
-
-  // 1: Length 4 (Determiner + Adjective + Noun + Intransitive Verb Past)
+  // 0: Length 4 (Determiner + Adjective + Noun + Intransitive Verb Past)
   [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
 
-  // 2: Length 5 (Adverb + Pronoun + Transitive Verb + Object)
-  [D(ADVERBS,"R"), D(PRONOUNS,"PR"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(NOUNS,"N")],
+  // 1: Length 5 (Pronoun + Adverb + Transitive Verb + Determiner + Noun)
+  [D(PRONOUNS,"PR"), D(ADVERBS,"R"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(NOUNS,"N")],
 
-  // 3: Length 6 (Determiner + Adjective + Noun + Verb Past + Preposition + Proper Noun) -> e.g. "The national council met in Paris"
+  // 2: Length 6 (Determiner + Adjective + Noun + Intransitive Verb + Preposition + Proper Noun)
   [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
 
-  // 4: Length 7 (Determiner + Adjective + Noun + Verb Past + Determiner + Adjective + Noun) -> e.g. "The major company announced a new project"
+  // 3: Length 7 (Determiner + Adjective + Noun + Transitive Verb + Determiner + Adjective + Noun)
   [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
+
+  // 4: Length 9 (Complex main clause with location complement)
+  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
 
   // 5: Length 8 (Main clause followed by an adverbial subordinate clause)
   [D(DETERMINERS,"d"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(SUBORDINATORS,"SC"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
 
-  // 6: Length 9 (Pronoun + Adverb + Transitive Verb + Object + Complement)
-  [D(PRONOUNS,"PR"), D(ADVERBS,"R"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N")],
+  // 6: Length 12 (Pronoun lead + complex clause + complement + location complement)
+  [D(PRONOUNS,"PR"), D(ADVERBS,"R"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
 
-  // 7: Length 10 (Noun modified by a relative clause, then a main clause)
-  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(RELATIVE_CLAUSE_MARKERS,"REL"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")]
+  // 7: Length 14 (Long complex sentence with relative clause and prepositional complement)
+  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(RELATIVE_CLAUSE_MARKERS,"REL"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")]
 ];
 
 const POETRY_NOUNS = [

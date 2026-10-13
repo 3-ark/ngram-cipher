@@ -70,4 +70,13 @@ describe("Reversible Encoding and Decoding Module", () => {
     expect(Array.from(englishTextToBytes(""))).toEqual([]);
     expect(Array.from(englishTextToBytes("   "))).toEqual([]);
   });
+
+  it("should correctly encode and decode long complex news sentence structures", () => {
+    const payload = new Uint8Array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150]);
+    const encoded = bytesToEnglishText(payload);
+    expect(encoded).toBeTruthy();
+
+    const decoded = englishTextToBytes(encoded);
+    expect(Array.from(decoded)).toEqual(Array.from(payload));
+  });
 });
