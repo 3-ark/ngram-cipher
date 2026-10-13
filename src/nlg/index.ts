@@ -129,29 +129,39 @@ const TRANSITIVE_VERBS_PAST = [
 ];
 const REPORTING_VERBS_PAST = [
   "said","stated","reported","announced","confirmed","noted","argued","warned",
-  "explained","claimed","suggested","added","emphasized","reiterated","insisted","indicated"
+  "explained","claimed","suggested","added","emphasized","reiterated","insisted","indicated",
+  "detailed","revealed","reaffirmed","maintained","highlighted","conceded","observed","declared",
+  "recounted","asserted","acknowledged","underlined","specified","disclosed","pledged","voiced"
 ];
 const DAYS = [
-  "monday","tuesday","wednesday","thursday","friday","saturday","sunday","yesterday"
+  "monday","tuesday","wednesday","thursday","friday","saturday","sunday","yesterday",
+  "today","tonight","morning","afternoon","evening","overnight","recently","lately"
 ];
 const AUXILIARIES = [
-  "was","is","remained","proved","appeared","became","seemed","stayed"
+  "was","is","remained","proved","appeared","became","seemed","stayed",
+  "felt","grew","turned","looked","sounded","stood","continued","kept"
 ];
 const COMPLEMENT_ADJECTIVES = [
   "unprecedented","critical","significant","essential","crucial","vital","decisive","unclear",
-  "vulnerable","unresolved","limited","substantial","urgent","promising","troubling","reassuring"
+  "vulnerable","unresolved","limited","substantial","urgent","promising","troubling","reassuring",
+  "controversial","challenging","pivotal","strategic","paramount","insufficient","encouraging","concerning",
+  "uncertain","favorable","unfavorable","precarious","unshakable","imperative","noteworthy","compelling"
 ];
 const LOCATION_PREPOSITIONS = [
-  "in","near","around","across","through","beyond","within","outside"
+  "in","near","around","across","through","beyond","within","outside",
+  "beside","along","over","under","throughout","upon","past","towards"
 ];
 const NOUN_COMPLEMENT_PREPOSITIONS = [
-  "in","on","for","with","from","near","around","beyond"
+  "in","on","for","with","from","near","around","beyond",
+  "towards","into","through","across","against","upon","despite","without"
 ];
 const SUBORDINATORS = [
-  "after","while","when","before","since","though","because","if"
+  "after","while","when","before","since","though","because","if",
+  "although","whereas","unless","until","as","once","provided","whenever"
 ];
 const CLAUSE_CONJUNCTIONS = [
-  "that","while","although","because","as","since","before","after"
+  "that","while","although","because","as","since","before","after",
+  "if","unless","whereas","until","once","where","whenever","wherever"
 ];
 const RELATIVE_CLAUSE_MARKERS = ["that","which"];
 
@@ -210,19 +220,31 @@ const POETRY_NOUNS = [
   "moon","river","forest","ocean","wind","rain","snow","cloud",
   "sky","sea","tree","branch","leaf","flower","bird","stone",
   "mountain","valley","meadow","shore","lake","stream","shadow","dawn",
-  "dusk","night","star","flame","garden","field","silence","season"
+  "dusk","night","star","flame","garden","field","silence","season",
+  "frost","ember","mist","sunlight","starlight","comet","desert","island",
+  "pathway","horizon","reflection","echo","whisper","breeze","storm","twilight",
+  "harbor","cavern","glade","summit","pine","willow","feather","shell",
+  "tide","wave","spark","light","haven","clearing","canopy","solitude"
 ];
 const POETRY_VERBS_PAST = [
   "slept","glowed","drifted","shimmered","rested","wandered","whispered","faded",
   "gathered","danced","fell","rose","flowed","bloomed","called","waited",
   "lingered","trembled","moved","turned","passed","appeared","vanished","echoed",
-  "breathed","stirred","broke","shone","swayed","sang","dreamed","opened"
+  "breathed","stirred","broke","shone","swayed","sang","dreamed","opened",
+  "soared","glided","awakened","softened","ignited","settled","floated","glimmered",
+  "folded","kindled","surged","cleared","descended","ascended","parted","guided",
+  "traveled","weaved","bounded","listened","welcomed","cherished","embraced","dissolved",
+  "sparkled","flashed","calmed","haunted","realigned","illuminated","subsided","thawed"
 ];
 const POETRY_ADJECTIVES = [
   "quiet","silver","pale","gentle","soft","wild","distant","dark",
   "bright","still","golden","autumn","winter","cold","warm","blue",
   "green","red","white","faint","hollow","lonely","misty","silent",
-  "shallow","deep","sleeping","fallen","hidden","ancient","new","morning"
+  "shallow","deep","sleeping","fallen","hidden","ancient","new","morning",
+  "velvet","tender","amber","shadowy","serene","peaceful","endless","boundless",
+  "radiant","crystal","luminous","subtle","sacred","tranquil","solitary","timeless",
+  "fragile","graceful","mellow","vibrant","ethereal","pristine","dusky","snowy",
+  "goldenrod","azure","emerald","crimson","calm","dormant","halcyon","fleeting"
 ];
 const POETRY_DETERMINERS = [
   "the","a","this","that","some","one","our","my",
