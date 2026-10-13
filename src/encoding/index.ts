@@ -39,16 +39,15 @@ export function bytesToEnglishText(
     return "";
   }
 
-  // Append payload length (16-bit uint16) to the END of fullPayload so bit 0 comes directly from bytes[0]!
-  // This guarantees that bit 0 comes from whitened AES salt, making sentence 1 opening words 100% random and unique per run!
+  // Prepend payload length (16-bit uint16) at the START of fullPayload for O(1) deterministic extraction
   const payloadLength = bytes.length;
   const lengthBytes = new Uint8Array(2);
   const view = new DataView(lengthBytes.buffer);
   view.setUint16(0, payloadLength, false);
 
   const fullPayload = new Uint8Array(bytes.length + 2);
-  fullPayload.set(bytes, 0);
-  fullPayload.set(lengthBytes, bytes.length);
+  fullPayload.set(lengthBytes, 0);
+  fullPayload.set(bytes, 2);
 
   const reader = new BitStreamReader(fullPayload);
   const sentences: string[] = [];
@@ -186,19 +185,8 @@ export function englishTextToBytes(
     return new Uint8Array(0);
   }
 
-  let payloadLength = -1;
-  // Scan rawStream for payload length p where rawStream[p..p+1] === p
-  for (let p = rawStream.length - 2; p >= 0; p--) {
-    const len = (rawStream[p] << 8) | rawStream[p + 1];
-    if (len === p) {
-      payloadLength = len;
-      break;
-    }
-  }
+  const view = new DataView(rawStream.buffer, rawStream.byteOffset, rawStream.byteLength);
+  const payloadLength = view.getUint16(0, false);
 
-  if (payloadLength === -1) {
-    return new Uint8Array(0);
-  }
-
-  return rawStream.subarray(0, payloadLength);
+  return rawStream.subarray(2, Math.min(2 + payloadLength, rawStream.length));
 }
