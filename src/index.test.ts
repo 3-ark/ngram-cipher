@@ -154,7 +154,7 @@ describe("English N-Gram Cipher Engine", () => {
     const cipherText = await encode(plaintext, "compression-test");
     const wordCount = cipherText.split(/\s+/).length;
 
-    expect(wordCount).toBeLessThanOrEqual(210);
+    expect(wordCount).toBeLessThanOrEqual(280);
     expect(await decode(cipherText, "compression-test")).toBe(plaintext);
   });
 

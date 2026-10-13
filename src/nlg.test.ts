@@ -14,7 +14,9 @@ import {
   VOCABULARY,
   TEMPLATES,
   POETRY_TEMPLATES,
-  analyzeCarrierText
+  analyzeCarrierText,
+  calculateNGramScore,
+  rankCandidates
 } from "./nlg/index.js";
 
 describe("Natural Language Generation & Analysis Module", () => {
@@ -77,6 +79,18 @@ describe("Natural Language Generation & Analysis Module", () => {
     for (const template of POETRY_TEMPLATES) {
       expect(template.every(slot => slot.type === "data" && slot.list.length >= 4)).toBe(true);
     }
+  });
+
+  it("should calculate 5-gram language model scores and rank candidates accordingly", () => {
+    const context = ["stated", "tuesday", "in", "a"];
+    const scorePublic = calculateNGramScore("public", context);
+    const scoreRandom = calculateNGramScore("zebra", context);
+
+    expect(scorePublic).toBeGreaterThan(scoreRandom);
+
+    const candidates = ["zebra", "public", "apple"];
+    const ranked = rankCandidates(candidates, context);
+    expect(ranked[0]).toBe("public");
   });
 
   it("should perform carrier text statistical analysis and perplexity estimation", () => {
