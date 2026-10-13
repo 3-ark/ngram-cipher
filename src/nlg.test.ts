@@ -10,13 +10,15 @@ import {
   PREPOSITIONS,
   CONJUNCTIONS,
   RELATIVES,
+  PRONOUNS,
   VOCABULARY,
   TEMPLATES,
+  HAIKU_TEMPLATES,
   analyzeCarrierText
 } from "./nlg/index.js";
 
 describe("Natural Language Generation & Analysis Module", () => {
-  it("should verify that each POS list contains 256 unique entries", () => {
+  it("should verify that POS lists contain unique words and power-of-two sizes", () => {
     const posLists = [
       { name: "NOUNS", list: NOUNS },
       { name: "VERBS", list: VERBS },
@@ -28,13 +30,37 @@ describe("Natural Language Generation & Analysis Module", () => {
       { name: "PREPOSITIONS", list: PREPOSITIONS },
       { name: "CONJUNCTIONS", list: CONJUNCTIONS },
       { name: "RELATIVES", list: RELATIVES },
+      { name: "PRONOUNS", list: PRONOUNS },
     ];
 
     for (const { name, list } of posLists) {
-      expect(list.length).toBe(256);
+      expect(list.length, name).toBeGreaterThanOrEqual(8);
+      expect(Number.isInteger(Math.log2(list.length)), name).toBe(true);
       const unique = new Set(list.map(w => w.toLowerCase()));
-      expect(unique.size).toBe(256);
+      expect(unique.size, name).toBe(list.length);
     }
+  });
+
+  it("should keep function-word dictionaries free of unrelated vocabulary", () => {
+    expect(DETERMINERS).toEqual([
+      "the","some","any","no","our","your","their","its"
+    ]);
+    expect(PREPOSITIONS).not.toContain("acrossboard");
+    expect(PREPOSITIONS).not.toContain("backwardsward");
+    expect(CONJUNCTIONS).not.toContain("ability");
+    expect(RELATIVES).not.toContain("aircraft");
+    expect(TEMPLATES[0][2].list).not.toContain("rejected");
+    expect(TEMPLATES[1][3].list).not.toContain("rejected");
+    expect(TEMPLATES[2][2].list).toContain("rejected");
+    expect(TEMPLATES[2][2].list).not.toContain("grew");
+    expect(TEMPLATES[3][3].list).toContain("grew");
+    expect(TEMPLATES[3][3].list).not.toContain("rejected");
+    expect(TEMPLATES[6][6].list).not.toContain("despite");
+    expect(PRONOUNS).toContain("it");
+    expect(PRONOUNS).toContain("they");
+    expect(TEMPLATES[2][1].list).toBe(PRONOUNS);
+    expect(TEMPLATES[5][3].label).toBe("SC");
+    expect(TEMPLATES[7][2].list).toEqual(["that","which"]);
   });
 
   it("should contain valid templates with 100% data slots carrying bits", () => {
@@ -43,6 +69,14 @@ describe("Natural Language Generation & Analysis Module", () => {
       expect(template.length).toBeGreaterThan(0);
       const dataSlots = template.filter(s => s.type === "data");
       expect(dataSlots.length).toBe(template.length);
+    }
+  });
+
+  it("should provide eight Haiku-inspired templates with distinct sentence lengths", () => {
+    expect(HAIKU_TEMPLATES).toHaveLength(8);
+    expect(new Set(HAIKU_TEMPLATES.map(template => template.length)).size).toBe(8);
+    for (const template of HAIKU_TEMPLATES) {
+      expect(template.every(slot => slot.type === "data" && slot.list.length >= 8)).toBe(true);
     }
   });
 

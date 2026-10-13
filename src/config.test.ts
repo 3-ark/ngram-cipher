@@ -39,6 +39,7 @@ describe("Configuration and Validation Module", () => {
     expect(merged.crypto.saltByteLength).toBe(DEFAULT_CONFIG.crypto.saltByteLength);
     expect(merged.framing.enableChecksum).toBe(false);
     expect(merged.encoding.sentenceEndingVariance).toBe(true);
+    expect(merged.encoding.style).toBe("news");
   });
 
   it("should validate passwords correctly", () => {

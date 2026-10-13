@@ -92,6 +92,12 @@
     <label for="plaintext">Plaintext</label>
     <textarea id="plaintext" placeholder="Type message to encode...">Hello world! This secret message will be encoded into natural English text.</textarea>
 
+    <label for="style">Writing style</label>
+    <select id="style">
+      <option value="news">News prose</option>
+      <option value="haiku">Haiku-inspired</option>
+    </select>
+
     <div class="btn-group">
       <button id="encodeBtn">🔒 Encode to English Prose</button>
       <button id="decodeBtn" class="secondary">🔓 Decode to Plaintext</button>
@@ -109,6 +115,7 @@
     const plaintextEl = document.getElementById('plaintext');
     const ciphertextEl = document.getElementById('ciphertext');
     const passwordEl = document.getElementById('password');
+    const styleEl = document.getElementById('style');
     const errorEl = document.getElementById('error');
 
     function showError(msg) {
@@ -127,7 +134,7 @@
         const pass = passwordEl.value;
         if (!text) return showError('Please enter plaintext to encode.');
         if (!pass) return showError('Please enter a password.');
-        const result = await encode(text, pass);
+        const result = await encode(text, pass, { encoding: { style: styleEl.value } });
         ciphertextEl.value = result;
       } catch (err) {
         showError(err.message || 'Encoding error occurred.');
@@ -141,7 +148,7 @@
         const pass = passwordEl.value;
         if (!cipher) return showError('Please enter English ciphertext to decode.');
         if (!pass) return showError('Please enter a password.');
-        const result = await decode(cipher, pass);
+        const result = await decode(cipher, pass, { encoding: { style: styleEl.value } });
         plaintextEl.value = result;
       } catch (err) {
         showError(err.message || 'Decoding error occurred.');

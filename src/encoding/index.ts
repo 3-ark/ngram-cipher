@@ -7,6 +7,7 @@ import {
   CARRIER_WORDS,
   CARRIER_WORD_TO_INDEX,
   TEMPLATES,
+  HAIKU_TEMPLATES,
   rankCandidates,
   valToRank,
   rankToVal,
@@ -52,11 +53,12 @@ export function bytesToEnglishText(
 
   const reader = new BitStreamReader(fullPayload);
   const sentences: string[] = [];
+  const templates = config.style === "haiku" ? HAIKU_TEMPLATES : TEMPLATES;
   let sentenceIdx = 0;
 
   while (reader.hasBits) {
     const templateIdx = reader.hasBits ? reader.readBits(3) : 0;
-    const template = TEMPLATES[templateIdx];
+    const template = templates[templateIdx];
 
     const words: string[] = [];
     const context: string[] = [];
@@ -76,8 +78,13 @@ export function bytesToEnglishText(
 
     if (words.length === 0) break;
 
-    words[0] = capitalise(words[0]);
-
+    for (let i = 0; i < words.length; i++) {
+      const slotLabel = template[i]?.label;
+      const w = words[i];
+      if (i === 0 || slotLabel === "NP") {
+        words[i] = capitalise(w);
+      }
+    }
     let ending = ".";
     if (config.sentenceEndingVariance) {
       const endingCode = reader.hasBits ? reader.readBits(2) : 0;
@@ -89,6 +96,12 @@ export function bytesToEnglishText(
     sentenceIdx++;
   }
 
+  if (config.style === "haiku") {
+    return sentences.map((sentence, index) => {
+      const lineBreak = index === 0 ? "" : index % 3 === 0 ? "\n\n" : "\n";
+      return `${lineBreak}${sentence}`;
+    }).join("");
+  }
   return sentences.join(" ");
 }
 
@@ -131,15 +144,16 @@ export function englishTextToBytes(
   }
 
   const rawWriter = new BitStreamWriter();
+  const templates = config.style === "haiku" ? HAIKU_TEMPLATES : TEMPLATES;
 
   for (let sentenceIdx = 0; sentenceIdx < rawSentences.length; sentenceIdx++) {
     const { sentenceStr, endingStr } = rawSentences[sentenceIdx];
     const tokens = sentenceStr.split(/\s+/).filter(t => t.length > 0);
     if (tokens.length === 0) continue;
 
-    const templateIdx = matchTemplate(tokens);
+    const templateIdx = matchTemplate(tokens, templates);
     rawWriter.writeBits(templateIdx, 3);
-    const template = TEMPLATES[templateIdx];
+    const template = templates[templateIdx];
 
     let tokenIdx = 0;
     const context: string[] = [];
@@ -175,14 +189,24 @@ export function englishTextToBytes(
     }
   }
 
-  const payloadStream = rawWriter.toBytes();
-  if (payloadStream.length < 2) {
+  const rawStream = rawWriter.toBytes();
+  if (rawStream.length < 2) {
     return new Uint8Array(0);
   }
 
-  const view = new DataView(payloadStream.buffer, payloadStream.byteOffset, payloadStream.byteLength);
-  // Payload length is stored in the last 2 bytes of payloadStream
-  const payloadLength = view.getUint16(payloadStream.length - 2, false);
+  let payloadLength = -1;
+  // Scan rawStream backwards for payload length p where rawStream[p..p+1] === p
+  for (let p = rawStream.length - 2; p >= 0; p--) {
+    const len = (rawStream[p] << 8) | rawStream[p + 1];
+    if (len === p) {
+      payloadLength = len;
+      break;
+    }
+  }
 
-  return payloadStream.subarray(0, Math.min(payloadLength, payloadStream.length - 2));
+  if (payloadLength === -1) {
+    return new Uint8Array(0);
+  }
+
+  return rawStream.subarray(0, payloadLength);
 }

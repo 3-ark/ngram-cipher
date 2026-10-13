@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 import { EncodingError } from "./config/index.js";
+import { DETERMINERS, PRONOUNS } from "./nlg/index.js";
 
 describe("Reversible Encoding and Decoding Module", () => {
   it("should round-trip byte arrays to English prose and back", () => {
@@ -14,6 +15,15 @@ describe("Reversible Encoding and Decoding Module", () => {
     expect(Array.from(recoveredBytes)).toEqual(Array.from(testBytes));
   });
 
+  it("should round-trip byte arrays in Haiku-inspired style", () => {
+    const testBytes = new Uint8Array([0, 1, 2, 255, 128, 64, 32, 16, 8, 4, 2, 1]);
+    const config = { style: "haiku" as const, sentenceEndingVariance: true };
+    const text = bytesToEnglishText(testBytes, config);
+
+    expect(text).toContain("\n");
+    expect(Array.from(englishTextToBytes(text, config))).toEqual(Array.from(testBytes));
+  });
+
   it("should support fixed period ending configuration", () => {
     const testBytes = new Uint8Array([10, 20, 30, 40, 50, 60]);
     const text = bytesToEnglishText(testBytes, { sentenceEndingVariance: false });
@@ -25,6 +35,26 @@ describe("Reversible Encoding and Decoding Module", () => {
 
     const recovered = englishTextToBytes(text, { sentenceEndingVariance: false });
     expect(Array.from(recovered)).toEqual(Array.from(testBytes));
+  });
+
+  it("should encode revised clause and pronoun templates without losing bits", () => {
+    const config = { sentenceEndingVariance: false };
+    const clauseBytes = new Uint8Array([0xa0, 0x12, 0x34, 0x56]);
+    const clauseText = bytesToEnglishText(clauseBytes, config);
+    const firstClause = clauseText.split(/[.!?]/)[0].split(/\s+/);
+
+    expect(firstClause).toHaveLength(8);
+    expect(DETERMINERS).toContain(firstClause[0].toLowerCase());
+    expect(firstClause[3]).toMatch(/^(after|while|when|before|since|though|because|if)$/);
+    expect(Array.from(englishTextToBytes(clauseText, config))).toEqual(Array.from(clauseBytes));
+
+    const pronounBytes = new Uint8Array([0xc0, 0x12, 0x34, 0x56]);
+    const pronounText = bytesToEnglishText(pronounBytes, config);
+
+    expect(PRONOUNS.map(word => word.toLowerCase())).toContain(
+      pronounText.split(/\s+/)[0].toLowerCase()
+    );
+    expect(Array.from(englishTextToBytes(pronounText, config))).toEqual(Array.from(pronounBytes));
   });
 
   it("should throw EncodingError on invalid token in cipher text", () => {
