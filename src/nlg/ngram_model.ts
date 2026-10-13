@@ -170,6 +170,12 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
     score += 1;
   }
 
+  // 5. Repetition penalty: penalize repeating non-function words already present in sentence context
+  const functionWords = new Set(["the", "a", "an", "in", "of", "to", "for", "on", "with", "at", "by", "from", "and", "or", "but"]);
+  if (context.some(c => c.toLowerCase() === w) && !functionWords.has(w)) {
+    score -= 500;
+  }
+
   return score;
 }
 
