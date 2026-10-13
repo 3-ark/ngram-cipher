@@ -51,6 +51,7 @@ export interface FramingConfig {
 
 export interface EncodingConfig {
   sentenceEndingVariance: boolean;
+  style?: "news" | "haiku";
 }
 
 export interface StegoConfig {
@@ -78,6 +79,7 @@ export const DEFAULT_CONFIG: StegoConfig = {
   },
   encoding: {
     sentenceEndingVariance: true,
+    style: "news",
   },
 };
 

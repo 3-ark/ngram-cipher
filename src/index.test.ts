@@ -47,6 +47,15 @@ describe("English N-Gram Cipher Engine", () => {
     expect(decrypted).toBe(plaintext);
   });
 
+  it("should round-trip messages with the Haiku-inspired writing style", async () => {
+    const plaintext = "The moon watches the river.";
+    const options = { encoding: { style: "haiku" as const } };
+    const ciphertext = await encode(plaintext, "haiku-style-test", options);
+
+    expect(ciphertext).toContain("\n");
+    expect(await decode(ciphertext, "haiku-style-test", options)).toBe(plaintext);
+  });
+
   it("should handle unicode characters", async () => {
     const plaintext = "🚀 Unicode Test: 秘密消息 12345! @#$%";
     const password = "my-password";
@@ -102,15 +111,15 @@ describe("English N-Gram Cipher Engine", () => {
     console.log("============================");
   });
 
-  it("should generate significantly shorter steganography by carrying bits in every word and punctuation mark", async () => {
+  it("should keep carrier text reasonably compact with curated function-word slots", async () => {
     const text = "Hello world! This secret message will be encoded into natural English text.";
     const password = "test-shortness";
 
     const cipherText = await encode(text, password);
     const wordCount = cipherText.split(/\s+/).length;
 
-    // Each carrier word holds 11 payload bits; sentence endings can carry 2 more bits.
-    expect(wordCount).toBeLessThan(140);
+    // Function-word slots use smaller curated lists, so payload capacity varies by template.
+    expect(wordCount).toBeLessThan(180);
 
     const decrypted = await decode(cipherText, password);
     expect(decrypted).toBe(text);

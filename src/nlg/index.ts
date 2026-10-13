@@ -50,24 +50,30 @@ export const PROPER_NOUNS: string[] = [
   "washington","london","beijing","moscow","berlin","paris","tokyo","ottawa","brussels","geneva","vienna","madrid","rome","seoul","ankara","cairo","dublin","warsaw","prague","stockholm","oslo","helsinki","lisbon","athens","sydney","melbourne","toronto","vancouver","montreal","auckland","mumbai","delhi","shanghai","taipei","singapore","bangkok","jakarta","manila","hanoi","riyadh","tehran","baghdad","kabul","nairobi","lagos","pretoria","accra","addis","congress","parliament","pentagon","kremlin","downing","westminster","capitol","senate","bloomberg","reuters","guardian","chronicle","tribune","herald","observer","gazette","johnson","williams","thompson","anderson","mitchell","campbell","robinson","stewart","harrison","jackson","kennedy","morrison","sullivan","patterson","henderson","crawford","marshall","spencer","tucker","wallace","andrews","douglas","fleming","gardner","hamilton","lambert","maxwell","pearson","richards","sanders","warren","webster","stanford","harvard","oxford","cambridge","princeton","columbia","cornell","berkeley","amazon","microsoft","google","tesla","apple","samsung","intel","oracle","goldman","morgan","barclays","deutsche","citibank","nomura","fidelity","schwab","boeing","airbus","lockheed","raytheon","northrop","siemens","philips","hitachi","ferrari","porsche","honda","toyota","nissan","volvo","hyundai","renault","pfizer","moderna","novartis","merck","abbott","bristol","roche","sanofi","atlantic","pacific","arctic","mediterranean","caribbean","baltic","adriatic","caspian","sahara","congo","danube","thames","rhine","nile","ganges","yangtze","clinton","carter","nixon","reagan","lincoln","churchill","macron","trudeau","merkel","erdogan","netanyahu","kishida","albanese","starmer","scholz","sunak","africa","europe","america","australia","canada","mexico","brazil","argentina","colombia","chile","peru","ecuador","bolivia","uruguay","paraguay","venezuela","china","india","japan","korea","taiwan","thailand","vietnam","malaysia","indonesia","philippines","myanmar","pakistan","bangladesh","nepal","lanka","cambodia","germany","france","britain","spain","italy","poland","ukraine","romania","sweden","norway","denmark","finland","ireland","scotland","belgium","austria","egypt","turkey","iran","iraq","syria","jordan","lebanon","israel","nigeria","kenya","ghana","ethiopia","tanzania","uganda","rwanda","senegal","russia","georgia","belarus","armenia","serbia","croatia","bulgaria","hungary","nato","asean","opec","unesco","unicef","brics","interpol","europol"
 ];
 
-// -- DETERMINERS (256 clean single-word determiners) -----------------------
+// These function-word lists stay small and grammatical instead of adding
+// unrelated words just to fill a 256-word, 8-bit slot.
 export const DETERMINERS: string[] = [
-  "the","a","an","this","that","these","those","my","your","his","her","its","our","their","whose","all","every","each","both","either","neither","no","another","other","some","any","many","few","much","several","more","most","little","less","least","fewer","fewest","enough","plenty","various","numerous","multiple","certain","such","whatever","whichever","what","which","same","different","aforementioned","aforesaid","selfsame","one","two","three","four","five","six","seven","eight","nine","ten","hundred","thousand","million","billion","first","second","third","last","next","national","global","federal","official","public","private","economic","financial","local","regional","central","recent","current","strategic","primary","principal","main","key","major","minor","top","bottom","overall","general","average","typical","additional","extra","further","alternative","former","latter","previous","following","initial","final","intermediate","secondary","alternate","popular","standard","normal","regular","common","ordinary","unprecedented","important","essential","serious","severe","growing","increasing","ongoing","temporary","permanent","available","potential","expected","proposed","planned","scheduled","continued","remaining","existing","established","traditional","conventional","independent","separate","distinct","unique","exclusive","commercial","industrial","corporate","military","academic","scientific","medical","digital","electronic","international","domestic","urban","rural","northern","southern","eastern","western","annual","daily","weekly","monthly","quarterly","civil","political","social","cultural","legal","operational","technical","clinical","sustainable","renewable","clean","green","natural","organic","raw","direct","indirect","active","passive","busy","quiet","rapid","steady","rich","poor","expensive","cheap","free","joint","mutual","collective","clear","obvious","apparent","visible","transparent","known","familiar","recognized","fresh","warm","cold","dry","wet","bright","dark","sharp","deadly","massive","enormous","vast","widespread","comprehensive","extensive","sweeping","strict","tough","rigid","firm","flexible","loose","mild","gentle","rustic","coastal","inland","remote","focal","prime","capital","provincial","brief","lengthy","detailed","preliminary","concerned","worried","cautious","skeptical","optimistic","confident","determined","committed","capable","skilled","qualified","experienced","professional","expert","veteran"
+  "the","some","any","no","our","your","their","its"
 ];
 
-// -- PREPOSITIONS (256 clean single-word prepositions) ----------------------
+// -- PREPOSITIONS -----------------------------------------------------------
 export const PREPOSITIONS: string[] = [
-  "in","of","for","on","with","at","by","from","to","into","about","after","during","between","through","across","over","under","before","since","against","around","among","within","toward","upon","along","beyond","without","despite","until","throughout","above","below","behind","beside","beneath","alongside","amid","amidst","amongst","towards","onto","outside","inside","near","nearby","underneath","opposite","off","past","via","per","plus","minus","versus","unlike","like","considering","regarding","concerning","respecting","except","excluding","including","following","barring","save","aboard","circa","down","excepting","failing","instead","less","notwithstanding","pending","pro","re","round","short","till","times","unto","up","vice","worth","absent","according","pursuant","prior","subsequent","owing","due","regardless","relative","irrespective","contrary","ahead","atop","back","close","far","further","nearer","nearest","next","out","astride","athwart","outwith","counter","cross","trans","inter","abroad","adrift","afloat","afoot","afoul","aft","aground","aloft","apart","aslope","atilt","awry","aback","abeam","abreast","straddling","afore","asunder","away","besides","betwixt","nigh","sans","lack","saving","incorporating","comprising","involving","containing","covering","featuring","embracing","encompassing","spanning","bridging","crossing","skirting","bordering","bounding","circling","encircling","surrounding","enclosing","north","south","east","west","northeast","northwest","southeast","southwest","inward","outward","upward","downward","forward","backward","sideways","halfway","underway","midway","crosswise","lengthwise","alongshore","alongtrack","amidships","amok","apeak","apeek","awrack","overseas","nationwide","worldwide","countrywide","statewide","citywide","regionwide","coastwise","inland","pastward","rearwards","acrossboard","intrans","infra","supra","hyper","retro","circum","peri","northwards","southwards","eastwards","westwards","homewards","skywards","earthwards","seawards","landwards","windwards","leewards","frontwards","rightwards","leftwards","anslant","aslant","athwartship","atopward","backwardsward","downwardward","eastwardward","inwardward","outwardward","overtop","herein","hereof","hereon","hereat","hereby","herefrom","hereto","hereinto","herewith","hereunder","hereabove","hereabout","herebetween","hereacross","hereafter","herebefore","therein","thereof","thereon","thereat","thereby","therefrom","thereto","thereinto","therewith","thereunder","thereabove","thereabout"
+  "in","of","for","on","with","at","by","from","to","into","about","after","during","between","through","across",
+  "over","under","before","since","against","around","among","within","toward","upon","along","beyond","without","despite","until","throughout"
 ];
 
-// -- CONJUNCTIONS (256 clean single-word conjunctions) ----------------------
+// -- CONJUNCTIONS -----------------------------------------------------------
 export const CONJUNCTIONS: string[] = [
-  "and","but","while","as","or","yet","although","because","however","meanwhile","therefore","furthermore","moreover","nevertheless","since","though","whereas","unless","whether","otherwise","consequently","accordingly","besides","nonetheless","likewise","similarly","conversely","instead","meantime","hence","thus","also","notwithstanding","further","additionally","alternatively","incidentally","parenthetically","anyway","anyhow","equally","correspondingly","identically","subsequently","thereafter","according","granted","admittedly","certainly","undoubtedly","indeed","surely","truly","naturally","obviously","clearly","plainly","evidently","manifestly","patently","markedly","notably","specifically","particularly","especially","principally","mainly","chiefly","primarily","mostly","largely","predominantly","substantially","materially","significantly","decisively","crucially","vitally","importantly","fundamentally","essentially","basically","inherently","intrinsically","secondarily","thirdly","finally","lastly","ultimately","eventually","proviso","assuming","provided","providing","supposing","given","allowing","considering","seeing","inasmuch","insofar","whereupon","whereby","wherefore","whence","whither","henceforth","thenceforth","despite","whilst","albeit","whenever","wherever","whichever","whatever","whoever","whomever","thereby","hereby","when","where","why","how","after","before","until","once","assoon","aslong","sofar","inorder","so","sothat","suchthat","incase","providedthat","assumingthat","giventhat","seeingthat","consideringthat","insofaras","insource","exceptthat","savethat","beyondthat","besidesthat","notwithstandingthat","again","andor","aswell","too","plus","alongwith","coupledwith","togetherwith","notonly","aswellas","ontopof","toboot","inlikemanner","intandem","sidebyside","handinhand","coincidentally","concurrently","simultaneously","atthesametime","inthemeantime","fornow","forthemoment","intheinterim","temporarily","aslongas","solongas","onconditionthat","onlyif","inevent","incasethat","supposingthat","presumingthat","grantingthat","admittingthat","allowingthat","ability","about","above","abroad","absence","absent","absolute","accept","access","accident","account","accurate","achieve","acid","acquire","across","act","action","active","activity","actor","actual","adapt","add","addition","address","adequate","adjust","admire","admit","adopt","adult","advance","advantage","adventure","advice","advise","affair","affect","afford","afraid","afternoon","against","age","agency","agent","aggressive","agony","agree","agreement","ahead","aid","aim","air","aircraft","airline","airport","alarm","album","alcohol","alert","alien","alike","alive","all","allow","almost","alone","along","already","alter","the","to"
+  "and","but","while","as","or","yet","although","because","since","though","whereas","unless","whether","when","where","if"
 ];
 
-// -- RELATIVES (256 clean relative pronouns) --------------------------------
+// -- RELATIVES ---------------------------------------------------------------
 export const RELATIVES: string[] = [
-  "that","which","who","whom","whose","where","when","why","how","whatever","whichever","whoever","whomever","wherever","whenever","however","whereby","wherein","whereof","whereon","whereat","wherefrom","whereto","whereinto","wherewith","whereunder","whereabove","whereabout","wherebetween","whereacross","whereafter","wherebefore","thereby","therein","thereof","thereon","thereat","therefrom","thereto","thereinto","therewith","thereunder","thereabove","thereabout","therebetween","thereacross","thereafter","therebefore","hereby","herein","hereof","hereon","hereat","herefrom","hereto","hereinto","herewith","hereunder","hereabove","hereabout","herebetween","hereacross","hereafter","herebefore","whence","whither","henceforth","thenceforth","whereupon","thereupon","hereupon","inasmuch","insofar","albeit","whilst","whereas","wherefore","thence","hence","there","here","wheresoever","whensoever","wheresover","whosoevers","whomsoever","whatsoever","whichsoever","howsoever","aswell","asif","asthough","inthat","sothat","suchthat","incase","provided","assuming","given","seeing","considering","wherethrough","wherealong","whereamid","whereamong","wherearound","wherebehind","wherebelow","wherebeneath","wherebeside","wherebeyond","therethrough","therealong","thereamid","thereamong","therearound","therebehind","therebelow","therebeneath","therebeside","therebeyond","herethrough","herealong","hereamid","hereamong","herearound","herebehind","herebelow","herebeneath","herebeside","herebeyond","ability","about","above","abroad","absence","absent","absolute","accept","access","accident","account","accurate","achieve","acid","acquire","across","act","action","active","activity","actor","actual","adapt","add","addition","address","adequate","adjust","admire","admit","adopt","adult","advance","advantage","adventure","advice","advise","affair","affect","afford","afraid","after","afternoon","again","against","age","agency","agent","aggressive","agony","agree","agreement","ahead","aid","aim","air","aircraft","airline","airport","the","to","and","of","in","for","on","is","with","was","as","it","at","be","from","are","has","have","said","by","his","this","he","an","will","their","not","or","but","you","been","they","had","her","more","can","were","also","its","one","we","out","up","all","she","would","people","than","first","just","over","so","year","like","now","into","new","our","two","what","them","your","could","last","my","if"
+  "that","which","who","whom","whose","where","when","why","how","whatever","whichever","whoever","whomever","wherever","whenever","however"
+];
+
+export const PRONOUNS: string[] = [
+  "they","we","he","she","it","I","you","one"
 ];
 
 // POS Map
@@ -82,6 +88,7 @@ export const POS_LISTS: Record<string, string[]> = {
   p: PREPOSITIONS,
   c: CONJUNCTIONS,
   r: RELATIVES,
+  pronoun: PRONOUNS,
 };
 
 export const POS_SETS: Record<string, Set<string>> = {};
@@ -113,41 +120,109 @@ export const CARRIER_WORD_TO_INDEX = new Map(
   CARRIER_WORDS.map((word, index) => [word, index])
 );
 
+const INTRANSITIVE_VERBS_PAST = [
+  "grew","rose","fell","declined","expanded","remained","continued","endured",
+  "lasted","survived","began","started","ended","stopped","persisted","improved"
+];
+const TRANSITIVE_VERBS_PAST = [
+  "reported","announced","confirmed","revealed","supported","proposed","rejected","approved",
+  "launched","introduced","created","developed","built","acquired","received","provided",
+  "published","released","signed","passed","adopted","reviewed","examined","addressed",
+  "changed","increased","reduced","strengthened","protected","defended","blocked","criticized"
+];
+const LOCATION_PREPOSITIONS = [
+  "in","near","around","across","through","beyond","within","outside"
+];
+const NOUN_COMPLEMENT_PREPOSITIONS = [
+  "in","on","for","with","from","near","around","beyond"
+];
+const SUBORDINATORS = [
+  "after","while","when","before","since","though","because","if"
+];
+const RELATIVE_CLAUSE_MARKERS = ["that","which"];
+
 // 8 Distinct Word-Length Grammatical News Templates for Natural Prose Matching
 export const TEMPLATES: Slot[][] = [
-  // 0: Length 3 (Determiner + Noun + Verb Past) -> e.g. "The market expanded"
-  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(VERBS_PAST,"VP")],
+  // 0: Length 3 (Determiner + Noun + Intransitive Verb Past)
+  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
 
-  // 1: Length 4 (Determiner + Adjective + Noun + Verb Past) -> e.g. "The new report confirmed"
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(VERBS_PAST,"VP")],
+  // 1: Length 4 (Determiner + Adjective + Noun + Intransitive Verb Past)
+  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
 
-  // 2: Length 5 (Adverb + Proper Noun + Verb Past + Determiner + Noun) -> e.g. "Recently Washington confirmed the policy"
-  [D(ADVERBS,"R"), D(PROPER_NOUNS,"NP"), D(VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(NOUNS,"N")],
+  // 2: Length 5 (Adverb + Pronoun + Transitive Verb + Object)
+  [D(ADVERBS,"R"), D(PRONOUNS,"PR"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(NOUNS,"N")],
 
   // 3: Length 6 (Determiner + Adjective + Noun + Verb Past + Preposition + Proper Noun) -> e.g. "The national council met in Paris"
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(VERBS_PAST,"VP"), D(PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
+  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
 
   // 4: Length 7 (Determiner + Adjective + Noun + Verb Past + Determiner + Adjective + Noun) -> e.g. "The major company announced a new project"
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
+  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
 
-  // 5: Length 8 (Preposition + Proper Noun + Determiner + Adjective + Noun + Verb Past + Determiner + Noun) -> e.g. "In London the local council approved the budget"
-  [D(PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(NOUNS,"N")],
+  // 5: Length 8 (Main clause followed by an adverbial subordinate clause)
+  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(SUBORDINATORS,"SC"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
 
-  // 6: Length 9 (Proper Noun + Adverb + Verb Past + Determiner + Adjective + Noun + Preposition + Determiner + Noun) -> e.g. "Washington recently confirmed the new policy in the market"
-  [D(PROPER_NOUNS,"NP"), D(ADVERBS,"R"), D(VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N")],
+  // 6: Length 9 (Pronoun + Adverb + Transitive Verb + Object + Complement)
+  [D(PRONOUNS,"PR"), D(ADVERBS,"R"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N")],
 
-  // 7: Length 10 (Determiner + Adjective + Noun + Adverb + Verb Past + Determiner + Adjective + Noun + Preposition + Proper Noun) -> e.g. "The senior official recently presented the new report in Geneva"
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(ADVERBS,"R"), D(VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")]
+  // 7: Length 10 (Noun modified by a relative clause, then a main clause)
+  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(RELATIVE_CLAUSE_MARKERS,"REL"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")]
+];
+
+const HAIKU_NOUNS = [
+  "moon","river","forest","ocean","wind","rain","snow","cloud",
+  "sky","sea","tree","branch","leaf","flower","bird","stone",
+  "mountain","valley","meadow","shore","lake","stream","shadow","dawn",
+  "dusk","night","star","flame","garden","field","silence","season"
+];
+const HAIKU_VERBS_PAST = [
+  "slept","glowed","drifted","shimmered","rested","wandered","whispered","faded",
+  "gathered","danced","fell","rose","flowed","bloomed","called","waited",
+  "lingered","trembled","moved","turned","passed","appeared","vanished","echoed",
+  "breathed","stirred","broke","shone","swayed","sang","dreamed","opened"
+];
+const HAIKU_ADJECTIVES = [
+  "quiet","silver","pale","gentle","soft","wild","distant","dark",
+  "bright","still","golden","autumn","winter","cold","warm","blue",
+  "green","red","white","faint","hollow","lonely","misty","silent",
+  "shallow","deep","sleeping","fallen","hidden","ancient","new","morning"
+];
+const HAIKU_DETERMINERS = [
+  "the","a","this","that","some","one","our","my",
+  "your","his","her","its","each","every","another","any"
+];
+const HAIKU_PREPOSITIONS = [
+  "above","below","beside","beyond","beneath","near","through","over",
+  "under","across","around","among","within","behind","against","toward"
+];
+const HAIKU_CONJUNCTIONS = [
+  "and","while","as","but","yet","though","because","where"
+];
+const HAIKU_ADVERBS = [
+  "quietly","slowly","softly","gently","here","there","alone","away",
+  "brightly","faintly","still","deeply","wildly","lightly","calmly","nearby"
+];
+
+// Haiku-inspired sentence patterns; their lines evoke poetry but do not enforce syllable counts.
+export const HAIKU_TEMPLATES: Slot[][] = [
+  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
+  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
+  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_VERBS_PAST,"VP")],
+  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_PREPOSITIONS,"p"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N")],
+  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
+  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_PREPOSITIONS,"p"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N")],
+  [D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")],
+  [D(HAIKU_ADVERBS,"R"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP"), D(HAIKU_CONJUNCTIONS,"c"), D(HAIKU_DETERMINERS,"d"), D(HAIKU_ADJECTIVES,"A"), D(HAIKU_NOUNS,"N"), D(HAIKU_VERBS_PAST,"VP")]
 ];
 
 /**
  * Deterministically identifies template index 0..7 from sentence word count.
  */
-export function matchTemplate(tokens: string[]): number {
+export function matchTemplate(tokens: string[], templates: Slot[][] = TEMPLATES): number {
   const len = tokens.length;
-  if (len <= 3) return 0;
-  if (len >= 10) return 7;
-  return len - 3;
+  const templateIdx = templates.findIndex(template => template.length === len);
+  if (templateIdx !== -1) return templateIdx;
+  if (len <= templates[0].length) return 0;
+  return templates.length - 1;
 }
 
 /**

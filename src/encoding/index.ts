@@ -7,6 +7,7 @@ import {
   CARRIER_WORDS,
   CARRIER_WORD_TO_INDEX,
   TEMPLATES,
+  HAIKU_TEMPLATES,
   rankCandidates,
   valToRank,
   rankToVal,
@@ -52,11 +53,12 @@ export function bytesToEnglishText(
 
   const reader = new BitStreamReader(fullPayload);
   const sentences: string[] = [];
+  const templates = config.style === "haiku" ? HAIKU_TEMPLATES : TEMPLATES;
   let sentenceIdx = 0;
 
   while (reader.hasBits) {
     const templateIdx = reader.hasBits ? reader.readBits(3) : 0;
-    const template = TEMPLATES[templateIdx];
+    const template = templates[templateIdx];
 
     const words: string[] = [];
     const context: string[] = [];
@@ -83,7 +85,6 @@ export function bytesToEnglishText(
         words[i] = capitalise(w);
       }
     }
-
     let ending = ".";
     if (config.sentenceEndingVariance) {
       const endingCode = reader.hasBits ? reader.readBits(2) : 0;
@@ -95,6 +96,12 @@ export function bytesToEnglishText(
     sentenceIdx++;
   }
 
+  if (config.style === "haiku") {
+    return sentences.map((sentence, index) => {
+      const lineBreak = index === 0 ? "" : index % 3 === 0 ? "\n\n" : "\n";
+      return `${lineBreak}${sentence}`;
+    }).join("");
+  }
   return sentences.join(" ");
 }
 
@@ -137,15 +144,16 @@ export function englishTextToBytes(
   }
 
   const rawWriter = new BitStreamWriter();
+  const templates = config.style === "haiku" ? HAIKU_TEMPLATES : TEMPLATES;
 
   for (let sentenceIdx = 0; sentenceIdx < rawSentences.length; sentenceIdx++) {
     const { sentenceStr, endingStr } = rawSentences[sentenceIdx];
     const tokens = sentenceStr.split(/\s+/).filter(t => t.length > 0);
     if (tokens.length === 0) continue;
 
-    const templateIdx = matchTemplate(tokens);
+    const templateIdx = matchTemplate(tokens, templates);
     rawWriter.writeBits(templateIdx, 3);
-    const template = TEMPLATES[templateIdx];
+    const template = templates[templateIdx];
 
     let tokenIdx = 0;
     const context: string[] = [];
