@@ -77,8 +77,10 @@ export function bytesToEnglishText(
   const templates = isPoetry ? POETRY_TEMPLATES : TEMPLATES;
   let sentenceIdx = 0;
 
+  const templateBits = Math.round(Math.log2(templates.length));
+
   while (reader.hasBits) {
-    const templateIdx = reader.hasBits ? reader.readBits(3) : 0;
+    const templateIdx = reader.hasBits ? reader.readBits(templateBits) : 0;
     const template = templates[templateIdx];
 
     const words: string[] = [];
@@ -238,8 +240,9 @@ export function englishTextToBytes(
     const tokens = sentenceStr.split(/\s+/).filter(t => t.length > 0);
     if (tokens.length === 0) continue;
 
+    const templateBits = Math.round(Math.log2(templates.length));
     const templateIdx = matchTemplate(tokens, templates);
-    rawWriter.writeBits(templateIdx, 3);
+    rawWriter.writeBits(templateIdx, templateBits);
     const template = templates[templateIdx];
 
     let tokenIdx = 0;

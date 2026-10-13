@@ -127,6 +127,20 @@ const TRANSITIVE_VERBS_PAST = [
   "published","released","signed","passed","adopted","reviewed","examined","addressed",
   "changed","increased","reduced","strengthened","protected","defended","blocked","criticized"
 ];
+const REPORTING_VERBS_PAST = [
+  "said","stated","reported","announced","confirmed","noted","argued","warned",
+  "explained","claimed","suggested","added","emphasized","reiterated","insisted","indicated"
+];
+const DAYS = [
+  "monday","tuesday","wednesday","thursday","friday","saturday","sunday","yesterday"
+];
+const AUXILIARIES = [
+  "was","is","remained","proved","appeared","became","seemed","stayed"
+];
+const COMPLEMENT_ADJECTIVES = [
+  "unprecedented","critical","significant","essential","crucial","vital","decisive","unclear",
+  "vulnerable","unresolved","limited","substantial","urgent","promising","troubling","reassuring"
+];
 const LOCATION_PREPOSITIONS = [
   "in","near","around","across","through","beyond","within","outside"
 ];
@@ -136,9 +150,12 @@ const NOUN_COMPLEMENT_PREPOSITIONS = [
 const SUBORDINATORS = [
   "after","while","when","before","since","though","because","if"
 ];
+const CLAUSE_CONJUNCTIONS = [
+  "that","while","although","because","as","since","before","after"
+];
 const RELATIVE_CLAUSE_MARKERS = ["that","which"];
 
-// 8 Distinct Word-Length Grammatical News Templates for Natural Prose Matching
+// 16 Distinct Word-Length Grammatical News Templates (Lengths 4..19) for Authentic Media Reporting Prose
 export const TEMPLATES: Slot[][] = [
   // 0: Length 4 (Determiner + Adjective + Noun + Intransitive Verb Past)
   [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
@@ -152,17 +169,41 @@ export const TEMPLATES: Slot[][] = [
   // 3: Length 7 (Determiner + Adjective + Noun + Transitive Verb + Determiner + Adjective + Noun)
   [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
 
-  // 4: Length 9 (Complex main clause with location complement)
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
-
-  // 5: Length 8 (Main clause followed by an adverbial subordinate clause)
+  // 4: Length 8 (Main clause followed by an adverbial subordinate clause)
   [D(DETERMINERS,"d"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(SUBORDINATORS,"SC"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
 
-  // 6: Length 12 (Pronoun lead + complex clause + complement + location complement)
+  // 5: Length 9 (Complex main clause with location complement)
+  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
+
+  // 6: Length 10 (News reporting lead: "Johnson said Tuesday in a statement that the major alliance approved a new policy")
+  [D(PROPER_NOUNS,"NP"), D(REPORTING_VERBS_PAST,"VPR"), D(DAYS,"DAY"), D(LOCATION_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
+
+  // 7: Length 11 (Reporting sentence with subject clause: "Official reports confirmed on Wednesday that the economic growth remained stable across Europe")
+  [D(ADJECTIVES,"A"), D(NOUNS,"N"), D(REPORTING_VERBS_PAST,"VPR"), D(LOCATION_PREPOSITIONS,"p"), D(DAYS,"DAY"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(PROPER_NOUNS,"NP")],
+
+  // 8: Length 12 (Pronoun lead + complex clause + complement + location complement)
   [D(PRONOUNS,"PR"), D(ADVERBS,"R"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
 
-  // 7: Length 14 (Long complex sentence with relative clause and prepositional complement)
-  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(RELATIVE_CLAUSE_MARKERS,"REL"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")]
+  // 9: Length 13 (News quotation structure: "Official sources stated on Friday that a new security campaign was critical in Paris")
+  [D(ADJECTIVES,"A"), D(NOUNS,"N"), D(REPORTING_VERBS_PAST,"VPR"), D(LOCATION_PREPOSITIONS,"p"), D(DAYS,"DAY"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(COMPLEMENT_ADJECTIVES,"AC"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
+
+  // 10: Length 14 (Long complex sentence with relative clause and prepositional complement)
+  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(RELATIVE_CLAUSE_MARKERS,"REL"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
+
+  // 11: Length 15 (Complex news reporting: "Johnson stated Tuesday in a public report that an overnight military operation was particularly critical")
+  [D(PROPER_NOUNS,"NP"), D(REPORTING_VERBS_PAST,"VPR"), D(DAYS,"DAY"), D(LOCATION_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(ADVERBS,"R"), D(COMPLEMENT_ADJECTIVES,"AC"), D(NOUNS,"N")],
+
+  // 12: Length 16 (Full press statement structure with subordinate contrast clause)
+  [D(PROPER_NOUNS,"NP"), D(REPORTING_VERBS_PAST,"VPR"), D(DAYS,"DAY"), D(LOCATION_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(COMPLEMENT_ADJECTIVES,"AC"), D(SUBORDINATORS,"SC"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
+
+  // 13: Length 17 (Complex multi-clause news dispatch: "The prime minister stated on Thursday that no official intelligence was shared before the national security council met in Washington")
+  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(REPORTING_VERBS_PAST,"VPR"), D(LOCATION_PREPOSITIONS,"p"), D(DAYS,"DAY"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(TRANSITIVE_VERBS_PAST,"VP"), D(SUBORDINATORS,"SC"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
+
+  // 14: Length 18 (Detailed journalistic reporting structure with dual prepositional qualifications)
+  [D(PROPER_NOUNS,"NP"), D(REPORTING_VERBS_PAST,"VPR"), D(DAYS,"DAY"), D(LOCATION_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(COMPLEMENT_ADJECTIVES,"AC"), D(SUBORDINATORS,"SC"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
+
+  // 15: Length 19 (Comprehensive press release sentence: "Johnson stated Tuesday in a public statement that an overnight military assault on the capital was particularly critical but that no intelligence was shared beforehand")
+  [D(PROPER_NOUNS,"NP"), D(REPORTING_VERBS_PAST,"VPR"), D(DAYS,"DAY"), D(LOCATION_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(ADVERBS,"R"), D(COMPLEMENT_ADJECTIVES,"AC"), D(SUBORDINATORS,"SC"), D(CLAUSE_CONJUNCTIONS,"c")]
 ];
 
 const POETRY_NOUNS = [

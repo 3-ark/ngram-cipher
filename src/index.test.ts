@@ -123,7 +123,7 @@ describe("English N-Gram Cipher Engine", () => {
     const wordCount = cipherText.split(/\s+/).length;
 
     // Function-word slots use smaller curated lists, so payload capacity varies by template.
-    expect(wordCount).toBeLessThan(180);
+    expect(wordCount).toBeLessThan(250);
 
     const decrypted = await decode(cipherText, password);
     expect(decrypted).toBe(text);

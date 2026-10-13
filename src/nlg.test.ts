@@ -58,8 +58,8 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(PRONOUNS).toContain("it");
     expect(PRONOUNS).toContain("they");
     expect(TEMPLATES[1][0].list).toBe(PRONOUNS);
-    expect(TEMPLATES[5][3].label).toBe("SC");
-    expect(TEMPLATES[7][2].list).toEqual(["that","which"]);
+    expect(TEMPLATES[4][3].label).toBe("SC");
+    expect(TEMPLATES[10][2].list).toEqual(["that","which"]);
   });
 
   it("should contain valid templates with 100% data slots carrying bits", () => {
