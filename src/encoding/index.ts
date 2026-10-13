@@ -5,7 +5,6 @@
 import { EncodingError, EncodingConfig, DEFAULT_CONFIG } from "../config/index.js";
 import {
   CARRIER_WORDS,
-  CARRIER_WORD_TO_INDEX,
   TEMPLATES,
   POETRY_TEMPLATES,
   rankCandidates,
@@ -25,17 +24,20 @@ const NEWS_ENDING_TO_CODE: Record<string, number> = {
   "...": 3,
 };
 
-// Poetic endings palette (4 items = 2 bits for lossless bijection):
-// 0: "," (soft pause/caesura), 1: " —" (em-dash pause), 2: "..." (fading silence), 3: "." (full stop)
-// For occasional question mark, "?" can map to 2 or 3 if user wants, but keeping 4 distinct punctuation marks
-// gives 100% reversible bijective 2-bit encoding!
-const POETRY_ENDINGS = [",", " —", "...", "."];
+// Poetic endings palette (4 distinct endings = 2 bits for lossless bijection):
+// 0: "."  (full stop, closure)
+// 1: " —" (em-dash pause)
+// 2: "..." (fading silence)
+// 3: ","  (soft caesura)
+//
+// In addition, "?" is accepted in decoding as an expressive poetic alternative for full stop.
+const POETRY_ENDINGS = [".", " —", "...", ","];
 const POETRY_ENDING_TO_CODE: Record<string, number> = {
-  ",": 0,
+  ".": 0,
   " —": 1,
   "...": 2,
-  ".": 3,
-  "?": 3, // fallback if question mark is parsed
+  ",": 3,
+  "?": 0, // Inquisitive variant maps to full stop
 };
 
 function capitalise(w: string): string {
@@ -137,7 +139,12 @@ export function bytesToEnglishText(
     const lines: string[] = [];
 
     for (let i = 0; i < sentences.length; i++) {
-      const line = sentences[i];
+      let line = sentences[i];
+
+      // A poem should never terminate with a dangling comma on its final line
+      if (i === sentences.length - 1 && line.endsWith(",")) {
+        line = line.slice(0, -1) + ".";
+      }
 
       if (i > 0 && linesInCurrentStanza === 0) {
         lines.push(""); // empty line between stanzas

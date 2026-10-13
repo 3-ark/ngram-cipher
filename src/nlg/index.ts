@@ -116,9 +116,6 @@ export const VOCABULARY: string[] = (() => {
 })();
 
 export const CARRIER_WORDS = VOCABULARY.slice(0, 2048);
-export const CARRIER_WORD_TO_INDEX = new Map(
-  CARRIER_WORDS.map((word, index) => [word, index])
-);
 
 const INTRANSITIVE_VERBS_PAST = [
   "grew","rose","fell","declined","expanded","remained","continued","endured",
