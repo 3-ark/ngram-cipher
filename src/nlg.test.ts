@@ -52,24 +52,28 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(CONJUNCTIONS).not.toContain("ability");
     expect(RELATIVES).not.toContain("aircraft");
     expect(TEMPLATES[0][3].list).not.toContain("rejected");
-    expect(TEMPLATES[1][2].list).toContain("rejected");
-    expect(TEMPLATES[1][2].list).not.toContain("grew");
-    expect(TEMPLATES[2][3].list).toContain("grew");
-    expect(TEMPLATES[2][3].list).not.toContain("rejected");
+    expect(TEMPLATES[1][2].list).toContain("grew");
+    expect(TEMPLATES[1][2].list).not.toContain("rejected");
+    expect(TEMPLATES[2][3].list).toContain("rejected");
+    expect(TEMPLATES[2][3].list).not.toContain("grew");
     expect(TEMPLATES[6][6].list).not.toContain("despite");
     expect(PRONOUNS).toContain("it");
     expect(PRONOUNS).toContain("they");
-    expect(TEMPLATES[1][0].list).toBe(PRONOUNS);
-    expect(TEMPLATES[4][3].label).toBe("SC");
-    expect(TEMPLATES[10][2].list).toEqual(["that","which"]);
+    expect(TEMPLATES[1][3]).toEqual({ type: "filler", list: ["in"], label: "p" });
+    expect(TEMPLATES[3][2]).toEqual({ type: "filler", list: ["that"], label: "c" });
   });
 
   it("should contain valid templates with 100% data slots carrying bits", () => {
     expect(TEMPLATES.length).toBeGreaterThan(0);
     for (const template of TEMPLATES) {
       expect(template.length).toBeGreaterThan(0);
-      const dataSlots = template.filter(s => s.type === "data");
-      expect(dataSlots.length).toBe(template.length);
+      for (const slot of template) {
+        if (slot.type === "data") {
+          expect(Number.isInteger(Math.log2(slot.list.length))).toBe(true);
+        } else {
+          expect(slot.list.length).toBeGreaterThan(0);
+        }
+      }
     }
   });
 

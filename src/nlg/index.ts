@@ -165,55 +165,31 @@ const CLAUSE_CONJUNCTIONS = [
 ];
 const RELATIVE_CLAUSE_MARKERS = ["that","which"];
 
-// 16 Distinct Word-Length Grammatical News Templates (Lengths 4..19) for Authentic Media Reporting Prose
+// Eight distinct word-length grammatical news templates (Lengths 4..11)
 export const TEMPLATES: Slot[][] = [
-  // 0: Length 4 (Determiner + Adjective + Noun + Intransitive Verb Past)
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
+  // 0 / 4 words: The major market rose.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP")],
 
-  // 1: Length 5 (Pronoun + Adverb + Transitive Verb + Determiner + Noun)
-  [D(PRONOUNS,"PR"), D(ADVERBS,"R"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(NOUNS,"N")],
+  // 1 / 5 words: The market rose in London.
+  [D(DETERMINERS, "d"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
 
-  // 2: Length 6 (Determiner + Adjective + Noun + Intransitive Verb + Preposition + Proper Noun)
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
+  // 2 / 6 words: The major company backed the reform.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(NOUNS, "N")],
 
-  // 3: Length 7 (Determiner + Adjective + Noun + Transitive Verb + Determiner + Adjective + Noun)
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
+  // 3 / 7 words: Johnson said that the crisis grew.
+  [D(PROPER_NOUNS, "NP"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP"), D(ADVERBS, "R")],
 
-  // 4: Length 8 (Main clause followed by an adverbial subordinate clause)
-  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(SUBORDINATORS,"SC"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
+  // 4 / 8 words: The report said that the major crisis grew.
+  [D(DETERMINERS, "d"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP")],
 
-  // 5: Length 9 (Complex main clause with location complement)
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
+  // 5 / 9 words: The major company backed the national reform in London.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
 
-  // 6: Length 10 (News reporting lead: "Johnson said Tuesday in a statement that the major alliance approved a new policy")
-  [D(PROPER_NOUNS,"NP"), D(REPORTING_VERBS_PAST,"VPR"), D(DAYS,"DAY"), D(LOCATION_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
+  // 6 / 10 words: The official report confirmed that the policy changed the system.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(NOUNS, "N")],
 
-  // 7: Length 11 (Reporting sentence with subject clause: "Official reports confirmed on Wednesday that the economic growth remained stable across Europe")
-  [D(ADJECTIVES,"A"), D(NOUNS,"N"), D(REPORTING_VERBS_PAST,"VPR"), D(LOCATION_PREPOSITIONS,"p"), D(DAYS,"DAY"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(PROPER_NOUNS,"NP")],
-
-  // 8: Length 12 (Pronoun lead + complex clause + complement + location complement)
-  [D(PRONOUNS,"PR"), D(ADVERBS,"R"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
-
-  // 9: Length 13 (News quotation structure: "Official sources stated on Friday that a new security campaign was critical in Paris")
-  [D(ADJECTIVES,"A"), D(NOUNS,"N"), D(REPORTING_VERBS_PAST,"VPR"), D(LOCATION_PREPOSITIONS,"p"), D(DAYS,"DAY"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(COMPLEMENT_ADJECTIVES,"AC"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
-
-  // 10: Length 14 (Long complex sentence with relative clause and prepositional complement)
-  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(RELATIVE_CLAUSE_MARKERS,"REL"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
-
-  // 11: Length 15 (Complex news reporting: "Johnson stated Tuesday in a public report that an overnight military operation was particularly critical")
-  [D(PROPER_NOUNS,"NP"), D(REPORTING_VERBS_PAST,"VPR"), D(DAYS,"DAY"), D(LOCATION_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(ADVERBS,"R"), D(COMPLEMENT_ADJECTIVES,"AC"), D(NOUNS,"N")],
-
-  // 12: Length 16 (Full press statement structure with subordinate contrast clause)
-  [D(PROPER_NOUNS,"NP"), D(REPORTING_VERBS_PAST,"VPR"), D(DAYS,"DAY"), D(LOCATION_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(COMPLEMENT_ADJECTIVES,"AC"), D(SUBORDINATORS,"SC"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
-
-  // 13: Length 17 (Complex multi-clause news dispatch: "The prime minister stated on Thursday that no official intelligence was shared before the national security council met in Washington")
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(REPORTING_VERBS_PAST,"VPR"), D(LOCATION_PREPOSITIONS,"p"), D(DAYS,"DAY"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(TRANSITIVE_VERBS_PAST,"VP"), D(SUBORDINATORS,"SC"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
-
-  // 14: Length 18 (Detailed journalistic reporting structure with dual prepositional qualifications)
-  [D(PROPER_NOUNS,"NP"), D(REPORTING_VERBS_PAST,"VPR"), D(DAYS,"DAY"), D(LOCATION_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(COMPLEMENT_ADJECTIVES,"AC"), D(SUBORDINATORS,"SC"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
-
-  // 15: Length 19 (Comprehensive press release sentence: "Johnson stated Tuesday in a public statement that an overnight military assault on the capital was particularly critical but that no intelligence was shared beforehand")
-  [D(PROPER_NOUNS,"NP"), D(REPORTING_VERBS_PAST,"VPR"), D(DAYS,"DAY"), D(LOCATION_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(CLAUSE_CONJUNCTIONS,"c"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(AUXILIARIES,"AUX"), D(ADVERBS,"R"), D(COMPLEMENT_ADJECTIVES,"AC"), D(SUBORDINATORS,"SC"), D(CLAUSE_CONJUNCTIONS,"c")]
+  // 7 / 11 words: Johnson said that the major policy changed the national system.
+  [D(PROPER_NOUNS, "NP"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(ADVERBS, "R")],
 ];
 
 const POETRY_NOUNS = [
@@ -300,9 +276,10 @@ export const POETRY_TEMPLATES: Slot[][] = [
 export function matchTemplate(tokens: string[], templates: Slot[][] = TEMPLATES): number {
   const len = tokens.length;
   const templateIdx = templates.findIndex(template => template.length === len);
-  if (templateIdx !== -1) return templateIdx;
-  if (len <= templates[0].length) return 0;
-  return templates.length - 1;
+  if (templateIdx === -1) {
+    throw new Error(`No template matches sentence length ${len}.`);
+  }
+  return templateIdx;
 }
 
 /**

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 import { EncodingError } from "./config/index.js";
-import { DETERMINERS, PRONOUNS } from "./nlg/index.js";
+import { DETERMINERS } from "./nlg/index.js";
 
 describe("Reversible Encoding and Decoding Module", () => {
   it("should round-trip byte arrays to English prose and back", () => {
@@ -13,6 +13,15 @@ describe("Reversible Encoding and Decoding Module", () => {
 
     const recoveredBytes = englishTextToBytes(text);
     expect(Array.from(recoveredBytes)).toEqual(Array.from(testBytes));
+  });
+
+  it("should preserve larger payloads across multiple revised news templates", () => {
+    for (const length of [16, 24, 32, 64]) {
+      const payload = Uint8Array.from({ length }, (_, index) => (index * 73 + length) & 0xff);
+      const text = bytesToEnglishText(payload);
+
+      expect(Array.from(englishTextToBytes(text)), `payload length ${length}`).toEqual(Array.from(payload));
+    }
   });
 
   it("should round-trip byte arrays in poetry style with varied stanzas and poetic punctuation", () => {
@@ -41,7 +50,7 @@ describe("Reversible Encoding and Decoding Module", () => {
     expect(Array.from(recovered)).toEqual(Array.from(testBytes));
   });
 
-  it("should encode revised clause and pronoun templates without losing bits", () => {
+  it("should encode revised clause and determiner templates without losing bits", () => {
     const config = { sentenceEndingVariance: false };
     const clauseBytes = new Uint8Array([0xa0, 0x12, 0x34, 0x56]);
     const clauseText = bytesToEnglishText(clauseBytes, config);
@@ -53,7 +62,7 @@ describe("Reversible Encoding and Decoding Module", () => {
     const pronounBytes = new Uint8Array([0x10, 0x12, 0x34, 0x56]);
     const pronounText = bytesToEnglishText(pronounBytes, config);
 
-    expect(PRONOUNS.map(word => word.toLowerCase())).toContain(
+    expect(DETERMINERS.map(word => word.toLowerCase())).toContain(
       pronounText.split(/\s+/)[0].toLowerCase()
     );
     expect(Array.from(englishTextToBytes(pronounText, config))).toEqual(Array.from(pronounBytes));

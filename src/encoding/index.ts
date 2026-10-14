@@ -16,12 +16,13 @@ import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
 export { BitStreamReader, BitStreamWriter };
 
-const NEWS_ENDINGS = [".", "!", "?", "..."];
+// Keep all four 2-bit codes distinct for lossless decoding, but avoid question marks.
+const NEWS_ENDINGS = [".", "!", "...", "…"];
 const NEWS_ENDING_TO_CODE: Record<string, number> = {
   ".": 0,
   "!": 1,
-  "?": 2,
-  "...": 3,
+  "...": 2,
+  "…": 3,
 };
 
 // Poetic endings palette (4 distinct endings = 2 bits for lossless bijection):
@@ -88,9 +89,16 @@ export function bytesToEnglishText(
 
     for (const slot of template) {
       const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
-      const bitCount = Math.floor(Math.log2(list.length)) || 8;
       const ranked = rankCandidates(list, context);
 
+      if (slot.type === "filler") {
+        const chosenWord = ranked[0];
+        words.push(chosenWord);
+        context.push(chosenWord.toLowerCase());
+        continue;
+      }
+
+      const bitCount = Math.floor(Math.log2(list.length)) || 8;
       const val = reader.hasBits ? reader.readBits(bitCount) : 0;
       const rank = valToRank(val, bitCount, list.length);
       const chosenWord = ranked[rank % ranked.length];
@@ -210,7 +218,7 @@ export function englishTextToBytes(
       }
     }
   } else {
-    const sentenceMatches = cleanText.replace(/\n+/g, " ").match(/.*?(?:\.\.\.|[.!?]+|$)/g) || [];
+    const sentenceMatches = cleanText.replace(/\n+/g, " ").match(/.*?(?:\.\.\.|…|[.!?]+|$)/g) || [];
     for (const match of sentenceMatches) {
       const trimmed = match.trim();
       if (!trimmed) continue;
@@ -221,6 +229,9 @@ export function englishTextToBytes(
       if (trimmed.endsWith("...")) {
         endingStr = "...";
         sentenceStr = trimmed.slice(0, -3).trim();
+      } else if (trimmed.endsWith("…")) {
+        endingStr = "…";
+        sentenceStr = trimmed.slice(0, -1).trim();
       } else if (/[.!?]$/.test(trimmed)) {
         endingStr = trimmed.slice(-1);
         sentenceStr = trimmed.slice(0, -1).trim();
@@ -260,7 +271,6 @@ export function englishTextToBytes(
       }
 
       const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
-      const bitCount = Math.floor(Math.log2(list.length)) || 8;
       const ranked = rankCandidates(list, context);
 
       const rank = ranked.findIndex(w => w.toLowerCase() === cleanWord);
@@ -272,8 +282,11 @@ export function englishTextToBytes(
         );
       }
 
-      const val = rankToVal(rank, bitCount, list.length);
-      rawWriter.writeBits(val, bitCount);
+      if (slot.type === "data") {
+        const bitCount = Math.floor(Math.log2(list.length)) || 8;
+        const val = rankToVal(rank, bitCount, list.length);
+        rawWriter.writeBits(val, bitCount);
+      }
       context.push(cleanWord);
       tokenIdx++;
     }
