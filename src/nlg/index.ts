@@ -53,7 +53,7 @@ export const PROPER_NOUNS: string[] = [
 // These function-word lists stay small and grammatical instead of adding
 // unrelated words just to fill a 256-word, 8-bit slot.
 export const DETERMINERS: string[] = [
-  "the","some","any","no","our","your","their","its"
+  "the","a","this","some","any","no","one","its"
 ];
 
 // -- PREPOSITIONS -----------------------------------------------------------
@@ -127,61 +127,100 @@ const TRANSITIVE_VERBS_PAST = [
   "published","released","signed","passed","adopted","reviewed","examined","addressed",
   "changed","increased","reduced","strengthened","protected","defended","blocked","criticized"
 ];
+const REPORTING_VERBS_PAST = [
+  "said","stated","reported","announced","confirmed","noted","argued","warned",
+  "explained","claimed","suggested","added","emphasized","reiterated","insisted","indicated",
+  "detailed","revealed","reaffirmed","maintained","highlighted","conceded","observed","declared",
+  "recounted","asserted","acknowledged","underlined","specified","disclosed","pledged","voiced"
+];
+const DAYS = [
+  "monday","tuesday","wednesday","thursday","friday","saturday","sunday","yesterday",
+  "today","tonight","morning","afternoon","evening","overnight","recently","lately"
+];
+const AUXILIARIES = [
+  "was","is","remained","proved","appeared","became","seemed","stayed",
+  "felt","grew","turned","looked","sounded","stood","continued","kept"
+];
+const COMPLEMENT_ADJECTIVES = [
+  "unprecedented","critical","significant","essential","crucial","vital","decisive","unclear",
+  "vulnerable","unresolved","limited","substantial","urgent","promising","troubling","reassuring",
+  "controversial","challenging","pivotal","strategic","paramount","insufficient","encouraging","concerning",
+  "uncertain","favorable","unfavorable","precarious","unshakable","imperative","noteworthy","compelling"
+];
 const LOCATION_PREPOSITIONS = [
-  "in","near","around","across","through","beyond","within","outside"
+  "in","near","around","across","through","beyond","within","outside",
+  "beside","along","over","under","throughout","upon","past","towards"
 ];
 const NOUN_COMPLEMENT_PREPOSITIONS = [
-  "in","on","for","with","from","near","around","beyond"
+  "in","on","for","with","from","near","around","beyond",
+  "towards","into","through","across","against","upon","despite","without"
 ];
 const SUBORDINATORS = [
-  "after","while","when","before","since","though","because","if"
+  "after","while","when","before","since","though","because","if",
+  "although","whereas","unless","until","as","once","provided","whenever"
+];
+const CLAUSE_CONJUNCTIONS = [
+  "that","while","although","because","as","since","before","after",
+  "if","unless","whereas","until","once","where","whenever","wherever"
 ];
 const RELATIVE_CLAUSE_MARKERS = ["that","which"];
 
-// 8 Distinct Word-Length Grammatical News Templates for Natural Prose Matching
+// Eight distinct word-length grammatical news templates (Lengths 4..11)
 export const TEMPLATES: Slot[][] = [
-  // 0: Length 3 (Determiner + Noun + Intransitive Verb Past)
-  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
+  // 0 / 4 words: The major market rose.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP")],
 
-  // 1: Length 4 (Determiner + Adjective + Noun + Intransitive Verb Past)
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
+  // 1 / 5 words: The market rose in London.
+  [D(DETERMINERS, "d"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
 
-  // 2: Length 5 (Adverb + Pronoun + Transitive Verb + Object)
-  [D(ADVERBS,"R"), D(PRONOUNS,"PR"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(NOUNS,"N")],
+  // 2 / 6 words: The major company backed the reform.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(NOUNS, "N")],
 
-  // 3: Length 6 (Determiner + Adjective + Noun + Verb Past + Preposition + Proper Noun) -> e.g. "The national council met in Paris"
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(LOCATION_PREPOSITIONS,"p"), D(PROPER_NOUNS,"NP")],
+  // 3 / 7 words: Johnson said that the crisis grew.
+  [D(PROPER_NOUNS, "NP"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP"), D(ADVERBS, "R")],
 
-  // 4: Length 7 (Determiner + Adjective + Noun + Verb Past + Determiner + Adjective + Noun) -> e.g. "The major company announced a new project"
-  [D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")],
+  // 4 / 8 words: The report said that the major crisis grew.
+  [D(DETERMINERS, "d"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP")],
 
-  // 5: Length 8 (Main clause followed by an adverbial subordinate clause)
-  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(SUBORDINATORS,"SC"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(INTRANSITIVE_VERBS_PAST,"VP")],
+  // 5 / 9 words: The major company backed the national reform in London.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
 
-  // 6: Length 9 (Pronoun + Adverb + Transitive Verb + Object + Complement)
-  [D(PRONOUNS,"PR"), D(ADVERBS,"R"), D(TRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N"), D(NOUN_COMPLEMENT_PREPOSITIONS,"p"), D(DETERMINERS,"d"), D(NOUNS,"N")],
+  // 6 / 10 words: The official report confirmed that the policy changed the system.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(NOUNS, "N")],
 
-  // 7: Length 10 (Noun modified by a relative clause, then a main clause)
-  [D(DETERMINERS,"d"), D(NOUNS,"N"), D(RELATIVE_CLAUSE_MARKERS,"REL"), D(DETERMINERS,"d"), D(NOUNS,"N"), D(TRANSITIVE_VERBS_PAST,"VP"), D(INTRANSITIVE_VERBS_PAST,"VP"), D(DETERMINERS,"d"), D(ADJECTIVES,"A"), D(NOUNS,"N")]
+  // 7 / 11 words: Johnson said that the major policy changed the national system.
+  [D(PROPER_NOUNS, "NP"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(ADVERBS, "R")],
 ];
 
 const POETRY_NOUNS = [
   "moon","river","forest","ocean","wind","rain","snow","cloud",
   "sky","sea","tree","branch","leaf","flower","bird","stone",
   "mountain","valley","meadow","shore","lake","stream","shadow","dawn",
-  "dusk","night","star","flame","garden","field","silence","season"
+  "dusk","night","star","flame","garden","field","silence","season",
+  "frost","ember","mist","sunlight","starlight","comet","desert","island",
+  "pathway","horizon","reflection","echo","whisper","breeze","storm","twilight",
+  "harbor","cavern","glade","summit","pine","willow","feather","shell",
+  "tide","wave","spark","light","haven","clearing","canopy","solitude"
 ];
 const POETRY_VERBS_PAST = [
   "slept","glowed","drifted","shimmered","rested","wandered","whispered","faded",
   "gathered","danced","fell","rose","flowed","bloomed","called","waited",
   "lingered","trembled","moved","turned","passed","appeared","vanished","echoed",
-  "breathed","stirred","broke","shone","swayed","sang","dreamed","opened"
+  "breathed","stirred","broke","shone","swayed","sang","dreamed","opened",
+  "soared","glided","awakened","softened","ignited","settled","floated","glimmered",
+  "folded","kindled","surged","cleared","descended","ascended","parted","guided",
+  "traveled","weaved","bounded","listened","welcomed","cherished","embraced","dissolved",
+  "sparkled","flashed","calmed","haunted","realigned","illuminated","subsided","thawed"
 ];
 const POETRY_ADJECTIVES = [
   "quiet","silver","pale","gentle","soft","wild","distant","dark",
   "bright","still","golden","autumn","winter","cold","warm","blue",
   "green","red","white","faint","hollow","lonely","misty","silent",
-  "shallow","deep","sleeping","fallen","hidden","ancient","new","morning"
+  "shallow","deep","sleeping","fallen","hidden","ancient","new","morning",
+  "velvet","tender","amber","shadowy","serene","peaceful","endless","boundless",
+  "radiant","crystal","luminous","subtle","sacred","tranquil","solitary","timeless",
+  "fragile","graceful","mellow","vibrant","ethereal","pristine","dusky","snowy",
+  "goldenrod","azure","emerald","crimson","calm","dormant","halcyon","fleeting"
 ];
 const POETRY_DETERMINERS = [
   "the","a","this","that","some","one","our","my",
@@ -237,9 +276,10 @@ export const POETRY_TEMPLATES: Slot[][] = [
 export function matchTemplate(tokens: string[], templates: Slot[][] = TEMPLATES): number {
   const len = tokens.length;
   const templateIdx = templates.findIndex(template => template.length === len);
-  if (templateIdx !== -1) return templateIdx;
-  if (len <= templates[0].length) return 0;
-  return templates.length - 1;
+  if (templateIdx === -1) {
+    throw new Error(`No template matches sentence length ${len}.`);
+  }
+  return templateIdx;
 }
 
 /**

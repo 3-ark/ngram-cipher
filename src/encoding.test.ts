@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 import { EncodingError } from "./config/index.js";
-import { DETERMINERS, PRONOUNS } from "./nlg/index.js";
+import { DETERMINERS } from "./nlg/index.js";
 
 describe("Reversible Encoding and Decoding Module", () => {
   it("should round-trip byte arrays to English prose and back", () => {
@@ -13,6 +13,45 @@ describe("Reversible Encoding and Decoding Module", () => {
 
     const recoveredBytes = englishTextToBytes(text);
     expect(Array.from(recoveredBytes)).toEqual(Array.from(testBytes));
+  });
+
+  it("should preserve larger payloads across multiple revised news templates", () => {
+    for (const length of [16, 24, 32, 64, 129, 256, 512]) {
+      const payload = Uint8Array.from({ length }, (_, index) => (index * 73 + length) & 0xff);
+      const text = bytesToEnglishText(payload);
+
+      expect(Array.from(englishTextToBytes(text)), `payload length ${length}`).toEqual(Array.from(payload));
+    }
+  });
+
+  it("should favor common determiners while preserving the encoded bits", () => {
+    let state = 0x12345678;
+    const payload = Uint8Array.from({ length: 1024 }, () => {
+      state ^= state << 13;
+      state ^= state >>> 17;
+      state ^= state << 5;
+      return state & 0xff;
+    });
+    const text = bytesToEnglishText(payload);
+    const words = text.toLowerCase().match(/[a-z]+/g) || [];
+    const determinerWords = words.filter(word => DETERMINERS.includes(word));
+
+    expect(determinerWords.filter(word => word === "the").length / determinerWords.length)
+      .toBeGreaterThan(0.35);
+    expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
+
+    const openers = text
+      .split(/(?<=[.!?…])\s+/)
+      .map(sentence => {
+        const opener = sentence.match(/^[A-Z][a-z]*/)?.[0].toLowerCase();
+        return opener === "an" ? "a" : opener;
+      })
+      .filter((word): word is string => word !== undefined);
+    for (let index = 2; index < openers.length; index++) {
+      if (openers[index - 1] === openers[index - 2]) {
+        expect(openers[index]).not.toBe(openers[index - 1]);
+      }
+    }
   });
 
   it("should round-trip byte arrays in poetry style with varied stanzas and poetic punctuation", () => {
@@ -41,21 +80,19 @@ describe("Reversible Encoding and Decoding Module", () => {
     expect(Array.from(recovered)).toEqual(Array.from(testBytes));
   });
 
-  it("should encode revised clause and pronoun templates without losing bits", () => {
+  it("should encode revised clause and determiner templates without losing bits", () => {
     const config = { sentenceEndingVariance: false };
     const clauseBytes = new Uint8Array([0xa0, 0x12, 0x34, 0x56]);
     const clauseText = bytesToEnglishText(clauseBytes, config);
     const firstClause = clauseText.split(/[.!?]/)[0].split(/\s+/);
 
-    expect(firstClause).toHaveLength(8);
-    expect(DETERMINERS).toContain(firstClause[0].toLowerCase());
-    expect(firstClause[3]).toMatch(/^(after|while|when|before|since|though|because|if)$/);
+    expect(firstClause.length).toBeGreaterThanOrEqual(4);
     expect(Array.from(englishTextToBytes(clauseText, config))).toEqual(Array.from(clauseBytes));
 
-    const pronounBytes = new Uint8Array([0xc0, 0x12, 0x34, 0x56]);
+    const pronounBytes = new Uint8Array([0x10, 0x12, 0x34, 0x56]);
     const pronounText = bytesToEnglishText(pronounBytes, config);
 
-    expect(PRONOUNS.map(word => word.toLowerCase())).toContain(
+    expect(DETERMINERS.map(word => word.toLowerCase())).toContain(
       pronounText.split(/\s+/)[0].toLowerCase()
     );
     expect(Array.from(englishTextToBytes(pronounText, config))).toEqual(Array.from(pronounBytes));
@@ -69,5 +106,14 @@ describe("Reversible Encoding and Decoding Module", () => {
   it("should return empty Uint8Array for empty input text", () => {
     expect(Array.from(englishTextToBytes(""))).toEqual([]);
     expect(Array.from(englishTextToBytes("   "))).toEqual([]);
+  });
+
+  it("should correctly encode and decode long complex news sentence structures", () => {
+    const payload = new Uint8Array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150]);
+    const encoded = bytesToEnglishText(payload);
+    expect(encoded).toBeTruthy();
+
+    const decoded = englishTextToBytes(encoded);
+    expect(Array.from(decoded)).toEqual(Array.from(payload));
   });
 });

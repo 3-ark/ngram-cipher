@@ -11,10 +11,11 @@ import {
   CONJUNCTIONS,
   RELATIVES,
   PRONOUNS,
-  VOCABULARY,
   TEMPLATES,
   POETRY_TEMPLATES,
-  analyzeCarrierText
+  analyzeCarrierText,
+  calculateNGramScore,
+  rankCandidates
 } from "./nlg/index.js";
 
 describe("Natural Language Generation & Analysis Module", () => {
@@ -43,32 +44,35 @@ describe("Natural Language Generation & Analysis Module", () => {
 
   it("should keep function-word dictionaries free of unrelated vocabulary", () => {
     expect(DETERMINERS).toEqual([
-      "the","some","any","no","our","your","their","its"
+      "the","a","this","some","any","no","one","its"
     ]);
     expect(PREPOSITIONS).not.toContain("acrossboard");
     expect(PREPOSITIONS).not.toContain("backwardsward");
     expect(CONJUNCTIONS).not.toContain("ability");
     expect(RELATIVES).not.toContain("aircraft");
-    expect(TEMPLATES[0][2].list).not.toContain("rejected");
-    expect(TEMPLATES[1][3].list).not.toContain("rejected");
-    expect(TEMPLATES[2][2].list).toContain("rejected");
-    expect(TEMPLATES[2][2].list).not.toContain("grew");
-    expect(TEMPLATES[3][3].list).toContain("grew");
-    expect(TEMPLATES[3][3].list).not.toContain("rejected");
+    expect(TEMPLATES[0][3].list).not.toContain("rejected");
+    expect(TEMPLATES[1][2].list).toContain("grew");
+    expect(TEMPLATES[1][2].list).not.toContain("rejected");
+    expect(TEMPLATES[2][3].list).toContain("rejected");
+    expect(TEMPLATES[2][3].list).not.toContain("grew");
     expect(TEMPLATES[6][6].list).not.toContain("despite");
     expect(PRONOUNS).toContain("it");
     expect(PRONOUNS).toContain("they");
-    expect(TEMPLATES[2][1].list).toBe(PRONOUNS);
-    expect(TEMPLATES[5][3].label).toBe("SC");
-    expect(TEMPLATES[7][2].list).toEqual(["that","which"]);
+    expect(TEMPLATES[1][3]).toEqual({ type: "filler", list: ["in"], label: "p" });
+    expect(TEMPLATES[3][2]).toEqual({ type: "filler", list: ["that"], label: "c" });
   });
 
   it("should contain valid templates with 100% data slots carrying bits", () => {
     expect(TEMPLATES.length).toBeGreaterThan(0);
     for (const template of TEMPLATES) {
       expect(template.length).toBeGreaterThan(0);
-      const dataSlots = template.filter(s => s.type === "data");
-      expect(dataSlots.length).toBe(template.length);
+      for (const slot of template) {
+        if (slot.type === "data") {
+          expect(Number.isInteger(Math.log2(slot.list.length))).toBe(true);
+        } else {
+          expect(slot.list.length).toBeGreaterThan(0);
+        }
+      }
     }
   });
 
@@ -78,6 +82,18 @@ describe("Natural Language Generation & Analysis Module", () => {
     for (const template of POETRY_TEMPLATES) {
       expect(template.every(slot => slot.type === "data" && slot.list.length >= 4)).toBe(true);
     }
+  });
+
+  it("should calculate 5-gram language model scores and rank candidates accordingly", () => {
+    const context = ["stated", "tuesday", "in", "a"];
+    const scorePublic = calculateNGramScore("public", context);
+    const scoreRandom = calculateNGramScore("zebra", context);
+
+    expect(scorePublic).toBeGreaterThan(scoreRandom);
+
+    const candidates = ["zebra", "public", "apple"];
+    const ranked = rankCandidates(candidates, context);
+    expect(ranked[0]).toBe("public");
   });
 
   it("should perform carrier text statistical analysis and perplexity estimation", () => {

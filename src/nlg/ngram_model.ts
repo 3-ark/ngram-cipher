@@ -124,11 +124,23 @@ const FOURGRAM_MAP: Record<string, Record<string, number>> = {
   "according to the": { report: 10, official: 9, minister: 8, president: 8 },
   "a spokesman for": { the: 10, government: 9, company: 8, president: 8 },
   "in a recent": { report: 10, statement: 10, interview: 9, speech: 8 },
-  "the United States": { announced: 10, signed: 9, warned: 8, supported: 8 }
+  "the united states": { announced: 10, signed: 9, warned: 8, supported: 8 },
+  "in a public": { statement: 10, report: 10, interview: 9, speech: 9 },
+  "an overnight military": { operation: 10, assault: 10, action: 9, strike: 9 }
+};
+
+// Common English 5-Gram Transitions ("w1 w2 w3 w4" -> Record<w5, weight>)
+const FIVEGRAM_MAP: Record<string, Record<string, number>> = {
+  "stated tuesday in a": { public: 10, recent: 10, official: 9, brief: 8 },
+  "stated on tuesday in": { a: 10, Washington: 8 },
+  "tuesday in a public": { statement: 10, report: 10, interview: 9 },
+  "overnight military assault on": { the: 10 },
+  "was shared ahead of": { time: 10 },
+  "no intelligence was shared": { ahead: 10, before: 9 }
 };
 
 /**
- * Calculates 1-4 gram language model score for a candidate word given prior context words.
+ * Calculates 1-5 gram language model score for a candidate word given prior context words.
  */
 export function calculateNGramScore(candidate: string, context: string[]): number {
   const w = candidate.toLowerCase();
@@ -138,6 +150,16 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
   const w1 = len >= 1 ? context[len - 1].toLowerCase() : "";
   const w2 = len >= 2 ? context[len - 2].toLowerCase() : "";
   const w3 = len >= 3 ? context[len - 3].toLowerCase() : "";
+  const w4 = len >= 4 ? context[len - 4].toLowerCase() : "";
+
+  // 0. 5-Gram Score (weight = 10000)
+  if (w1 && w2 && w3 && w4) {
+    const key5 = `${w4} ${w3} ${w2} ${w1}`;
+    const map5 = FIVEGRAM_MAP[key5];
+    if (map5 && map5[w]) {
+      score += 10000 * map5[w];
+    }
+  }
 
   // 1. 4-Gram Score (weight = 1000)
   if (w1 && w2 && w3) {
