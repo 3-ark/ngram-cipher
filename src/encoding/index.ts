@@ -25,6 +25,73 @@ const NEWS_ENDING_TO_CODE: Record<string, number> = {
   "…": 3,
 };
 
+const DETERMINER_CODES: Record<string, string> = {
+  the: "0",
+  some: "100",
+  its: "101",
+  no: "110",
+  any: "1110",
+  a: "11110",
+  this: "111110",
+  one: "111111",
+};
+const DETERMINER_CODE_TO_WORD: Record<string, string> = {
+  "0": "the",
+  "100": "some",
+  "101": "its",
+  "110": "no",
+  "1110": "any",
+  "11110": "a",
+  "111110": "this",
+  "111111": "one",
+};
+
+interface PrefixCodeNode {
+  word?: string;
+  weight: number;
+  order: number;
+  left?: PrefixCodeNode;
+  right?: PrefixCodeNode;
+}
+
+function buildOpeningCodes(candidates: string[], recentOpeners: string[]): Map<string, string> {
+  const excludedWord = recentOpeners.length === 2 &&
+    recentOpeners[0] === recentOpeners[1]
+    ? recentOpeners[0]
+    : undefined;
+  const eligible = candidates.filter(word => word.toLowerCase() !== excludedWord);
+  const nodes = eligible.map((word, order) => ({
+    word,
+    weight: word.toLowerCase() === "the" ? 8 : 1,
+    order,
+  }));
+  const queue: PrefixCodeNode[] = nodes;
+
+  while (queue.length > 1) {
+    queue.sort((a, b) => a.weight - b.weight || a.order - b.order);
+    const left = queue.shift()!;
+    const right = queue.shift()!;
+    queue.push({
+      weight: left.weight + right.weight,
+      order: Math.min(left.order, right.order),
+      left,
+      right,
+    });
+  }
+
+  const codes = new Map<string, string>();
+  const visit = (node: PrefixCodeNode, prefix: string): void => {
+    if (node.word !== undefined) {
+      codes.set(node.word, prefix || "0");
+      return;
+    }
+    if (node.left) visit(node.left, `${prefix}0`);
+    if (node.right) visit(node.right, `${prefix}1`);
+  };
+  visit(queue[0], "");
+  return codes;
+}
+
 // Poetic endings palette (4 distinct endings = 2 bits for lossless bijection):
 // 0: "."  (full stop, closure)
 // 1: " —" (em-dash pause)
@@ -76,6 +143,7 @@ export function bytesToEnglishText(
   const reader = new BitStreamReader(fullPayload);
   const sentences: string[] = [];
   const templates = isPoetry ? POETRY_TEMPLATES : TEMPLATES;
+  const recentOpeners: string[] = [];
   let sentenceIdx = 0;
 
   const templateBits = Math.round(Math.log2(templates.length));
@@ -98,10 +166,43 @@ export function bytesToEnglishText(
         continue;
       }
 
-      const bitCount = Math.floor(Math.log2(list.length)) || 8;
-      const val = reader.hasBits ? reader.readBits(bitCount) : 0;
-      const rank = valToRank(val, bitCount, list.length);
-      const chosenWord = ranked[rank % ranked.length];
+      let chosenWord: string;
+      if (!isPoetry && words.length === 0) {
+        const openingCodes = buildOpeningCodes(ranked, recentOpeners);
+        const codeToWord = new Map(
+          Array.from(openingCodes, ([word, code]) => [code, word] as const)
+        );
+        let code = "";
+        let decodedWord: string | undefined;
+        for (let i = 0; i < 16; i++) {
+          code += reader.readBits(1).toString();
+          decodedWord = codeToWord.get(code);
+          if (decodedWord) break;
+        }
+        if (!decodedWord) {
+          throw new EncodingError("Unable to decode sentence opening word.");
+        }
+        chosenWord = decodedWord;
+      } else if (!isPoetry && slot.label === "d") {
+        let code = "";
+        let decodedWord: string | undefined;
+        for (let i = 0; i < 6; i++) {
+          code += reader.readBits(1).toString();
+          decodedWord = DETERMINER_CODE_TO_WORD[code];
+          if (decodedWord) {
+            break;
+          }
+        }
+        if (!decodedWord) {
+          throw new EncodingError("Unable to decode determiner prefix code.");
+        }
+        chosenWord = decodedWord;
+      } else {
+        const bitCount = Math.floor(Math.log2(list.length)) || 8;
+        const val = reader.hasBits ? reader.readBits(bitCount) : 0;
+        const rank = valToRank(val, bitCount, list.length);
+        chosenWord = ranked[rank % ranked.length];
+      }
 
       words.push(chosenWord);
       context.push(chosenWord.toLowerCase());
@@ -137,6 +238,11 @@ export function bytesToEnglishText(
 
     const sentence = words.join(" ") + ending;
     sentences.push(sentence);
+    if (!isPoetry) {
+      const openingWord = words[0].toLowerCase();
+      recentOpeners.push(openingWord === "an" ? "a" : openingWord);
+      if (recentOpeners.length > 2) recentOpeners.shift();
+    }
     sentenceIdx++;
   }
 
@@ -245,6 +351,7 @@ export function englishTextToBytes(
 
   const rawWriter = new BitStreamWriter();
   const templates = isPoetry ? POETRY_TEMPLATES : TEMPLATES;
+  const recentOpeners: string[] = [];
 
   for (let sentenceIdx = 0; sentenceIdx < rawSentences.length; sentenceIdx++) {
     const { sentenceStr, endingStr } = rawSentences[sentenceIdx];
@@ -258,6 +365,7 @@ export function englishTextToBytes(
 
     let tokenIdx = 0;
     const context: string[] = [];
+    let sentenceOpener = "";
 
     for (const slot of template) {
       if (tokenIdx >= tokens.length) break;
@@ -272,6 +380,9 @@ export function englishTextToBytes(
 
       const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
       const ranked = rankCandidates(list, context);
+      const openingCodes = !isPoetry && tokenIdx === 0
+        ? buildOpeningCodes(ranked, recentOpeners)
+        : undefined;
 
       const rank = ranked.findIndex(w => w.toLowerCase() === cleanWord);
 
@@ -283,10 +394,32 @@ export function englishTextToBytes(
       }
 
       if (slot.type === "data") {
-        const bitCount = Math.floor(Math.log2(list.length)) || 8;
-        const val = rankToVal(rank, bitCount, list.length);
-        rawWriter.writeBits(val, bitCount);
+        if (openingCodes) {
+          const code = openingCodes.get(cleanWord);
+          if (!code) {
+            throw new EncodingError(
+              `Invalid repeated sentence opening word: "${rawToken}" ` +
+              `(sentence ${sentenceIdx + 1}, previous openers: ${recentOpeners.join(", ")})`
+            );
+          }
+          for (const bit of code) {
+            rawWriter.writeBits(Number(bit), 1);
+          }
+        } else if (!isPoetry && slot.label === "d") {
+          const code = DETERMINER_CODES[cleanWord];
+          if (!code) {
+            throw new EncodingError(`No determiner code is defined for "${cleanWord}".`);
+          }
+          for (const bit of code) {
+            rawWriter.writeBits(Number(bit), 1);
+          }
+        } else {
+          const bitCount = Math.floor(Math.log2(list.length)) || 8;
+          const val = rankToVal(rank, bitCount, list.length);
+          rawWriter.writeBits(val, bitCount);
+        }
       }
+      if (tokenIdx === 0) sentenceOpener = cleanWord;
       context.push(cleanWord);
       tokenIdx++;
     }
@@ -299,6 +432,10 @@ export function englishTextToBytes(
         const endingCode = NEWS_ENDING_TO_CODE[endingStr] ?? 0;
         rawWriter.writeBits(endingCode, 2);
       }
+    }
+    if (!isPoetry && sentenceOpener) {
+      recentOpeners.push(sentenceOpener);
+      if (recentOpeners.length > 2) recentOpeners.shift();
     }
   }
 

@@ -53,7 +53,7 @@ export const PROPER_NOUNS: string[] = [
 // These function-word lists stay small and grammatical instead of adding
 // unrelated words just to fill a 256-word, 8-bit slot.
 export const DETERMINERS: string[] = [
-  "the","some","any","no","our","your","their","its"
+  "the","a","this","some","any","no","one","its"
 ];
 
 // -- PREPOSITIONS -----------------------------------------------------------

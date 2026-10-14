@@ -11,7 +11,6 @@ import {
   CONJUNCTIONS,
   RELATIVES,
   PRONOUNS,
-  VOCABULARY,
   TEMPLATES,
   POETRY_TEMPLATES,
   analyzeCarrierText,
@@ -45,7 +44,7 @@ describe("Natural Language Generation & Analysis Module", () => {
 
   it("should keep function-word dictionaries free of unrelated vocabulary", () => {
     expect(DETERMINERS).toEqual([
-      "the","some","any","no","our","your","their","its"
+      "the","a","this","some","any","no","one","its"
     ]);
     expect(PREPOSITIONS).not.toContain("acrossboard");
     expect(PREPOSITIONS).not.toContain("backwardsward");

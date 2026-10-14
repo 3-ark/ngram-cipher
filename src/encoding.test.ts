@@ -16,11 +16,41 @@ describe("Reversible Encoding and Decoding Module", () => {
   });
 
   it("should preserve larger payloads across multiple revised news templates", () => {
-    for (const length of [16, 24, 32, 64]) {
+    for (const length of [16, 24, 32, 64, 129, 256, 512]) {
       const payload = Uint8Array.from({ length }, (_, index) => (index * 73 + length) & 0xff);
       const text = bytesToEnglishText(payload);
 
       expect(Array.from(englishTextToBytes(text)), `payload length ${length}`).toEqual(Array.from(payload));
+    }
+  });
+
+  it("should favor common determiners while preserving the encoded bits", () => {
+    let state = 0x12345678;
+    const payload = Uint8Array.from({ length: 1024 }, () => {
+      state ^= state << 13;
+      state ^= state >>> 17;
+      state ^= state << 5;
+      return state & 0xff;
+    });
+    const text = bytesToEnglishText(payload);
+    const words = text.toLowerCase().match(/[a-z]+/g) || [];
+    const determinerWords = words.filter(word => DETERMINERS.includes(word));
+
+    expect(determinerWords.filter(word => word === "the").length / determinerWords.length)
+      .toBeGreaterThan(0.35);
+    expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
+
+    const openers = text
+      .split(/(?<=[.!?…])\s+/)
+      .map(sentence => {
+        const opener = sentence.match(/^[A-Z][a-z]*/)?.[0].toLowerCase();
+        return opener === "an" ? "a" : opener;
+      })
+      .filter((word): word is string => word !== undefined);
+    for (let index = 2; index < openers.length; index++) {
+      if (openers[index - 1] === openers[index - 2]) {
+        expect(openers[index]).not.toBe(openers[index - 1]);
+      }
     }
   });
 
