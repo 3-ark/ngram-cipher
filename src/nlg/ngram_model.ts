@@ -8,12 +8,35 @@ const BIGRAM_MAP: Record<string, Record<string, number>> = {
     major: 10, global: 10, national: 10, public: 10, new: 10, economic: 9,
     government: 10, president: 10, market: 10, company: 9, report: 9,
     court: 8, council: 8, economy: 9, system: 8, country: 9, election: 8,
-    minister: 8, official: 8, leader: 8, conference: 8, committee: 8
+    minister: 8, official: 8, leader: 8, conference: 8, committee: 8,
+    moon: 10, river: 10, silent: 9, quiet: 9, ancient: 9, luminous: 9,
+    endless: 9, golden: 9, sacred: 9, gentle: 9, starlight: 9, twilight: 9
   },
   a: {
     new: 10, major: 10, significant: 9, key: 9, recent: 8, large: 8,
     statement: 9, report: 9, decision: 9, meeting: 8, agreement: 9,
-    plan: 8, proposal: 8, campaign: 8, strategy: 8, solution: 8
+    plan: 8, proposal: 8, campaign: 8, strategy: 8, solution: 8,
+    gentle: 10, quiet: 10, luminous: 9, soft: 9, fragile: 9, silent: 9,
+    solitary: 9, distant: 9, radiant: 9, serene: 9
+  },
+  above: { the: 10, a: 9, each: 8, every: 8, her: 8, my: 8, our: 8, his: 8 },
+  beside: { the: 10, a: 9, each: 8, every: 8, her: 8, my: 8, our: 8, his: 8 },
+  beyond: { the: 10, a: 9, each: 8, every: 8, her: 8, my: 8, our: 8, his: 8 },
+  beneath: { the: 10, a: 9, each: 8, every: 8, her: 8, my: 8, our: 8, his: 8 },
+  through: { the: 10, a: 9, each: 8, every: 8, her: 8, my: 8, our: 8, his: 8 },
+  within: { the: 10, a: 9, each: 8, every: 8, her: 8, my: 8, our: 8, his: 8 },
+  quiet: {
+    river: 10, flame: 10, solitude: 10, night: 9, stream: 9, breeze: 9,
+    silence: 9, garden: 9, harbor: 8
+  },
+  silent: {
+    night: 10, river: 10, shadow: 9, forest: 9, echo: 9, sky: 8
+  },
+  gentle: {
+    breeze: 10, rain: 10, river: 10, whisper: 9, stream: 9, warmth: 9
+  },
+  luminous: {
+    sky: 10, moon: 10, star: 9, radiance: 9, night: 9
   },
   an: {
     international: 10, official: 9, important: 9, annual: 9, early: 8,
@@ -114,7 +137,11 @@ const TRIGRAM_MAP: Record<string, Record<string, number>> = {
   "announced a": { new: 10, major: 10, plan: 9, agreement: 9, policy: 8 },
   "confirmed the": { news: 10, report: 10, decision: 9, appointment: 8, agreement: 8 },
   "led to": { a: 10, widespread: 8, significant: 8, major: 8, increased: 7 },
-  "focused on": { the: 10, economic: 8, national: 8, future: 8, building: 7 }
+  "focused on": { the: 10, economic: 8, national: 8, future: 8, building: 7 },
+  "the moon": { slept: 10, glowed: 10, rose: 9, shone: 9, drifted: 8 },
+  "the river": { flowed: 10, danced: 9, shimmered: 9, lingered: 8 },
+  "a gentle": { breeze: 10, river: 10, rain: 9, whisper: 9 },
+  "a quiet": { flame: 10, silence: 10, river: 9, night: 9 }
 };
 
 // Common English 4-Gram Transitions ("w1 w2 w3" -> Record<w4, weight>)

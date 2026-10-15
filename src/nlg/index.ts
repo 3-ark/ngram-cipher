@@ -200,7 +200,15 @@ const POETRY_NOUNS = [
   "frost","ember","mist","sunlight","starlight","comet","desert","island",
   "pathway","horizon","reflection","echo","whisper","breeze","storm","twilight",
   "harbor","cavern","glade","summit","pine","willow","feather","shell",
-  "tide","wave","spark","light","haven","clearing","canopy","solitude"
+  "tide","wave","spark","light","haven","clearing","canopy","solitude",
+  "time","memory","dream","music","solace","wonder","heart","spirit",
+  "sorrow","promise","presence","distance","passage","rhythm","secret","lullaby",
+  "lantern","mirror","realm","temple","melody","reverie","slumber","breath",
+  "pulse","aura","cradle","shelter","embrace","vision","phantom","chime",
+  "veil","radiance","cascade","glen","threshold","hymn","murmur","trance",
+  "eternity","moment","sanctuary","sigh","desire","warmth","grace","repose",
+  "compass","oasis","thought","glance","yearning","citadel","fountain","brook",
+  "throne","chalice","voyage","recompense","beacon","shroud","serenade","harmony"
 ];
 const POETRY_VERBS_PAST = [
   "slept","glowed","drifted","shimmered","rested","wandered","whispered","faded",
@@ -210,7 +218,15 @@ const POETRY_VERBS_PAST = [
   "soared","glided","awakened","softened","ignited","settled","floated","glimmered",
   "folded","kindled","surged","cleared","descended","ascended","parted","guided",
   "traveled","weaved","bounded","listened","welcomed","cherished","embraced","dissolved",
-  "sparkled","flashed","calmed","haunted","realigned","illuminated","subsided","thawed"
+  "sparkled","flashed","calmed","haunted","realigned","illuminated","subsided","thawed",
+  "recalled","treasured","sought","found","comforted","restored","soothed","rekindled",
+  "beckoned","entwined","murmured","transcended","resounded","flowered","surrendered","hushed",
+  "unfolded","enfolded","manifested","remained","perished","retreated","yielded","conveyed",
+  "anchored","adorned","crowned","dazzled","delayed","departed","distilled","enveloped",
+  "expanded","mourned","obscured","overspread","paused","persisted","pervaded","quieted",
+  "quickened","reawakened","reconnected","reflected","released","remembered","resonated","returned",
+  "revered","revived","rippled","scattered","slumbered","smoothed","traversed","vibrated",
+  "slid","glanced","sojourned","transformed","encircled","sanctified","charmed","entranced"
 ];
 const POETRY_ADJECTIVES = [
   "quiet","silver","pale","gentle","soft","wild","distant","dark",
@@ -220,7 +236,15 @@ const POETRY_ADJECTIVES = [
   "velvet","tender","amber","shadowy","serene","peaceful","endless","boundless",
   "radiant","crystal","luminous","subtle","sacred","tranquil","solitary","timeless",
   "fragile","graceful","mellow","vibrant","ethereal","pristine","dusky","snowy",
-  "goldenrod","azure","emerald","crimson","calm","dormant","halcyon","fleeting"
+  "goldenrod","azure","emerald","crimson","calm","dormant","halcyon","fleeting",
+  "hallowed","ephemeral","veiled","melodic","pensive","wistful","reverent","mystic",
+  "hushed","blessed","lofty","sublime","haunting","glowing","spacious","immense",
+  "infinite","unspoken","unbroken","crystalline","starry","verdant","celestial","unseen",
+  "restless","everlasting","immortal","translucent","arcane","seraphic","resonant","reposeful",
+  "quietistic","pure","pastoral","nocturnal","monumental","limpid","iridescent","incandescent",
+  "immemorial","illusive","harmonious","flawless","festive","enchanted","elusive","divine",
+  "cloudless","charmed","breezy","benign","astral","ageless","placid","stilly",
+  "vernal","sylvan","solemn","wondrous","winsome","untamed","untold","peerless"
 ];
 const POETRY_DETERMINERS = [
   "the","a","this","that","some","one","our","my",
@@ -240,7 +264,9 @@ const POETRY_CLAUSE_CONJUNCTIONS = [
 ];
 const POETRY_ADVERBS = [
   "quietly","slowly","softly","gently","here","there","alone","away",
-  "brightly","faintly","still","deeply","wildly","lightly","calmly","nearby"
+  "brightly","faintly","still","deeply","wildly","lightly","calmly","nearby",
+  "tenderly","silently","swiftly","sweetly","gracefully","peacefully","smoothly","subtly",
+  "radiantly","serenely","anew","forever","afar","solemnly","warmly","purely"
 ];
 
 // 8 Distinct Word-Length Grammatical Poetry Templates (Lengths 3, 4, 5, 6, 7, 8, 9, 10)
