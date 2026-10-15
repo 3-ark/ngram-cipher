@@ -169,15 +169,30 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(scoreNounRepetition).toBeLessThan(-400);
   });
 
-  it("should support poetic personification without penalizing speech verbs for poetic subjects", () => {
+  it("should support poetic personification for expressive verbs and penalize formal journalistic verbs", () => {
     const context = ["the", "moon"];
-    const scoreSpoke = calculateNGramScore("spoke", context);
-    expect(scoreSpoke).toBeGreaterThan(0);
+    const scoreWhispered = calculateNGramScore("whispered", context);
+    const scoreArgued = calculateNGramScore("argued", context);
+    expect(scoreWhispered).toBeGreaterThan(0);
+    expect(scoreArgued).toBeLessThan(0);
   });
 
-  it("should enforce bijective mapping and throw when candidate size N is less than bit capacity", () => {
+  it("should skip prepositional objects with multi-word determiner and adjective modifier chains", () => {
+    // "after the initial investigation" has preposition "after" at prev3 from "investigation".
+    // Subject noun scan should skip "investigation" and select "president".
+    const context = ["the", "president", "spoke", "after", "the", "initial", "investigation"];
+    const scoreAnnounced = calculateNGramScore("announced", context);
+    expect(scoreAnnounced).toBeGreaterThan(0);
+  });
+
+  it("should enforce bijective mapping, bounds checking, and handle bitCount <= 0", () => {
     expect(valToRank(200, 8, 256)).toBe(200);
     expect(rankToVal(200, 8, 256)).toBe(200);
+    expect(valToRank(0, 0, 256)).toBe(0);
+    expect(rankToVal(0, 0, 256)).toBe(0);
+
     expect(() => valToRank(3, 2, 3)).toThrow("less than bit capacity");
+    expect(() => valToRank(4, 2, 256)).toThrow("out of bounds");
+    expect(() => rankToVal(4, 2, 256)).toThrow("out of bounds");
   });
 });

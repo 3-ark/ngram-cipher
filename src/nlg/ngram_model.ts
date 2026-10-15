@@ -118,6 +118,12 @@ const POETRY_NOUN_SET = new Set([
   "sorrow", "promise", "presence", "distance", "passage", "rhythm", "secret", "lullaby"
 ]);
 
+const POETIC_EXPRESSIVE_VERBS = new Set([
+  "whispered", "murmured", "spoke", "called", "sang", "echoed", "breathed", "waited",
+  "faded", "flowed", "danced", "lingered", "glowed", "drifted", "shimmered", "shone",
+  "rose", "fell", "awakened", "slumbered", "wandered", "slept", "rested", "bloomed"
+]);
+
 const FUNCTION_WORDS_SET = new Set([
   "the", "a", "an", "this", "that", "these", "those", "some", "any", "no", "one", "its", "each", "every", "another",
   "my", "our", "his", "her", "your", "their",
@@ -401,11 +407,19 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
       DOCUMENT_NOUN_SET.has(word) ||
       METRIC_NOUN_SET.has(word) ||
       EVENT_NOUN_SET.has(word) ||
-      SYSTEM_OBJECT_NOUN_SET.has(word)
+      SYSTEM_OBJECT_NOUN_SET.has(word) ||
+      POETRY_NOUN_SET.has(word)
     ) {
       const prev1 = i >= 1 ? context[i - 1].toLowerCase() : "";
       const prev2 = i >= 2 ? context[i - 2].toLowerCase() : "";
-      if (PREPOSITION_SET.has(prev1) || PREPOSITION_SET.has(prev2)) {
+      const prev3 = i >= 3 ? context[i - 3].toLowerCase() : "";
+      const prev4 = i >= 4 ? context[i - 4].toLowerCase() : "";
+      if (
+        PREPOSITION_SET.has(prev1) ||
+        PREPOSITION_SET.has(prev2) ||
+        PREPOSITION_SET.has(prev3) ||
+        PREPOSITION_SET.has(prev4)
+      ) {
         continue;
       }
       subjectNoun = word;
@@ -416,8 +430,12 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
   if (subjectNoun) {
     const isPoeticNoun = POETRY_NOUN_SET.has(subjectNoun);
     const cat = getNounCategory(subjectNoun);
-    if (isPoeticNoun && SPEECH_VERBS.has(w)) {
-      score += 30;
+    if (isPoeticNoun) {
+      if (POETIC_EXPRESSIVE_VERBS.has(w)) {
+        score += 50;
+      } else if (SPEECH_VERBS.has(w)) {
+        score -= 200;
+      }
     } else if (cat === "EVENT") {
       if (EVENT_OCCURRENCE_VERBS.has(w) || METRIC_TREND_VERBS.has(w)) {
         score += 50;
@@ -486,17 +504,25 @@ export function rankCandidates(candidates: string[], context: string[]): string[
  * Guarantees zero bit collisions by enforcing candidate set size N >= 2^bitCount.
  */
 export function valToRank(val: number, bitCount: number, N: number): number {
-  const maxRank = bitCount > 0 ? Math.floor(Math.pow(2, bitCount)) : N;
-  if (N < maxRank) {
-    throw new Error(`Candidate count N (${N}) is less than bit capacity 2^bitCount (${maxRank}).`);
+  if (bitCount <= 0) return 0;
+  const maxCapacity = 1 << bitCount;
+  if (N < maxCapacity) {
+    throw new Error(`Candidate count N (${N}) is less than bit capacity 2^bitCount (${maxCapacity}).`);
+  }
+  if (val < 0 || val >= maxCapacity) {
+    throw new Error(`Value ${val} out of bounds for bitCount ${bitCount} (valid range: 0..${maxCapacity - 1}).`);
   }
   return val;
 }
 
 export function rankToVal(rank: number, bitCount: number, N: number): number {
-  const maxRank = bitCount > 0 ? Math.floor(Math.pow(2, bitCount)) : N;
-  if (N < maxRank) {
-    throw new Error(`Candidate count N (${N}) is less than bit capacity 2^bitCount (${maxRank}).`);
+  if (bitCount <= 0) return 0;
+  const maxCapacity = 1 << bitCount;
+  if (N < maxCapacity) {
+    throw new Error(`Candidate count N (${N}) is less than bit capacity 2^bitCount (${maxCapacity}).`);
+  }
+  if (rank < 0 || rank >= maxCapacity) {
+    throw new Error(`Rank ${rank} out of bounds for bitCount ${bitCount} (valid range: 0..${maxCapacity - 1}).`);
   }
   return rank;
 }
