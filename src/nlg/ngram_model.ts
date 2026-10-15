@@ -2,8 +2,122 @@
  * 1-4 Gram N-Gram Language Model Calculation Engine
  */
 
+export type NounCategory = "AGENT" | "DOCUMENT" | "METRIC" | "EVENT" | "SYSTEM_OBJECT";
+
+const AGENT_NOUN_SET = new Set([
+  "government","president","council","agency","coalition","alliance","foundation","commission",
+  "authority","parliament","court","police","school","student","teacher","university","hospital",
+  "patient","doctor","team","player","coach","athlete","league","crowd","rival","family","children",
+  "mother","father","neighbor","household","generation","worker","union","media","journalist",
+  "press","artist","director","actor","audience","author","publisher","soldier","battalion",
+  "commander","regiment","astronaut","citizen","resident","volunteer","activist","leader",
+  "minister","ambassador","diplomat","delegate","governor","senator","official","researcher",
+  "scholar","graduate","professor","faculty","company","industry","community","prosecution",
+  "defense","witness"
+]);
+
+const DOCUMENT_NOUN_SET = new Set([
+  "report","policy","program","treaty","reform","strategy","verdict","sentence","evidence",
+  "contract","broadcast","headline","coverage","statement","interview","film","production",
+  "scene","screenplay","novel","chapter","story","edition","volume","archive","legend","memorial",
+  "forecast","petition","agreement","proposal","amendment","regulation","standard","guideline",
+  "framework","protocol","lecture","seminar","debate","opinion","analysis","survey","finding",
+  "conclusion","outcome","assessment","concept","theory","principle"
+]);
+
+const METRIC_NOUN_SET = new Set([
+  "market","economy","budget","finance","trade","export","investment","growth","profit",
+  "revenue","stock","salary","benefit","temperature","rainfall","supply","demand","shortage",
+  "surplus","score","penalty","value","cost","price","rate"
+]);
+
+const EVENT_NOUN_SET = new Set([
+  "election","campaign","crisis","summit","border","conflict","trial","crime","investigation",
+  "arrest","charge","prison","justice","education","research","science","technology","treatment",
+  "vaccine","medicine","surgery","disease","season","match","victory","championship","tournament",
+  "protest","movement","demonstration","operation","deployment","mission","weather","storm",
+  "drought","flood","disaster","history","tradition","heritage","ceremony","performance","concert",
+  "festival"
+]);
+
+const SYSTEM_OBJECT_NOUN_SET = new Set([
+  "system","country","district","network","stadium","climate","energy","environment","pollution",
+  "forest","ocean","wildlife","resource","bridge","highway","airport","railway","station",
+  "tunnel","harbor","terminal","office","building","project","museum","gallery","theater",
+  "culture","studio","library","monument","planet","orbit","rocket","spacecraft","telescope",
+  "weapon","missile","infrastructure","platform","software","database","server","algorithm",
+  "device","processor","signal","channel","frequency","spectrum","antenna","receiver","transmitter",
+  "module","campus","warehouse","shipment","cargo","delivery","language","symbol","pattern",
+  "structure","method"
+]);
+
+/**
+ * Returns the semantic category of a given noun.
+ */
+export function getNounCategory(noun: string): NounCategory {
+  const w = noun.toLowerCase();
+  if (AGENT_NOUN_SET.has(w)) return "AGENT";
+  if (DOCUMENT_NOUN_SET.has(w)) return "DOCUMENT";
+  if (METRIC_NOUN_SET.has(w)) return "METRIC";
+  if (EVENT_NOUN_SET.has(w)) return "EVENT";
+  if (SYSTEM_OBJECT_NOUN_SET.has(w)) return "SYSTEM_OBJECT";
+
+  // Default fallback: proper nouns and unspecified entity nouns act as AGENT
+  return "AGENT";
+}
+
+// Verb Category Affinity Sets for Semantic Match Scoring
+const SPEECH_VERBS = new Set([
+  "said","stated","reported","claimed","argued","suggested","warned","noted","added",
+  "explained","described","demanded","urged","proposed","requested","recounted","asserted",
+  "acknowledged","disclosed","pledged","voiced","insisted","reaffirmed","highlighted",
+  "underlined","specified"
+]);
+
+const INFORMATIONAL_VERBS = new Set([
+  "showed","indicated","revealed","confirmed","noted","explained","detailed","outlined",
+  "highlighted","focused","addressed","covered","included","contained","published","released",
+  "issued","presented","announced","approved","suggested"
+]);
+
+const METRIC_TREND_VERBS = new Set([
+  "grew","rose","fell","declined","expanded","shrank","dropped","increased","reduced",
+  "surged","recovered","stabilized","fluctuated","boosted","lowered","cut","gained","lost",
+  "changed","varied","remained","continued"
+]);
+
+const EVENT_OCCURRENCE_VERBS = new Set([
+  "began","started","ended","concluded","continued","persisted","escalated","unfolded",
+  "occurred","loomed","spread","intensified","worsened","disrupted","affected","struck",
+  "hit","halted","triggered","followed","threatened","caused"
+]);
+
+const SYSTEM_OPERATIONAL_VERBS = new Set([
+  "operated","functioned","performed","worked","failed","expanded","improved","started",
+  "connected","ran","processed","transmitted","generated","changed"
+]);
+
 // Common English Bigram Transitions (w1 -> Set/Map of w2 -> weight)
 const BIGRAM_MAP: Record<string, Record<string, number>> = {
+  report: { showed: 10, indicated: 10, revealed: 10, confirmed: 10, suggested: 9, detailed: 9, published: 8, released: 8 },
+  market: { rose: 10, fell: 10, grew: 10, declined: 10, expanded: 9, dropped: 9, surged: 9, recovered: 9 },
+  economy: { grew: 10, expanded: 10, slowed: 9, recovered: 9, shrank: 8, declined: 8 },
+  growth: { slowed: 10, accelerated: 10, continued: 9, remained: 8, dropped: 8 },
+  president: { announced: 10, stated: 10, signed: 9, visited: 9, urged: 9, met: 8, warned: 8 },
+  government: { announced: 10, approved: 10, confirmed: 9, proposed: 9, launched: 9, passed: 8 },
+  police: { arrested: 10, investigated: 10, searched: 9, detained: 9, confirmed: 8, reported: 8 },
+  court: { ruled: 10, decided: 10, rejected: 9, confirmed: 9, dismissed: 8, upheld: 8 },
+  minister: { stated: 10, confirmed: 10, urged: 9, emphasized: 9, promised: 8, announced: 8 },
+  company: { announced: 10, reported: 10, launched: 9, expanded: 9, acquired: 8, released: 8 },
+  council: { approved: 10, adopted: 9, passed: 9, met: 8, reviewed: 8 },
+  disease: { spread: 10, struck: 9, worsened: 9, affected: 8, persisted: 8 },
+  storm: { struck: 10, approached: 9, caused: 9, damaged: 8, passed: 8 },
+  crisis: { worsened: 10, deepened: 10, escalated: 9, continued: 9, began: 8 },
+  survey: { showed: 10, revealed: 10, indicated: 9, found: 9, suggested: 8 },
+  investigation: { revealed: 10, found: 10, continued: 9, focused: 8, concluded: 8 },
+  policy: { changed: 10, required: 9, improved: 9, failed: 8 },
+  system: { failed: 10, operated: 9, improved: 9, expanded: 8, changed: 8 },
+  database: { expanded: 10, updated: 9, stored: 8, grew: 8 },
   the: {
     major: 10, global: 10, national: 10, public: 10, new: 10, economic: 9,
     government: 10, president: 10, market: 10, company: 9, report: 9,
@@ -141,7 +255,17 @@ const TRIGRAM_MAP: Record<string, Record<string, number>> = {
   "the moon": { slept: 10, glowed: 10, rose: 9, shone: 9, drifted: 8 },
   "the river": { flowed: 10, danced: 9, shimmered: 9, lingered: 8 },
   "a gentle": { breeze: 10, river: 10, rain: 9, whisper: 9 },
-  "a quiet": { flame: 10, silence: 10, river: 9, night: 9 }
+  "a quiet": { flame: 10, silence: 10, river: 9, night: 9 },
+  "a disease": { spread: 10, struck: 10, worsened: 9, affected: 9 },
+  "the disease": { spread: 10, struck: 10, worsened: 9, affected: 9 },
+  "a storm": { struck: 10, damaged: 9, passed: 8, caused: 8 },
+  "the storm": { struck: 10, damaged: 9, passed: 8, caused: 8 },
+  "the crisis": { worsened: 10, deepened: 10, escalated: 9, continued: 8 },
+  "a survey": { showed: 10, revealed: 10, indicated: 9, suggested: 8 },
+  "the survey": { showed: 10, revealed: 10, indicated: 9, suggested: 8 },
+  "the report": { showed: 10, indicated: 10, revealed: 9, confirmed: 9 },
+  "the policy": { changed: 10, improved: 9, required: 9, failed: 8 },
+  "the database": { expanded: 10, grew: 9, stored: 8 }
 };
 
 // Common English 4-Gram Transitions ("w1 w2 w3" -> Record<w4, weight>)
@@ -219,7 +343,55 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
     score += 1;
   }
 
-  // 5. Repetition penalty: penalize repeating non-function words already present in sentence context
+  // 5. Noun-Verb Semantic Affinity Scoring:
+  // Identify preceding subject noun in context and score verb candidate compatibility
+  let subjectNoun = "";
+  for (let i = len - 1; i >= 0; i--) {
+    const word = context[i].toLowerCase();
+    if (
+      AGENT_NOUN_SET.has(word) ||
+      DOCUMENT_NOUN_SET.has(word) ||
+      METRIC_NOUN_SET.has(word) ||
+      EVENT_NOUN_SET.has(word) ||
+      SYSTEM_OBJECT_NOUN_SET.has(word)
+    ) {
+      subjectNoun = word;
+      break;
+    }
+  }
+
+  if (subjectNoun) {
+    const cat = getNounCategory(subjectNoun);
+    if (cat === "EVENT") {
+      if (EVENT_OCCURRENCE_VERBS.has(w) || METRIC_TREND_VERBS.has(w)) {
+        score += 50;
+      } else if (SPEECH_VERBS.has(w)) {
+        score -= 200;
+      }
+    } else if (cat === "METRIC") {
+      if (METRIC_TREND_VERBS.has(w) || EVENT_OCCURRENCE_VERBS.has(w)) {
+        score += 50;
+      } else if (SPEECH_VERBS.has(w)) {
+        score -= 200;
+      }
+    } else if (cat === "DOCUMENT") {
+      if (INFORMATIONAL_VERBS.has(w) || SPEECH_VERBS.has(w)) {
+        score += 50;
+      }
+    } else if (cat === "SYSTEM_OBJECT") {
+      if (SYSTEM_OPERATIONAL_VERBS.has(w) || METRIC_TREND_VERBS.has(w) || EVENT_OCCURRENCE_VERBS.has(w)) {
+        score += 50;
+      } else if (SPEECH_VERBS.has(w)) {
+        score -= 200;
+      }
+    } else if (cat === "AGENT") {
+      if (SPEECH_VERBS.has(w) || INFORMATIONAL_VERBS.has(w) || SYSTEM_OPERATIONAL_VERBS.has(w)) {
+        score += 30;
+      }
+    }
+  }
+
+  // 6. Repetition penalty: penalize repeating non-function words already present in sentence context
   const functionWords = new Set(["the", "a", "an", "in", "of", "to", "for", "on", "with", "at", "by", "from", "and", "or", "but"]);
   if (context.some(c => c.toLowerCase() === w) && !functionWords.has(w)) {
     score -= 500;
