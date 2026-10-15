@@ -15,7 +15,8 @@ import {
   POETRY_TEMPLATES,
   analyzeCarrierText,
   calculateNGramScore,
-  rankCandidates
+  rankCandidates,
+  getNounCategory
 } from "./nlg/index.js";
 
 describe("Natural Language Generation & Analysis Module", () => {
@@ -94,6 +95,28 @@ describe("Natural Language Generation & Analysis Module", () => {
     const candidates = ["zebra", "public", "apple"];
     const ranked = rankCandidates(candidates, context);
     expect(ranked[0]).toBe("public");
+  });
+
+  it("should classify nouns and score noun-verb affinity to prevent mismatched pairs", () => {
+    expect(getNounCategory("president")).toBe("AGENT");
+    expect(getNounCategory("report")).toBe("DOCUMENT");
+    expect(getNounCategory("market")).toBe("METRIC");
+    expect(getNounCategory("disease")).toBe("EVENT");
+    expect(getNounCategory("database")).toBe("SYSTEM_OBJECT");
+
+    // Event noun ("disease") should rank event/occurrence verbs above mismatched speech verbs ("warned")
+    const diseaseContext = ["a", "disease"];
+    const diseaseCandidates = ["warned", "spread", "struck", "worsened"];
+    const rankedDisease = rankCandidates(diseaseCandidates, diseaseContext);
+    expect(["spread", "struck", "worsened"]).toContain(rankedDisease[0]);
+    expect(rankedDisease[rankedDisease.length - 1]).toBe("warned");
+
+    // Metric noun ("market") should rank trend verbs ("rose", "fell") above speech verbs ("warned")
+    const marketContext = ["the", "major", "market"];
+    const marketCandidates = ["warned", "rose", "fell", "grew"];
+    const rankedMarket = rankCandidates(marketCandidates, marketContext);
+    expect(["rose", "fell", "grew"]).toContain(rankedMarket[0]);
+    expect(rankedMarket[rankedMarket.length - 1]).toBe("warned");
   });
 
   it("should perform carrier text statistical analysis and perplexity estimation", () => {
