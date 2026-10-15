@@ -16,7 +16,9 @@ import {
   analyzeCarrierText,
   calculateNGramScore,
   rankCandidates,
-  getNounCategory
+  getNounCategory,
+  valToRank,
+  rankToVal
 } from "./nlg/index.js";
 
 describe("Natural Language Generation & Analysis Module", () => {
@@ -137,5 +139,45 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(analysis.wordCount).toBe(0);
     expect(analysis.sentenceCount).toBe(0);
     expect(analysis.perplexityEstimate).toBe(Infinity);
+  });
+
+  it("should match 5-gram candidates regardless of letter casing", () => {
+    const context = ["stated", "on", "tuesday", "in"];
+    const scoreLower = calculateNGramScore("washington", context);
+    const scoreUpper = calculateNGramScore("Washington", context);
+    expect(scoreLower).toBeGreaterThan(10000);
+    expect(scoreUpper).toEqual(scoreLower);
+  });
+
+  it("should correctly identify subject noun by skipping objects of prepositional phrases", () => {
+    // In "the president spoke about the crisis", "crisis" is object of preposition "about".
+    // Subject noun is "president" (AGENT), so "announced" should receive AGENT boost (+30) not EVENT penalty (-200).
+    const context = ["the", "president", "spoke", "about", "the", "crisis"];
+    const scoreAnnounced = calculateNGramScore("announced", context);
+    expect(scoreAnnounced).toBeGreaterThan(0);
+  });
+
+  it("should not penalize repeated structural/function words and pronouns in context", () => {
+    const contextWithPronoun = ["she", "said", "that", "she"];
+    const scorePronounRepetition = calculateNGramScore("she", contextWithPronoun);
+    // Structural words like "she" should not suffer -500 penalty
+    expect(scorePronounRepetition).toBeGreaterThan(-100);
+
+    const contextWithNoun = ["the", "report", "showed", "the", "report"];
+    const scoreNounRepetition = calculateNGramScore("report", contextWithNoun);
+    // Non-function words like "report" repeat in context, triggering -500 penalty
+    expect(scoreNounRepetition).toBeLessThan(-400);
+  });
+
+  it("should support poetic personification without penalizing speech verbs for poetic subjects", () => {
+    const context = ["the", "moon"];
+    const scoreSpoke = calculateNGramScore("spoke", context);
+    expect(scoreSpoke).toBeGreaterThan(0);
+  });
+
+  it("should enforce bijective mapping and throw when candidate size N is less than bit capacity", () => {
+    expect(valToRank(200, 8, 256)).toBe(200);
+    expect(rankToVal(200, 8, 256)).toBe(200);
+    expect(() => valToRank(3, 2, 3)).toThrow("less than bit capacity");
   });
 });

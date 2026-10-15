@@ -97,6 +97,40 @@ const SYSTEM_OPERATIONAL_VERBS = new Set([
   "connected","ran","processed","transmitted","generated","changed"
 ]);
 
+const PREPOSITION_SET = new Set([
+  "about", "above", "across", "after", "against", "along", "among", "around", "at",
+  "before", "behind", "below", "beneath", "beside", "between", "beyond", "by",
+  "despite", "during", "for", "from", "in", "into", "near", "of", "off", "on",
+  "onto", "over", "past", "since", "through", "throughout", "to", "toward",
+  "towards", "under", "until", "upon", "with", "within", "without"
+]);
+
+const POETRY_NOUN_SET = new Set([
+  "moon", "river", "forest", "ocean", "wind", "rain", "snow", "cloud",
+  "sky", "sea", "tree", "branch", "leaf", "flower", "bird", "stone",
+  "mountain", "valley", "meadow", "shore", "lake", "stream", "shadow", "dawn",
+  "dusk", "night", "star", "flame", "garden", "field", "silence", "season",
+  "frost", "ember", "mist", "sunlight", "starlight", "comet", "desert", "island",
+  "pathway", "horizon", "reflection", "echo", "whisper", "breeze", "storm", "twilight",
+  "harbor", "cavern", "glade", "summit", "pine", "willow", "feather", "shell",
+  "tide", "wave", "spark", "light", "haven", "clearing", "canopy", "solitude",
+  "time", "memory", "dream", "music", "solace", "wonder", "heart", "spirit",
+  "sorrow", "promise", "presence", "distance", "passage", "rhythm", "secret", "lullaby"
+]);
+
+const FUNCTION_WORDS_SET = new Set([
+  "the", "a", "an", "this", "that", "these", "those", "some", "any", "no", "one", "its", "each", "every", "another",
+  "my", "our", "his", "her", "your", "their",
+  "in", "of", "to", "for", "on", "with", "at", "by", "from", "into", "about", "after", "during", "between", "through",
+  "across", "over", "under", "before", "since", "against", "around", "among", "within", "toward", "towards", "upon",
+  "along", "beyond", "without", "despite", "until", "throughout", "above", "below", "beside", "beneath", "near",
+  "and", "or", "but", "while", "as", "yet", "although", "because", "though", "whereas", "unless", "whether", "when",
+  "where", "if",
+  "it", "they", "them", "we", "us", "he", "him", "she", "i", "me", "you", "which", "who", "whom", "whose",
+  "is", "was", "are", "were", "be", "been", "being", "has", "have", "had", "do", "does", "did", "can", "could", "will",
+  "would", "shall", "should", "may", "might", "must", "became", "seemed", "appeared"
+]);
+
 // Common English Bigram Transitions (w1 -> Set/Map of w2 -> weight)
 const BIGRAM_MAP: Record<string, Record<string, number>> = {
   report: { showed: 10, indicated: 10, revealed: 10, confirmed: 10, suggested: 9, detailed: 9, published: 8, released: 8 },
@@ -118,6 +152,16 @@ const BIGRAM_MAP: Record<string, Record<string, number>> = {
   policy: { changed: 10, required: 9, improved: 9, failed: 8 },
   system: { failed: 10, operated: 9, improved: 9, expanded: 8, changed: 8 },
   database: { expanded: 10, updated: 9, stored: 8, grew: 8 },
+  user: { created: 10, updated: 10, saved: 9, shared: 9, deleted: 8 },
+  data: { showed: 10, indicated: 10, suggested: 9, revealed: 9 },
+  article: { reported: 10, described: 10, highlighted: 9, discussed: 9 },
+  note: { stated: 10, detailed: 10, included: 9, summarized: 9 },
+  page: { contained: 10, displayed: 10, showed: 9, featured: 9 },
+  wind: { blew: 10, whispered: 10, rose: 9, carried: 9, howled: 8 },
+  star: { shone: 10, glowed: 10, sparkled: 9, faded: 8 },
+  shadow: { fell: 10, lengthened: 10, danced: 9, vanished: 8 },
+  rain: { fell: 10, washed: 9, poured: 9, stopped: 8 },
+  sunlight: { warmed: 10, streamed: 10, filled: 9, faded: 8 },
   the: {
     major: 10, global: 10, national: 10, public: 10, new: 10, economic: 9,
     government: 10, president: 10, market: 10, company: 9, report: 9,
@@ -265,7 +309,11 @@ const TRIGRAM_MAP: Record<string, Record<string, number>> = {
   "the survey": { showed: 10, revealed: 10, indicated: 9, suggested: 8 },
   "the report": { showed: 10, indicated: 10, revealed: 9, confirmed: 9 },
   "the policy": { changed: 10, improved: 9, required: 9, failed: 8 },
-  "the database": { expanded: 10, grew: 9, stored: 8 }
+  "the database": { expanded: 10, grew: 9, stored: 8 },
+  "the article": { reported: 10, stated: 10, described: 9, highlighted: 9 },
+  "the user": { saved: 10, created: 10, updated: 9, shared: 9 },
+  "the note": { stated: 10, detailed: 10, showed: 9, explained: 9 },
+  "the wind": { whispered: 10, blew: 10, rose: 9, howled: 8 }
 };
 
 // Common English 4-Gram Transitions ("w1 w2 w3" -> Record<w4, weight>)
@@ -283,7 +331,7 @@ const FOURGRAM_MAP: Record<string, Record<string, number>> = {
 // Common English 5-Gram Transitions ("w1 w2 w3 w4" -> Record<w5, weight>)
 const FIVEGRAM_MAP: Record<string, Record<string, number>> = {
   "stated tuesday in a": { public: 10, recent: 10, official: 9, brief: 8 },
-  "stated on tuesday in": { a: 10, Washington: 8 },
+  "stated on tuesday in": { a: 10, washington: 8 },
   "tuesday in a public": { statement: 10, report: 10, interview: 9 },
   "overnight military assault on": { the: 10 },
   "was shared ahead of": { time: 10 },
@@ -355,14 +403,22 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
       EVENT_NOUN_SET.has(word) ||
       SYSTEM_OBJECT_NOUN_SET.has(word)
     ) {
+      const prev1 = i >= 1 ? context[i - 1].toLowerCase() : "";
+      const prev2 = i >= 2 ? context[i - 2].toLowerCase() : "";
+      if (PREPOSITION_SET.has(prev1) || PREPOSITION_SET.has(prev2)) {
+        continue;
+      }
       subjectNoun = word;
       break;
     }
   }
 
   if (subjectNoun) {
+    const isPoeticNoun = POETRY_NOUN_SET.has(subjectNoun);
     const cat = getNounCategory(subjectNoun);
-    if (cat === "EVENT") {
+    if (isPoeticNoun && SPEECH_VERBS.has(w)) {
+      score += 30;
+    } else if (cat === "EVENT") {
       if (EVENT_OCCURRENCE_VERBS.has(w) || METRIC_TREND_VERBS.has(w)) {
         score += 50;
       } else if (SPEECH_VERBS.has(w)) {
@@ -392,8 +448,7 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
   }
 
   // 6. Repetition penalty: penalize repeating non-function words already present in sentence context
-  const functionWords = new Set(["the", "a", "an", "in", "of", "to", "for", "on", "with", "at", "by", "from", "and", "or", "but"]);
-  if (context.some(c => c.toLowerCase() === w) && !functionWords.has(w)) {
+  if (context.some(c => c.toLowerCase() === w) && !FUNCTION_WORDS_SET.has(w)) {
     score -= 500;
   }
 
@@ -427,12 +482,21 @@ export function rankCandidates(candidates: string[], context: string[]): string[
 }
 
 /**
- * 1-to-1 bijective mapping between bit val (0..N-1) and candidate rank (0..N-1).
+ * 1-to-1 bijective mapping between bit val (0..2^bitCount - 1) and candidate rank (0..2^bitCount - 1).
+ * Guarantees zero bit collisions by enforcing candidate set size N >= 2^bitCount.
  */
-export function valToRank(val: number, _bitCount: number, N: number): number {
-  return val % N;
+export function valToRank(val: number, bitCount: number, N: number): number {
+  const maxRank = bitCount > 0 ? Math.floor(Math.pow(2, bitCount)) : N;
+  if (N < maxRank) {
+    throw new Error(`Candidate count N (${N}) is less than bit capacity 2^bitCount (${maxRank}).`);
+  }
+  return val;
 }
 
-export function rankToVal(rank: number, _bitCount: number, N: number): number {
-  return rank % N;
+export function rankToVal(rank: number, bitCount: number, N: number): number {
+  const maxRank = bitCount > 0 ? Math.floor(Math.pow(2, bitCount)) : N;
+  if (N < maxRank) {
+    throw new Error(`Candidate count N (${N}) is less than bit capacity 2^bitCount (${maxRank}).`);
+  }
+  return rank;
 }
