@@ -165,7 +165,7 @@ const CLAUSE_CONJUNCTIONS = [
 ];
 const RELATIVE_CLAUSE_MARKERS = ["that","which"];
 
-// Eight distinct word-length grammatical news templates (Lengths 4..11)
+// Sixteen distinct word-length grammatical news templates (Lengths 4..19)
 export const TEMPLATES: Slot[][] = [
   // 0 / 4 words: The major market rose.
   [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP")],
@@ -176,20 +176,44 @@ export const TEMPLATES: Slot[][] = [
   // 2 / 6 words: The major company backed the reform.
   [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(NOUNS, "N")],
 
-  // 3 / 7 words: Johnson said that the crisis grew.
-  [D(PROPER_NOUNS, "NP"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP"), D(ADVERBS, "R")],
+  // 3 / 7 words: Recent surveys in the region suggest...
+  [D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(VERBS, "V"), D(ADVERBS, "R")],
 
-  // 4 / 8 words: The report said that the major crisis grew.
-  [D(DETERMINERS, "d"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP")],
+  // 4 / 8 words: The situation remained steady through Friday.
+  [D(DETERMINERS, "d"), D(NOUNS, "N"), D(AUXILIARIES, "V"), D(COMPLEMENT_ADJECTIVES, "A"), F(["through"], "p"), D(DAYS, "NP"), D(ADVERBS, "R"), D(ADVERBS, "R")],
 
-  // 5 / 9 words: The major company backed the national reform in London.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
+  // 5 / 9 words: The report said that the major crisis grew.
+  [D(DETERMINERS, "d"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP"), D(ADVERBS, "R")],
 
-  // 6 / 10 words: The official report confirmed that the policy changed the system.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(NOUNS, "N")],
+  // 6 / 10 words: The major company backed the national reform in London.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(PROPER_NOUNS, "NP"), D(ADVERBS, "R")],
 
   // 7 / 11 words: Johnson said that the major policy changed the national system.
   [D(PROPER_NOUNS, "NP"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(ADVERBS, "R")],
+
+  // 8 / 12 words: Recent official reports in the national economy remained stable in London.
+  [D(ADJECTIVES, "A"), D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(AUXILIARIES, "V"), D(COMPLEMENT_ADJECTIVES, "A"), F(["in"], "p"), D(PROPER_NOUNS, "NP"), D(ADVERBS, "R")],
+
+  // 9 / 13 words: Recent surveys in the major region suggest that the economy remained steady recently.
+  [D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(VERBS, "V"), F(["that"], "c"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(AUXILIARIES, "V"), D(COMPLEMENT_ADJECTIVES, "A"), D(DAYS, "NP")],
+
+  // 10 / 14 words: According to several local reports, the major government confirmed that the national policy changed.
+  [D(ADJECTIVES, "A"), D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP"), D(ADVERBS, "R")],
+
+  // 11 / 15 words: Recent official surveys in the region suggest that the major economy backed the new program.
+  [D(ADJECTIVES, "A"), D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(VERBS, "V"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N")],
+
+  // 12 / 16 words: Recent official surveys in the region suggest that the major economy backed the new national program.
+  [D(ADJECTIVES, "A"), D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(VERBS, "V"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ADJECTIVES, "A"), D(NOUNS, "N")],
+
+  // 13 / 17 words: According to several public reports, the major official confirmed that the economic situation remained steady through Friday.
+  [D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(AUXILIARIES, "V"), D(COMPLEMENT_ADJECTIVES, "A"), F(["through"], "p"), D(DAYS, "NP"), D(ADVERBS, "R"), D(ADVERBS, "R")],
+
+  // 14 / 18 words: Recent official surveys in the major region suggest that the government confirmed that the economic policy changed.
+  [D(ADJECTIVES, "A"), D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(VERBS, "V"), F(["that"], "c"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP"), D(ADVERBS, "R")],
+
+  // 15 / 19 words: Johnson confirmed that the official survey in the region indicated that the market rose in London.
+  [D(PROPER_NOUNS, "NP"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP"), F(["in"], "p"), D(PROPER_NOUNS, "NP"), D(ADVERBS, "R"), D(ADVERBS, "R")],
 ];
 
 const POETRY_NOUNS = [
