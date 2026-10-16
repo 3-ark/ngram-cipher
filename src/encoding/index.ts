@@ -74,7 +74,7 @@ function estimateTemplateBitRate(template: Slot[]): number {
       bits += Math.log2(slot.list.length);
     }
   }
-  return (bits / template.length) + (bits * 0.05);
+  return (bits + 4) / template.length;
 }
 
 function getTemplateCodes(
@@ -334,7 +334,7 @@ export function bytesToEnglishText(
     }
 
     const sentence = words
-      .map((word, index) => `${template[index].punctuationBefore ?? ""}${word}${template[index].punctuationAfter ?? ""}`)
+      .map((word, index) => `${word}${template[index].punctuationAfter ?? ""}`)
       .join(" ") + ending;
     sentences.push(sentence);
     if (!isPoetry) {
@@ -486,14 +486,10 @@ export function englishTextToBytes(
       if (tokenIdx >= tokens.length) break;
 
       const rawToken = tokens[tokenIdx];
-      let cleanWord = rawToken
-        .replace(/^[ "'“‘]+/g, "")
-        .replace(/[ "'”’.,!?;:]+$/g, "")
-        .replace(/[\u2013\u2014]/g, "")
-        .toLowerCase();
+      let cleanWord = rawToken.replace(/[.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 
       // Normalize grammatical "an" back to "a" for determiners
-      if (slot.type === "data" && cleanWord === "an" && slot.label === "d") {
+      if (cleanWord === "an" && slot.label === "d") {
         cleanWord = "a";
       }
 
