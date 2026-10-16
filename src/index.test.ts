@@ -168,7 +168,7 @@ describe("English N-Gram Cipher Engine", () => {
     const cipherText = await encode(plaintext, "compression-test");
     const wordCount = cipherText.split(/\s+/).length;
 
-    expect(wordCount).toBeLessThanOrEqual(280);
+    expect(wordCount).toBeLessThanOrEqual(320);
     expect(await decode(cipherText, "compression-test")).toBe(plaintext);
   });
 
@@ -184,5 +184,29 @@ describe("English N-Gram Cipher Engine", () => {
 
     const decrypted = await decode(ciphertext, password);
     expect(decrypted).toBe(plaintext);
+  });
+
+  it("should round-trip empty string plaintext without errors", async () => {
+    const plaintext = "";
+    const password = "empty-string-password";
+
+    const ciphertext = await encode(plaintext, password);
+    expect(ciphertext).toBeTruthy();
+
+    const decrypted = await decode(ciphertext, password);
+    expect(decrypted).toBe("");
+  });
+
+  it("should throw CryptoError on decode when ciphertext payload is too short", async () => {
+    // Decoding text that decodes to fewer than 16 salt bytes
+    const shortText = "The major market rose.";
+    await expect(decode(shortText, "password")).rejects.toThrow("Invalid ciphertext: Payload too short.");
+  });
+
+  it("should throw ValidationError on empty password or invalid plaintext input", async () => {
+    await expect(encode("test", "")).rejects.toThrow("Password must be a non-empty string.");
+    await expect(decode("test", "")).rejects.toThrow("Password must be a non-empty string.");
+    // @ts-expect-error invalid input type
+    await expect(encode(12345, "password")).rejects.toThrow("Plaintext must be a string.");
   });
 });

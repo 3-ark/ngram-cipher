@@ -161,14 +161,14 @@ export function bytesToEnglishText(
 
   const isPoetry = config.style === "poetry";
 
-  // Append payload length (16-bit uint16) to the END of fullPayload so bit 0 comes directly from bytes[0]!
+  // Append payload length (32-bit uint32) to the END of fullPayload so bit 0 comes directly from bytes[0]!
   // This guarantees that bit 0 comes from whitened AES salt, making sentence 1 opening words 100% random and unique per run!
   const payloadLength = bytes.length;
-  const lengthBytes = new Uint8Array(2);
+  const lengthBytes = new Uint8Array(4);
   const view = new DataView(lengthBytes.buffer);
-  view.setUint16(0, payloadLength, false);
+  view.setUint32(0, payloadLength, false);
 
-  const fullPayload = new Uint8Array(bytes.length + 2);
+  const fullPayload = new Uint8Array(bytes.length + 4);
   fullPayload.set(bytes, 0);
   fullPayload.set(lengthBytes, bytes.length);
 
@@ -511,14 +511,15 @@ export function englishTextToBytes(
   }
 
   const rawStream = rawWriter.toBytes();
-  if (rawStream.length < 2) {
+  if (rawStream.length < 4) {
     return new Uint8Array(0);
   }
 
   let payloadLength = -1;
-  // Scan rawStream backwards for payload length p where rawStream[p..p+1] === p
-  for (let p = rawStream.length - 2; p >= 0; p--) {
-    const len = (rawStream[p] << 8) | rawStream[p + 1];
+  const minP = Math.max(0, rawStream.length - 30);
+  for (let p = rawStream.length - 4; p >= minP; p--) {
+    const view = new DataView(rawStream.buffer, rawStream.byteOffset + p, 4);
+    const len = view.getUint32(0, false);
     if (len === p) {
       payloadLength = len;
       break;

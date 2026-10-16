@@ -2,6 +2,8 @@
  * Natural Language Generation Dictionaries, Templates, and Carrier-Text Analysis
  */
 
+import { EncodingError } from "../config/index.js";
+
 export * from "./ngram_model.js";
 
 export type SlotType = "data" | "filler";
@@ -441,7 +443,7 @@ export function matchTemplate(tokens: string[], templates: Slot[][] = TEMPLATES)
   const len = tokens.length;
   const templateIdx = templates.findIndex(template => template.length === len);
   if (templateIdx === -1) {
-    throw new Error(`No template matches sentence length ${len}.`);
+    throw new EncodingError(`No template matches sentence length ${len}.`);
   }
   return templateIdx;
 }

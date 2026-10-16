@@ -198,6 +198,33 @@ describe("Reversible Encoding and Decoding Module", () => {
     expect(Array.from(englishTextToBytes("   "))).toEqual([]);
   });
 
+  it("should handle empty payload bytes gracefully", () => {
+    const emptyPayload = new Uint8Array(0);
+    const encoded = bytesToEnglishText(emptyPayload);
+    expect(encoded).toBe("");
+    expect(Array.from(englishTextToBytes(encoded))).toEqual([]);
+  });
+
+  it("should handle large payload size (> 65KB) without truncation", () => {
+    const largePayload = new Uint8Array(70000);
+    for (let i = 0; i < largePayload.length; i++) {
+      largePayload[i] = (i * 17 + 5) & 0xff;
+    }
+    const encoded = bytesToEnglishText(largePayload);
+    expect(encoded.length).toBeGreaterThan(0);
+
+    const decoded = englishTextToBytes(encoded);
+    expect(decoded.length).toBe(70000);
+    expect(Array.from(decoded)).toEqual(Array.from(largePayload));
+  });
+
+  it("should throw EncodingError when sentence word count matches no template", () => {
+    // 3 words is not a valid news template length (valid news lengths: 4, 5, 6, 7, 9, 10, 12, 15)
+    const invalidSentenceText = "The major market.";
+    expect(() => englishTextToBytes(invalidSentenceText)).toThrow(EncodingError);
+    expect(() => englishTextToBytes(invalidSentenceText)).toThrow("No template matches sentence length 3.");
+  });
+
   it("should correctly encode and decode long complex news sentence structures", () => {
     const payload = new Uint8Array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150]);
     const encoded = bytesToEnglishText(payload);

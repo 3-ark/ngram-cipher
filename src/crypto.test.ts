@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { encryptBytes, decryptBytes, deriveKey } from "./crypto/index.js";
+import { encryptBytes, decryptBytes, deriveKey, deriveKeystream, xorBytes } from "./crypto/index.js";
 import { CryptoError } from "./config/index.js";
 
 describe("Cryptographic Operations Module", () => {
@@ -36,5 +36,22 @@ describe("Cryptographic Operations Module", () => {
   it("should throw CryptoError on corrupted/short payload", async () => {
     const invalidPayload = new Uint8Array([1, 2, 3, 4, 5]);
     await expect(decryptBytes(invalidPayload, "pass")).rejects.toThrow(CryptoError);
+  });
+
+  it("should handle zero-length keystream derivation", async () => {
+    const salt = new Uint8Array([1, 2, 3, 4]);
+    const keystream = await deriveKeystream("pass", salt, 0);
+    expect(keystream.length).toBe(0);
+  });
+
+  it("should correctly handle xorBytes edge cases", () => {
+    const emptyData = new Uint8Array(0);
+    const keystream = new Uint8Array([0xff, 0xaa]);
+    expect(Array.from(xorBytes(emptyData, keystream))).toEqual([]);
+
+    const data = new Uint8Array([0x12, 0x34, 0x56]);
+    const xored = xorBytes(data, keystream);
+    const unxored = xorBytes(xored, keystream);
+    expect(Array.from(unxored)).toEqual(Array.from(data));
   });
 });
