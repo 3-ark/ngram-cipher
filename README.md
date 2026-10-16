@@ -11,7 +11,7 @@ Unlike classic steganography that hides bits in image pixels or audio noise, `ng
 ## Features
 
 - **🔐 Robust Security**: PBKDF2 (100,000 iterations) key derivation, AES-256-GCM encryption, CRC32 binary framing, and payload whitening.
-- **💬 Natural English Carrier Text**: Generates flowing prose following dynamic N-gram statistical models with subject-verb semantic matching and dynamic punctuation. News sentences vary their structure, avoid repeating a structure within the previous two sentences, and include concise headline-style patterns.
+- **💬 Natural English Carrier Text**: Generates flowing prose following dynamic N-gram statistical models with subject-verb semantic matching and dynamic punctuation. News sentences contain at least six words, vary their structure, and avoid repeating a structure within the previous two sentences. Patterns include appositive details, causal explanations, and source attributions.
 - **🎨 Multiple Carrier Styles**:
   - `news` (default): Realistic journalistic prose with attributions, clause variations, and natural sentence flows.
   - `poetry`: Stanza-formatted poetic verse with haiku-inspired rhythm, expressive vocabulary, and rich steganographic capacity.
@@ -180,7 +180,7 @@ const text = await encode("Secret message", "password", options);
 2. **AES-256-GCM Encryption**: Key derived via PBKDF2 with SHA-256 (100,000 rounds).
 3. **Binary Framing & Checksum**: Header, versioning, payload length, and CRC32 checksum are added.
 4. **Stego Whitening Layer**: XOR key-stream whitening scrambles binary pattern artifacts before word mapping.
-5. **Dynamic Power-of-Two N-Gram Mapping**: Payload bits are converted into indices within POS candidate pools ($2^n$ capacity slots), scored using N-gram continuation probabilities from Google Books datasets, and rendered into natural English sentences.
+5. **Dynamic Power-of-Two N-Gram Mapping**: Payload bits are encoded in the selected words' ranks within POS candidate pools ($2^n$ capacity slots), scored using N-gram continuation probabilities from Google Books datasets, and rendered into natural English sentences. News templates are selected to favor higher payload capacity per word while retaining varied, long-form sentence structures.
 
 ---
 

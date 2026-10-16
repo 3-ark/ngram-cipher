@@ -291,6 +291,13 @@ const CAUSE_VERBS = uniqueWords([
   "continued","persisted","worsened","intensified","escalated","deepened","spread","grew",
   "expanded","increased","emerged","erupted","lasted","struck","hit","developed"
 ], 16);
+const APPOSITIVE_REQUEST_VERBS = [
+  "requested","demanded","proposed","approved","issued","submitted","offered","provided",
+  "released","published","adopted","presented","confirmed","announced","disclosed","rejected"
+];
+const UNRESOLVED_COMPLEMENT_VERBS = [
+  "remained","stayed","seemed","appeared","proved","became","ended","continued"
+];
 const CAUSE_LINKERS = ["because","as","since","while"];
 const EFFECT_LOCATIONS = LOCATION_PROPER_NOUNS;
 const ACTION_ADVERBS = uniqueWords([
@@ -365,41 +372,35 @@ const AFTER_EVENTS = uniqueWords([
 ], 32);
 // Distinct sentence lengths let the decoder identify each news template without extra marker bits.
 export const TEMPLATES: Slot[][] = [
-  // 0 / 4 words: Market rose in London.
-  [D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
-
-  // 1 / 3 words: The market rose.
-  [D(DETERMINERS, "d"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP")],
-
-  // 2 / 5 words: The market rose in London.
-  [D(DETERMINERS, "d"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
-
-  // 3 / 6 words: The major market rose in London.
+  // 0 / 6 words: The major market rose in London.
   [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
 
-  // 4 / 7 words: If the drought worsened, food prices rose.
+  // 1 / 7 words: If the drought worsened, food prices rose.
   [F(["if"], "c"), D(CONDITION_DETERMINERS, "d"), D(CONDITION_NOUNS, "N"), D(CONDITION_VERBS, "VP", ","), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP")],
 
-  // 5 / 8 words: The company expanded its public network in London.
+  // 2 / 8 words: The company expanded its public network in London.
   [D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
 
-  // 6 / 9 words: After talks, however, the president recently changed its strategy.
+  // 3 / 9 words: After talks, however, the president recently changed its strategy.
   [F(["after"], "p"), D(AFTER_EVENTS, "N", ","), D(DISCOURSE_ADVERBS, "R", ","), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
-  // 7 / 10 words: The coalition, which officials publicly criticized, eventually backed the reform.
+  // 4 / 10 words: The coalition, which officials publicly criticized, eventually backed the reform.
   [D(DETERMINERS, "d"), D(RELATIVE_ANTECEDENTS, "N", ","), F(["which"], "c"), D(RELATIVE_SUBJECTS, "N"), D(ACTION_ADVERBS, "R"), D(RELATIVE_VERBS, "VP", ","), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
-  // 8 / 12 words: Local food prices rose sharply in London since the severe drought persisted.
+  // 5 / 12 words: Local food prices rose sharply in London since the severe drought persisted.
   [D(EFFECT_SCOPE_ADJECTIVES, "A"), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP"), D(CAUSE_LINKERS, "c"), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP")],
 
-  // 9 / 14 words: "The major company backed the proposal," Johnson said recently in an interview in London.
+  // 6 / 14 words: "The major company backed the proposal," Johnson said recently in an interview in London.
   [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(ACTION_ADVERBS, "R"), F(["in"], "p"), F(["an"], "d"), F(["interview"], "N"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
 
-  // 10 / 15 words: Johnson said that the major company backed some reform, but the agency rejected the proposal.
+  // 7 / 15 words: Johnson said that the major company backed some reform, but the agency rejected the proposal.
   [D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
-  // 11 / 17 words: "The major company backed the proposal," Johnson said in London, "since the severe drought persisted in Geneva."
+  // 8 / 17 words: "The major company backed the proposal," Johnson said in London, "since the severe drought persisted in Geneva."
   [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", ","), D(CAUSE_LINKERS, "c", undefined, '"'), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", '"')],
+
+  // 9 / 18 words: "The officials, including some delegates, requested a formal statement because the talks remained unresolved, Reuters reported on Friday."
+  [D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), F(["including"], "c"), D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), D(APPOSITIVE_REQUEST_VERBS, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["because"], "c"), D(OBJECT_DETERMINERS, "d"), D(AFTER_EVENTS, "N"), D(UNRESOLVED_COMPLEMENT_VERBS, "VP"), D(COMPLEMENT_ADJECTIVES, "A", ","), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["on"], "p"), F(["Friday"], "NP")]
 ];
 
 const POETRY_NOUNS = [

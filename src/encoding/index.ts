@@ -57,9 +57,9 @@ for (let count = 8; count <= TEMPLATES.length; count++) {
     ...TEMPLATE_CODES_BY_COUNT[count - 1].map(code => `1${code}`),
   ];
 }
-const LESS_COMMON_TEMPLATE_INDEX = 6;
+const LESS_COMMON_TEMPLATE_INDEX = 3;
 
-function estimateTemplateBitRate(template: Slot[]): number {
+function estimateTemplateBitDensity(template: Slot[]): number {
   let bits = 0;
   for (let index = 0; index < template.length; index++) {
     const slot = template[index];
@@ -106,7 +106,7 @@ function getTemplateCodes(
   const rankedCandidates = candidates
     .filter(index => index !== LESS_COMMON_TEMPLATE_INDEX || lessCommonCode === undefined)
     .sort((a, b) =>
-      estimateTemplateBitRate(templates[b]) - estimateTemplateBitRate(templates[a]) || a - b
+      estimateTemplateBitDensity(templates[b]) - estimateTemplateBitDensity(templates[a]) || a - b
     );
   rankedCandidates.forEach((index, rank) => codes.set(index, codesByLength[rank]));
   if (lessCommonCode !== undefined) {

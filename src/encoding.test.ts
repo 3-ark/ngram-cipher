@@ -36,6 +36,7 @@ describe("Reversible Encoding and Decoding Module", () => {
       .map(sentence => sentence.replace(/^[ "'“‘]+|[ "'”’.,!?;:]+$/g, "").split(/\s+/).length);
 
     expect(sentenceLengths.length).toBeGreaterThan(10);
+    expect(sentenceLengths.every(length => length >= 6)).toBe(true);
     expect(sentenceLengths).toContain(8);
     for (let index = 1; index < sentenceLengths.length; index++) {
       expect(sentenceLengths[index]).not.toBe(sentenceLengths[index - 1]);
