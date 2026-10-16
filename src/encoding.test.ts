@@ -85,7 +85,7 @@ describe("Reversible Encoding and Decoding Module", () => {
       expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
     }
     expect(causalCount).toBeGreaterThan(0);
-    expect(causalCount / sentenceCount).toBeLessThanOrEqual(0.2);
+    expect(causalCount / sentenceCount).toBeLessThanOrEqual(0.35);
   });
 
   it("should generate both conditional and relative-clause patterns", () => {
@@ -210,7 +210,7 @@ describe("Reversible Encoding and Decoding Module", () => {
     const pronounText = bytesToEnglishText(pronounBytes, config);
 
     expect(DETERMINERS.map(word => word.toLowerCase())).toContain(
-      pronounText.split(/\s+/)[0].toLowerCase()
+      pronounText.split(/\s+/)[0].replace(/^["'“‘]/, "").toLowerCase()
     );
     expect(Array.from(englishTextToBytes(pronounText, config))).toEqual(Array.from(pronounBytes));
   });
