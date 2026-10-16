@@ -526,3 +526,101 @@ export function rankToVal(rank: number, bitCount: number, N: number): number {
   }
   return rank;
 }
+
+export interface SlotCapacity {
+  bitCount: number;
+  usablePool: string[]; // Length will be strictly 2^bitCount (1, 2, 4, 8...)
+}
+
+/**
+ * Filters out unnatural candidates and truncates the pool to the largest
+ * power of 2 (1, 2, 4, 8...), determining how many bits this slot can carry safely.
+ */
+export function getSlotCapacity(candidates: string[], context: string[]): SlotCapacity {
+  if (!candidates || candidates.length === 0) {
+    return { bitCount: 0, usablePool: [] };
+  }
+
+  // 1. Score all candidates using existing engine
+  const scored = candidates.map((word, originalIndex) => ({
+    word,
+    originalIndex,
+    score: calculateNGramScore(word, context)
+  }));
+
+  // Sort descending by score; tie-break by originalIndex to guarantee deterministic order
+  scored.sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
+    return a.originalIndex - b.originalIndex;
+  });
+
+  const bestScore = scored[0].score;
+
+  // 2. Viability Filter: Discard unnatural words
+  // Rule A: Never pick words with negative scores (penalties triggered)
+  // Rule B: If there is a strong N-gram hit (score >= 100), don't allow words that scored < 10
+  let viable = scored.filter(item => {
+    if (item.score < 0) return false;
+    if (bestScore >= 100 && item.score < 10) return false;
+    return true;
+  });
+
+  // Fallback: If no candidates passed the filter, use the top candidate so text generation never halts
+  if (viable.length === 0) {
+    viable = [scored[0]];
+  }
+
+  // 3. Power-of-Two Truncation
+  const bitCount = Math.floor(Math.log2(viable.length));
+  const usableCount = 1 << bitCount; // 2^bitCount
+
+  return {
+    bitCount,
+    usablePool: viable.slice(0, usableCount).map(item => item.word)
+  };
+}
+
+/**
+ * Encodes a single word slot given candidates, context, and a bit reading function.
+ */
+export function encodeWordSlot(
+  candidates: string[],
+  context: string[],
+  readBits: (count: number) => number
+): string {
+  const { bitCount, usablePool } = getSlotCapacity(candidates, context);
+
+  if (bitCount === 0) {
+    return usablePool[0] || candidates[0];
+  }
+
+  const val = readBits(bitCount);
+  return usablePool[val] || usablePool[0];
+}
+
+/**
+ * Decodes a single word slot given the chosen word, candidates, context, and a bit writing function.
+ */
+export function decodeWordSlot(
+  chosenWord: string,
+  candidates: string[],
+  context: string[],
+  writeBits: (val: number, count: number) => void
+): void {
+  const { bitCount, usablePool } = getSlotCapacity(candidates, context);
+
+  if (bitCount === 0) {
+    return;
+  }
+
+  const cleanChosen = chosenWord.replace(/[.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
+  const rank = usablePool.findIndex(w => w.toLowerCase() === cleanChosen);
+
+  if (rank === -1) {
+    throw new Error(`Decoder error: word "${chosenWord}" was not in valid candidate pool`);
+  }
+
+  writeBits(rank, bitCount);
+}

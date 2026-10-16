@@ -18,7 +18,10 @@ import {
   rankCandidates,
   getNounCategory,
   valToRank,
-  rankToVal
+  rankToVal,
+  getSlotCapacity,
+  encodeWordSlot,
+  decodeWordSlot
 } from "./nlg/index.js";
 
 describe("Natural Language Generation & Analysis Module", () => {
@@ -194,5 +197,68 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(() => valToRank(3, 2, 3)).toThrow("less than bit capacity");
     expect(() => valToRank(4, 2, 256)).toThrow("out of bounds");
     expect(() => rankToVal(4, 2, 256)).toThrow("out of bounds");
+  });
+
+  it("should calculate slot capacity with Top-Score Power-of-Two Truncation", () => {
+    // 1. Empty/null input check
+    expect(getSlotCapacity([], [])).toEqual({ bitCount: 0, usablePool: [] });
+
+    // 2. Strong N-Gram Context
+    const context = ["stated", "tuesday", "in", "a"];
+    const candidates = ["public", "recent", "official", "brief", "zebra", "elephant", "cat"];
+    const capacity = getSlotCapacity(candidates, context);
+
+    expect(capacity.bitCount).toBeGreaterThanOrEqual(1);
+    expect(capacity.usablePool.length).toBe(1 << capacity.bitCount);
+    expect(capacity.usablePool).toContain("public");
+
+    // 3. Negative Score Filter (repetition penalty)
+    const repetitionContext = ["the", "report", "showed", "the", "report"];
+    const nounCandidates = ["report", "market", "policy", "program"];
+    const repCapacity = getSlotCapacity(nounCandidates, repetitionContext);
+
+    // "report" repeats in context and gets -500 penalty, so it must be filtered out
+    expect(repCapacity.usablePool).not.toContain("report");
+    expect(repCapacity.usablePool.length).toBe(1 << repCapacity.bitCount);
+
+    // 4. Fallback when all candidates are empty or filtered
+    const allRepetitionContext = ["report", "report"];
+    const singleRepCandidate = ["report"];
+    const fallbackCap = getSlotCapacity(singleRepCandidate, allRepetitionContext);
+    expect(fallbackCap.bitCount).toBe(0);
+    expect(fallbackCap.usablePool).toEqual(["report"]);
+  });
+
+  it("should round-trip encodeWordSlot and decodeWordSlot reversibly", () => {
+    const context = ["the", "major"];
+    const candidates = ["report", "policy", "summit", "agreement", "market", "reform", "crisis", "breakthrough"];
+
+    // Encoding: pull 2 bits (e.g. value 2)
+    const encodedWord = encodeWordSlot(candidates, context, (count) => {
+      expect(count).toBeGreaterThan(0);
+      return 2;
+    });
+
+    expect(typeof encodedWord).toBe("string");
+
+    // Decoding: recover exact bit value (2)
+    let recoveredVal = -1;
+    let recoveredCount = -1;
+    decodeWordSlot(encodedWord, candidates, context, (val, count) => {
+      recoveredVal = val;
+      recoveredCount = count;
+    });
+
+    expect(recoveredVal).toBe(2);
+    expect(recoveredCount).toBeGreaterThan(0);
+  });
+
+  it("should throw error in decodeWordSlot if chosen word is invalid/unrecognized", () => {
+    const context = ["the", "major"];
+    const candidates = ["report", "policy", "summit", "agreement"];
+
+    expect(() => {
+      decodeWordSlot("xyz_not_a_word", candidates, context, () => {});
+    }).toThrow("Decoder error");
   });
 });

@@ -10,6 +10,7 @@ import {
   rankCandidates,
   valToRank,
   rankToVal,
+  getSlotCapacity,
   matchTemplate,
 } from "../nlg/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
@@ -198,10 +199,10 @@ export function bytesToEnglishText(
         }
         chosenWord = decodedWord;
       } else {
-        const bitCount = Math.floor(Math.log2(list.length)) || 8;
-        const val = reader.hasBits ? reader.readBits(bitCount) : 0;
-        const rank = valToRank(val, bitCount, list.length);
-        chosenWord = ranked[rank % ranked.length];
+        const { bitCount, usablePool } = getSlotCapacity(list, context);
+        const val = (bitCount > 0 && reader.hasBits) ? reader.readBits(bitCount) : 0;
+        const rank = valToRank(val, bitCount, usablePool.length);
+        chosenWord = usablePool[rank % usablePool.length] || usablePool[0];
       }
 
       words.push(chosenWord);
@@ -379,22 +380,11 @@ export function englishTextToBytes(
       }
 
       const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
-      const ranked = rankCandidates(list, context);
-      const openingCodes = !isPoetry && tokenIdx === 0
-        ? buildOpeningCodes(ranked, recentOpeners)
-        : undefined;
-
-      const rank = ranked.findIndex(w => w.toLowerCase() === cleanWord);
-
-      if (rank === -1) {
-        throw new EncodingError(
-          `Invalid or unrecognized token in cipher text: "${rawToken}" ` +
-          `(not in carrier vocabulary, sentence ${sentenceIdx + 1})`
-        );
-      }
 
       if (slot.type === "data") {
-        if (openingCodes) {
+        if (!isPoetry && tokenIdx === 0) {
+          const ranked = rankCandidates(list, context);
+          const openingCodes = buildOpeningCodes(ranked, recentOpeners);
           const code = openingCodes.get(cleanWord);
           if (!code) {
             throw new EncodingError(
@@ -414,9 +404,27 @@ export function englishTextToBytes(
             rawWriter.writeBits(Number(bit), 1);
           }
         } else {
-          const bitCount = Math.floor(Math.log2(list.length)) || 8;
-          const val = rankToVal(rank, bitCount, list.length);
-          rawWriter.writeBits(val, bitCount);
+          const { bitCount, usablePool } = getSlotCapacity(list, context);
+          if (bitCount > 0) {
+            const rank = usablePool.findIndex(w => w.toLowerCase() === cleanWord);
+            if (rank === -1) {
+              throw new EncodingError(
+                `Invalid or unrecognized token in cipher text: "${rawToken}" ` +
+                `(not in valid candidate pool for slot, sentence ${sentenceIdx + 1})`
+              );
+            }
+            const val = rankToVal(rank, bitCount, usablePool.length);
+            rawWriter.writeBits(val, bitCount);
+          }
+        }
+      } else {
+        // filler slots check vocabulary membership
+        const ranked = rankCandidates(list, context);
+        if (!ranked.some(w => w.toLowerCase() === cleanWord)) {
+          throw new EncodingError(
+            `Invalid or unrecognized token in cipher text: "${rawToken}" ` +
+            `(not in carrier vocabulary, sentence ${sentenceIdx + 1})`
+          );
         }
       }
       if (tokenIdx === 0) sentenceOpener = cleanWord;
