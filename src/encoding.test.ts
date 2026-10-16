@@ -42,6 +42,45 @@ describe("Reversible Encoding and Decoding Module", () => {
     expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
   });
 
+  it("should use restrained causal syntax and round-trip the payload", () => {
+    let causalCount = 0;
+    let sentenceCount = 0;
+    for (let seed = 0; seed < 16; seed++) {
+      const payload = Uint8Array.from(
+        { length: 128 },
+        (_, index) => (seed * 37 + index * 73 + 11) & 0xff
+      );
+      const text = bytesToEnglishText(payload);
+      const sentences = text.match(/[^.!?…]+[.!?…]+/g) ?? [];
+      causalCount += (text.match(/\b(?:because|as|since|while)\b/gi) ?? []).length;
+      sentenceCount += sentences.length;
+      expect(text).not.toMatch(/\b(?:therefore|hence|whereas)\b/i);
+      expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
+    }
+    expect(causalCount).toBeGreaterThan(0);
+    expect(causalCount / sentenceCount).toBeLessThanOrEqual(0.2);
+  });
+
+  it("should generate both conditional and relative-clause patterns", () => {
+    let sawConditional = false;
+    let sawRelativeClause = false;
+    let sawHowever = false;
+    for (let seed = 0; seed < 32; seed++) {
+      const payload = Uint8Array.from(
+        { length: 256 },
+        (_, index) => (seed * 53 + index * 97 + 7) & 0xff
+      );
+      const text = bytesToEnglishText(payload);
+      sawConditional ||= /\bIf\b[^.!?…]*,\s/i.test(text);
+      sawRelativeClause ||= /,\swhich\b[^.!?…]*,\s/i.test(text);
+      sawHowever ||= /,\showever,\s/i.test(text);
+      expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
+    }
+    expect(sawConditional).toBe(true);
+    expect(sawRelativeClause).toBe(true);
+    expect(sawHowever).toBe(true);
+  });
+
   it("should favor common determiners while preserving the encoded bits", () => {
     let state = 0x12345678;
     const payload = Uint8Array.from({ length: 1024 }, () => {

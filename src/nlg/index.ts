@@ -168,7 +168,6 @@ const CLAUSE_CONJUNCTIONS = [
   "that","while","although","because","as","since","before","after",
   "if","unless","whereas","until","once","where","whenever","wherever"
 ];
-const CLAUSE_LINKERS = ["and","but","while","although"];
 function uniqueWords(words: string[], size: number): string[] {
   return Array.from(new Set(words.map(word => word.toLowerCase()))).slice(0, size);
 }
@@ -232,6 +231,77 @@ const REPORTING_CLAUSE_VERBS = [
   "said","stated","reported","announced","confirmed","noted","argued","warned",
   "explained","claimed","suggested","indicated","detailed","revealed","declared","acknowledged"
 ];
+const CAUSE_ADJECTIVES = [
+  "severe","prolonged","sudden","widespread","intense","ongoing","regional","damaging",
+  "persistent","major","extreme","deadly","powerful","heavy","sustained","serious"
+];
+const CAUSE_NOUNS = [
+  "drought","storm","flood","conflict","crisis","disease","shortage","strike",
+  "blockade","recession","disruption","protest","fire","outbreak","failure","decline",
+  "collapse","delay","accident","attack","unrest","heat","rainfall","snowfall",
+  "wind","violence","instability","epidemic","wildfire","earthquake","eruption","avalanche"
+];
+const CAUSE_VERBS = [
+  "continued","persisted","worsened","intensified","escalated","deepened","spread","grew",
+  "expanded","increased","emerged","erupted","lasted","struck","hit","developed"
+];
+const CAUSE_LINKERS = ["because","as","since","while"];
+const EFFECT_LOCATIONS = [
+  "London","Paris","Geneva","Brussels","Moscow","Berlin","Prague","Washington",
+  "Tokyo","Beijing","Hanoi","Tehran","Nairobi","Lagos","Accra","Cairo",
+  "Madrid","Rome","Seoul","Dublin","Ottawa","Canberra","Jakarta","Bangkok",
+  "Vienna","Lisbon","Warsaw","Athens","Riyadh","Baghdad","Doha","Amman"
+];
+const ACTION_ADVERBS = [
+  "recently","publicly","strongly","formally","widely","closely","openly","repeatedly",
+  "quietly","quickly","carefully","directly","officially","successfully","privately","eventually"
+];
+const DISCOURSE_ADVERBS = [
+  "however","meanwhile","nevertheless","nonetheless","instead","also","indeed","similarly",
+  "furthermore","additionally","still","otherwise","rather","likewise","conversely","ultimately"
+];
+const EFFECT_ADVERBS = [
+  "sharply","steadily","rapidly","gradually","significantly","modestly","slightly","dramatically",
+  "quickly","slowly","noticeably","substantially","marginally","consistently","suddenly","further"
+];
+const CONDITION_VERBS = [
+  "escalated","deepened","intensified","spread","persisted","continued","worsened","expanded",
+  "increased","emerged","lasted","stabilized","accelerated","eased","declined","recovered"
+];
+const CONDITION_NOUNS = [
+  "crisis","shortage","conflict","unrest","violence","disease","drought","flood",
+  "rainfall","wildfire","epidemic","instability","supply","demand","output","trade"
+];
+const RELATIVE_ANTECEDENTS = [
+  "government","company","council","agency","coalition","commission","authority","parliament",
+  "court","team","leader","minister","ambassador","official","union","publisher"
+];
+const RELATIVE_SUBJECTS = [
+  "officials","lawmakers","regulators","voters","ministers","leaders","researchers","judges",
+  "members","delegates","senators","residents","workers","analysts","witnesses","representatives"
+];
+const RELATIVE_VERBS = [
+  "criticized","backed","rejected","approved","supported","opposed","questioned","challenged",
+  "examined","endorsed","investigated","defended","reviewed","signed","blocked","adopted"
+];
+const EFFECT_SCOPE_ADJECTIVES = [
+  "local","national","global","regional","domestic","public","private","rural",
+  "urban","international","federal","provincial","coastal","northern","eastern","western"
+];
+const EFFECT_TYPE_ADJECTIVES = [
+  "food","fuel","energy","consumer","industrial","agricultural","financial","trade",
+  "export","market","retail","wholesale","farm","crop","oil","gas"
+];
+const EFFECT_NOUNS = [
+  "supply","prices","output","production","growth","revenue","demand","trade",
+  "exports","imports","employment","traffic","sales","stocks","services","access",
+  "deliveries","operations","investment","income","costs","resources","harvest","crops",
+  "transport","earnings","shortages","profits","capacity","activity","shipments","supplies"
+];
+const EFFECT_VERBS = [
+  "rose","fell","declined","increased","dropped","shrank","improved","recovered",
+  "worsened","intensified","weakened","stalled","surged","persisted","tightened","expanded"
+];
 const AFTER_EVENTS = [
   "protests","talks","negotiations","elections","hearings","discussions","debates","demonstrations",
   "meetings","raids","clashes","investigations","consultations","interviews","strikes","trials"
@@ -247,20 +317,20 @@ export const TEMPLATES: Slot[][] = [
   // 2 / 6 words: The major company backed the reform.
   [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
-  // 3 / 7 words: The market rose while global trade fell.
-  [D(DETERMINERS, "d"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP"), D(CLAUSE_LINKERS, "c"), D(ADJECTIVES, "A"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP")],
+  // 3 / 7 words: If the drought worsened, food prices rose.
+  [F(["if"], "c"), D(DETERMINERS, "d"), D(CONDITION_NOUNS, "N"), D(CONDITION_VERBS, "VP", ","), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP")],
 
-  // 4 / 8 words: After talks, the president changed its strategy recently.
-  [F(["after"], "p"), D(AFTER_EVENTS, "N", ","), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N"), D(ADVERBS, "R")],
+  // 4 / 9 words: After talks, however, the president recently changed its strategy.
+  [F(["after"], "p"), D(AFTER_EVENTS, "N", ","), D(DISCOURSE_ADVERBS, "R", ","), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
-  // 5 / 9 words: The major company backed the national reform in London.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
+  // 5 / 10 words: The coalition, which officials publicly criticized, eventually backed the reform.
+  [D(DETERMINERS, "d"), D(RELATIVE_ANTECEDENTS, "N", ","), F(["which"], "c"), D(RELATIVE_SUBJECTS, "N"), D(ACTION_ADVERBS, "R"), D(RELATIVE_VERBS, "VP", ","), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
-  // 6 / 10 words: The company backed the proposal after the market expanded.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["after"], "p"), D(DETERMINERS, "d"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP")],
+  // 6 / 12 words: Local food prices rose sharply in London since the severe drought persisted.
+  [D(EFFECT_SCOPE_ADJECTIVES, "A"), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), F(["in"], "p"), D(EFFECT_LOCATIONS, "NP"), D(CAUSE_LINKERS, "c"), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP")],
 
-  // 7 / 11 words: Johnson said that the major company backed the national system.
-  [D(PROPER_NOUNS, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), D(ADVERBS, "R")],
+  // 7 / 13 words: Johnson said that the major company backed reform, but the agency rejected policy.
+  [D(PROPER_NOUNS, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ACTION_OBJECTS_EXTENDED, "N", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ACTION_OBJECTS_EXTENDED, "N")],
 ];
 
 const POETRY_NOUNS = [
