@@ -57,7 +57,7 @@ for (let count = 8; count <= TEMPLATES.length; count++) {
     ...TEMPLATE_CODES_BY_COUNT[count - 1].map(code => `1${code}`),
   ];
 }
-const LESS_COMMON_TEMPLATE_INDEX = 4;
+const LESS_COMMON_TEMPLATE_INDEX = 6;
 
 function estimateTemplateBitRate(template: Slot[]): number {
   let bits = 0;
@@ -234,7 +234,7 @@ export function bytesToEnglishText(
     );
     let templateCode = "";
     let templateIdx: number | undefined;
-    for (let bitIndex = 0; bitIndex < 8; bitIndex++) {
+    for (let bitIndex = 0; bitIndex < 16; bitIndex++) {
       templateCode += reader.readBits(1).toString();
       templateIdx = codeToTemplate.get(templateCode);
       if (templateIdx !== undefined) break;
@@ -333,9 +333,20 @@ export function bytesToEnglishText(
       }
     }
 
-    const sentence = words
-      .map((word, index) => `${word}${template[index].punctuationAfter ?? ""}`)
-      .join(" ") + ending;
+    const sentenceWords = words.map((word, index) => {
+      const pBefore = template[index].punctuationBefore ?? "";
+      const pAfter = template[index].punctuationAfter ?? "";
+      return `${pBefore}${word}${pAfter}`;
+    });
+
+    let sentence: string;
+    const lastWord = sentenceWords[sentenceWords.length - 1];
+    if (lastWord.endsWith('"')) {
+      sentenceWords[sentenceWords.length - 1] = lastWord.slice(0, -1) + ending + '"';
+      sentence = sentenceWords.join(" ");
+    } else {
+      sentence = sentenceWords.join(" ") + ending;
+    }
     sentences.push(sentence);
     if (!isPoetry) {
       recentTemplateIndices.push(templateIdx);
@@ -427,7 +438,7 @@ export function englishTextToBytes(
       }
     }
   } else {
-    const sentenceMatches = cleanText.replace(/\n+/g, " ").match(/.*?(?:\.\.\.|…|[.!?]+|$)/g) || [];
+    const sentenceMatches = cleanText.replace(/\n+/g, " ").match(/.*?(?:\.\.\.|…|[.!?]+)["'”’]*|\S+/g) || [];
     for (const match of sentenceMatches) {
       const trimmed = match.trim();
       if (!trimmed) continue;
@@ -435,15 +446,15 @@ export function englishTextToBytes(
       let endingStr = ".";
       let sentenceStr = trimmed;
 
-      if (trimmed.endsWith("...")) {
+      if (trimmed.endsWith('..."') || trimmed.endsWith("...")) {
         endingStr = "...";
-        sentenceStr = trimmed.slice(0, -3).trim();
-      } else if (trimmed.endsWith("…")) {
+        sentenceStr = trimmed.replace(/\.\.\.["'”’]*$/, "").trim();
+      } else if (trimmed.endsWith('…"') || trimmed.endsWith("…")) {
         endingStr = "…";
-        sentenceStr = trimmed.slice(0, -1).trim();
-      } else if (/[.!?]$/.test(trimmed)) {
-        endingStr = trimmed.slice(-1);
-        sentenceStr = trimmed.slice(0, -1).trim();
+        sentenceStr = trimmed.replace(/…["'”’]*$/, "").trim();
+      } else if (/[.!?]["'”’]*$/.test(trimmed)) {
+        endingStr = trimmed.match(/[.!?]/)?.[0] ?? ".";
+        sentenceStr = trimmed.replace(/[.!?]["'”’]*$/, "").trim();
       }
 
       if (sentenceStr.length > 0) {
@@ -486,10 +497,14 @@ export function englishTextToBytes(
       if (tokenIdx >= tokens.length) break;
 
       const rawToken = tokens[tokenIdx];
-      let cleanWord = rawToken.replace(/[.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
+      let cleanWord = rawToken
+        .replace(/^[ "'“‘]+/g, "")
+        .replace(/[ "'”’.,!?;:]+$/g, "")
+        .replace(/[\u2013\u2014]/g, "")
+        .toLowerCase();
 
       // Normalize grammatical "an" back to "a" for determiners
-      if (cleanWord === "an" && slot.label === "d") {
+      if (slot.type === "data" && cleanWord === "an" && slot.label === "d") {
         cleanWord = "a";
       }
 

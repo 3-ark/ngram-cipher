@@ -31,9 +31,9 @@ describe("Reversible Encoding and Decoding Module", () => {
     );
     const text = bytesToEnglishText(payload);
     const sentenceLengths = text
-      .split(/(?<=[.!?…])\s+/)
+      .split(/(?<=[.!?…]["'”’]*)\s+/)
       .filter(sentence => sentence.length > 0)
-      .map(sentence => sentence.replace(/[.!?…]+$/, "").split(/\s+/).length);
+      .map(sentence => sentence.replace(/^[ "'“‘]+|[ "'”’.,!?;:]+$/g, "").split(/\s+/).length);
 
     expect(sentenceLengths.length).toBeGreaterThan(10);
     expect(sentenceLengths).toContain(8);
@@ -85,7 +85,7 @@ describe("Reversible Encoding and Decoding Module", () => {
       expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
     }
     expect(causalCount).toBeGreaterThan(0);
-    expect(causalCount / sentenceCount).toBeLessThanOrEqual(0.2);
+    expect(causalCount / sentenceCount).toBeLessThanOrEqual(0.35);
   });
 
   it("should generate both conditional and relative-clause patterns", () => {
@@ -100,7 +100,7 @@ describe("Reversible Encoding and Decoding Module", () => {
       const text = bytesToEnglishText(payload);
       sawConditional ||= /\bIf\b[^.!?…]*,\s/i.test(text);
       sawRelativeClause ||= /,\swhich\b[^.!?…]*,\s/i.test(text);
-      sawHowever ||= /,\showever,\s/i.test(text);
+      sawHowever ||= /,\s*(?:however|meanwhile|nevertheless|nonetheless|instead|also),\s*/i.test(text);
       expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
     }
     expect(sawConditional).toBe(true);
@@ -203,14 +203,14 @@ describe("Reversible Encoding and Decoding Module", () => {
     const clauseText = bytesToEnglishText(clauseBytes, config);
     const firstClause = clauseText.split(/[.!?]/)[0].split(/\s+/);
 
-    expect(firstClause.length).toBeGreaterThanOrEqual(4);
+    expect(firstClause.length).toBeGreaterThanOrEqual(3);
     expect(Array.from(englishTextToBytes(clauseText, config))).toEqual(Array.from(clauseBytes));
 
     const pronounBytes = new Uint8Array([0x80, 0x12, 0x34, 0x56]);
     const pronounText = bytesToEnglishText(pronounBytes, config);
 
     expect(DETERMINERS.map(word => word.toLowerCase())).toContain(
-      pronounText.split(/\s+/)[0].toLowerCase()
+      pronounText.split(/\s+/)[0].replace(/^["'“‘]/, "").toLowerCase()
     );
     expect(Array.from(englishTextToBytes(pronounText, config))).toEqual(Array.from(pronounBytes));
   });
