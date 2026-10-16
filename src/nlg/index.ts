@@ -172,21 +172,16 @@ function uniqueWords(words: string[], size: number): string[] {
   return Array.from(new Set(words.map(word => word.toLowerCase()))).slice(0, size);
 }
 
-const TREND_NOUNS = [
+const TREND_NOUNS_EXTENDED = [
   "market","economy","growth","profit","revenue","stock","climate","energy",
   "rainfall","pollution","resource","supply","demand","shortage","surplus","trade",
-  "export","investment","record","score","victory","championship","production","outcome",
-  "finance","season","match","league","shipment","cargo","delivery","budget"
+  "export","investment","production","outcome","finance","shipment","cargo","delivery",
+  "budget","temperature","forecast","employment","inflation","output","sales","cost",
+  "price","debt","income","spending","value","volume","rate","level",
+  "activity","traffic","attendance","capacity","earnings","imports","exports","operations",
+  "services","costs","prices","profits","performance","salary","benefit","record",
+  "score","penalty","weather","harvest","crops","transport","coverage","yield"
 ];
-const TREND_NOUNS_EXTENDED = uniqueWords([
-  ...TREND_NOUNS,
-  "temperature","forecast","drought","flood","wildlife","bridge","highway","airport",
-  "railway","station","tunnel","harbor","terminal","salary","benefit","coverage",
-  "audience","performance","score","weather","resource","supply","demand","shortage",
-  "surplus","finding","conclusion","assessment","warehouse","shipment","delivery","record",
-  "employment","inflation","output","sales","cost","price","debt","income","spending",
-  "value","volume","rate","level","activity","traffic","attendance","capacity"
-], 64);
 const TREND_VERBS = [
   "grew","rose","fell","declined","expanded","remained","continued","improved",
   "increased","dropped","shrank","survived","persisted","lasted","advanced","recovered"
@@ -197,9 +192,9 @@ const ACTION_SUBJECTS = [
 ];
 const ACTION_SUBJECTS_EXTENDED = uniqueWords([
   ...ACTION_SUBJECTS,
-  "alliance","foundation","investigation","prosecution","school","university","hospital","doctor",
+  "alliance","foundation","audience","prosecution","school","university","hospital","doctor",
   "coach","family","community","worker","union","journalist","artist","director",
-  "author","publisher","mission","commander","battalion","regiment","citizen","volunteer",
+  "author","publisher","faculty","commander","battalion","regiment","citizen","volunteer",
   "activist","movement","governor","senator","researcher","professor","delegate","athlete",
   "resident","witness","neighbor","student","teacher","patient","player","astronaut",
   "soldier","captain","operator","manager","owner","employee","spokesperson","judge"
@@ -218,6 +213,8 @@ const ACTION_OBJECTS_EXTENDED = uniqueWords([
   "energy","environment","resource","bridge","airport","station","project","contract",
   "hospital","school","highway","tunnel","rocket","vaccine","weapon","building"
 ], 64);
+const OBJECT_DETERMINERS = ["the","some","no","any"];
+const CONDITION_DETERMINERS = ["the","some","no","any"];
 const ACTION_VERBS = [
   "announced","supported","proposed","rejected","approved","launched","created","developed",
   "introduced","published","released","signed","adopted","defended","backed","changed"
@@ -274,7 +271,7 @@ const CONDITION_NOUNS = [
 ];
 const RELATIVE_ANTECEDENTS = [
   "government","company","council","agency","coalition","commission","authority","parliament",
-  "court","team","leader","minister","ambassador","official","union","publisher"
+  "court","union","university","hospital","school","foundation","alliance","community"
 ];
 const RELATIVE_SUBJECTS = [
   "officials","lawmakers","regulators","voters","ministers","leaders","researchers","judges",
@@ -306,7 +303,7 @@ const AFTER_EVENTS = [
   "protests","talks","negotiations","elections","hearings","discussions","debates","demonstrations",
   "meetings","raids","clashes","investigations","consultations","interviews","strikes","trials"
 ];
-// Eight distinct word-length grammatical news templates (Lengths 4..11)
+// Distinct sentence lengths let the decoder identify each news template without extra marker bits.
 export const TEMPLATES: Slot[][] = [
   // 0 / 4 words: The major market rose.
   [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP")],
@@ -315,22 +312,22 @@ export const TEMPLATES: Slot[][] = [
   [D(DETERMINERS, "d"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
 
   // 2 / 6 words: The major company backed the reform.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
   // 3 / 7 words: If the drought worsened, food prices rose.
-  [F(["if"], "c"), D(DETERMINERS, "d"), D(CONDITION_NOUNS, "N"), D(CONDITION_VERBS, "VP", ","), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP")],
+  [F(["if"], "c"), D(CONDITION_DETERMINERS, "d"), D(CONDITION_NOUNS, "N"), D(CONDITION_VERBS, "VP", ","), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP")],
 
   // 4 / 9 words: After talks, however, the president recently changed its strategy.
-  [F(["after"], "p"), D(AFTER_EVENTS, "N", ","), D(DISCOURSE_ADVERBS, "R", ","), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
+  [F(["after"], "p"), D(AFTER_EVENTS, "N", ","), D(DISCOURSE_ADVERBS, "R", ","), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
   // 5 / 10 words: The coalition, which officials publicly criticized, eventually backed the reform.
-  [D(DETERMINERS, "d"), D(RELATIVE_ANTECEDENTS, "N", ","), F(["which"], "c"), D(RELATIVE_SUBJECTS, "N"), D(ACTION_ADVERBS, "R"), D(RELATIVE_VERBS, "VP", ","), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
+  [D(DETERMINERS, "d"), D(RELATIVE_ANTECEDENTS, "N", ","), F(["which"], "c"), D(RELATIVE_SUBJECTS, "N"), D(ACTION_ADVERBS, "R"), D(RELATIVE_VERBS, "VP", ","), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
   // 6 / 12 words: Local food prices rose sharply in London since the severe drought persisted.
   [D(EFFECT_SCOPE_ADJECTIVES, "A"), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), F(["in"], "p"), D(EFFECT_LOCATIONS, "NP"), D(CAUSE_LINKERS, "c"), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP")],
 
-  // 7 / 13 words: Johnson said that the major company backed reform, but the agency rejected policy.
-  [D(PROPER_NOUNS, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ACTION_OBJECTS_EXTENDED, "N", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ACTION_OBJECTS_EXTENDED, "N")],
+  // 7 / 15 words: Johnson said that the major company backed some reform, but the agency rejected the proposal.
+  [D(PROPER_NOUNS, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 ];
 
 const POETRY_NOUNS = [

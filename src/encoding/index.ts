@@ -5,6 +5,7 @@
 import { EncodingError, EncodingConfig, DEFAULT_CONFIG } from "../config/index.js";
 import {
   CARRIER_WORDS,
+  DETERMINERS,
   TEMPLATES,
   POETRY_TEMPLATES,
   rankCandidates,
@@ -229,6 +230,11 @@ export function bytesToEnglishText(
           throw new EncodingError("Unable to decode sentence opening word.");
         }
         chosenWord = decodedWord;
+      } else if (!isPoetry && slot.label === "d" && list.length < DETERMINERS.length) {
+        const bitCount = Math.floor(Math.log2(list.length));
+        const val = reader.hasBits ? reader.readBits(bitCount) : 0;
+        const rank = valToRank(val, bitCount, list.length);
+        chosenWord = ranked[rank % ranked.length];
       } else if (!isPoetry && slot.label === "d") {
         let code = "";
         let decodedWord: string | undefined;
@@ -465,6 +471,10 @@ export function englishTextToBytes(
           for (const bit of code) {
             rawWriter.writeBits(Number(bit), 1);
           }
+        } else if (!isPoetry && slot.label === "d" && list.length < DETERMINERS.length) {
+          const bitCount = Math.floor(Math.log2(list.length));
+          const val = rankToVal(rank, bitCount, list.length);
+          rawWriter.writeBits(val, bitCount);
         } else if (!isPoetry && slot.label === "d") {
           const code = DETERMINER_CODES[cleanWord];
           if (!code) {

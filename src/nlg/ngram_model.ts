@@ -13,7 +13,7 @@ const AGENT_NOUN_SET = new Set([
   "commander","regiment","astronaut","citizen","resident","volunteer","activist","leader",
   "minister","ambassador","diplomat","delegate","governor","senator","official","researcher",
   "scholar","graduate","professor","faculty","company","industry","community","prosecution",
-  "defense","witness"
+  "defense","witness","movement"
 ]);
 
 const DOCUMENT_NOUN_SET = new Set([
@@ -28,7 +28,12 @@ const DOCUMENT_NOUN_SET = new Set([
 const METRIC_NOUN_SET = new Set([
   "market","economy","budget","finance","trade","export","investment","growth","profit",
   "revenue","stock","salary","benefit","temperature","rainfall","supply","demand","shortage",
-  "surplus","score","penalty","value","cost","price","rate"
+  "surplus","score","penalty","value","cost","price","rate","climate","energy","pollution",
+  "resource","production","outcome","shipment","cargo","delivery","forecast","employment",
+  "inflation","output","sales","debt","income","spending","volume","level","activity","traffic",
+  "attendance","capacity","earnings","imports","exports","operations","services","costs","prices",
+  "profits","performance","record","weather","harvest","crops","transport","coverage","yield",
+  "stocks","access","resources","deliveries","shortages","shipments","supplies"
 ]);
 
 const EVENT_NOUN_SET = new Set([
@@ -37,7 +42,9 @@ const EVENT_NOUN_SET = new Set([
   "vaccine","medicine","surgery","disease","season","match","victory","championship","tournament",
   "protest","movement","demonstration","operation","deployment","mission","weather","storm",
   "drought","flood","disaster","history","tradition","heritage","ceremony","performance","concert",
-  "festival"
+  "festival","unrest","violence","wildfire","instability","epidemic","strike","blockade",
+  "recession","disruption","fire","outbreak","failure","decline","collapse","delay","accident",
+  "attack","heat","snowfall","wind","earthquake","eruption","avalanche"
 ]);
 
 const SYSTEM_OBJECT_NOUN_SET = new Set([
@@ -57,8 +64,8 @@ const SYSTEM_OBJECT_NOUN_SET = new Set([
 export function getNounCategory(noun: string): NounCategory {
   const w = noun.toLowerCase();
   if (AGENT_NOUN_SET.has(w)) return "AGENT";
-  if (DOCUMENT_NOUN_SET.has(w)) return "DOCUMENT";
   if (METRIC_NOUN_SET.has(w)) return "METRIC";
+  if (DOCUMENT_NOUN_SET.has(w)) return "DOCUMENT";
   if (EVENT_NOUN_SET.has(w)) return "EVENT";
   if (SYSTEM_OBJECT_NOUN_SET.has(w)) return "SYSTEM_OBJECT";
 

@@ -58,11 +58,12 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(TEMPLATES[1][2].list).not.toContain("rejected");
     expect(TEMPLATES[2][3].list).toContain("rejected");
     expect(TEMPLATES[2][3].list).not.toContain("grew");
+    expect(TEMPLATES[2][4].list).toEqual(["the","some","no","any"]);
     expect(PRONOUNS).toContain("it");
     expect(PRONOUNS).toContain("they");
     expect(TEMPLATES[1][3]).toEqual({ type: "filler", list: ["in"], label: "p" });
     expect(TEMPLATES[3][0]).toEqual({ type: "filler", list: ["if"], label: "c" });
-    expect(TEMPLATES[3][1].list).toEqual(DETERMINERS);
+    expect(TEMPLATES[3][1].list).toEqual(["the","some","no","any"]);
     expect(TEMPLATES[3][2].list).toHaveLength(16);
     expect(TEMPLATES[3][3].list).toHaveLength(16);
     expect(TEMPLATES[3][3].punctuationAfter).toBe(",");
@@ -89,13 +90,13 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(TEMPLATES[5][3].list).toContain("officials");
     expect(TEMPLATES[6][5]).toEqual({ type: "filler", list: ["in"], label: "p" });
     expect(TEMPLATES[6][6].list).toContain("London");
-    expect(TEMPLATES[7][8]).toEqual({ type: "filler", list: ["but"], label: "c" });
+    expect(TEMPLATES[7][9]).toEqual({ type: "filler", list: ["but"], label: "c" });
     expect(TEMPLATES[5][8].label).toBe("d");
     expect(TEMPLATES[4][2].list).toContain("however");
     expect(TEMPLATES[2][2].list).toHaveLength(64);
     expect(TEMPLATES[2][3].list).toHaveLength(32);
     expect(TEMPLATES[2][5].list).toHaveLength(64);
-    expect(TEMPLATES[7].filter(slot => slot.type === "data").length).toBe(11);
+    expect(TEMPLATES[7].filter(slot => slot.type === "data").length).toBe(13);
     const longTemplateDataBits = TEMPLATES[7]
       .filter(slot => slot.type === "data")
       .reduce((bits, slot) => bits + Math.log2(slot.list.length), 0);
@@ -109,12 +110,24 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(causalTemplate.map(slot => slot.list.length)).toEqual([
       16, 16, 32, 16, 16, 1, 32, 4, 8, 16, 32, 16
     ]);
+    for (const slot of [...TEMPLATES[0].slice(2, 3), ...TEMPLATES[1].slice(1, 2), TEMPLATES[6][2]]) {
+      expect(slot.list.every(noun => getNounCategory(noun) === "METRIC")).toBe(true);
+    }
+    expect(TEMPLATES[2][2].list.every(noun => getNounCategory(noun) === "AGENT")).toBe(true);
+    expect(TEMPLATES[3][2].list
+      .filter(noun => !["EVENT","METRIC"].includes(getNounCategory(noun)))).toEqual([]);
+    expect(TEMPLATES[5][1].list.every(noun => getNounCategory(noun) === "AGENT"))
+      .toBe(true);
+    expect(TEMPLATES[6][10].list
+      .filter(noun => !["EVENT","METRIC"].includes(getNounCategory(noun)))).toEqual([]);
+    expect(TEMPLATES[7][7].list).toEqual(["the","some","no","any"]);
+    expect(TEMPLATES[7][13].list).toEqual(["the","some","no","any"]);
   });
 
   it("should contain valid templates with 100% data slots carrying bits", () => {
     expect(TEMPLATES.length).toBeGreaterThan(0);
     expect(new Set(TEMPLATES.map(template => template.length)).size).toBe(TEMPLATES.length);
-    expect(TEMPLATES.map(template => template.length)).toEqual([4, 5, 6, 7, 9, 10, 12, 13]);
+    expect(TEMPLATES.map(template => template.length)).toEqual([4, 5, 6, 7, 9, 10, 12, 15]);
     for (const template of TEMPLATES) {
       expect(template.length).toBeGreaterThan(0);
       for (const slot of template) {
