@@ -33,7 +33,15 @@ const METRIC_NOUN_SET = new Set([
   "inflation","output","sales","debt","income","spending","volume","level","activity","traffic",
   "attendance","capacity","earnings","imports","exports","operations","services","costs","prices",
   "profits","performance","record","weather","harvest","crops","transport","coverage","yield",
-  "stocks","access","resources","deliveries","shortages","shipments","supplies"
+  "stocks","access","resources","deliveries","shortages","shipments","supplies",
+  "assets","liabilities","dividends","shares","equities","bonds","funds","capital",
+  "wealth","wages","payroll","rates","returns","losses","gains","balances",
+  "reserves","deposits","loans","credit","expenditure","consumption","manufacturing","orders",
+  "receipts","turnover","margin","margins","yields","productivity","efficiency","unemployment",
+  "housing","rent","mortgages","construction","index","indices","exchange","currency",
+  "dollar","euro","pound","oil","gas","coal","electricity","power",
+  "water","food","wheat","grain","steel","copper","gold","silver",
+  "cotton","timber","freight","shipping","passengers","inventory","inventories","stockpile"
 ]);
 
 const EVENT_NOUN_SET = new Set([
@@ -90,7 +98,8 @@ const INFORMATIONAL_VERBS = new Set([
 const METRIC_TREND_VERBS = new Set([
   "grew","rose","fell","declined","expanded","shrank","dropped","increased","reduced",
   "surged","recovered","stabilized","fluctuated","boosted","lowered","cut","gained","lost",
-  "changed","varied","remained","continued"
+  "changed","varied","remained","continued","plunged","climbed","slipped","rebounded","soared",
+  "dwindled","weakened","strengthened","accelerated","moderated","peaked","bottomed","plateaued"
 ]);
 
 const EVENT_OCCURRENCE_VERBS = new Set([

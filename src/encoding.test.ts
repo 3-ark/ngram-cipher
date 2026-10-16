@@ -24,7 +24,7 @@ describe("Reversible Encoding and Decoding Module", () => {
     }
   });
 
-  it("should avoid consecutive news sentences with the same structure", () => {
+  it("should avoid reusing a news sentence structure within the previous two sentences", () => {
     const payload = Uint8Array.from(
       { length: 1024 },
       (_, index) => (index * 73 + 19) & 0xff
@@ -36,10 +36,37 @@ describe("Reversible Encoding and Decoding Module", () => {
       .map(sentence => sentence.replace(/[.!?…]+$/, "").split(/\s+/).length);
 
     expect(sentenceLengths.length).toBeGreaterThan(10);
+    expect(sentenceLengths).toContain(8);
     for (let index = 1; index < sentenceLengths.length; index++) {
       expect(sentenceLengths[index]).not.toBe(sentenceLengths[index - 1]);
+      if (index >= 2) {
+        expect(sentenceLengths[index]).not.toBe(sentenceLengths[index - 2]);
+      }
     }
     expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
+  });
+
+  it("should use the after/discourse template less often while preserving round trips", () => {
+    let afterDiscourseCount = 0;
+    let sentenceCount = 0;
+
+    for (let seed = 0; seed < 32; seed++) {
+      let state = seed + 1;
+      const payload = Uint8Array.from({ length: 256 }, () => {
+        state ^= state << 13;
+        state ^= state >>> 17;
+        state ^= state << 5;
+        return state & 0xff;
+      });
+      const text = bytesToEnglishText(payload);
+      const sentences = text.match(/[^.!?…]+[.!?…]+/g) ?? [];
+
+      afterDiscourseCount += (text.match(/\bAfter [a-z]+, [a-z]+,/g) ?? []).length;
+      sentenceCount += sentences.length;
+      expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
+    }
+
+    expect(afterDiscourseCount / sentenceCount).toBeLessThan(0.1);
   });
 
   it("should use restrained causal syntax and round-trip the payload", () => {
@@ -179,7 +206,7 @@ describe("Reversible Encoding and Decoding Module", () => {
     expect(firstClause.length).toBeGreaterThanOrEqual(4);
     expect(Array.from(englishTextToBytes(clauseText, config))).toEqual(Array.from(clauseBytes));
 
-    const pronounBytes = new Uint8Array([0x10, 0x12, 0x34, 0x56]);
+    const pronounBytes = new Uint8Array([0x80, 0x12, 0x34, 0x56]);
     const pronounText = bytesToEnglishText(pronounBytes, config);
 
     expect(DETERMINERS.map(word => word.toLowerCase())).toContain(

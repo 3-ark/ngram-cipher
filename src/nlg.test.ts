@@ -75,6 +75,14 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(TEMPLATES[4][1].list).toHaveLength(16);
     expect(TEMPLATES[4][2].punctuationAfter).toBe(",");
     expect(TEMPLATES[6]).toHaveLength(12);
+    expect(TEMPLATES[9].map(slot => slot.label)).toEqual(["d", "N", "VP"]);
+    expect(TEMPLATES[10].map(slot => slot.label)).toEqual(["N", "VP"]);
+    expect(TEMPLATES[0][2].list).toHaveLength(64);
+    expect(TEMPLATES[10][0].list).toHaveLength(128);
+    expect(TEMPLATES[10][1].list).toHaveLength(32);
+    expect(TEMPLATES[8].map(slot => slot.label)).toEqual([
+      "d", "N", "VP", "d", "A", "N", "p", "NP"
+    ]);
   });
 
   it("should use role-matched vocabularies in transitive and trend clauses", () => {
@@ -127,7 +135,7 @@ describe("Natural Language Generation & Analysis Module", () => {
   it("should contain valid templates with 100% data slots carrying bits", () => {
     expect(TEMPLATES.length).toBeGreaterThan(0);
     expect(new Set(TEMPLATES.map(template => template.length)).size).toBe(TEMPLATES.length);
-    expect(TEMPLATES.map(template => template.length)).toEqual([4, 5, 6, 7, 9, 10, 12, 15]);
+    expect(TEMPLATES.map(template => template.length)).toEqual([4, 5, 6, 7, 9, 10, 12, 15, 8, 3, 2]);
     for (const template of TEMPLATES) {
       expect(template.length).toBeGreaterThan(0);
       for (const slot of template) {

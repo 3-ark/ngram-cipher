@@ -12,6 +12,7 @@ import {
   valToRank,
   rankToVal,
   matchTemplate,
+  type Slot,
 } from "../nlg/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
@@ -47,27 +48,70 @@ const DETERMINER_CODE_TO_WORD: Record<string, string> = {
   "111111": "one",
 };
 
-const REPEATED_TEMPLATE_CODES = ["00", "010", "011", "100", "101", "110", "111"];
+const TEMPLATE_CODES_BY_COUNT: Record<number, string[]> = {
+  7: ["00", "01", "100", "101", "110", "1110", "1111"],
+};
+for (let count = 8; count <= TEMPLATES.length; count++) {
+  TEMPLATE_CODES_BY_COUNT[count] = [
+    "0",
+    ...TEMPLATE_CODES_BY_COUNT[count - 1].map(code => `1${code}`),
+  ];
+}
+const LESS_COMMON_TEMPLATE_INDEX = 4;
+
+function estimateTemplateBitRate(template: Slot[]): number {
+  let bits = 0;
+  for (let index = 0; index < template.length; index++) {
+    const slot = template[index];
+    if (slot.type !== "data") continue;
+    if (index === 0) {
+      bits += slot.label === "d" ? 2.5 : Math.log2(slot.list.length);
+    } else if (slot.label === "d") {
+      bits += slot.list.length < DETERMINERS.length
+        ? Math.log2(slot.list.length)
+        : 2.5;
+    } else {
+      bits += Math.log2(slot.list.length);
+    }
+  }
+  return (bits + 4) / template.length;
+}
 
 function getTemplateCodes(
-  templateCount: number,
-  previousTemplateIndex: number | undefined
+  templates: Slot[][],
+  recentTemplateIndices: number[],
+  enforceRepetitionRule = true
 ): Map<number, string> {
-  const candidates = Array.from({ length: templateCount }, (_, index) => index)
-    .filter(index => index !== previousTemplateIndex);
+  const candidates = Array.from({ length: templates.length }, (_, index) => index);
+  if (enforceRepetitionRule) {
+    for (const recentIndex of recentTemplateIndices) {
+      const candidateIndex = candidates.indexOf(recentIndex);
+      if (candidateIndex !== -1) candidates.splice(candidateIndex, 1);
+    }
+  }
   const codes = new Map<number, string>();
-
-  if (previousTemplateIndex === undefined) {
+  if (!enforceRepetitionRule) {
     candidates.forEach((index, rank) => codes.set(index, rank.toString(2).padStart(3, "0")));
     return codes;
   }
-
-  // Seven templates fit a complete prefix code, leaving the previous template out.
-  if (candidates.length !== REPEATED_TEMPLATE_CODES.length) {
-    throw new EncodingError("Template count does not support repeat-free sentence selection.");
+  const availableCodes = TEMPLATE_CODES_BY_COUNT[candidates.length];
+  if (!availableCodes) {
+    throw new EncodingError("Template count does not support the recent-template repetition rule.");
   }
 
-  candidates.forEach((index, rank) => codes.set(index, REPEATED_TEMPLATE_CODES[rank]));
+  const codesByLength = [...availableCodes].sort((a, b) => a.length - b.length);
+  const lessCommonCode = candidates.includes(LESS_COMMON_TEMPLATE_INDEX)
+    ? codesByLength.pop()
+    : undefined;
+  const rankedCandidates = candidates
+    .filter(index => index !== LESS_COMMON_TEMPLATE_INDEX || lessCommonCode === undefined)
+    .sort((a, b) =>
+      estimateTemplateBitRate(templates[b]) - estimateTemplateBitRate(templates[a]) || a - b
+    );
+  rankedCandidates.forEach((index, rank) => codes.set(index, codesByLength[rank]));
+  if (lessCommonCode !== undefined) {
+    codes.set(LESS_COMMON_TEMPLATE_INDEX, lessCommonCode);
+  }
   return codes;
 }
 
@@ -176,20 +220,21 @@ export function bytesToEnglishText(
   const sentences: string[] = [];
   const templates = isPoetry ? POETRY_TEMPLATES : TEMPLATES;
   const recentOpeners: string[] = [];
-  let previousTemplateIdx: number | undefined;
+  const recentTemplateIndices: number[] = [];
   let sentenceIdx = 0;
 
   while (reader.hasBits) {
     const templateCodes = getTemplateCodes(
-      templates.length,
-      isPoetry ? undefined : previousTemplateIdx
+      templates,
+      recentTemplateIndices,
+      !isPoetry
     );
     const codeToTemplate = new Map(
       Array.from(templateCodes, ([index, code]) => [code, index] as const)
     );
     let templateCode = "";
     let templateIdx: number | undefined;
-    for (let bitIndex = 0; bitIndex < 3; bitIndex++) {
+    for (let bitIndex = 0; bitIndex < 8; bitIndex++) {
       templateCode += reader.readBits(1).toString();
       templateIdx = codeToTemplate.get(templateCode);
       if (templateIdx !== undefined) break;
@@ -292,7 +337,10 @@ export function bytesToEnglishText(
       .map((word, index) => `${word}${template[index].punctuationAfter ?? ""}`)
       .join(" ") + ending;
     sentences.push(sentence);
-    if (!isPoetry) previousTemplateIdx = templateIdx;
+    if (!isPoetry) {
+      recentTemplateIndices.push(templateIdx);
+      if (recentTemplateIndices.length > 2) recentTemplateIndices.shift();
+    }
     if (!isPoetry) {
       const openingWord = words[0].toLowerCase();
       recentOpeners.push(openingWord === "an" ? "a" : openingWord);
@@ -407,7 +455,7 @@ export function englishTextToBytes(
   const rawWriter = new BitStreamWriter();
   const templates = isPoetry ? POETRY_TEMPLATES : TEMPLATES;
   const recentOpeners: string[] = [];
-  let previousTemplateIdx: number | undefined;
+  const recentTemplateIndices: number[] = [];
 
   for (let sentenceIdx = 0; sentenceIdx < rawSentences.length; sentenceIdx++) {
     const { sentenceStr, endingStr } = rawSentences[sentenceIdx];
@@ -416,12 +464,13 @@ export function englishTextToBytes(
 
     const templateIdx = matchTemplate(tokens, templates);
     const templateCode = getTemplateCodes(
-      templates.length,
-      isPoetry ? undefined : previousTemplateIdx
+      templates,
+      recentTemplateIndices,
+      !isPoetry
     ).get(templateIdx);
     if (!templateCode) {
       throw new EncodingError(
-        `Repeated sentence template is not allowed at sentence ${sentenceIdx + 1}.`
+        `Sentence template repeats within the previous two sentences at sentence ${sentenceIdx + 1}.`
       );
     }
     for (const bit of templateCode) {
@@ -507,7 +556,10 @@ export function englishTextToBytes(
       recentOpeners.push(sentenceOpener);
       if (recentOpeners.length > 2) recentOpeners.shift();
     }
-    if (!isPoetry) previousTemplateIdx = templateIdx;
+    if (!isPoetry) {
+      recentTemplateIndices.push(templateIdx);
+      if (recentTemplateIndices.length > 2) recentTemplateIndices.shift();
+    }
   }
 
   const rawStream = rawWriter.toBytes();

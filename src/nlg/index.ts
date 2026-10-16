@@ -172,7 +172,7 @@ function uniqueWords(words: string[], size: number): string[] {
   return Array.from(new Set(words.map(word => word.toLowerCase()))).slice(0, size);
 }
 
-const TREND_NOUNS_EXTENDED = [
+const TREND_NOUNS_EXTENDED = uniqueWords([
   "market","economy","growth","profit","revenue","stock","climate","energy",
   "rainfall","pollution","resource","supply","demand","shortage","surplus","trade",
   "export","investment","production","outcome","finance","shipment","cargo","delivery",
@@ -180,12 +180,24 @@ const TREND_NOUNS_EXTENDED = [
   "price","debt","income","spending","value","volume","rate","level",
   "activity","traffic","attendance","capacity","earnings","imports","exports","operations",
   "services","costs","prices","profits","performance","salary","benefit","record",
-  "score","penalty","weather","harvest","crops","transport","coverage","yield"
-];
-const TREND_VERBS = [
+  "score","penalty","weather","harvest","crops","transport","coverage","yield",
+  "assets","liabilities","dividends","shares","equities","bonds","funds","capital",
+  "wealth","wages","payroll","rates","returns","losses","gains","balances",
+  "reserves","deposits","loans","credit","expenditure","consumption","manufacturing","orders",
+  "receipts","turnover","margin","margins","yields","productivity","efficiency","unemployment",
+  "housing","rent","mortgages","construction","index","indices","exchange","currency",
+  "dollar","euro","pound","oil","gas","coal","electricity","power",
+  "water","food","wheat","grain","steel","copper","gold","silver",
+  "cotton","timber","freight","shipping","passengers","inventory","inventories","stockpile"
+], 128);
+const TREND_VERBS = uniqueWords([
   "grew","rose","fell","declined","expanded","remained","continued","improved",
-  "increased","dropped","shrank","survived","persisted","lasted","advanced","recovered"
-];
+  "increased","dropped","shrank","survived","persisted","lasted","advanced","recovered",
+  "surged","plunged","climbed","slipped","stabilized","fluctuated","rebounded","soared",
+  "dwindled","weakened","strengthened","accelerated","moderated","peaked","bottomed","plateaued"
+], 32);
+const CORE_TREND_NOUNS = TREND_NOUNS_EXTENDED.slice(0, 64);
+const CORE_TREND_VERBS = TREND_VERBS.slice(0, 16);
 const ACTION_SUBJECTS = [
   "government","president","company","council","agency","coalition","commission","authority",
   "parliament","court","police","team","leader","minister","ambassador","official"
@@ -306,10 +318,10 @@ const AFTER_EVENTS = [
 // Distinct sentence lengths let the decoder identify each news template without extra marker bits.
 export const TEMPLATES: Slot[][] = [
   // 0 / 4 words: The major market rose.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP")],
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP")],
 
   // 1 / 5 words: The market rose in London.
-  [D(DETERMINERS, "d"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
+  [D(DETERMINERS, "d"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
 
   // 2 / 6 words: The major company backed the reform.
   [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
@@ -328,6 +340,15 @@ export const TEMPLATES: Slot[][] = [
 
   // 7 / 15 words: Johnson said that the major company backed some reform, but the agency rejected the proposal.
   [D(PROPER_NOUNS, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
+
+  // 8 / 8 words: The company expanded its public network in London.
+  [D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
+
+  // 9 / 3 words: The market rose.
+  [D(DETERMINERS, "d"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP")],
+
+  // 10 / 2 words: Market rose.
+  [D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP")],
 ];
 
 const POETRY_NOUNS = [

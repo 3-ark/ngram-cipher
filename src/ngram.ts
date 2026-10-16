@@ -35,6 +35,110 @@ export * from "./encoding/index.js";
 export * from "./nlg/index.js";
 
 const MAX_PAYLOAD_BYTES = 10 * 1024 * 1024; // 10 MB limit to prevent zip bomb vulnerabilities
+const WORD_PACKING_BLOCK_BYTES = 16;
+const WORD_DICTIONARY = [
+  "the","be","to","of","and","a","in","that","have","i","it","for","not","on","with",
+  "he","as","you","do","at","this","but","his","by","from","they","we","say","her","she",
+  "or","an","will","my","one","all","would","there","their","what","so","up","out","if",
+  "about","who","get","which","go","me","when","make","can","like","time","no","just","him",
+  "know","take","people","into","year","your","good","some","could","them","see","other","than",
+  "then","now","look","only","come","its","over","think","also","back","after","use","two",
+  "how","our","work","first","well","way","even","new","want","because","any","these","give",
+  "day","most","us","hello","world","secret","message","encoded","natural","english","text",
+  "is","are","was","were","has","had","said","more","very","much","through","before","between",
+  "under"
+] as const;
+const WORD_DICTIONARY_INDEX = new Map<string, number>(
+  WORD_DICTIONARY.map((word, index) => [word, index])
+);
+const textEncoder = new TextEncoder();
+
+function compressCommonWords(text: string, rawLength: number): Uint8Array | undefined {
+  const output = new Uint8Array(rawLength);
+  let outputLength = 0;
+  const write = (value: Uint8Array): boolean => {
+    if (outputLength + value.length >= rawLength) {
+      return false;
+    }
+    output.set(value, outputLength);
+    outputLength += value.length;
+    return true;
+  };
+
+  let cursor = 0;
+  const wordPattern = /[A-Za-z]+/g;
+  for (const match of text.matchAll(wordPattern)) {
+    const start = match.index;
+    const word = match[0];
+    if (!write(textEncoder.encode(text.slice(cursor, start)))) return undefined;
+
+    const lowerWord = word.toLowerCase();
+    const index = WORD_DICTIONARY_INDEX.get(lowerWord);
+    const isLowerCase = word === lowerWord;
+    const isTitleCase = word === lowerWord[0].toUpperCase() + lowerWord.slice(1);
+    if (index !== undefined && (isLowerCase || isTitleCase)) {
+      if (!write(Uint8Array.of(0xff, index | (isTitleCase ? 0x80 : 0)))) return undefined;
+    } else {
+      if (!write(textEncoder.encode(word))) return undefined;
+    }
+    cursor = start + word.length;
+  }
+  if (!write(textEncoder.encode(text.slice(cursor)))) return undefined;
+
+  const packedLength = outputLength + 4;
+  const paddedLength = Math.ceil(packedLength / WORD_PACKING_BLOCK_BYTES) * WORD_PACKING_BLOCK_BYTES;
+  if (paddedLength >= rawLength) return undefined;
+
+  const packed = new Uint8Array(paddedLength);
+  new DataView(packed.buffer).setUint32(0, outputLength, false);
+  packed.set(output.subarray(0, outputLength), 4);
+  return packed;
+}
+
+function decompressCommonWords(bytes: Uint8Array): Uint8Array {
+  if (bytes.length < 4) {
+    throw new CryptoError("Invalid dictionary-compressed payload.");
+  }
+  const dataLength = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(0, false);
+  if (dataLength > bytes.length - 4 || dataLength > MAX_PAYLOAD_BYTES) {
+    throw new CryptoError("Invalid dictionary-compressed payload.");
+  }
+  const packedData = bytes.subarray(4, 4 + dataLength);
+  const output = new Uint8Array(MAX_PAYLOAD_BYTES);
+  let outputLength = 0;
+  const write = (value: Uint8Array): void => {
+    if (outputLength + value.length > MAX_PAYLOAD_BYTES) {
+      throw new CryptoError(`Decompression limit exceeded (maximum allowed output size is ${MAX_PAYLOAD_BYTES} bytes).`);
+    }
+    output.set(value, outputLength);
+    outputLength += value.length;
+  };
+
+  for (let index = 0; index < packedData.length; index++) {
+    if (packedData[index] !== 0xff) {
+      const literalStart = index;
+      while (index < packedData.length && packedData[index] !== 0xff) index++;
+      write(packedData.subarray(literalStart, index));
+      index--;
+      continue;
+    }
+
+    if (index + 1 >= packedData.length) {
+      throw new CryptoError("Invalid dictionary-compressed payload.");
+    }
+    const token = packedData[++index];
+    const word = WORD_DICTIONARY[token & 0x7f];
+    if (word === undefined) {
+      throw new CryptoError("Invalid dictionary-compressed payload.");
+    }
+    const expandedWord = token & 0x80
+      ? word[0].toUpperCase() + word.slice(1)
+      : word;
+    write(textEncoder.encode(expandedWord));
+  }
+
+  return output.slice(0, outputLength);
+}
 
 async function transformBytes(
   bytes: Uint8Array,
@@ -90,10 +194,19 @@ export async function encode(
     throw new CryptoError("Compression Streams API is required to encode messages.");
   }
   const compressedBytes = await transformBytes(rawBytes, new CompressionStream("gzip"));
-  const useCompression = compressedBytes.length < rawBytes.length;
-  const dataToEncrypt = useCompression ? compressedBytes : rawBytes;
+  const dictionaryBytes = compressCommonWords(plaintext, rawBytes.length);
+  let compressionType = 0;
+  let dataToEncrypt: Uint8Array<ArrayBufferLike> = rawBytes;
+  if (compressedBytes.length < dataToEncrypt.length) {
+    compressionType = 1;
+    dataToEncrypt = compressedBytes;
+  }
+  if (dictionaryBytes && dictionaryBytes.length < dataToEncrypt.length) {
+    compressionType = 2;
+    dataToEncrypt = dictionaryBytes;
+  }
   const markedBytes = new Uint8Array(dataToEncrypt.length + 1);
-  markedBytes[0] = useCompression ? 1 : 0;
+  markedBytes[0] = compressionType;
   markedBytes.set(dataToEncrypt, 1);
 
   // 1. Compress when beneficial, then encrypt with AES-GCM.
@@ -171,16 +284,18 @@ export async function decode(
 
   // Decrypt payload
   const decryptedBytes = await decryptBytes(payload, password, config.crypto);
-  if (decryptedBytes.length < 1 || decryptedBytes[0] > 1) {
+  if (decryptedBytes.length < 1 || decryptedBytes[0] > 2) {
     throw new CryptoError("Invalid decrypted payload format.");
   }
 
-  let plaintextBytes = decryptedBytes.subarray(1);
+  let plaintextBytes: Uint8Array<ArrayBufferLike> = decryptedBytes.subarray(1);
   if (decryptedBytes[0] === 1) {
     if (typeof DecompressionStream === "undefined") {
       throw new CryptoError("Decompression Streams API is required to decode this message.");
     }
     plaintextBytes = await transformBytes(plaintextBytes, new DecompressionStream("gzip"));
+  } else if (decryptedBytes[0] === 2) {
+    plaintextBytes = decompressCommonWords(plaintextBytes);
   }
   const decoder = new TextDecoder("utf-8", { fatal: true });
   return decoder.decode(plaintextBytes);

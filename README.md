@@ -11,12 +11,12 @@ Unlike classic steganography that hides bits in image pixels or audio noise, `ng
 ## Features
 
 - **🔐 Robust Security**: PBKDF2 (100,000 iterations) key derivation, AES-256-GCM encryption, CRC32 binary framing, and payload whitening.
-- **💬 Natural English Carrier Text**: Generates flowing prose following dynamic N-gram statistical models with subject-verb semantic matching and dynamic punctuation.
+- **💬 Natural English Carrier Text**: Generates flowing prose following dynamic N-gram statistical models with subject-verb semantic matching and dynamic punctuation. News sentences vary their structure, avoid repeating a structure within the previous two sentences, and include concise headline-style patterns.
 - **🎨 Multiple Carrier Styles**:
   - `news` (default): Realistic journalistic prose with attributions, clause variations, and natural sentence flows.
   - `poetry`: Stanza-formatted poetic verse with haiku-inspired rhythm, expressive vocabulary, and rich steganographic capacity.
 - **🔄 100% Losslessly Reversible**: Bit allocation using power-of-two power ranks and deterministic context continuation guarantees bit-exact payload recovery.
-- **🗜️ Automatic Compression**: Gzip compression automatically applied whenever payload size is reduced.
+- **🗜️ Automatic Compression**: Uses gzip or reversible common-word packing when smaller; dictionary-packed data is padded to 16-byte blocks to limit fine-grained compressed-length leakage.
 - **📦 Universal ES Module & CommonJS Support**: Includes full TypeScript declarations (`.d.ts`), works seamlessly in Node.js, modern browsers, and bundlers.
 
 ---
