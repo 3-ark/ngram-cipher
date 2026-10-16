@@ -62,16 +62,45 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(PRONOUNS).toContain("it");
     expect(PRONOUNS).toContain("they");
     expect(TEMPLATES[1][3]).toEqual({ type: "filler", list: ["in"], label: "p" });
-    expect(TEMPLATES[3][2]).toEqual({ type: "filler", list: ["that"], label: "c" });
+    expect(TEMPLATES[3][3].list).toEqual(["and", "but", "while", "although"]);
+    expect(TEMPLATES.filter(template => template.some(slot => slot.punctuationAfter)))
+      .toHaveLength(1);
+    expect(TEMPLATES[4][0]).toEqual({ type: "filler", list: ["after"], label: "p" });
+    expect(TEMPLATES[4][1].punctuationAfter).toBe(",");
+    expect(TEMPLATES[4][1].list).toHaveLength(16);
+    expect(TEMPLATES[6]).toHaveLength(10);
+  });
+
+  it("should use role-matched vocabularies in transitive and trend clauses", () => {
+    expect(TEMPLATES[2][2].list).toContain("company");
+    expect(TEMPLATES[2][2].list).not.toContain("match");
+    expect(TEMPLATES[2][3].list).toContain("defended");
+    expect(TEMPLATES[2][5].list).toContain("treaty");
+    expect(TEMPLATES[3][1].list).toContain("market");
+    expect(TEMPLATES[3][1].list).not.toContain("minister");
+    expect(TEMPLATES[3][2].list).toHaveLength(16);
+    expect(TEMPLATES[3][2].list).toContain("grew");
+    expect(TEMPLATES[3][2].list).toContain("declined");
+    expect(TEMPLATES[2][2].list).toHaveLength(64);
+    expect(TEMPLATES[2][3].list).toHaveLength(32);
+    expect(TEMPLATES[2][5].list).toHaveLength(64);
+    expect(TEMPLATES[7].filter(slot => slot.type === "data").length).toBeGreaterThanOrEqual(8);
+    const longTemplateDataBits = TEMPLATES[7]
+      .filter(slot => slot.type === "data")
+      .reduce((bits, slot) => bits + Math.log2(slot.list.length), 0);
+    expect(longTemplateDataBits).toBeGreaterThanOrEqual(45);
   });
 
   it("should contain valid templates with 100% data slots carrying bits", () => {
     expect(TEMPLATES.length).toBeGreaterThan(0);
+    expect(new Set(TEMPLATES.map(template => template.length)).size).toBe(TEMPLATES.length);
+    expect(TEMPLATES.map(template => template.length)).toEqual([4, 5, 6, 7, 8, 9, 10, 11]);
     for (const template of TEMPLATES) {
       expect(template.length).toBeGreaterThan(0);
       for (const slot of template) {
         if (slot.type === "data") {
           expect(Number.isInteger(Math.log2(slot.list.length))).toBe(true);
+          expect(new Set(slot.list.map(word => word.toLowerCase())).size).toBe(slot.list.length);
         } else {
           expect(slot.list.length).toBeGreaterThan(0);
         }

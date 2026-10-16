@@ -24,6 +24,24 @@ describe("Reversible Encoding and Decoding Module", () => {
     }
   });
 
+  it("should avoid consecutive news sentences with the same structure", () => {
+    const payload = Uint8Array.from(
+      { length: 1024 },
+      (_, index) => (index * 73 + 19) & 0xff
+    );
+    const text = bytesToEnglishText(payload);
+    const sentenceLengths = text
+      .split(/(?<=[.!?…])\s+/)
+      .filter(sentence => sentence.length > 0)
+      .map(sentence => sentence.replace(/[.!?…]+$/, "").split(/\s+/).length);
+
+    expect(sentenceLengths.length).toBeGreaterThan(10);
+    for (let index = 1; index < sentenceLengths.length; index++) {
+      expect(sentenceLengths[index]).not.toBe(sentenceLengths[index - 1]);
+    }
+    expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
+  });
+
   it("should favor common determiners while preserving the encoded bits", () => {
     let state = 0x12345678;
     const payload = Uint8Array.from({ length: 1024 }, () => {
@@ -52,6 +70,39 @@ describe("Reversible Encoding and Decoding Module", () => {
         expect(openers[index]).not.toBe(openers[index - 1]);
       }
     }
+  });
+
+  it("should use a before consonant-sounding vowel onsets such as unique", () => {
+    let sawUnique = false;
+    for (let value = 0; value < 256; value++) {
+      const payload = Uint8Array.from(
+        { length: 32 },
+        (_, index) => (value + index * 73) & 0xff
+      );
+      const text = bytesToEnglishText(payload);
+      if (/\bunique\b/i.test(text)) {
+        sawUnique = true;
+        expect(text).not.toMatch(/\ban unique\b/i);
+      }
+    }
+    expect(sawUnique).toBe(true);
+  });
+
+  it("should use a varied introductory clause instead of a fixed attribution", () => {
+    const introductoryEvents = new Set<string>();
+    for (let seed = 0; seed < 64; seed++) {
+      const payload = Uint8Array.from(
+        { length: 48 },
+        (_, index) => (seed * 37 + index * 73) & 0xff
+      );
+      const text = bytesToEnglishText(payload);
+      expect(text).not.toMatch(/\bAccording to\b/);
+      for (const match of text.matchAll(/\bAfter ([a-z]+),/g)) {
+        introductoryEvents.add(match[1].toLowerCase());
+      }
+      expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
+    }
+    expect(introductoryEvents.size).toBeGreaterThan(1);
   });
 
   it("should round-trip byte arrays in poetry style with varied stanzas and poetic punctuation", () => {

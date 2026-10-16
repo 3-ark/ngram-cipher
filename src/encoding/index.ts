@@ -46,6 +46,30 @@ const DETERMINER_CODE_TO_WORD: Record<string, string> = {
   "111111": "one",
 };
 
+const REPEATED_TEMPLATE_CODES = ["00", "010", "011", "100", "101", "110", "111"];
+
+function getTemplateCodes(
+  templateCount: number,
+  previousTemplateIndex: number | undefined
+): Map<number, string> {
+  const candidates = Array.from({ length: templateCount }, (_, index) => index)
+    .filter(index => index !== previousTemplateIndex);
+  const codes = new Map<number, string>();
+
+  if (previousTemplateIndex === undefined) {
+    candidates.forEach((index, rank) => codes.set(index, rank.toString(2).padStart(3, "0")));
+    return codes;
+  }
+
+  // Seven templates fit a complete prefix code, leaving the previous template out.
+  if (candidates.length !== REPEATED_TEMPLATE_CODES.length) {
+    throw new EncodingError("Template count does not support repeat-free sentence selection.");
+  }
+
+  candidates.forEach((index, rank) => codes.set(index, REPEATED_TEMPLATE_CODES[rank]));
+  return codes;
+}
+
 interface PrefixCodeNode {
   word?: string;
   weight: number;
@@ -113,6 +137,13 @@ function capitalise(w: string): string {
 }
 
 function startsWithVowelSound(word: string): boolean {
+  const normalized = word.toLowerCase();
+  if (/^(?:ewe|eul|euro|one|once|uni(?:corn|form|fy|on|t|vers|que)|use|usual|user|utility|utopia)/.test(normalized)) {
+    return false;
+  }
+  if (/^(?:hour|honest|honor|heir)/.test(normalized)) {
+    return true;
+  }
   return /^[aeiou]/i.test(word);
 }
 
@@ -144,12 +175,27 @@ export function bytesToEnglishText(
   const sentences: string[] = [];
   const templates = isPoetry ? POETRY_TEMPLATES : TEMPLATES;
   const recentOpeners: string[] = [];
+  let previousTemplateIdx: number | undefined;
   let sentenceIdx = 0;
 
-  const templateBits = Math.round(Math.log2(templates.length));
-
   while (reader.hasBits) {
-    const templateIdx = reader.hasBits ? reader.readBits(templateBits) : 0;
+    const templateCodes = getTemplateCodes(
+      templates.length,
+      isPoetry ? undefined : previousTemplateIdx
+    );
+    const codeToTemplate = new Map(
+      Array.from(templateCodes, ([index, code]) => [code, index] as const)
+    );
+    let templateCode = "";
+    let templateIdx: number | undefined;
+    for (let bitIndex = 0; bitIndex < 3; bitIndex++) {
+      templateCode += reader.readBits(1).toString();
+      templateIdx = codeToTemplate.get(templateCode);
+      if (templateIdx !== undefined) break;
+    }
+    if (templateIdx === undefined) {
+      throw new EncodingError("Unable to decode sentence template.");
+    }
     const template = templates[templateIdx];
 
     const words: string[] = [];
@@ -236,8 +282,11 @@ export function bytesToEnglishText(
       }
     }
 
-    const sentence = words.join(" ") + ending;
+    const sentence = words
+      .map((word, index) => `${word}${template[index].punctuationAfter ?? ""}`)
+      .join(" ") + ending;
     sentences.push(sentence);
+    if (!isPoetry) previousTemplateIdx = templateIdx;
     if (!isPoetry) {
       const openingWord = words[0].toLowerCase();
       recentOpeners.push(openingWord === "an" ? "a" : openingWord);
@@ -352,15 +401,26 @@ export function englishTextToBytes(
   const rawWriter = new BitStreamWriter();
   const templates = isPoetry ? POETRY_TEMPLATES : TEMPLATES;
   const recentOpeners: string[] = [];
+  let previousTemplateIdx: number | undefined;
 
   for (let sentenceIdx = 0; sentenceIdx < rawSentences.length; sentenceIdx++) {
     const { sentenceStr, endingStr } = rawSentences[sentenceIdx];
     const tokens = sentenceStr.split(/\s+/).filter(t => t.length > 0);
     if (tokens.length === 0) continue;
 
-    const templateBits = Math.round(Math.log2(templates.length));
     const templateIdx = matchTemplate(tokens, templates);
-    rawWriter.writeBits(templateIdx, templateBits);
+    const templateCode = getTemplateCodes(
+      templates.length,
+      isPoetry ? undefined : previousTemplateIdx
+    ).get(templateIdx);
+    if (!templateCode) {
+      throw new EncodingError(
+        `Repeated sentence template is not allowed at sentence ${sentenceIdx + 1}.`
+      );
+    }
+    for (const bit of templateCode) {
+      rawWriter.writeBits(Number(bit), 1);
+    }
     const template = templates[templateIdx];
 
     let tokenIdx = 0;
@@ -380,7 +440,7 @@ export function englishTextToBytes(
 
       const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
       const ranked = rankCandidates(list, context);
-      const openingCodes = !isPoetry && tokenIdx === 0
+      const openingCodes = !isPoetry && tokenIdx === 0 && slot.type === "data"
         ? buildOpeningCodes(ranked, recentOpeners)
         : undefined;
 
@@ -437,6 +497,7 @@ export function englishTextToBytes(
       recentOpeners.push(sentenceOpener);
       if (recentOpeners.length > 2) recentOpeners.shift();
     }
+    if (!isPoetry) previousTemplateIdx = templateIdx;
   }
 
   const rawStream = rawWriter.toBytes();

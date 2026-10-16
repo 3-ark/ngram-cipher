@@ -10,14 +10,19 @@ export interface Slot {
   type: SlotType;
   list: string[];
   label: string;
+  punctuationAfter?: ",";
 }
 
-export function D(list: string[], label: string): Slot {
-  return { type: "data", list, label };
+export function D(list: string[], label: string, punctuationAfter?: ","): Slot {
+  return punctuationAfter
+    ? { type: "data", list, label, punctuationAfter }
+    : { type: "data", list, label };
 }
 
-export function F(list: string[], label: string): Slot {
-  return { type: "filler", list, label };
+export function F(list: string[], label: string, punctuationAfter?: ","): Slot {
+  return punctuationAfter
+    ? { type: "filler", list, label, punctuationAfter }
+    : { type: "filler", list, label };
 }
 
 // -- NOUNS (256 clean, natural English nouns) ------------------------------
@@ -163,33 +168,99 @@ const CLAUSE_CONJUNCTIONS = [
   "that","while","although","because","as","since","before","after",
   "if","unless","whereas","until","once","where","whenever","wherever"
 ];
-const RELATIVE_CLAUSE_MARKERS = ["that","which"];
+const CLAUSE_LINKERS = ["and","but","while","although"];
+function uniqueWords(words: string[], size: number): string[] {
+  return Array.from(new Set(words.map(word => word.toLowerCase()))).slice(0, size);
+}
 
+const TREND_NOUNS = [
+  "market","economy","growth","profit","revenue","stock","climate","energy",
+  "rainfall","pollution","resource","supply","demand","shortage","surplus","trade",
+  "export","investment","record","score","victory","championship","production","outcome",
+  "finance","season","match","league","shipment","cargo","delivery","budget"
+];
+const TREND_NOUNS_EXTENDED = uniqueWords([
+  ...TREND_NOUNS,
+  "temperature","forecast","drought","flood","wildlife","bridge","highway","airport",
+  "railway","station","tunnel","harbor","terminal","salary","benefit","coverage",
+  "audience","performance","score","weather","resource","supply","demand","shortage",
+  "surplus","finding","conclusion","assessment","warehouse","shipment","delivery","record",
+  "employment","inflation","output","sales","cost","price","debt","income","spending",
+  "value","volume","rate","level","activity","traffic","attendance","capacity"
+], 64);
+const TREND_VERBS = [
+  "grew","rose","fell","declined","expanded","remained","continued","improved",
+  "increased","dropped","shrank","survived","persisted","lasted","advanced","recovered"
+];
+const ACTION_SUBJECTS = [
+  "government","president","company","council","agency","coalition","commission","authority",
+  "parliament","court","police","team","leader","minister","ambassador","official"
+];
+const ACTION_SUBJECTS_EXTENDED = uniqueWords([
+  ...ACTION_SUBJECTS,
+  "alliance","foundation","investigation","prosecution","school","university","hospital","doctor",
+  "coach","family","community","worker","union","journalist","artist","director",
+  "author","publisher","mission","commander","battalion","regiment","citizen","volunteer",
+  "activist","movement","governor","senator","researcher","professor","delegate","athlete",
+  "resident","witness","neighbor","student","teacher","patient","player","astronaut",
+  "soldier","captain","operator","manager","owner","employee","spokesperson","judge"
+], 64);
+const ACTION_OBJECTS = [
+  "policy","program","system","campaign","budget","strategy","network","foundation",
+  "treaty","border","reform","investment","project","contract","benefit","statement",
+  "agreement","proposal","amendment","regulation","standard","guideline","framework","protocol",
+  "infrastructure","platform","software","database","device","operation","deployment","research"
+];
+const ACTION_OBJECTS_EXTENDED = uniqueWords([
+  ...ACTION_OBJECTS,
+  "election","security","crisis","summit","conflict","sentence","evidence","charge",
+  "defense","education","technology","treatment","medicine","disease","season","match",
+  "victory","championship","record","finance","trade","export","revenue","climate",
+  "energy","environment","resource","bridge","airport","station","project","contract",
+  "hospital","school","highway","tunnel","rocket","vaccine","weapon","building"
+], 64);
+const ACTION_VERBS = [
+  "announced","supported","proposed","rejected","approved","launched","created","developed",
+  "introduced","published","released","signed","adopted","defended","backed","changed"
+];
+const ACTION_VERBS_EXTENDED = uniqueWords([
+  ...ACTION_VERBS,
+  "built","acquired","provided","examined","addressed","increased","reduced","strengthened",
+  "protected","blocked","criticized","produced","generated","established","formed","managed"
+], 32);
+const REPORTING_CLAUSE_VERBS = [
+  "said","stated","reported","announced","confirmed","noted","argued","warned",
+  "explained","claimed","suggested","indicated","detailed","revealed","declared","acknowledged"
+];
+const AFTER_EVENTS = [
+  "protests","talks","negotiations","elections","hearings","discussions","debates","demonstrations",
+  "meetings","raids","clashes","investigations","consultations","interviews","strikes","trials"
+];
 // Eight distinct word-length grammatical news templates (Lengths 4..11)
 export const TEMPLATES: Slot[][] = [
   // 0 / 4 words: The major market rose.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP")],
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP")],
 
   // 1 / 5 words: The market rose in London.
-  [D(DETERMINERS, "d"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
+  [D(DETERMINERS, "d"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
 
   // 2 / 6 words: The major company backed the reform.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(NOUNS, "N")],
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
-  // 3 / 7 words: Johnson said that the crisis grew.
-  [D(PROPER_NOUNS, "NP"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP"), D(ADVERBS, "R")],
+  // 3 / 7 words: The market rose while global trade fell.
+  [D(DETERMINERS, "d"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP"), D(CLAUSE_LINKERS, "c"), D(ADJECTIVES, "A"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP")],
 
-  // 4 / 8 words: The report said that the major crisis grew.
-  [D(DETERMINERS, "d"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(INTRANSITIVE_VERBS_PAST, "VP")],
+  // 4 / 8 words: After talks, the president changed its strategy recently.
+  [F(["after"], "p"), D(AFTER_EVENTS, "N", ","), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N"), D(ADVERBS, "R")],
 
   // 5 / 9 words: The major company backed the national reform in London.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["in"], "p"), D(PROPER_NOUNS, "NP")],
 
-  // 6 / 10 words: The official report confirmed that the policy changed the system.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(NOUNS, "N")],
+  // 6 / 10 words: The company backed the proposal after the market expanded.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["after"], "p"), D(DETERMINERS, "d"), D(TREND_NOUNS_EXTENDED, "N"), D(TREND_VERBS, "VP")],
 
-  // 7 / 11 words: Johnson said that the major policy changed the national system.
-  [D(PROPER_NOUNS, "NP"), D(REPORTING_VERBS_PAST, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(TRANSITIVE_VERBS_PAST, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(NOUNS, "N"), D(ADVERBS, "R")],
+  // 7 / 11 words: Johnson said that the major company backed the national system.
+  [D(PROPER_NOUNS, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), D(ADVERBS, "R")],
 ];
 
 const POETRY_NOUNS = [
