@@ -93,6 +93,20 @@ export async function encryptBytes(
 /**
  * XORs a data buffer with a keystream buffer in-place or returning a new buffer.
  */
+/**
+ * Compares two Uint8Arrays in constant time to prevent timing attacks.
+ */
+export function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a[i] ^ b[i];
+  }
+  return result === 0;
+}
+
 export function xorBytes(data: Uint8Array, keystream: Uint8Array): Uint8Array {
   const result = new Uint8Array(data.length);
   for (let i = 0; i < data.length; i++) {

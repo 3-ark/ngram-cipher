@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import ngramCipher, { encode, decode, CARRIER_WORDS, VOCABULARY } from "./index.js";
+import ngramCipher, { encode, decode, CARRIER_WORDS, VOCABULARY, CryptoError } from "./index.js";
 import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 
 describe("English N-Gram Cipher Engine", () => {
@@ -184,5 +184,23 @@ describe("English N-Gram Cipher Engine", () => {
 
     const decrypted = await decode(ciphertext, password);
     expect(decrypted).toBe(plaintext);
+  });
+
+  it("should throw CryptoError on non-string or empty carrier text in decode", async () => {
+    // @ts-expect-error testing invalid input type
+    await expect(decode(null, "password")).rejects.toThrow(CryptoError);
+    await expect(decode("", "password")).rejects.toThrow(CryptoError);
+    await expect(decode("   ", "password")).rejects.toThrow(CryptoError);
+  });
+
+  it("should reject corrupted or completely non-carrier strings in decode", async () => {
+    const invalidCarrier = "This is random garbage text that does not follow the steganographic template format.";
+    await expect(decode(invalidCarrier, "password")).rejects.toThrow(CryptoError);
+  });
+
+  it("should throw CryptoError if plaintext exceeds safety size limit", async () => {
+    // Plaintext over 10MB
+    const oversizedPlaintext = "A".repeat(10 * 1024 * 1024 + 100);
+    await expect(encode(oversizedPlaintext, "pass")).rejects.toThrow(CryptoError);
   });
 });

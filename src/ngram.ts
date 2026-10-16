@@ -34,6 +34,8 @@ export * from "./framing/index.js";
 export * from "./encoding/index.js";
 export * from "./nlg/index.js";
 
+const MAX_PAYLOAD_BYTES = 10 * 1024 * 1024; // 10 MB limit to prevent zip bomb vulnerabilities
+
 async function transformBytes(
   bytes: Uint8Array,
   transform: CompressionStream | DecompressionStream
@@ -42,12 +44,21 @@ async function transformBytes(
   const stream = new Blob([slice]).stream().pipeThrough(transform);
   const reader = stream.getReader();
   const chunks: Uint8Array[] = [];
+  let totalLength = 0;
+
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
-    if (value) chunks.push(value);
+    if (value) {
+      totalLength += value.length;
+      if (totalLength > MAX_PAYLOAD_BYTES) {
+        reader.cancel();
+        throw new CryptoError(`Decompression limit exceeded (maximum allowed output size is ${MAX_PAYLOAD_BYTES} bytes).`);
+      }
+      chunks.push(value);
+    }
   }
-  const totalLength = chunks.reduce((acc, c) => acc + c.length, 0);
+
   const result = new Uint8Array(totalLength);
   let offset = 0;
   for (const chunk of chunks) {
@@ -72,6 +83,9 @@ export async function encode(
   const config = mergeConfig(options);
   const encoder = new TextEncoder();
   const rawBytes = encoder.encode(plaintext);
+  if (rawBytes.length > MAX_PAYLOAD_BYTES) {
+    throw new CryptoError(`Plaintext size exceeds maximum allowed limit of ${MAX_PAYLOAD_BYTES} bytes.`);
+  }
   if (typeof CompressionStream === "undefined") {
     throw new CryptoError("Compression Streams API is required to encode messages.");
   }
@@ -117,9 +131,18 @@ export async function decode(
   options?: StegoOptions
 ): Promise<string> {
   validatePassword(password);
+  if (typeof cipherText !== "string" || cipherText.trim().length === 0) {
+    throw new CryptoError("Carrier text must be a non-empty string.");
+  }
 
   const config = mergeConfig(options);
-  const whitenedBytes = englishTextToBytes(cipherText, config.encoding);
+  let whitenedBytes: Uint8Array;
+  try {
+    whitenedBytes = englishTextToBytes(cipherText, config.encoding);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new CryptoError(`Invalid ciphertext: ${msg}`);
+  }
 
   const saltLength = config.crypto.saltByteLength;
   if (whitenedBytes.length < saltLength) {

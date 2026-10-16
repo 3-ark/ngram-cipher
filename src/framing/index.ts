@@ -3,6 +3,7 @@
  */
 
 import { FramingError, FramingConfig, DEFAULT_CONFIG } from "../config/index.js";
+import { timingSafeEqual } from "../crypto/index.js";
 
 /**
  * Calculates CRC-32 checksum for a Uint8Array buffer.
@@ -93,11 +94,12 @@ export function unpackFrame(
   // 1. Salt
   const salt = frame.subarray(0, saltSize);
 
-  // 2. Validate Magic Header
+  // 2. Validate Magic Header using constant-time comparison
   const magic = frame.subarray(saltSize, saltSize + 2);
-  if (magic[0] !== config.magicHeader[0] || magic[1] !== config.magicHeader[1]) {
+  const expectedMagic = config.magicHeader.subarray(0, 2);
+  if (!timingSafeEqual(magic, expectedMagic)) {
     throw new FramingError(
-      `Invalid frame magic header: expected [0x${config.magicHeader[0].toString(16)}, 0x${config.magicHeader[1].toString(16)}], got [0x${magic[0].toString(16)}, 0x${magic[1].toString(16)}].`
+      `Invalid frame magic header: expected [0x${expectedMagic[0].toString(16)}, 0x${expectedMagic[1].toString(16)}], got [0x${magic[0].toString(16)}, 0x${magic[1].toString(16)}].`
     );
   }
 
@@ -120,12 +122,21 @@ export function unpackFrame(
 
   const encryptedBytes = frame.subarray(minHeaderSize, minHeaderSize + payloadLength);
 
-  // 5. Validate Checksum
+  // 5. Validate Checksum using constant-time comparison on 4-byte big-endian buffers
   let checksum = 0;
   if (config.enableChecksum) {
     checksum = view.getUint32(minHeaderSize + payloadLength, false);
     const calculated = crc32(encryptedBytes);
-    if (checksum !== calculated) {
+
+    const checksumBytes = new Uint8Array(4);
+    const calculatedBytes = new Uint8Array(4);
+    const checksumView = new DataView(checksumBytes.buffer);
+    const calculatedView = new DataView(calculatedBytes.buffer);
+
+    checksumView.setUint32(0, checksum, false);
+    calculatedView.setUint32(0, calculated, false);
+
+    if (!timingSafeEqual(checksumBytes, calculatedBytes)) {
       throw new FramingError(
         `Frame payload checksum mismatch: computed 0x${calculated.toString(16)}, frame header contained 0x${checksum.toString(16)}.`
       );
