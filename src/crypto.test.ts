@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { encryptBytes, decryptBytes, deriveKey } from "./crypto/index.js";
+import { encryptBytes, decryptBytes, deriveKey, timingSafeEqual } from "./crypto/index.js";
 import { CryptoError } from "./config/index.js";
 
 describe("Cryptographic Operations Module", () => {
@@ -36,5 +36,45 @@ describe("Cryptographic Operations Module", () => {
   it("should throw CryptoError on corrupted/short payload", async () => {
     const invalidPayload = new Uint8Array([1, 2, 3, 4, 5]);
     await expect(decryptBytes(invalidPayload, "pass")).rejects.toThrow(CryptoError);
+  });
+
+  it("should generate unique non-deterministic salts and IVs across encrypt calls", async () => {
+    const data = new TextEncoder().encode("Identical Payload");
+    const password = "pass";
+
+    const enc1 = await encryptBytes(data, password);
+    const enc2 = await encryptBytes(data, password);
+
+    // Extract salts (first 16 bytes) and IVs (next 12 bytes)
+    const salt1 = enc1.subarray(0, 16);
+    const salt2 = enc2.subarray(0, 16);
+    const iv1 = enc1.subarray(16, 28);
+    const iv2 = enc2.subarray(16, 28);
+
+    expect(timingSafeEqual(salt1, salt2)).toBe(false);
+    expect(timingSafeEqual(iv1, iv2)).toBe(false);
+  });
+
+  it("should abort and throw CryptoError if AES-GCM ciphertext or auth tag is tampered with", async () => {
+    const data = new TextEncoder().encode("Sensitive payload");
+    const password = "password123";
+    const encrypted = await encryptBytes(data, password);
+
+    // Tamper with the last byte (part of AES-GCM auth tag)
+    const tampered = new Uint8Array(encrypted);
+    tampered[tampered.length - 1] ^= 0xff;
+
+    await expect(decryptBytes(tampered, password)).rejects.toThrow(CryptoError);
+  });
+
+  it("should correctly compare arrays with timingSafeEqual", () => {
+    const arr1 = new Uint8Array([1, 2, 3, 4, 5]);
+    const arr2 = new Uint8Array([1, 2, 3, 4, 5]);
+    const arr3 = new Uint8Array([1, 2, 3, 4, 6]);
+    const arr4 = new Uint8Array([1, 2, 3, 4]);
+
+    expect(timingSafeEqual(arr1, arr2)).toBe(true);
+    expect(timingSafeEqual(arr1, arr3)).toBe(false);
+    expect(timingSafeEqual(arr1, arr4)).toBe(false);
   });
 });
