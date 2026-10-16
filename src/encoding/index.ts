@@ -18,11 +18,11 @@ import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
 export { BitStreamReader, BitStreamWriter };
 
-// Keep all four 2-bit codes distinct for lossless decoding, but avoid question marks.
-const NEWS_ENDINGS = [".", "!", "...", "…"];
+// 4 distinct 2-bit codes for lossless decoding without exclamation marks
+const NEWS_ENDINGS = [".", ";", "...", "…"];
 const NEWS_ENDING_TO_CODE: Record<string, number> = {
   ".": 0,
-  "!": 1,
+  ";": 1,
   "...": 2,
   "…": 3,
 };
@@ -161,20 +161,13 @@ function buildOpeningCodes(candidates: string[], recentOpeners: string[]): Map<s
   return codes;
 }
 
-// Poetic endings palette (4 distinct endings = 2 bits for lossless bijection):
-// 0: "."  (full stop, closure)
-// 1: " —" (em-dash pause)
-// 2: "..." (fading silence)
-// 3: ","  (soft caesura)
-//
-// In addition, "?" is accepted in decoding as an expressive poetic alternative for full stop.
 const POETRY_ENDINGS = [".", " —", "...", ","];
 const POETRY_ENDING_TO_CODE: Record<string, number> = {
   ".": 0,
   " —": 1,
   "...": 2,
   ",": 3,
-  "?": 0, // Inquisitive variant maps to full stop
+  "?": 0,
 };
 
 function capitalise(w: string): string {
@@ -205,8 +198,6 @@ export function bytesToEnglishText(
 
   const isPoetry = config.style === "poetry";
 
-  // Append payload length (16-bit uint16) to the END of fullPayload so bit 0 comes directly from bytes[0]!
-  // This guarantees that bit 0 comes from whitened AES salt, making sentence 1 opening words 100% random and unique per run!
   const payloadLength = bytes.length;
   const lengthBytes = new Uint8Array(2);
   const view = new DataView(lengthBytes.buffer);
@@ -361,8 +352,6 @@ export function bytesToEnglishText(
   }
 
   if (isPoetry) {
-    // Generate organic stanzas (alternating between 2-line couplets and 3-line tercets based on payload entropy)
-    // Seeded deterministically by the first byte of payload
     const seed = bytes[0] || 42;
     let stanzaSize = (seed % 2 === 0) ? 3 : 2;
     let linesInCurrentStanza = 0;
@@ -371,20 +360,18 @@ export function bytesToEnglishText(
     for (let i = 0; i < sentences.length; i++) {
       let line = sentences[i];
 
-      // A poem should never terminate with a dangling comma on its final line
       if (i === sentences.length - 1 && line.endsWith(",")) {
         line = line.slice(0, -1) + ".";
       }
 
       if (i > 0 && linesInCurrentStanza === 0) {
-        lines.push(""); // empty line between stanzas
+        lines.push("");
       }
       lines.push(line);
       linesInCurrentStanza++;
 
       if (linesInCurrentStanza >= stanzaSize) {
         linesInCurrentStanza = 0;
-        // Deterministically cycle stanza length (2 or 3 lines) using subsequent payload bytes
         const nextSeed = bytes[(i + 1) % bytes.length] || 1;
         stanzaSize = (nextSeed % 2 === 0) ? 3 : 2;
       }
@@ -392,7 +379,14 @@ export function bytesToEnglishText(
     return lines.join("\n");
   }
 
-  return sentences.join(" ");
+  // Format news prose into realistic paragraphs (2 sentences per paragraph)
+  const paragraphs: string[] = [];
+  const sentencesPerParagraph = 2;
+  for (let i = 0; i < sentences.length; i += sentencesPerParagraph) {
+    const chunk = sentences.slice(i, i + sentencesPerParagraph);
+    paragraphs.push(chunk.join(" "));
+  }
+  return paragraphs.join("\n\n");
 }
 
 /**
@@ -408,8 +402,6 @@ export function englishTextToBytes(
 
   const isPoetry = config.style === "poetry";
 
-  // Clean and split lines/sentences
-  // Handle poetry punctuation: commas, em-dashes, ellipses, periods, question marks, exclamation marks
   const cleanText = text.replace(/[\r\n]+/g, "\n").trim();
   const rawSentences: { sentenceStr: string; endingStr: string }[] = [];
 
@@ -438,8 +430,12 @@ export function englishTextToBytes(
       }
     }
   } else {
-    const sentenceMatches = cleanText.replace(/\n+/g, " ").match(/.*?(?:\.\.\.|…|[.!?]+)["'”’]*|\S+/g) || [];
-    for (const match of sentenceMatches) {
+    const flatText = cleanText.replace(/\n+/g, " ");
+    // Match sentences without splitting on decimal dots inside percentage numbers (e.g. 5.1% or 15.23%)
+    const sentenceRegex = /.*?(?:\.\.\.|…|;(?![\w])|!(?![\w])|\?(?![\w])|\.(?!\d))["'”’]*/g;
+    const matches = flatText.match(sentenceRegex) || [];
+
+    for (const match of matches) {
       const trimmed = match.trim();
       if (!trimmed) continue;
 
@@ -452,9 +448,9 @@ export function englishTextToBytes(
       } else if (trimmed.endsWith('…"') || trimmed.endsWith("…")) {
         endingStr = "…";
         sentenceStr = trimmed.replace(/…["'”’]*$/, "").trim();
-      } else if (/[.!?]["'”’]*$/.test(trimmed)) {
-        endingStr = trimmed.match(/[.!?]/)?.[0] ?? ".";
-        sentenceStr = trimmed.replace(/[.!?]["'”’]*$/, "").trim();
+      } else if (/[.!;?]["'”’]*$/.test(trimmed)) {
+        endingStr = trimmed.match(/[.!;?]/)?.[0] ?? ".";
+        sentenceStr = trimmed.replace(/[.!;?]["'”’]*$/, "").trim();
       }
 
       if (sentenceStr.length > 0) {
@@ -503,7 +499,6 @@ export function englishTextToBytes(
         .replace(/[\u2013\u2014]/g, "")
         .toLowerCase();
 
-      // Normalize grammatical "an" back to "a" for determiners
       if (slot.type === "data" && cleanWord === "an" && slot.label === "d") {
         cleanWord = "a";
       }
@@ -583,7 +578,6 @@ export function englishTextToBytes(
   }
 
   let payloadLength = -1;
-  // Scan rawStream backwards for payload length p where rawStream[p..p+1] === p
   for (let p = rawStream.length - 2; p >= 0; p--) {
     const len = (rawStream[p] << 8) | rawStream[p + 1];
     if (len === p) {

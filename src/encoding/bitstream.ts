@@ -59,7 +59,10 @@ export class BitStreamWriter {
   }
 
   toBytes(): Uint8Array {
-    const fullBytesCount = Math.floor(this.totalBitsWritten / 8);
-    return new Uint8Array(this.bytes.slice(0, fullBytesCount));
+    if (this.bitCount > 0) {
+      const paddedByte = (this.currentByte << (8 - this.bitCount)) & 0xff;
+      return new Uint8Array([...this.bytes, paddedByte]);
+    }
+    return new Uint8Array(this.bytes);
   }
 }
