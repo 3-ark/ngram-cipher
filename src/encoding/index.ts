@@ -74,7 +74,7 @@ function estimateTemplateBitRate(template: Slot[]): number {
       bits += Math.log2(slot.list.length);
     }
   }
-  return (bits / template.length) + (bits * 0.05);
+  return bits / template.length;
 }
 
 function getTemplateCodes(
@@ -234,7 +234,7 @@ export function bytesToEnglishText(
     );
     let templateCode = "";
     let templateIdx: number | undefined;
-    for (let bitIndex = 0; bitIndex < 8; bitIndex++) {
+    for (let bitIndex = 0; bitIndex < 16; bitIndex++) {
       templateCode += reader.readBits(1).toString();
       templateIdx = codeToTemplate.get(templateCode);
       if (templateIdx !== undefined) break;
