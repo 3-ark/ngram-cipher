@@ -1,8 +1,22 @@
 import { describe, it, expect } from "vitest";
-import { encode, decode, CARRIER_WORDS, VOCABULARY } from "./index.js";
+import ngramCipher, { encode, decode, CARRIER_WORDS, VOCABULARY } from "./index.js";
 import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 
 describe("English N-Gram Cipher Engine", () => {
+  it("should export a default object with encode and decode methods", async () => {
+    expect(ngramCipher).toBeDefined();
+    expect(typeof ngramCipher.encode).toBe("function");
+    expect(typeof ngramCipher.decode).toBe("function");
+
+    const plaintext = "Testing default export functionality.";
+    const password = "default-export-pass";
+
+    const cipherText = await ngramCipher.encode(plaintext, password);
+    const decrypted = await ngramCipher.decode(cipherText, password);
+
+    expect(decrypted).toBe(plaintext);
+  });
+
   it("should have a vocabulary of data words", () => {
     // All POS lists contribute to VOCABULARY
     expect(VOCABULARY.length).toBeGreaterThan(500);

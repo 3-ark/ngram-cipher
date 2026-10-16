@@ -4,13 +4,20 @@
   "license": "MIT",
   "private": false,
   "version": "1.0.0",
-  "main": "./dist/ngram-cipher.js",
+  "main": "./dist/ngram-cipher.cjs",
   "module": "./dist/ngram-cipher.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/ngram-cipher.js",
+      "require": "./dist/ngram-cipher.cjs"
+    }
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build && tsc --emitDeclarationOnly",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
