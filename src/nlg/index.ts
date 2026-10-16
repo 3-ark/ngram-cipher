@@ -281,55 +281,64 @@ const CAUSE_ADJECTIVES = [
   "severe","prolonged","sudden","widespread","intense","ongoing","regional","damaging",
   "persistent","major","extreme","deadly","powerful","heavy","sustained","serious"
 ];
-const CAUSE_NOUNS = [
+const CAUSE_NOUNS = uniqueWords([
   "drought","storm","flood","conflict","crisis","disease","shortage","strike",
   "blockade","recession","disruption","protest","fire","outbreak","failure","decline",
   "collapse","delay","accident","attack","unrest","heat","rainfall","snowfall",
   "wind","violence","instability","epidemic","wildfire","earthquake","eruption","avalanche"
-];
-const CAUSE_VERBS = [
+], 32);
+const CAUSE_VERBS = uniqueWords([
   "continued","persisted","worsened","intensified","escalated","deepened","spread","grew",
   "expanded","increased","emerged","erupted","lasted","struck","hit","developed"
-];
+], 16);
 const CAUSE_LINKERS = ["because","as","since","while"];
-const EFFECT_LOCATIONS = [
-  "London","Paris","Geneva","Brussels","Moscow","Berlin","Prague","Washington",
-  "Tokyo","Beijing","Hanoi","Tehran","Nairobi","Lagos","Accra","Cairo",
-  "Madrid","Rome","Seoul","Dublin","Ottawa","Canberra","Jakarta","Bangkok",
-  "Vienna","Lisbon","Warsaw","Athens","Riyadh","Baghdad","Doha","Amman"
-];
-const ACTION_ADVERBS = [
+const EFFECT_LOCATIONS = LOCATION_PROPER_NOUNS;
+const ACTION_ADVERBS = uniqueWords([
   "recently","publicly","strongly","formally","widely","closely","openly","repeatedly",
-  "quietly","quickly","carefully","directly","officially","successfully","privately","eventually"
-];
-const DISCOURSE_ADVERBS = [
+  "quietly","quickly","carefully","directly","officially","successfully","privately","eventually",
+  "unanimously","swiftly","decisively","firmly","eagerly","boldly","promptly","routinely",
+  "actively","consistently","deliberately","cautiously","enthusiastically","vigorously","steadily","jointly"
+], 32);
+const DISCOURSE_ADVERBS = uniqueWords([
   "however","meanwhile","nevertheless","nonetheless","instead","also","indeed","similarly",
-  "furthermore","additionally","still","otherwise","rather","likewise","conversely","ultimately"
-];
+  "furthermore","additionally","still","otherwise","rather","likewise","conversely","ultimately",
+  "consequently","accordingly","thereby","henceforth","subsequently","notably","incidentally",
+  "correspondingly","specifically","thereafter","undoubtedly","arguably","admittedly","besides","equally","plainly"
+], 32);
 const EFFECT_ADVERBS = [
   "sharply","steadily","rapidly","gradually","significantly","modestly","slightly","dramatically",
   "quickly","slowly","noticeably","substantially","marginally","consistently","suddenly","further"
 ];
-const CONDITION_VERBS = [
+const CONDITION_VERBS = uniqueWords([
   "escalated","deepened","intensified","spread","persisted","continued","worsened","expanded",
-  "increased","emerged","lasted","stabilized","accelerated","eased","declined","recovered"
-];
-const CONDITION_NOUNS = [
+  "increased","emerged","lasted","stabilized","accelerated","eased","declined","recovered",
+  "erupted","struck","hit","loomed","stalled","tightened","subsided","halted",
+  "amplified","heightened","softened","rebounded","moderated","surged","plunged","flared"
+], 32);
+const CONDITION_NOUNS = uniqueWords([
   "crisis","shortage","conflict","unrest","violence","disease","drought","flood",
-  "rainfall","wildfire","epidemic","instability","supply","demand","output","trade"
-];
-const RELATIVE_ANTECEDENTS = [
+  "rainfall","wildfire","epidemic","instability","supply","demand","output","trade",
+  "outbreak","strike","blockade","recession","disruption","delay","failure","collapse",
+  "decline","accident","attack","snowfall","heat","avalanche","storm","earthquake"
+], 32);
+const RELATIVE_ANTECEDENTS = uniqueWords([
   "government","company","council","agency","coalition","commission","authority","parliament",
-  "court","union","university","hospital","school","foundation","alliance","community"
-];
-const RELATIVE_SUBJECTS = [
+  "court","union","university","hospital","school","foundation","alliance","community",
+  "publisher","faculty","regiment","association","board","committee","syndicate","federation",
+  "bureau","institution","organization","ministry","cabinet","assembly","delegation","pact"
+], 32);
+const RELATIVE_SUBJECTS = uniqueWords([
   "officials","lawmakers","regulators","voters","ministers","leaders","researchers","judges",
-  "members","delegates","senators","residents","workers","analysts","witnesses","representatives"
-];
-const RELATIVE_VERBS = [
+  "members","delegates","senators","residents","workers","analysts","witnesses","representatives",
+  "experts","critics","auditors","inspectors","scholars","professors","directors","managers",
+  "officers","diplomats","envoys","governors","prosecutors","defendants","citizens","volunteers"
+], 32);
+const RELATIVE_VERBS = uniqueWords([
   "criticized","backed","rejected","approved","supported","opposed","questioned","challenged",
-  "examined","endorsed","investigated","defended","reviewed","signed","blocked","adopted"
-];
+  "examined","endorsed","investigated","defended","reviewed","signed","blocked","adopted",
+  "denied","debated","assessed","evaluated","ratified","sanctioned","prohibited","condemned",
+  "welcomed","praised","urged","requested","demanded","proposed","revised","updated"
+], 32);
 const EFFECT_SCOPE_ADJECTIVES = [
   "local","national","global","regional","domestic","public","private","rural",
   "urban","international","federal","provincial","coastal","northern","eastern","western"
@@ -348,10 +357,12 @@ const EFFECT_VERBS = [
   "rose","fell","declined","increased","dropped","shrank","improved","recovered",
   "worsened","intensified","weakened","stalled","surged","persisted","tightened","expanded"
 ];
-const AFTER_EVENTS = [
+const AFTER_EVENTS = uniqueWords([
   "protests","talks","negotiations","elections","hearings","discussions","debates","demonstrations",
-  "meetings","raids","clashes","investigations","consultations","interviews","strikes","trials"
-];
+  "meetings","raids","clashes","investigations","consultations","interviews","strikes","trials",
+  "summits","conferences","forums","reviews","audits","deliberations","briefings","sessions",
+  "gatherings","dialogues","consults","panels","verdicts","rallies","votes","assemblies"
+], 32);
 // Distinct sentence lengths let the decoder identify each news template without extra marker bits.
 export const TEMPLATES: Slot[][] = [
   // 0 / 4 words: Market rose in London.
@@ -388,7 +399,7 @@ export const TEMPLATES: Slot[][] = [
   [D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
   // 11 / 17 words: "The major company backed the proposal," Johnson said in London, "since the severe drought persisted in Geneva."
-  [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", ',"'), D(CAUSE_LINKERS, "c", undefined, '"'), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", '"')],
+  [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", ","), D(CAUSE_LINKERS, "c", undefined, '"'), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", '"')],
 ];
 
 const POETRY_NOUNS = [

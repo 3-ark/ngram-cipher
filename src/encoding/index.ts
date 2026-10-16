@@ -57,7 +57,7 @@ for (let count = 8; count <= TEMPLATES.length; count++) {
     ...TEMPLATE_CODES_BY_COUNT[count - 1].map(code => `1${code}`),
   ];
 }
-const LESS_COMMON_TEMPLATE_INDEX = 4;
+const LESS_COMMON_TEMPLATE_INDEX = 6;
 
 function estimateTemplateBitRate(template: Slot[]): number {
   let bits = 0;
@@ -74,7 +74,7 @@ function estimateTemplateBitRate(template: Slot[]): number {
       bits += Math.log2(slot.list.length);
     }
   }
-  return bits / template.length;
+  return (bits + 4) / template.length;
 }
 
 function getTemplateCodes(
@@ -333,9 +333,20 @@ export function bytesToEnglishText(
       }
     }
 
-    const sentence = words
-      .map((word, index) => `${template[index].punctuationBefore ?? ""}${word}${template[index].punctuationAfter ?? ""}`)
-      .join(" ") + ending;
+    const sentenceWords = words.map((word, index) => {
+      const pBefore = template[index].punctuationBefore ?? "";
+      const pAfter = template[index].punctuationAfter ?? "";
+      return `${pBefore}${word}${pAfter}`;
+    });
+
+    let sentence: string;
+    const lastWord = sentenceWords[sentenceWords.length - 1];
+    if (lastWord.endsWith('"')) {
+      sentenceWords[sentenceWords.length - 1] = lastWord.slice(0, -1) + ending + '"';
+      sentence = sentenceWords.join(" ");
+    } else {
+      sentence = sentenceWords.join(" ") + ending;
+    }
     sentences.push(sentence);
     if (!isPoetry) {
       recentTemplateIndices.push(templateIdx);
@@ -427,7 +438,7 @@ export function englishTextToBytes(
       }
     }
   } else {
-    const sentenceMatches = cleanText.replace(/\n+/g, " ").match(/.*?(?:\.\.\.|…|[.!?]+|$)/g) || [];
+    const sentenceMatches = cleanText.replace(/\n+/g, " ").match(/.*?(?:\.\.\.|…|[.!?]+)["'”’]*|\S+/g) || [];
     for (const match of sentenceMatches) {
       const trimmed = match.trim();
       if (!trimmed) continue;
@@ -435,15 +446,15 @@ export function englishTextToBytes(
       let endingStr = ".";
       let sentenceStr = trimmed;
 
-      if (trimmed.endsWith("...")) {
+      if (trimmed.endsWith('..."') || trimmed.endsWith("...")) {
         endingStr = "...";
-        sentenceStr = trimmed.slice(0, -3).trim();
-      } else if (trimmed.endsWith("…")) {
+        sentenceStr = trimmed.replace(/\.\.\.["'”’]*$/, "").trim();
+      } else if (trimmed.endsWith('…"') || trimmed.endsWith("…")) {
         endingStr = "…";
-        sentenceStr = trimmed.slice(0, -1).trim();
-      } else if (/[.!?]$/.test(trimmed)) {
-        endingStr = trimmed.slice(-1);
-        sentenceStr = trimmed.slice(0, -1).trim();
+        sentenceStr = trimmed.replace(/…["'”’]*$/, "").trim();
+      } else if (/[.!?]["'”’]*$/.test(trimmed)) {
+        endingStr = trimmed.match(/[.!?]/)?.[0] ?? ".";
+        sentenceStr = trimmed.replace(/[.!?]["'”’]*$/, "").trim();
       }
 
       if (sentenceStr.length > 0) {

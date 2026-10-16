@@ -54,7 +54,10 @@ describe("English N-Gram Cipher Engine", () => {
     expect(sentences.length).toBeGreaterThan(0);
     for (const s of sentences) {
       // Each sentence starts with a capital letter (ignoring leading quotes if any)
-      expect(s.replace(/^["'“‘]/, "")[0]).toMatch(/[A-Z]/);
+      const trimmedStr = s.trim().replace(/^["'“‘]+/, "").trim();
+      if (trimmedStr.length > 0) {
+        expect(trimmedStr[0]).toMatch(/[A-Z]/);
+      }
     }
 
     const decrypted = await decode(cipherText, password);

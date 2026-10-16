@@ -60,13 +60,13 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(TEMPLATES[0][2]).toEqual({ type: "filler", list: ["in"], label: "p" });
     expect(TEMPLATES[4][0]).toEqual({ type: "filler", list: ["if"], label: "c" });
     expect(TEMPLATES[4][1].list).toEqual(["the","some","no","any"]);
-    expect(TEMPLATES[4][2].list).toHaveLength(16);
-    expect(TEMPLATES[4][3].list).toHaveLength(16);
+    expect(TEMPLATES[4][2].list).toHaveLength(32);
+    expect(TEMPLATES[4][3].list).toHaveLength(32);
     expect(TEMPLATES[4][3].punctuationAfter).toBe(",");
     expect(TEMPLATES[7][2]).toEqual({ type: "filler", list: ["which"], label: "c" });
     expect(TEMPLATES[6][0]).toEqual({ type: "filler", list: ["after"], label: "p" });
     expect(TEMPLATES[6][1].punctuationAfter).toBe(",");
-    expect(TEMPLATES[6][1].list).toHaveLength(16);
+    expect(TEMPLATES[6][1].list).toHaveLength(32);
     expect(TEMPLATES[6][2].punctuationAfter).toBe(",");
     expect(TEMPLATES[8]).toHaveLength(12);
     expect(TEMPLATES[1][1].list).toHaveLength(64);
