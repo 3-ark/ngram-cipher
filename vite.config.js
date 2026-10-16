@@ -12,9 +12,14 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       entry: "./src/index.ts",
-      name: "ngram-cipher",
+      name: "ngramCipher",
       fileName: "ngram-cipher",
       formats: ["es", "cjs"],
+    },
+    rollupOptions: {
+      output: {
+        exports: "named",
+      },
     },
   },
 });
