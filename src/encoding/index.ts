@@ -8,12 +8,14 @@ import {
   DETERMINERS,
   TEMPLATES,
   POETRY_TEMPLATES,
+  DOMAIN_TOPICS,
   rankCandidates,
   getCompatibleCandidates,
   valToRank,
   rankToVal,
   matchTemplate,
   type Slot,
+  type DomainTopic,
 } from "../nlg/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
@@ -218,6 +220,10 @@ export function bytesToEnglishText(
   const recentTemplateIndices: number[] = [];
   let sentenceIdx = 0;
 
+  const activeTopic: DomainTopic | undefined = !isPoetry
+    ? DOMAIN_TOPICS[(fullPayload[0] >> 6) & 0x03]
+    : undefined;
+
   while (reader.hasBits) {
     const templateCodes = getTemplateCodes(
       templates,
@@ -244,10 +250,11 @@ export function bytesToEnglishText(
 
     for (const slot of template) {
       const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
+      const slotTopic = (sentenceIdx === 0 || isPoetry) ? undefined : activeTopic;
       const candidates = slot.type === "data" && !isPoetry
-        ? getCompatibleCandidates(list, context, slot.label)
+        ? getCompatibleCandidates(list, context, slot.label, slotTopic)
         : list;
-      const ranked = rankCandidates(candidates, context);
+      const ranked = rankCandidates(candidates, context, slotTopic);
 
       if (slot.type === "filler") {
         const chosenWord = ranked[0];
@@ -479,6 +486,7 @@ export function englishTextToBytes(
   const templates = isPoetry ? POETRY_TEMPLATES : TEMPLATES;
   const recentOpeners: string[] = [];
   const recentTemplateIndices: number[] = [];
+  let activeTopic: DomainTopic | undefined = undefined;
 
   for (let sentenceIdx = 0; sentenceIdx < rawSentences.length; sentenceIdx++) {
     const { sentenceStr, endingStr } = rawSentences[sentenceIdx];
@@ -519,11 +527,13 @@ export function englishTextToBytes(
         cleanWord = "a";
       }
 
+      const slotTopic = (sentenceIdx === 0 || isPoetry) ? undefined : activeTopic;
+
       const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
       const candidates = slot.type === "data" && !isPoetry
-        ? getCompatibleCandidates(list, context, slot.label)
+        ? getCompatibleCandidates(list, context, slot.label, slotTopic)
         : list;
-      const ranked = rankCandidates(candidates, context);
+      const ranked = rankCandidates(candidates, context, slotTopic);
       const openingCodes = !isPoetry && tokenIdx === 0 && slot.type === "data"
         ? buildOpeningCodes(ranked, recentOpeners)
         : undefined;
@@ -570,6 +580,13 @@ export function englishTextToBytes(
       if (tokenIdx === 0) sentenceOpener = cleanWord;
       context.push(cleanWord);
       tokenIdx++;
+    }
+
+    if (sentenceIdx === 0 && !isPoetry) {
+      const rawBytesSoFar = rawWriter.toBytes();
+      if (rawBytesSoFar.length > 0) {
+        activeTopic = DOMAIN_TOPICS[(rawBytesSoFar[0] >> 6) & 0x03];
+      }
     }
 
     if (config.sentenceEndingVariance) {
