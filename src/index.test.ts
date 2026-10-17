@@ -48,14 +48,15 @@ describe("English N-Gram Cipher Engine", () => {
     // Output should contain sentence boundaries and letters
     expect(cipherText).toMatch(/[A-Za-z]/);
     expect(cipherText).toContain(".");
+    expect(cipherText).not.toContain("!");
 
     // Should look like sentences: starts with uppercase, has periods
     const sentences = cipherText.split(/\.\s*/).filter(s => s.length > 0);
     expect(sentences.length).toBeGreaterThan(0);
     for (const s of sentences) {
       // Each sentence starts with a capital letter (ignoring leading quotes if any)
-      const trimmedStr = s.trim().replace(/^["'“‘]+/, "").trim();
-      if (trimmedStr.length > 0) {
+      const trimmedStr = s.trim().replace(/^["'“‘”’]+/, "").trim();
+      if (trimmedStr.length > 0 && /[a-zA-Z]/.test(trimmedStr[0])) {
         expect(trimmedStr[0]).toMatch(/[A-Z]/);
       }
     }
@@ -109,22 +110,23 @@ describe("English N-Gram Cipher Engine", () => {
     expect(await decode(cipher2, password)).toBe(plaintext);
   });
 
-  it("should produce concise and structured natural sentence output", async () => {
-    const plaintext = "Test message for natural language output";
+  it("should produce concise and structured natural sentence output in paragraphs", async () => {
+    const plaintext = "Test message for natural language output with paragraphs and realistic statistics";
     const password = "test-pass";
 
     const cipherText = await encode(plaintext, password);
 
     // Check sentence structure: multiple sentences separated by periods or punctuation
-    const sentences = cipherText.split(/[.!?]+\s*/).filter(s => s.length > 0);
+    const sentences = cipherText.split(/[.;…\n]+\s*/).filter(s => s.length > 0);
     expect(sentences.length).toBeGreaterThan(0);
 
-    // Each sentence should have words
-    for (const s of sentences.slice(0, -1)) {
-      const wordCount = s.split(/\s+/).length;
-      expect(wordCount).toBeGreaterThanOrEqual(2);
+    // Should not contain exclamation marks
+    expect(cipherText).not.toContain("!");
+
+    // Check paragraphs if multiple sentences exist
+    if (sentences.length >= 2) {
+      expect(cipherText).toContain("\n\n");
     }
-    expect(sentences[sentences.length - 1].split(/\s+/).length).toBeGreaterThan(0);
 
     // Log output for manual inspection
     console.log("=== Encoded output sample ===");
@@ -132,24 +134,25 @@ describe("English N-Gram Cipher Engine", () => {
     console.log("============================");
   });
 
-  it("should keep carrier text reasonably compact with curated function-word slots", async () => {
+  it("should keep carrier text compact with 8-bit vocabulary slots", async () => {
     const text = "Hello world! This secret message will be encoded into natural English text.";
     const password = "test-shortness";
 
     const cipherText = await encode(text, password);
     const wordCount = cipherText.split(/\s+/).length;
 
-    // Function-word slots use smaller curated lists, so payload capacity varies by template.
-    expect(wordCount).toBeLessThan(250);
+    // 8-bit slot density reduces word count significantly
+    expect(wordCount).toBeLessThan(160);
 
     const decrypted = await decode(cipherText, password);
     expect(decrypted).toBe(text);
   });
 
-  it("should vary sentence endings instead of forcing periods", async () => {
-    const plaintext = "Sentence punctuation should feel natural.";
+  it("should vary sentence endings without exclamation marks", async () => {
+    const plaintext = "Sentence punctuation should feel natural and varied.";
     const cipherText = await encode(plaintext, "punctuation-test");
-    const sentenceEnders = [...cipherText.matchAll(/[!?\.]{1,3}/g)].map(m => m[0]);
+    expect(cipherText).not.toContain("!");
+    const sentenceEnders = [...cipherText.matchAll(/[;\.]{1,3}|…/g)].map(m => m[0]);
 
     expect(sentenceEnders.length).toBeGreaterThan(0);
     expect(new Set(sentenceEnders).size).toBeGreaterThan(1);
@@ -171,19 +174,17 @@ describe("English N-Gram Cipher Engine", () => {
     const cipherText = await encode(plaintext, "compression-test");
     const wordCount = cipherText.split(/\s+/).length;
 
-    expect(wordCount).toBeLessThanOrEqual(320);
+    expect(wordCount).toBeLessThanOrEqual(250);
     expect(await decode(cipherText, "compression-test")).toBe(plaintext);
   });
 
-  it("should encode and decode messages into realistic news sentences with long complex grammatical structures", async () => {
-    const plaintext = "Breaking News: Global economic summit concludes with international agreement in Geneva.";
+  it("should encode and decode messages into realistic news sentences with percentage statistics", async () => {
+    const plaintext = "Breaking News: Global economic summit concludes with interest rate adjustments.";
     const password = "news-complex-structure-key";
 
     const ciphertext = await encode(plaintext, password);
     expect(ciphertext).toBeTruthy();
-
-    const sentences = ciphertext.split(/[.!?]+\s*/).filter(s => s.length > 0);
-    expect(sentences.length).toBeGreaterThan(0);
+    expect(ciphertext).not.toContain("!");
 
     const decrypted = await decode(ciphertext, password);
     expect(decrypted).toBe(plaintext);

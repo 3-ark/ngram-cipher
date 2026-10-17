@@ -360,7 +360,7 @@ export function bytesToEnglishText(
     for (let i = 0; i < sentences.length; i++) {
       let line = sentences[i];
 
-      if (i === sentences.length - 1 && line.endsWith(",")) {
+      if (i === sentences.length - 1 && line.endsWith(",") && !config.sentenceEndingVariance) {
         line = line.slice(0, -1) + ".";
       }
 
@@ -432,7 +432,7 @@ export function englishTextToBytes(
   } else {
     const flatText = cleanText.replace(/\n+/g, " ");
     // Match sentences without splitting on decimal dots inside percentage numbers (e.g. 5.1% or 15.23%)
-    const sentenceRegex = /.*?(?:\.\.\.|…|;(?![\w])|!(?![\w])|\?(?![\w])|\.(?!\d))["'”’]*/g;
+    const sentenceRegex = /.*?(?:\.\.\.|…|;(?![\w])|\?(?![\w])|\.(?!\d))["'”’]*/g;
     const matches = flatText.match(sentenceRegex) || [];
 
     for (const match of matches) {
@@ -448,9 +448,12 @@ export function englishTextToBytes(
       } else if (trimmed.endsWith('…"') || trimmed.endsWith("…")) {
         endingStr = "…";
         sentenceStr = trimmed.replace(/…["'”’]*$/, "").trim();
-      } else if (/[.!;?]["'”’]*$/.test(trimmed)) {
-        endingStr = trimmed.match(/[.!;?]/)?.[0] ?? ".";
-        sentenceStr = trimmed.replace(/[.!;?]["'”’]*$/, "").trim();
+      } else {
+        const endingMatch = trimmed.match(/([.;?])["'”’]*$/);
+        if (endingMatch) {
+          endingStr = endingMatch[1];
+          sentenceStr = trimmed.replace(/([.;?])["'”’]*$/, "").trim();
+        }
       }
 
       if (sentenceStr.length > 0) {

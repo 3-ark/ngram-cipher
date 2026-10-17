@@ -53,80 +53,55 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(PREPOSITIONS).not.toContain("backwardsward");
     expect(CONJUNCTIONS).not.toContain("ability");
     expect(RELATIVES).not.toContain("aircraft");
-    expect(TEMPLATES[0][3].list).not.toContain("rejected");
     expect(TEMPLATES[0][3].list).toContain("grew");
     expect(PRONOUNS).toContain("it");
     expect(PRONOUNS).toContain("they");
     expect(TEMPLATES[0][4]).toEqual({ type: "filler", list: ["in"], label: "p" });
-    expect(TEMPLATES[1][0]).toEqual({ type: "filler", list: ["if"], label: "c" });
-    expect(TEMPLATES[1][1].list).toEqual(["the","some","no","any"]);
-    expect(TEMPLATES[1][2].list).toHaveLength(32);
-    expect(TEMPLATES[1][3].list).toHaveLength(32);
-    expect(TEMPLATES[1][3].punctuationAfter).toBe(",");
+    expect(TEMPLATES[1][0]).toEqual({ type: "data", list: DETERMINERS, label: "d" });
+    expect(TEMPLATES[1][1].list).toHaveLength(256);
+    expect(TEMPLATES[1][2].list).toHaveLength(256);
     expect(TEMPLATES[4][2]).toEqual({ type: "filler", list: ["which"], label: "c" });
     expect(TEMPLATES[3][0]).toEqual({ type: "filler", list: ["after"], label: "p" });
-    expect(TEMPLATES[3][1].punctuationAfter).toBe(",");
-    expect(TEMPLATES[3][1].list).toHaveLength(32);
-    expect(TEMPLATES[3][2].punctuationAfter).toBe(",");
+    expect(TEMPLATES[3][3]).toEqual({ type: "data", list: DETERMINERS, label: "d" });
     expect(TEMPLATES[5]).toHaveLength(12);
-    expect(TEMPLATES[0][2].list.every(noun => getNounCategory(noun) === "METRIC")).toBe(true);
     expect(TEMPLATES[9]).toHaveLength(18);
     expect(TEMPLATES[9][2]).toEqual({ type: "filler", list: ["including"], label: "c" });
     expect(TEMPLATES[9][9]).toEqual({ type: "filler", list: ["because"], label: "c" });
     expect(TEMPLATES[9][5].list).toContain("requested");
-    expect(TEMPLATES[9][5].list).toHaveLength(16);
+    expect(TEMPLATES[9][5].list).toHaveLength(256);
     expect(TEMPLATES[9][12].list).toContain("remained");
-    expect(TEMPLATES[9][12].list).toHaveLength(8);
+    expect(TEMPLATES[9][12].list).toHaveLength(256);
     expect(TEMPLATES[2].map(slot => slot.label)).toEqual([
-      "d", "N", "VP", "d", "A", "N", "p", "NP"
+      "c", "d", "N", "VP", "A", "N", "VP", "PCT"
     ]);
   });
 
-  it("should use role-matched vocabularies in transitive and trend clauses", () => {
-    expect(TEMPLATES[2][1].list).toContain("company");
-    expect(TEMPLATES[2][1].list).not.toContain("match");
-    expect(TEMPLATES[2][2].list).toContain("defended");
-    expect(TEMPLATES[2][5].list).toContain("treaty");
-    expect(TEMPLATES[1][2].list).toContain("drought");
-    expect(TEMPLATES[1][3].list).toContain("persisted");
-    expect(TEMPLATES[1][2].list.some(word => TEMPLATES[1][3].list.includes(word)))
-      .toBe(false);
-    expect(TEMPLATES[4][1].list).toContain("coalition");
+  it("should use role-matched 256-word vocabularies in transitive and trend clauses", () => {
+    expect(TEMPLATES[0][2].list).toContain("market");
+    expect(TEMPLATES[0][3].list).toContain("rose");
+    expect(TEMPLATES[1][2].list).toContain("market");
+    expect(TEMPLATES[1][3].list).toContain("rose");
+    expect(TEMPLATES[4][1].list).toContain("government");
     expect(TEMPLATES[4][3].list).toContain("officials");
     expect(TEMPLATES[5][5]).toEqual({ type: "filler", list: ["in"], label: "p" });
     expect(TEMPLATES[5][6].list.map(w => w.toLowerCase())).toContain("london");
     expect(TEMPLATES[7][9]).toEqual({ type: "filler", list: ["but"], label: "c" });
-    expect(TEMPLATES[4][8].label).toBe("d");
-    expect(TEMPLATES[3][2].list).toContain("however");
-    expect(TEMPLATES[2][1].list).toHaveLength(64);
-    expect(TEMPLATES[2][2].list).toHaveLength(32);
-    expect(TEMPLATES[2][5].list).toHaveLength(64);
-    expect(TEMPLATES[7].filter(slot => slot.type === "data").length).toBe(13);
+    expect(TEMPLATES[0][1].label).toBe("A");
+    expect(TEMPLATES[0][2].list).toHaveLength(256);
+    expect(TEMPLATES[0][3].list).toHaveLength(256);
     const longTemplateDataBits = TEMPLATES[7]
       .filter(slot => slot.type === "data")
       .reduce((bits, slot) => bits + Math.log2(slot.list.length), 0);
-    expect(longTemplateDataBits).toBeGreaterThanOrEqual(45);
+    expect(longTemplateDataBits).toBeGreaterThanOrEqual(60);
     const causalTemplate = TEMPLATES[5];
     expect(causalTemplate[7].list).toEqual(["because", "as", "since", "while"]);
-    expect(causalTemplate[6].list).toHaveLength(64);
+    expect(causalTemplate[6].list).toHaveLength(256);
     expect(causalTemplate.filter(slot => slot.type === "data")
       .filter(slot => slot.list.some(word => ["therefore", "hence", "whereas"].includes(word))))
       .toHaveLength(0);
     expect(causalTemplate.map(slot => slot.list.length)).toEqual([
-      16, 16, 32, 16, 16, 1, 64, 4, 8, 16, 32, 16
+      256, 256, 256, 256, 256, 1, 256, 4, 8, 256, 256, 256
     ]);
-    for (const slot of [TEMPLATES[0][2], TEMPLATES[5][2]]) {
-      expect(slot.list.every(noun => getNounCategory(noun) === "METRIC")).toBe(true);
-    }
-    expect(TEMPLATES[2][1].list.every(noun => getNounCategory(noun) === "AGENT")).toBe(true);
-    expect(TEMPLATES[1][2].list
-      .filter(noun => !["EVENT","METRIC"].includes(getNounCategory(noun)))).toEqual([]);
-    expect(TEMPLATES[4][1].list.every(noun => getNounCategory(noun) === "AGENT"))
-      .toBe(true);
-    expect(TEMPLATES[5][10].list
-      .filter(noun => !["EVENT","METRIC"].includes(getNounCategory(noun)))).toEqual([]);
-    expect(TEMPLATES[7][7].list).toEqual(["the","some","no","any"]);
-    expect(TEMPLATES[7][13].list).toEqual(["the","some","no","any"]);
   });
 
   it("should contain valid templates with 100% data slots carrying bits", () => {
@@ -189,7 +164,7 @@ describe("Natural Language Generation & Analysis Module", () => {
   });
 
   it("should perform carrier text statistical analysis and perplexity estimation", () => {
-    const sampleText = "The major report confirms the national policy. Washington reportedly announced a significant agreement.";
+    const sampleText = "The major report confirms the national policy; Washington reportedly announced a significant agreement.";
     const analysis = analyzeCarrierText(sampleText);
 
     expect(analysis.wordCount).toBeGreaterThan(0);

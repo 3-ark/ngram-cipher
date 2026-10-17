@@ -59,14 +59,42 @@ export const ADJECTIVES: string[] = [
 ];
 
 // -- ADVERBS (256 clean, natural single-word adverbs) ----------------------
-export const ADVERBS: string[] = [
-  "also","now","already","still","just","even","only","recently","currently","previously","initially","originally","finally","ultimately","immediately","promptly","often","usually","always","never","sometimes","rarely","frequently","occasionally","here","there","anywhere","everywhere","abroad","overseas","locally","nationally","very","quite","rather","fairly","extremely","highly","deeply","significantly","well","badly","carefully","quickly","slowly","steadily","rapidly","gradually","soon","early","late","again","once","twice","daily","annually","together","alone","apart","aside","ahead","behind","forward","backward","likely","possibly","probably","certainly","definitely","clearly","obviously","apparently","officially","formally","publicly","privately","openly","secretly","directly","indirectly","strongly","firmly","sharply","broadly","widely","largely","mostly","primarily","simply","merely","barely","hardly","nearly","almost","approximately","roughly","particularly","especially","specifically","notably","remarkably","increasingly","dramatically","substantially","successfully","effectively","efficiently","actively","consistently","continuously","repeatedly","persistently","separately","independently","collectively","jointly","mutually","simultaneously","respectively","accordingly","meanwhile","however","therefore","otherwise","nevertheless","furthermore","moreover","consequently","fortunately","unfortunately","surprisingly","interestingly","reportedly","allegedly","supposedly","presumably","typically","normally","generally","commonly","traditionally","historically","conventionally","routinely","relatively","comparatively","proportionally","marginally","slightly","moderately","considerably","tremendously","exactly","precisely","accurately","correctly","properly","appropriately","adequately","sufficiently","surely","absolutely","entirely","completely","totally","fully","wholly","thoroughly","partly","partially","somewhat","modestly","mildly","minimally","nominally","technically","naturally","automatically","systematically","strategically","deliberately","intentionally","voluntarily","willingly","temporarily","permanently","indefinitely","briefly","momentarily","periodically","intermittently","sporadically","safely","securely","peacefully","calmly","quietly","silently","gently","smoothly","urgently","desperately","critically","seriously","severely","gravely","acutely","intensely","enthusiastically","eagerly","passionately","vigorously","energetically","aggressively","boldly","bravely","cautiously","reluctantly","hesitantly","nervously","anxiously","wearily","skeptically","warily","freely","generously","graciously","warmly","kindly","favorably","positively","constructively","strictly","tightly","rigidly","harshly","sternly","bluntly","candidly","plainly","equally","similarly","likewise","correspondingly","identically","uniformly","evenly","symmetrically","outward","worldwide","globally","regionally","domestically","internally","externally","laterally"
+const ADVERBS_RAW = [
+  "also","now","already","still","just","even","only","recently","currently","previously","initially","originally","finally","ultimately","immediately","promptly","often","usually","always","never","sometimes","rarely","frequently","occasionally","here","there","anywhere","everywhere","abroad","overseas","locally","nationally","very","quite","rather","fairly","extremely","highly","deeply","significantly","well","badly","carefully","quickly","slowly","steadily","rapidly","gradually","soon","early","late","again","once","twice","daily","annually","together","alone","apart","aside","ahead","behind","forward","backward","likely","possibly","probably","certainly","definitely","clearly","obviously","apparently","officially","formally","publicly","privately","openly","secretly","directly","indirectly","strongly","firmly","sharply","broadly","widely","largely","mostly","primarily","simply","merely","barely","hardly","nearly","almost","approximately","roughly","particularly","especially","specifically","notably","remarkably","increasingly","dramatically","substantially","successfully","effectively","efficiently","actively","consistently","continuously","repeatedly","persistently","separately","independently","collectively","jointly","mutually","simultaneously","respectively","accordingly","meanwhile","however","nevertheless","furthermore","moreover","consequently","fortunately","unfortunately","surprisingly","interestingly","reportedly","allegedly","supposedly","presumably","typically","normally","generally","commonly","traditionally","historically","conventionally","routinely","relatively","comparatively","proportionally","marginally","slightly","moderately","considerably","tremendously","exactly","precisely","accurately","correctly","properly","appropriately","adequately","sufficiently","surely","absolutely","entirely","completely","totally","fully","wholly","thoroughly","partly","partially","somewhat","modestly","mildly","minimally","nominally","technically","naturally","automatically","systematically","strategically","deliberately","intentionally","voluntarily","willingly","temporarily","permanently","indefinitely","briefly","momentarily","periodically","intermittently","sporadically","safely","securely","peacefully","calmly","quietly","silently","gently","smoothly","urgently","desperately","critically","seriously","severely","gravely","acutely","intensely","enthusiastically","eagerly","passionately","vigorously","energetically","aggressively","boldly","bravely","cautiously","reluctantly","hesitantly","nervously","anxiously","wearily","skeptically","warily","freely","generously","graciously","warmly","kindly","favorably","positively","constructively","strictly","tightly","rigidly","harshly","sternly","bluntly","candidly","plainly","equally","similarly","likewise","correspondingly","identically","uniformly","evenly","symmetrically","outward","worldwide","globally","regionally","domestically","internally","externally","laterally","swiftly","decisively","promptly","eagerly"
 ];
+export const ADVERBS: string[] = Array.from(new Set(ADVERBS_RAW.map(w => w.toLowerCase()))).slice(0, 256);
 
 // -- PROPER NOUNS (256 clean proper nouns) ----------------------------------
 export const PROPER_NOUNS: string[] = [
   "washington","london","beijing","moscow","berlin","paris","tokyo","ottawa","brussels","geneva","vienna","madrid","rome","seoul","ankara","cairo","dublin","warsaw","prague","stockholm","oslo","helsinki","lisbon","athens","sydney","melbourne","toronto","vancouver","montreal","auckland","mumbai","delhi","shanghai","taipei","singapore","bangkok","jakarta","manila","hanoi","riyadh","tehran","baghdad","kabul","nairobi","lagos","pretoria","accra","addis","congress","parliament","pentagon","kremlin","downing","westminster","capitol","senate","bloomberg","reuters","guardian","chronicle","tribune","herald","observer","gazette","johnson","williams","thompson","anderson","mitchell","campbell","robinson","stewart","harrison","jackson","kennedy","morrison","sullivan","patterson","henderson","crawford","marshall","spencer","tucker","wallace","andrews","douglas","fleming","gardner","hamilton","lambert","maxwell","pearson","richards","sanders","warren","webster","stanford","harvard","oxford","cambridge","princeton","columbia","cornell","berkeley","amazon","microsoft","google","tesla","apple","samsung","intel","oracle","goldman","morgan","barclays","deutsche","citibank","nomura","fidelity","schwab","boeing","airbus","lockheed","raytheon","northrop","siemens","philips","hitachi","ferrari","porsche","honda","toyota","nissan","volvo","hyundai","renault","pfizer","moderna","novartis","merck","abbott","bristol","roche","sanofi","atlantic","pacific","arctic","mediterranean","caribbean","baltic","adriatic","caspian","sahara","congo","danube","thames","rhine","nile","ganges","yangtze","clinton","carter","nixon","reagan","lincoln","churchill","macron","trudeau","merkel","erdogan","netanyahu","kishida","albanese","starmer","scholz","sunak","africa","europe","america","australia","canada","mexico","brazil","argentina","colombia","chile","peru","ecuador","bolivia","uruguay","paraguay","venezuela","china","india","japan","korea","taiwan","thailand","vietnam","malaysia","indonesia","philippines","myanmar","pakistan","bangladesh","nepal","lanka","cambodia","germany","france","britain","spain","italy","poland","ukraine","romania","sweden","norway","denmark","finland","ireland","scotland","belgium","austria","egypt","turkey","iran","iraq","syria","jordan","lebanon","israel","nigeria","kenya","ghana","ethiopia","tanzania","uganda","rwanda","senegal","russia","georgia","belarus","armenia","serbia","croatia","bulgaria","hungary","nato","asean","opec","unesco","unicef","brics","interpol","europol"
 ];
+
+// -- PERCENTAGES (256 clean financial and news percentage / statistic figures) ----------
+export const PERCENTAGES: string[] = Array.from(new Set([
+  "0.1%","0.2%","0.25%","0.3%","0.4%","0.5%","0.6%","0.7%","0.75%","0.8%","0.9%","1.0%",
+  "1.1%","1.2%","1.25%","1.3%","1.4%","1.5%","1.6%","1.7%","1.75%","1.8%","1.9%","2.0%",
+  "2.1%","2.2%","2.25%","2.3%","2.4%","2.5%","2.6%","2.7%","2.75%","2.8%","2.9%","3.0%",
+  "3.1%","3.2%","3.25%","3.3%","3.4%","3.5%","3.6%","3.7%","3.75%","3.8%","3.9%","4.0%",
+  "4.1%","4.2%","4.25%","4.3%","4.4%","4.5%","4.6%","4.7%","4.75%","4.8%","4.9%","5.0%",
+  "5.1%","5.2%","5.25%","5.3%","5.4%","5.5%","5.6%","5.7%","5.75%","5.8%","5.9%","6.0%",
+  "6.1%","6.2%","6.25%","6.3%","6.4%","6.5%","6.6%","6.7%","6.75%","6.8%","6.9%","7.0%",
+  "7.1%","7.2%","7.25%","7.3%","7.4%","7.5%","7.6%","7.7%","7.75%","7.8%","7.9%","8.0%",
+  "8.1%","8.2%","8.25%","8.3%","8.4%","8.5%","8.6%","8.7%","8.75%","8.8%","8.9%","9.0%",
+  "9.1%","9.2%","9.25%","9.3%","9.4%","9.5%","9.6%","9.7%","9.75%","9.8%","9.9%","10.0%",
+  "10.1%","10.2%","10.25%","10.5%","10.8%","11.0%","11.2%","11.25%","11.5%","11.8%","12.0%",
+  "12.1%","12.25%","12.5%","12.8%","13.0%","13.25%","13.5%","13.8%","14.0%","14.25%","14.5%",
+  "14.8%","15.0%","15.2%","15.23%","15.25%","15.5%","15.8%","16.0%","16.25%","16.5%","16.8%",
+  "17.0%","17.25%","17.5%","18.0%","18.25%","18.5%","19.0%","19.25%","19.5%","20.0%","20.25%",
+  "20.5%","21.0%","21.5%","22.0%","22.5%","23.0%","23.5%","24.0%","24.5%","25.0%","25.5%",
+  "26.0%","26.5%","27.0%","27.5%","28.0%","28.5%","29.0%","29.5%","30.0%","30.5%","31.0%",
+  "31.5%","32.0%","32.5%","33.0%","33.5%","34.0%","34.5%","35.0%","35.5%","36.0%","36.5%",
+  "37.0%","37.5%","38.0%","38.5%","39.0%","39.5%","40.0%","40.5%","41.0%","41.5%","42.0%",
+  "42.5%","43.0%","43.5%","44.0%","44.5%","45.0%","45.5%","46.0%","46.5%","47.0%","47.5%",
+  "48.0%","48.5%","49.0%","49.5%","50.0%","51.0%","52.0%","53.0%","54.0%","55.0%","56.0%",
+  "57.0%","58.0%","59.0%","60.0%","62.0%","64.0%","65.0%","66.0%","68.0%","70.0%","72.0%",
+  "75.0%","78.0%","80.0%","82.0%","85.0%","88.0%","90.0%","92.0%","95.0%","98.0%","100.0%",
+  "101.0%","102.0%","105.0%","110.0%"
+])).slice(0, 256);
 
 // These function-word lists stay small and grammatical instead of adding
 // unrelated words just to fill a 256-word, 8-bit slot.
@@ -102,6 +130,7 @@ export const POS_LISTS: Record<string, string[]> = {
   A: ADJECTIVES,
   R: ADVERBS,
   NP: PROPER_NOUNS,
+  PCT: PERCENTAGES,
   d: DETERMINERS,
   p: PREPOSITIONS,
   c: CONJUNCTIONS,
@@ -135,268 +164,203 @@ export const VOCABULARY: string[] = (() => {
 
 export const CARRIER_WORDS = VOCABULARY.slice(0, 2048);
 
-const INTRANSITIVE_VERBS_PAST = [
-  "grew","rose","fell","declined","expanded","remained","continued","endured",
-  "lasted","survived","began","started","ended","stopped","persisted","improved"
-];
-const TRANSITIVE_VERBS_PAST = [
-  "reported","announced","confirmed","revealed","supported","proposed","rejected","approved",
-  "launched","introduced","created","developed","built","acquired","received","provided",
-  "published","released","signed","passed","adopted","reviewed","examined","addressed",
-  "changed","increased","reduced","strengthened","protected","defended","blocked","criticized"
-];
-const REPORTING_VERBS_PAST = [
-  "said","stated","reported","announced","confirmed","noted","argued","warned",
-  "explained","claimed","suggested","added","emphasized","reiterated","insisted","indicated",
-  "detailed","revealed","reaffirmed","maintained","highlighted","conceded","observed","declared",
-  "recounted","asserted","acknowledged","underlined","specified","disclosed","pledged","voiced"
-];
-const DAYS = [
-  "monday","tuesday","wednesday","thursday","friday","saturday","sunday","yesterday",
-  "today","tonight","morning","afternoon","evening","overnight","recently","lately"
-];
-const AUXILIARIES = [
-  "was","is","remained","proved","appeared","became","seemed","stayed",
-  "felt","grew","turned","looked","sounded","stood","continued","kept"
-];
-const COMPLEMENT_ADJECTIVES = [
-  "unprecedented","critical","significant","essential","crucial","vital","decisive","unclear",
-  "vulnerable","unresolved","limited","substantial","urgent","promising","troubling","reassuring",
-  "controversial","challenging","pivotal","strategic","paramount","insufficient","encouraging","concerning",
-  "uncertain","favorable","unfavorable","precarious","unshakable","imperative","noteworthy","compelling"
-];
-const LOCATION_PREPOSITIONS = [
-  "in","near","around","across","through","beyond","within","outside",
-  "beside","along","over","under","throughout","upon","past","towards"
-];
-const NOUN_COMPLEMENT_PREPOSITIONS = [
-  "in","on","for","with","from","near","around","beyond",
-  "towards","into","through","across","against","upon","despite","without"
-];
-const SUBORDINATORS = [
-  "after","while","when","before","since","though","because","if",
-  "although","whereas","unless","until","as","once","provided","whenever"
-];
-const CLAUSE_CONJUNCTIONS = [
-  "that","while","although","because","as","since","before","after",
-  "if","unless","whereas","until","once","where","whenever","wherever"
-];
-function uniqueWords(words: string[], size: number): string[] {
-  return Array.from(new Set(words.map(word => word.toLowerCase()))).slice(0, size);
+function padList(primaryList: string[], fallbackList: string[], targetSize = 256): string[] {
+  const set = new Set<string>();
+  for (const w of primaryList) {
+    set.add(w.toLowerCase());
+  }
+  for (const w of fallbackList) {
+    if (set.size >= targetSize) break;
+    set.add(w.toLowerCase());
+  }
+  if (set.size < targetSize) {
+    for (const w of NOUNS) {
+      if (set.size >= targetSize) break;
+      set.add(w.toLowerCase());
+    }
+  }
+  return Array.from(set).slice(0, targetSize);
 }
 
-const TREND_NOUNS_EXTENDED = uniqueWords([
+const TREND_NOUNS_RAW = [
   "market","economy","growth","profit","revenue","stock","climate","energy",
-  "rainfall","pollution","resource","supply","demand","shortage","surplus","trade",
-  "export","investment","production","outcome","finance","shipment","cargo","delivery",
-  "budget","temperature","forecast","employment","inflation","output","sales","cost",
-  "price","debt","income","spending","value","volume","rate","level",
-  "activity","traffic","attendance","capacity","earnings","imports","exports","operations",
-  "services","costs","prices","profits","performance","salary","benefit","record",
-  "score","penalty","weather","harvest","crops","transport","coverage","yield",
-  "assets","liabilities","dividends","shares","equities","bonds","funds","capital",
-  "wealth","wages","payroll","rates","returns","losses","gains","balances",
-  "reserves","deposits","loans","credit","expenditure","consumption","manufacturing","orders",
-  "receipts","turnover","margin","margins","yields","productivity","efficiency","unemployment",
-  "housing","rent","mortgages","construction","index","indices","exchange","currency",
-  "dollar","euro","pound","oil","gas","coal","electricity","power",
-  "water","food","wheat","grain","steel","copper","gold","silver",
-  "cotton","timber","freight","shipping","passengers","inventory","inventories","stockpile"
-], 128);
-const TREND_VERBS = uniqueWords([
-  "grew","rose","fell","declined","expanded","remained","continued","improved",
-  "increased","dropped","shrank","survived","persisted","lasted","advanced","recovered",
-  "surged","plunged","climbed","slipped","stabilized","fluctuated","rebounded","soared",
-  "dwindled","weakened","strengthened","accelerated","moderated","peaked","bottomed","plateaued"
-], 32);
-const CORE_TREND_NOUNS = TREND_NOUNS_EXTENDED.slice(0, 64);
-const CORE_TREND_VERBS = TREND_VERBS.slice(0, 16);
-const ACTION_SUBJECTS = [
-  "government","president","company","council","agency","coalition","commission","authority",
-  "parliament","court","police","team","leader","minister","ambassador","official"
+  "demand","supply","shortage","surplus","trade","export","investment","production",
+  "employment","inflation","output","sales","cost","price","spending","value",
+  "capacity","earnings","imports","exports","yield","assets","wages","rates"
 ];
-const ACTION_SUBJECTS_EXTENDED = uniqueWords([
-  ...ACTION_SUBJECTS,
-  "alliance","foundation","audience","prosecution","school","university","hospital","doctor",
-  "coach","family","community","worker","union","journalist","artist","director",
-  "author","publisher","faculty","commander","battalion","regiment","citizen","volunteer",
-  "activist","movement","governor","senator","researcher","professor","delegate","athlete",
-  "resident","witness","neighbor","student","teacher","patient","player","astronaut",
-  "soldier","captain","operator","manager","owner","employee","spokesperson","judge"
-], 64);
-const ACTION_OBJECTS = [
+const TREND_VERBS_RAW = [
+  "rose","grew","fell","declined","expanded","remained","continued","improved",
+  "increased","dropped","shrank","survived","persisted","lasted","advanced","recovered",
+  "surged","plunged","climbed","slipped","stabilized","rebounded","soared","dwindled"
+];
+const ACTION_SUBJECTS_RAW = [
+  "government","president","company","council","agency","coalition","commission","authority",
+  "parliament","court","police","team","leader","minister","ambassador","official",
+  "alliance","foundation","union","journalist","governor","senator","researcher","delegate"
+];
+const ACTION_OBJECTS_RAW = [
   "policy","program","system","campaign","budget","strategy","network","foundation",
   "treaty","border","reform","investment","project","contract","benefit","statement",
-  "agreement","proposal","amendment","regulation","standard","guideline","framework","protocol",
-  "infrastructure","platform","software","database","device","operation","deployment","research"
+  "agreement","proposal","amendment","regulation","standard","guideline","framework","protocol"
 ];
-const ACTION_OBJECTS_EXTENDED = uniqueWords([
-  ...ACTION_OBJECTS,
-  "election","security","crisis","summit","conflict","sentence","evidence","charge",
-  "defense","education","technology","treatment","medicine","disease","season","match",
-  "victory","championship","record","finance","trade","export","revenue","climate",
-  "energy","environment","resource","bridge","airport","station","project","contract",
-  "hospital","school","highway","tunnel","rocket","vaccine","weapon","building"
-], 64);
-const OBJECT_DETERMINERS = ["the","some","no","any"];
-const CONDITION_DETERMINERS = ["the","some","no","any"];
-const ACTION_VERBS = [
+const ACTION_VERBS_RAW = [
   "announced","supported","proposed","rejected","approved","launched","created","developed",
   "introduced","published","released","signed","adopted","defended","backed","changed"
 ];
-const ACTION_VERBS_EXTENDED = uniqueWords([
-  ...ACTION_VERBS,
-  "built","acquired","provided","examined","addressed","increased","reduced","strengthened",
-  "protected","blocked","criticized","produced","generated","established","formed","managed"
-], 32);
-const REPORTING_CLAUSE_VERBS = [
-  "said","stated","reported","announced","confirmed","noted","argued","warned",
-  "explained","claimed","suggested","indicated","detailed","revealed","declared","acknowledged"
-];
 
-// 64 proper nouns restricted strictly to persons, surnames, news agencies, companies, and organizations.
-export const REPORTING_SUBJECTS_PROPER: string[] = [
+// Padded 256-word candidate arrays for 8-bit slot encoding
+const CORE_TREND_NOUNS = padList(TREND_NOUNS_RAW, NOUNS, 256);
+const CORE_TREND_VERBS = padList(TREND_VERBS_RAW, VERBS_PAST, 256);
+const ACTION_SUBJECTS_EXTENDED = padList(ACTION_SUBJECTS_RAW, NOUNS, 256);
+const ACTION_OBJECTS_EXTENDED = padList(ACTION_OBJECTS_RAW, NOUNS, 256);
+const ACTION_VERBS_EXTENDED = padList(ACTION_VERBS_RAW, VERBS_PAST, 256);
+
+export const REPORTING_SUBJECTS_PROPER: string[] = padList([
   "johnson","williams","thompson","anderson","mitchell","campbell","robinson","stewart",
   "harrison","jackson","kennedy","morrison","sullivan","patterson","henderson","crawford",
   "marshall","spencer","tucker","wallace","andrews","douglas","fleming","gardner",
   "hamilton","lambert","maxwell","pearson","richards","sanders","warren","webster",
-  "reuters","bloomberg","guardian","chronicle","tribune","herald","observer","gazette",
-  "boeing","airbus","lockheed","siemens","philips","ferrari","porsche","honda",
-  "toyota","nissan","volvo","hyundai","renault","pfizer","moderna","novartis",
-  "merck","abbott","roche","sanofi","nato","asean","opec","unesco"
-];
+  "reuters","bloomberg","guardian","chronicle","tribune","herald","observer","gazette"
+], PROPER_NOUNS, 256);
 
-// 64 proper nouns restricted strictly to cities, countries, and geographic locations.
-export const LOCATION_PROPER_NOUNS: string[] = [
+export const LOCATION_PROPER_NOUNS: string[] = padList([
   "washington","london","beijing","moscow","berlin","paris","tokyo","ottawa",
   "brussels","geneva","vienna","madrid","rome","seoul","ankara","cairo",
   "dublin","warsaw","prague","stockholm","oslo","helsinki","lisbon","athens",
-  "sydney","melbourne","toronto","vancouver","montreal","auckland","mumbai","delhi",
-  "shanghai","taipei","singapore","bangkok","jakarta","manila","hanoi","riyadh",
-  "tehran","baghdad","kabul","nairobi","lagos","pretoria","accra","addis",
-  "germany","france","britain","spain","italy","poland","ukraine","sweden",
-  "norway","finland","ireland","belgium","austria","egypt","turkey","japan"
-];
-const CAUSE_ADJECTIVES = [
+  "sydney","melbourne","toronto","vancouver","montreal","auckland","mumbai","delhi"
+], PROPER_NOUNS, 256);
+
+const REPORTING_CLAUSE_VERBS = padList([
+  "said","stated","reported","announced","confirmed","noted","argued","warned",
+  "explained","claimed","suggested","indicated","detailed","revealed","declared","acknowledged"
+], VERBS_PAST, 256);
+
+const CAUSE_ADJECTIVES = padList([
   "severe","prolonged","sudden","widespread","intense","ongoing","regional","damaging",
   "persistent","major","extreme","deadly","powerful","heavy","sustained","serious"
-];
-const CAUSE_NOUNS = uniqueWords([
+], ADJECTIVES, 256);
+
+const CAUSE_NOUNS = padList([
   "drought","storm","flood","conflict","crisis","disease","shortage","strike",
-  "blockade","recession","disruption","protest","fire","outbreak","failure","decline",
-  "collapse","delay","accident","attack","unrest","heat","rainfall","snowfall",
-  "wind","violence","instability","epidemic","wildfire","earthquake","eruption","avalanche"
-], 32);
-const CAUSE_VERBS = uniqueWords([
+  "blockade","recession","disruption","protest","fire","outbreak","failure","decline"
+], NOUNS, 256);
+
+const CAUSE_VERBS = padList([
   "continued","persisted","worsened","intensified","escalated","deepened","spread","grew",
   "expanded","increased","emerged","erupted","lasted","struck","hit","developed"
-], 16);
-const APPOSITIVE_REQUEST_VERBS = [
+], VERBS_PAST, 256);
+
+const APPOSITIVE_REQUEST_VERBS = padList([
   "requested","demanded","proposed","approved","issued","submitted","offered","provided",
   "released","published","adopted","presented","confirmed","announced","disclosed","rejected"
-];
-const UNRESOLVED_COMPLEMENT_VERBS = [
+], VERBS_PAST, 256);
+
+const UNRESOLVED_COMPLEMENT_VERBS = padList([
   "remained","stayed","seemed","appeared","proved","became","ended","continued"
-];
+], VERBS_PAST, 256);
+
+const COMPLEMENT_ADJECTIVES = padList([
+  "unprecedented","critical","significant","essential","crucial","vital","decisive","unclear",
+  "vulnerable","unresolved","limited","substantial","urgent","promising","troubling","reassuring"
+], ADJECTIVES, 256);
+
 const CAUSE_LINKERS = ["because","as","since","while"];
-const EFFECT_LOCATIONS = LOCATION_PROPER_NOUNS;
-const ACTION_ADVERBS = uniqueWords([
+
+const ACTION_ADVERBS = padList([
   "recently","publicly","strongly","formally","widely","closely","openly","repeatedly",
-  "quietly","quickly","carefully","directly","officially","successfully","privately","eventually",
-  "unanimously","swiftly","decisively","firmly","eagerly","boldly","promptly","routinely",
-  "actively","consistently","deliberately","cautiously","enthusiastically","vigorously","steadily","jointly"
-], 32);
-const DISCOURSE_ADVERBS = uniqueWords([
+  "quietly","quickly","carefully","directly","officially","successfully","privately","eventually"
+], ADVERBS, 256);
+
+const DISCOURSE_ADVERBS = padList([
   "however","meanwhile","nevertheless","nonetheless","instead","also","indeed","similarly",
-  "furthermore","additionally","still","otherwise","rather","likewise","conversely","ultimately",
-  "consequently","accordingly","thereby","henceforth","subsequently","notably","incidentally",
-  "correspondingly","specifically","thereafter","undoubtedly","arguably","admittedly","besides","equally","plainly"
-], 32);
-const EFFECT_ADVERBS = [
+  "furthermore","additionally","still","otherwise","rather","likewise","conversely","ultimately"
+], ADVERBS, 256);
+
+const EFFECT_ADVERBS = padList([
   "sharply","steadily","rapidly","gradually","significantly","modestly","slightly","dramatically",
   "quickly","slowly","noticeably","substantially","marginally","consistently","suddenly","further"
-];
-const CONDITION_VERBS = uniqueWords([
+], ADVERBS, 256);
+
+const CONDITION_VERBS = padList([
   "escalated","deepened","intensified","spread","persisted","continued","worsened","expanded",
-  "increased","emerged","lasted","stabilized","accelerated","eased","declined","recovered",
-  "erupted","struck","hit","loomed","stalled","tightened","subsided","halted",
-  "amplified","heightened","softened","rebounded","moderated","surged","plunged","flared"
-], 32);
-const CONDITION_NOUNS = uniqueWords([
+  "increased","emerged","lasted","stabilized","accelerated","eased","declined","recovered"
+], VERBS_PAST, 256);
+
+const CONDITION_NOUNS = padList([
   "crisis","shortage","conflict","unrest","violence","disease","drought","flood",
-  "rainfall","wildfire","epidemic","instability","supply","demand","output","trade",
-  "outbreak","strike","blockade","recession","disruption","delay","failure","collapse",
-  "decline","accident","attack","snowfall","heat","avalanche","storm","earthquake"
-], 32);
-const RELATIVE_ANTECEDENTS = uniqueWords([
+  "rainfall","wildfire","epidemic","instability","supply","demand","output","trade"
+], NOUNS, 256);
+
+const RELATIVE_ANTECEDENTS = padList([
   "government","company","council","agency","coalition","commission","authority","parliament",
-  "court","union","university","hospital","school","foundation","alliance","community",
-  "publisher","faculty","regiment","association","board","committee","syndicate","federation",
-  "bureau","institution","organization","ministry","cabinet","assembly","delegation","pact"
-], 32);
-const RELATIVE_SUBJECTS = uniqueWords([
+  "court","union","university","hospital","school","foundation","alliance","community"
+], NOUNS, 256);
+
+const RELATIVE_SUBJECTS = padList([
   "officials","lawmakers","regulators","voters","ministers","leaders","researchers","judges",
-  "members","delegates","senators","residents","workers","analysts","witnesses","representatives",
-  "experts","critics","auditors","inspectors","scholars","professors","directors","managers",
-  "officers","diplomats","envoys","governors","prosecutors","defendants","citizens","volunteers"
-], 32);
-const RELATIVE_VERBS = uniqueWords([
+  "members","delegates","senators","residents","workers","analysts","witnesses","representatives"
+], NOUNS, 256);
+
+const RELATIVE_VERBS = padList([
   "criticized","backed","rejected","approved","supported","opposed","questioned","challenged",
-  "examined","endorsed","investigated","defended","reviewed","signed","blocked","adopted",
-  "denied","debated","assessed","evaluated","ratified","sanctioned","prohibited","condemned",
-  "welcomed","praised","urged","requested","demanded","proposed","revised","updated"
-], 32);
-const EFFECT_SCOPE_ADJECTIVES = [
+  "examined","endorsed","investigated","defended","reviewed","signed","blocked","adopted"
+], VERBS_PAST, 256);
+
+const EFFECT_SCOPE_ADJECTIVES = padList([
   "local","national","global","regional","domestic","public","private","rural",
   "urban","international","federal","provincial","coastal","northern","eastern","western"
-];
-const EFFECT_TYPE_ADJECTIVES = [
+], ADJECTIVES, 256);
+
+const EFFECT_TYPE_ADJECTIVES = padList([
   "food","fuel","energy","consumer","industrial","agricultural","financial","trade",
   "export","market","retail","wholesale","farm","crop","oil","gas"
-];
-const EFFECT_NOUNS = [
+], ADJECTIVES, 256);
+
+const EFFECT_NOUNS = padList([
   "supply","prices","output","production","growth","revenue","demand","trade",
-  "exports","imports","employment","traffic","sales","stocks","services","access",
-  "deliveries","operations","investment","income","costs","resources","harvest","crops",
-  "transport","earnings","shortages","profits","capacity","activity","shipments","supplies"
-];
-const EFFECT_VERBS = [
+  "exports","imports","employment","traffic","sales","stocks","services","access"
+], NOUNS, 256);
+
+const EFFECT_VERBS = padList([
   "rose","fell","declined","increased","dropped","shrank","improved","recovered",
   "worsened","intensified","weakened","stalled","surged","persisted","tightened","expanded"
-];
-const AFTER_EVENTS = uniqueWords([
+], VERBS_PAST, 256);
+
+const AFTER_EVENTS = padList([
   "protests","talks","negotiations","elections","hearings","discussions","debates","demonstrations",
-  "meetings","raids","clashes","investigations","consultations","interviews","strikes","trials",
-  "summits","conferences","forums","reviews","audits","deliberations","briefings","sessions",
-  "gatherings","dialogues","consults","panels","verdicts","rallies","votes","assemblies"
-], 32);
-// Distinct sentence lengths let the decoder identify each news template without extra marker bits.
+  "meetings","raids","clashes","investigations","consultations","interviews","strikes","trials"
+], NOUNS, 256);
+
+const CONDITION_DETERMINERS = ["the","some","no","any"];
+const OBJECT_DETERMINERS = ["the","some","no","any"];
+
+// Distinct sentence word counts allow deterministic template identification.
 export const TEMPLATES: Slot[][] = [
   // 0 / 6 words: The major market rose in London.
   [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
 
-  // 1 / 7 words: If the drought worsened, food prices rose.
-  [F(["if"], "c"), D(CONDITION_DETERMINERS, "d"), D(CONDITION_NOUNS, "N"), D(CONDITION_VERBS, "VP", ","), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP")],
+  // 1 / 7 words: The major market rose 5.1% in London.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), D(PERCENTAGES, "PCT"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
 
-  // 2 / 8 words: The company expanded its public network in London.
-  [D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
+  // 2 / 8 words: If the drought worsened, food prices rose 5.1%.
+  [F(["if"], "c"), D(CONDITION_DETERMINERS, "d"), D(CONDITION_NOUNS, "N"), D(CONDITION_VERBS, "VP", ","), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP"), D(PERCENTAGES, "PCT")],
 
-  // 3 / 9 words: After talks, however, the president recently changed its strategy.
+  // 3 / 9 words: After talks, however, the official recently raised the strategy.
   [F(["after"], "p"), D(AFTER_EVENTS, "N", ","), D(DISCOURSE_ADVERBS, "R", ","), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
   // 4 / 10 words: The coalition, which officials publicly criticized, eventually backed the reform.
   [D(DETERMINERS, "d"), D(RELATIVE_ANTECEDENTS, "N", ","), F(["which"], "c"), D(RELATIVE_SUBJECTS, "N"), D(ACTION_ADVERBS, "R"), D(RELATIVE_VERBS, "VP", ","), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
-  // 5 / 12 words: Local food prices rose sharply in London since the severe drought persisted.
-  [D(EFFECT_SCOPE_ADJECTIVES, "A"), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP"), D(CAUSE_LINKERS, "c"), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP")],
+  // 5 / 12 words: Local food prices rose 5.1% in London since the severe shortage persisted.
+  [D(EFFECT_SCOPE_ADJECTIVES, "A"), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP"), D(PERCENTAGES, "PCT"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP"), D(CAUSE_LINKERS, "c"), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP")],
 
-  // 6 / 14 words: "The major company backed the proposal," Johnson said recently in an interview in London.
-  [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(ACTION_ADVERBS, "R"), F(["in"], "p"), F(["an"], "d"), F(["interview"], "N"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
+  // 6 / 14 words: "The central bank raised interest rates 5.1%", Johnson announced recently in an interview in Washington.
+  [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ACTION_OBJECTS_EXTENDED, "N"), D(PERCENTAGES, "PCT", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(ACTION_ADVERBS, "R"), F(["in"], "p"), F(["an"], "d"), F(["interview"], "N"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
 
-  // 7 / 15 words: Johnson said that the major company backed some reform, but the agency rejected the proposal.
-  [D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
+  // 7 / 15 words: Johnson said that the central bank raised interest rates 5.1%, but the agency rejected the proposal.
+  [D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ACTION_OBJECTS_EXTENDED, "N"), D(PERCENTAGES, "PCT", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
-  // 8 / 17 words: "The major company backed the proposal," Johnson said in London, "since the severe drought persisted in Geneva."
+  // 8 / 17 words: "The major company backed the proposal," Johnson said in London, "since the severe shortage persisted in Geneva."
   [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", ","), D(CAUSE_LINKERS, "c", undefined, '"'), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", '"')],
 
   // 9 / 18 words: "The officials, including some delegates, requested a formal statement because the talks remained unresolved, Reuters reported on Friday."
@@ -465,11 +429,9 @@ const POETRY_PREPOSITIONS = [
   "above","below","beside","beyond","beneath","near","through","over",
   "under","across","around","among","within","behind","against","toward"
 ];
-// Coordinating conjunctions that can grammatically join two verb predicates ("sang and danced", "fell yet bloomed")
 const POETRY_COORDINATING_CONJUNCTIONS = [
   "and","yet","but","or"
 ];
-// Full conjunctions for joining full clauses (Subject + Verb + Conj + Subject + Verb)
 const POETRY_CLAUSE_CONJUNCTIONS = [
   "and","while","as","but","yet","though","because","when"
 ];
@@ -532,8 +494,8 @@ export interface CarrierAnalysis {
 }
 
 export function analyzeCarrierText(text: string): CarrierAnalysis {
-  const sentences = text.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0);
-  const words = text.toLowerCase().match(/[a-z0-9]+/g) || [];
+  const sentences = text.split(/[.;?]+/).map(s => s.trim()).filter(s => s.length > 0);
+  const words = text.toLowerCase().match(/[a-z0-9.%]+/g) || [];
 
   if (words.length === 0) {
     return {
