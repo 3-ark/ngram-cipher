@@ -17,8 +17,8 @@ describe("Binary Message Framing and Metadata Module", () => {
 
     const frame = packFrame(payload);
 
-    // Frame size: Salt(16) + Magic(2) + Version(1) + Length(4) + EncryptedBytes(4) + Checksum(4) = 31 bytes
-    expect(frame.length).toBe(31);
+    // Frame size: Salt(16) + Magic(2) + Version(1) + Length(2) + EncryptedBytes(4) + Checksum(4) = 29 bytes
+    expect(frame.length).toBe(29);
     expect(frame[16]).toBe(0x4e); // 'N' at offset 16
     expect(frame[17]).toBe(0x47); // 'G'
     expect(frame[18]).toBe(1);    // Version 1
@@ -55,8 +55,8 @@ describe("Binary Message Framing and Metadata Module", () => {
     const payload = new Uint8Array(20);
     const frame = packFrame(payload);
 
-    // Corrupt encrypted payload byte at offset 24
-    frame[24] ^= 0xff;
+    // Corrupt encrypted payload byte at offset 22
+    frame[22] ^= 0xff;
 
     expect(() => unpackFrame(frame)).toThrow(FramingError);
     expect(() => unpackFrame(frame)).toThrow("checksum mismatch");
@@ -67,7 +67,7 @@ describe("Binary Message Framing and Metadata Module", () => {
     const payload = new Uint8Array(18); // 16 salt + 2 payload
     const frame = packFrame(payload, config);
 
-    expect(frame.length).toBe(16 + 2 + 1 + 4 + 2); // Salt(16) + Header(7) + EncryptedPayload(2) = 25
+    expect(frame.length).toBe(16 + 2 + 1 + 2 + 2); // Salt(16) + Header(5) + EncryptedPayload(2) = 23
     const unpacked = unpackFrame(frame, config);
     expect(Array.from(unpacked.payload)).toEqual(Array.from(payload));
   });

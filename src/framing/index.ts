@@ -27,7 +27,7 @@ export function crc32(data: Uint8Array): number {
 /**
  * Frame Envelope Layout:
  * +----------------+---------------+----------------------+------------------+------------------+
- * | Magic (2 B)    | Version (1 B) | Payload Length (4 B) | Payload Bytes    | Checksum (4 B)   |
+ * | Magic (2 B)    | Version (1 B) | Payload Length (2 B) | Payload Bytes    | Checksum (4 B)   |
  * +----------------+---------------+----------------------+------------------+------------------+
  */
 export interface FrameHeader {
@@ -47,7 +47,11 @@ export function packFrame(
   const salt = payload.subarray(0, saltSize);
   const encryptedBytes = payload.subarray(saltSize);
 
-  const headerSize = saltSize + 2 + 1 + 4; // Salt(16) + Magic(2) + Version(1) + Length(4)
+  if (encryptedBytes.length > 0xffff) {
+    throw new FramingError(`Payload too large for 16-bit framing: ${encryptedBytes.length} bytes (max 65535 bytes).`);
+  }
+
+  const headerSize = saltSize + 2 + 1 + 2; // Salt(16) + Magic(2) + Version(1) + Length(2)
   const checksumSize = config.enableChecksum ? 4 : 0;
   const frameLength = headerSize + encryptedBytes.length + checksumSize;
 
@@ -63,8 +67,8 @@ export function packFrame(
   // 3. Version
   frame[saltSize + 2] = config.version;
 
-  // 4. Payload Length (uint32 big-endian)
-  view.setUint32(saltSize + 3, encryptedBytes.length, false);
+  // 4. Payload Length (uint16 big-endian)
+  view.setUint16(saltSize + 3, encryptedBytes.length, false);
 
   // 5. Payload Bytes
   frame.set(encryptedBytes, headerSize);
@@ -83,7 +87,7 @@ export function unpackFrame(
   config: FramingConfig = DEFAULT_CONFIG.framing
 ): { header: FrameHeader; payload: Uint8Array } {
   const saltSize = 16;
-  const minHeaderSize = saltSize + 2 + 1 + 4;
+  const minHeaderSize = saltSize + 2 + 1 + 2;
   const checksumSize = config.enableChecksum ? 4 : 0;
   const minSize = minHeaderSize + checksumSize;
 
@@ -109,9 +113,9 @@ export function unpackFrame(
     throw new FramingError(`Unsupported frame version ${version} (expected version ${config.version}).`);
   }
 
-  // 4. Read Payload Length
+  // 4. Read Payload Length (uint16)
   const view = new DataView(frame.buffer, frame.byteOffset, frame.byteLength);
-  const payloadLength = view.getUint32(saltSize + 3, false);
+  const payloadLength = view.getUint16(saltSize + 3, false);
 
   const expectedTotalLength = minHeaderSize + payloadLength + checksumSize;
   if (frame.length < expectedTotalLength) {

@@ -85,25 +85,27 @@ function compressCommonWords(text: string, rawLength: number): Uint8Array | unde
   }
   if (!write(textEncoder.encode(text.slice(cursor)))) return undefined;
 
-  const packedLength = outputLength + 4;
+  if (outputLength > 0xffff) return undefined;
+
+  const packedLength = outputLength + 2;
   const paddedLength = Math.ceil(packedLength / WORD_PACKING_BLOCK_BYTES) * WORD_PACKING_BLOCK_BYTES;
   if (paddedLength >= rawLength) return undefined;
 
   const packed = new Uint8Array(paddedLength);
-  new DataView(packed.buffer).setUint32(0, outputLength, false);
-  packed.set(output.subarray(0, outputLength), 4);
+  new DataView(packed.buffer).setUint16(0, outputLength, false);
+  packed.set(output.subarray(0, outputLength), 2);
   return packed;
 }
 
 function decompressCommonWords(bytes: Uint8Array): Uint8Array {
-  if (bytes.length < 4) {
+  if (bytes.length < 2) {
     throw new CryptoError("Invalid dictionary-compressed payload.");
   }
-  const dataLength = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(0, false);
-  if (dataLength > bytes.length - 4 || dataLength > MAX_PAYLOAD_BYTES) {
+  const dataLength = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint16(0, false);
+  if (dataLength > bytes.length - 2 || dataLength > MAX_PAYLOAD_BYTES) {
     throw new CryptoError("Invalid dictionary-compressed payload.");
   }
-  const packedData = bytes.subarray(4, 4 + dataLength);
+  const packedData = bytes.subarray(2, 2 + dataLength);
   const output = new Uint8Array(MAX_PAYLOAD_BYTES);
   let outputLength = 0;
   const write = (value: Uint8Array): void => {
