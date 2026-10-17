@@ -128,9 +128,8 @@ interface PrefixCodeNode {
 }
 
 function buildOpeningCodes(candidates: string[], recentOpeners: string[]): Map<string, string> {
-  const excludedWord = recentOpeners.length === 2 &&
-    recentOpeners[0] === recentOpeners[1]
-    ? recentOpeners[0]
+  const excludedWord = recentOpeners.length >= 1
+    ? recentOpeners[recentOpeners.length - 1]
     : undefined;
   const eligible = candidates.filter(word => word.toLowerCase() !== excludedWord);
   const nodes = eligible.map((word, order) => ({
