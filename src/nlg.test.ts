@@ -16,6 +16,7 @@ import {
   analyzeCarrierText,
   calculateNGramScore,
   rankCandidates,
+  getCompatibleCandidates,
   getNounCategory,
   valToRank,
   rankToVal
@@ -60,6 +61,8 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(TEMPLATES[1][0]).toEqual({ type: "data", list: DETERMINERS, label: "d" });
     expect(TEMPLATES[1][1].list).toHaveLength(256);
     expect(TEMPLATES[1][2].list).toHaveLength(256);
+    expect(TEMPLATES[1][3].list).toHaveLength(256);
+    expect(TEMPLATES[1][4].list).toHaveLength(256);
     expect(TEMPLATES[4][2]).toEqual({ type: "filler", list: ["which"], label: "c" });
     expect(TEMPLATES[3][0]).toEqual({ type: "filler", list: ["after"], label: "p" });
     expect(TEMPLATES[3][3]).toEqual({ type: "data", list: DETERMINERS, label: "d" });
@@ -72,7 +75,7 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(TEMPLATES[9][12].list).toContain("remained");
     expect(TEMPLATES[9][12].list).toHaveLength(256);
     expect(TEMPLATES[2].map(slot => slot.label)).toEqual([
-      "c", "d", "N", "VP", "A", "N", "VP", "PCT"
+      "c", "d", "N", "VP", "N", "VP", "PCT"
     ]);
   });
 
@@ -81,6 +84,7 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(TEMPLATES[0][3].list).toContain("rose");
     expect(TEMPLATES[1][2].list).toContain("market");
     expect(TEMPLATES[1][3].list).toContain("rose");
+    expect(TEMPLATES[1][4].label).toBe("R");
     expect(TEMPLATES[4][1].list).toContain("government");
     expect(TEMPLATES[4][3].list).toContain("officials");
     expect(TEMPLATES[5][5]).toEqual({ type: "filler", list: ["in"], label: "p" });
@@ -107,7 +111,7 @@ describe("Natural Language Generation & Analysis Module", () => {
   it("should contain valid templates with 100% data slots carrying bits", () => {
     expect(TEMPLATES.length).toBeGreaterThan(0);
     expect(new Set(TEMPLATES.map(template => template.length)).size).toBe(TEMPLATES.length);
-    expect(TEMPLATES.map(template => template.length)).toEqual([6, 7, 8, 9, 10, 12, 14, 15, 17, 18]);
+    expect(TEMPLATES.map(template => template.length)).toEqual([6, 8, 7, 9, 10, 12, 14, 15, 17, 18]);
     for (const template of TEMPLATES) {
       expect(template.length).toBeGreaterThan(0);
       for (const slot of template) {
@@ -161,6 +165,45 @@ describe("Natural Language Generation & Analysis Module", () => {
     const rankedMarket = rankCandidates(marketCandidates, marketContext);
     expect(["rose", "fell", "grew"]).toContain(rankedMarket[0]);
     expect(rankedMarket[rankedMarket.length - 1]).toBe("warned");
+  });
+
+  it("should constrain verb, noun-number, and rate-adverb candidates consistently", () => {
+    const metricVerbs = getCompatibleCandidates(
+      ["warned","founded","rose","fell","increased","reduced","opened","collapsed"],
+      ["the","market"],
+      "VP"
+    );
+    expect(metricVerbs).toEqual(expect.arrayContaining(["rose","fell","increased","reduced"]));
+    expect(metricVerbs).not.toContain("founded");
+    expect(metricVerbs).not.toContain("warned");
+    expect(Number.isInteger(Math.log2(metricVerbs.length))).toBe(true);
+
+    const agentVerbs = getCompatibleCandidates(
+      ["bounded","announced","rose","approved","increased","rejected","reported","founded"],
+      ["the","company"],
+      "VP"
+    );
+    expect(agentVerbs).not.toContain("bounded");
+    expect(agentVerbs).not.toContain("increased");
+
+    const singularNouns = getCompatibleCandidates(
+      ["fees","markets","investment","price","people","report","policy","network"],
+      ["a","provincial"],
+      "N"
+    );
+    expect(singularNouns).not.toContain("fees");
+    expect(singularNouns).not.toContain("markets");
+    expect(singularNouns).toContain("investment");
+    expect(Number.isInteger(Math.log2(singularNouns.length))).toBe(true);
+
+    const effectAdverbs = getCompatibleCandidates(
+      ["never","sharply","steadily","significantly","probably","gradually","slightly","dramatically"],
+      ["the","market","rose"],
+      "R"
+    );
+    expect(effectAdverbs).not.toContain("never");
+    expect(effectAdverbs).not.toContain("probably");
+    expect(effectAdverbs.length).toBe(4);
   });
 
   it("should perform carrier text statistical analysis and perplexity estimation", () => {

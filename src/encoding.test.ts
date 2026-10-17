@@ -154,6 +154,11 @@ describe("Reversible Encoding and Decoding Module", () => {
     expect(sawUnique).toBe(true);
   });
 
+  it("should reject semantically incompatible metric verbs during encoding", () => {
+    expect(() => englishTextToBytes("The major market founded in Lyon."))
+      .toThrow(EncodingError);
+  });
+
   it("should use a varied introductory clause instead of a fixed attribution", () => {
     const introductoryEvents = new Set<string>();
     for (let seed = 0; seed < 64; seed++) {

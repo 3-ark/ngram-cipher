@@ -113,6 +113,157 @@ const SYSTEM_OPERATIONAL_VERBS = new Set([
   "connected","ran","processed","transmitted","generated","changed"
 ]);
 
+const METRIC_ACTION_VERBS = new Set([
+  "raised","lowered","increased","decreased","reduced","expanded","boosted","cut","gained",
+  "lost","adjusted","amplified","curbed","curtailed","slashed","trimmed","augmented","capped",
+  "doubled","elevated","enhanced","extended","halved","heightened","lifted","limited",
+  "maximized","minimized","moderated","modified","multiplied","narrowed","optimized","restrained",
+  "scaled","shortened","stabilized","stimulated","surpassed","tightened","tripled","widened",
+  "yielded","balanced","eased","slowed","stalled","bounced","leveled","fluctuated","shifted",
+  "plummeted","spiked","soared","slumped","tumbled","appreciated","broadened","collapsed",
+  "contracted","corrected","depreciated","diminished","dipped","drifted","flattened","floated",
+  "lessened","normalized","outpaced","rallied","receded","regressed","reset","resumed","reversed",
+  "revived","settled","softened","stagnated","steepened","subsided","swelled","tapered",
+  "accumulated","bounded","consolidated","dampened","faltered","lagged","lengthened","mounted",
+  "overtook","paced","pivoted","poised","prospered","quickened","regained","relapsed","renewed",
+  "retrenched","spurred","stiffened","swung","thrived","topped","trailed","trended","wavered"
+]);
+
+const POLICY_DOCUMENT_VERBS = new Set([
+  "adopted","approved","amended","enacted","implemented","introduced","issued","passed","proposed",
+  "ratified","rejected","revised","signed","upheld"
+]);
+
+const EFFECT_RATE_ADVERBS = new Set([
+  "sharply","steadily","rapidly","gradually","significantly","modestly","slightly","dramatically",
+  "quickly","slowly","noticeably","substantially","marginally","suddenly","steeply","precipitously",
+  "markedly","considerably","tremendously","immensely","drastically","severely","acutely","intensely",
+  "profoundly","deeply","greatly","hugely","massively","enormously","vastly","appreciably",
+  "perceptibly","visibly","moderately","progressively","continuously","extensively","alarmingly"
+]);
+
+const METRIC_ONLY_VERBS = new Set([
+  ...METRIC_ACTION_VERBS,
+  "fell","grew","rose","declined","shrank","dropped","surged","recovered","fluctuated","plunged",
+  "climbed","slipped","rebounded","soared","dwindled","weakened","strengthened","accelerated",
+  "moderated","peaked","bottomed","plateaued"
+]);
+
+const SINGULAR_DETERMINERS = new Set([
+  "a","an","another","each","every","its","one","this"
+]);
+
+const UNCOUNTABLE_NOUNS = new Set([
+  "access","advice","assistance","baggage","behavior","clothing","damage","education","evidence",
+  "equipment","finance","furniture","growth","hardware","homework","information","justice",
+  "knowledge","laughter","machinery","music","news","pollution","rainfall","research","software",
+  "traffic","transport","weather","work"
+]);
+
+const IRREGULAR_PLURAL_NOUNS = new Set([
+  "children","men","people","police","women"
+]);
+
+const SINGULAR_NOUNS_ENDING_IN_S = new Set([
+  "analysis","basis","business","campus","consensus","crisis","gas","glass","headquarters",
+  "means","news","series","species","status"
+]);
+
+function findContextSubject(context: string[]): string {
+  for (let index = context.length - 1; index >= 0; index--) {
+    const word = context[index].toLowerCase();
+    if (
+      AGENT_NOUN_SET.has(word) ||
+      DOCUMENT_NOUN_SET.has(word) ||
+      METRIC_NOUN_SET.has(word) ||
+      EVENT_NOUN_SET.has(word) ||
+      SYSTEM_OBJECT_NOUN_SET.has(word) ||
+      POETRY_NOUN_SET.has(word)
+    ) {
+      const previousWords = context.slice(Math.max(0, index - 4), index)
+        .map(previous => previous.toLowerCase());
+      if (previousWords.some(previous => PREPOSITION_SET.has(previous))) {
+        continue;
+      }
+      return word;
+    }
+  }
+  return "";
+}
+
+function isPluralNoun(noun: string): boolean {
+  const word = noun.toLowerCase();
+  if (IRREGULAR_PLURAL_NOUNS.has(word)) return true;
+  if (SINGULAR_NOUNS_ENDING_IN_S.has(word)) return false;
+  return /(?:s|ies|ves)$/.test(word) && !/(?:ss|us|is)$/.test(word);
+}
+
+function largestPowerOfTwoSubset(candidates: string[]): string[] {
+  const length = 2 ** Math.floor(Math.log2(candidates.length));
+  return candidates.slice(0, length);
+}
+
+/**
+ * Narrows data-slot vocabularies using local grammar while keeping their size
+ * a power of two so the encoder and decoder consume the same number of bits.
+ */
+export function getCompatibleCandidates(
+  candidates: string[],
+  context: string[],
+  slotLabel: string
+): string[] {
+  if (candidates.length < 2) return [...candidates];
+
+  let compatible: string[] | undefined;
+
+  if (slotLabel === "VP") {
+    const subject = findContextSubject(context);
+    if (subject) {
+      const category = getNounCategory(subject);
+      let allowedVerbs: Set<string> | undefined;
+      if (category === "METRIC") {
+        allowedVerbs = new Set([...METRIC_TREND_VERBS, ...METRIC_ACTION_VERBS]);
+      } else if (category === "EVENT") {
+        allowedVerbs = new Set([...EVENT_OCCURRENCE_VERBS, ...METRIC_TREND_VERBS]);
+      } else if (category === "DOCUMENT") {
+        allowedVerbs = new Set([
+          ...INFORMATIONAL_VERBS,
+          ...SPEECH_VERBS,
+          ...POLICY_DOCUMENT_VERBS
+        ]);
+      } else if (category === "SYSTEM_OBJECT") {
+        allowedVerbs = new Set([
+          ...SYSTEM_OPERATIONAL_VERBS,
+          ...METRIC_TREND_VERBS,
+          ...EVENT_OCCURRENCE_VERBS
+        ]);
+      } else if (category === "AGENT") {
+        compatible = candidates.filter(word => !METRIC_ONLY_VERBS.has(word.toLowerCase()));
+      }
+
+      if (allowedVerbs) {
+        compatible = candidates.filter(word => allowedVerbs.has(word.toLowerCase()));
+      }
+    }
+  } else if (slotLabel === "N") {
+    const recentDeterminer = context.slice(-3).reverse()
+      .find(word => SINGULAR_DETERMINERS.has(word.toLowerCase()));
+    if (recentDeterminer) {
+      compatible = candidates.filter(word =>
+        !isPluralNoun(word) && !UNCOUNTABLE_NOUNS.has(word.toLowerCase())
+      );
+    }
+  } else if (
+    slotLabel === "R" &&
+    METRIC_TREND_VERBS.has(context[context.length - 1]?.toLowerCase())
+  ) {
+    compatible = candidates.filter(word => EFFECT_RATE_ADVERBS.has(word.toLowerCase()));
+  }
+
+  if (!compatible || compatible.length < 2) return [...candidates];
+  return largestPowerOfTwoSubset(compatible);
+}
+
 const PREPOSITION_SET = new Set([
   "about", "above", "across", "after", "against", "along", "among", "around", "at",
   "before", "behind", "below", "beneath", "beside", "between", "beyond", "by",
@@ -441,33 +592,7 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
 
   // 5. Noun-Verb Semantic Affinity Scoring:
   // Identify preceding subject noun in context and score verb candidate compatibility
-  let subjectNoun = "";
-  for (let i = len - 1; i >= 0; i--) {
-    const word = context[i].toLowerCase();
-    if (
-      AGENT_NOUN_SET.has(word) ||
-      DOCUMENT_NOUN_SET.has(word) ||
-      METRIC_NOUN_SET.has(word) ||
-      EVENT_NOUN_SET.has(word) ||
-      SYSTEM_OBJECT_NOUN_SET.has(word) ||
-      POETRY_NOUN_SET.has(word)
-    ) {
-      const prev1 = i >= 1 ? context[i - 1].toLowerCase() : "";
-      const prev2 = i >= 2 ? context[i - 2].toLowerCase() : "";
-      const prev3 = i >= 3 ? context[i - 3].toLowerCase() : "";
-      const prev4 = i >= 4 ? context[i - 4].toLowerCase() : "";
-      if (
-        PREPOSITION_SET.has(prev1) ||
-        PREPOSITION_SET.has(prev2) ||
-        PREPOSITION_SET.has(prev3) ||
-        PREPOSITION_SET.has(prev4)
-      ) {
-        continue;
-      }
-      subjectNoun = word;
-      break;
-    }
-  }
+  const subjectNoun = findContextSubject(context);
 
   if (subjectNoun) {
     const isPoeticNoun = POETRY_NOUN_SET.has(subjectNoun);

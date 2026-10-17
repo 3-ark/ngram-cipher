@@ -9,6 +9,7 @@ import {
   TEMPLATES,
   POETRY_TEMPLATES,
   rankCandidates,
+  getCompatibleCandidates,
   valToRank,
   rankToVal,
   matchTemplate,
@@ -243,7 +244,10 @@ export function bytesToEnglishText(
 
     for (const slot of template) {
       const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
-      const ranked = rankCandidates(list, context);
+      const candidates = slot.type === "data" && !isPoetry
+        ? getCompatibleCandidates(list, context, slot.label)
+        : list;
+      const ranked = rankCandidates(candidates, context);
 
       if (slot.type === "filler") {
         const chosenWord = ranked[0];
@@ -270,9 +274,9 @@ export function bytesToEnglishText(
         }
         chosenWord = decodedWord;
       } else if (!isPoetry && slot.label === "d" && list.length < DETERMINERS.length) {
-        const bitCount = Math.floor(Math.log2(list.length));
+        const bitCount = Math.floor(Math.log2(ranked.length));
         const val = reader.hasBits ? reader.readBits(bitCount) : 0;
-        const rank = valToRank(val, bitCount, list.length);
+        const rank = valToRank(val, bitCount, ranked.length);
         chosenWord = ranked[rank % ranked.length];
       } else if (!isPoetry && slot.label === "d") {
         let code = "";
@@ -289,9 +293,9 @@ export function bytesToEnglishText(
         }
         chosenWord = decodedWord;
       } else {
-        const bitCount = Math.floor(Math.log2(list.length)) || 8;
+        const bitCount = Math.floor(Math.log2(ranked.length)) || 8;
         const val = reader.hasBits ? reader.readBits(bitCount) : 0;
-        const rank = valToRank(val, bitCount, list.length);
+        const rank = valToRank(val, bitCount, ranked.length);
         chosenWord = ranked[rank % ranked.length];
       }
 
@@ -516,7 +520,10 @@ export function englishTextToBytes(
       }
 
       const list = slot.list && slot.list.length > 0 ? slot.list : CARRIER_WORDS;
-      const ranked = rankCandidates(list, context);
+      const candidates = slot.type === "data" && !isPoetry
+        ? getCompatibleCandidates(list, context, slot.label)
+        : list;
+      const ranked = rankCandidates(candidates, context);
       const openingCodes = !isPoetry && tokenIdx === 0 && slot.type === "data"
         ? buildOpeningCodes(ranked, recentOpeners)
         : undefined;
@@ -543,8 +550,8 @@ export function englishTextToBytes(
             rawWriter.writeBits(Number(bit), 1);
           }
         } else if (!isPoetry && slot.label === "d" && list.length < DETERMINERS.length) {
-          const bitCount = Math.floor(Math.log2(list.length));
-          const val = rankToVal(rank, bitCount, list.length);
+          const bitCount = Math.floor(Math.log2(ranked.length));
+          const val = rankToVal(rank, bitCount, ranked.length);
           rawWriter.writeBits(val, bitCount);
         } else if (!isPoetry && slot.label === "d") {
           const code = DETERMINER_CODES[cleanWord];
@@ -555,8 +562,8 @@ export function englishTextToBytes(
             rawWriter.writeBits(Number(bit), 1);
           }
         } else {
-          const bitCount = Math.floor(Math.log2(list.length)) || 8;
-          const val = rankToVal(rank, bitCount, list.length);
+          const bitCount = Math.floor(Math.log2(ranked.length)) || 8;
+          const val = rankToVal(rank, bitCount, ranked.length);
           rawWriter.writeBits(val, bitCount);
         }
       }
