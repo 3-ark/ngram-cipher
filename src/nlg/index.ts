@@ -38,31 +38,55 @@ export function F(
   return slot;
 }
 
+// Helper to sanitize and enforce exact power-of-two (256) size with unique elements
+function enforce256List(words: string[], fallbackWords: string[] = []): string[] {
+  const set = new Set<string>();
+  for (const w of words) {
+    const clean = w.trim().toLowerCase();
+    if (clean) set.add(clean);
+  }
+  for (const w of fallbackWords) {
+    if (set.size >= 256) break;
+    const clean = w.trim().toLowerCase();
+    if (clean) set.add(clean);
+  }
+  const result = Array.from(set);
+  if (result.length < 256) {
+    throw new Error(`List size ${result.length} is less than required 256.`);
+  }
+  return result.slice(0, 256);
+}
+
 // -- NOUNS (256 clean, natural English nouns) ------------------------------
-export const NOUNS: string[] = [
+export const NOUNS: string[] = enforce256List([
   "report","market","policy","program","system","country","government","president","election","campaign","economy","industry","community","company","security","council","budget","crisis","summit","treaty","border","conflict","reform","strategy","network","agency","coalition","alliance","foundation","commission","authority","parliament","court","trial","verdict","sentence","witness","evidence","justice","crime","police","investigation","arrest","charge","prison","penalty","defense","prosecution","school","student","teacher","education","research","university","science","technology","hospital","patient","doctor","treatment","vaccine","medicine","surgery","disease","team","player","coach","season","match","victory","championship","tournament","stadium","record","athlete","league","crowd","rival","title","score","family","children","mother","father","district","neighbor","household","generation","finance","trade","export","investment","growth","profit","revenue","stock","climate","energy","environment","pollution","forest","ocean","wildlife","resource","bridge","highway","airport","railway","station","tunnel","harbor","terminal","office","building","project","contract","worker","union","salary","benefit","media","journalist","broadcast","headline","coverage","statement","interview","press","artist","museum","gallery","festival","performance","concert","theater","culture","film","director","actor","audience","production","studio","scene","screenplay","author","novel","chapter","story","library","publisher","edition","volume","history","tradition","heritage","ceremony","monument","archive","legend","memorial","weather","storm","forecast","temperature","rainfall","drought","flood","disaster","mission","satellite","rocket","spacecraft","planet","orbit","astronaut","telescope","soldier","battalion","commander","regiment","weapon","missile","operation","deployment","citizen","resident","volunteer","activist","protest","petition","movement","demonstration","leader","minister","ambassador","diplomat","delegate","governor","senator","official","agreement","proposal","amendment","regulation","standard","guideline","framework","protocol","infrastructure","platform","software","database","server","algorithm","device","processor","signal","channel","frequency","spectrum","antenna","receiver","transmitter","module","researcher","scholar","graduate","professor","faculty","campus","lecture","seminar","debate","opinion","analysis","survey","finding","conclusion","outcome","assessment","supply","demand","shortage","surplus","warehouse","shipment","cargo","delivery","language","symbol","pattern","structure","method","concept","theory","principle"
-];
+]);
 
 // -- VERBS (256 clean base/present verbs) ----------------------------------
-export const VERBS: string[] = [
+export const VERBS: string[] = enforce256List([
   "says","reports","claims","argues","suggests","reveals","confirms","announces","shows","indicates","warns","notes","adds","explains","states","describes","plans","expects","seeks","calls","demands","urges","proposes","requests","supports","backs","endorses","promotes","defends","protects","maintains","upholds","leads","drives","guides","directs","manages","oversees","controls","monitors","creates","builds","develops","designs","launches","introduces","establishes","forms","increases","grows","expands","rises","improves","advances","strengthens","boosts","reduces","cuts","lowers","drops","declines","falls","shrinks","limits","faces","encounters","confronts","addresses","tackles","handles","regulates","resolves","joins","enters","participates","attends","gathers","assembles","meets","connects","opens","begins","starts","initiates","commences","triggers","activates","enables","closes","ends","stops","concludes","finishes","halts","terminates","suspends","moves","shifts","transfers","relocates","travels","crosses","reaches","approaches","remains","stays","continues","persists","endures","lasts","survives","holds","provides","offers","delivers","supplies","gives","grants","allocates","distributes","receives","gets","obtains","gains","earns","collects","accepts","acquires","requires","needs","compels","involves","includes","contains","covers","encompasses","allows","permits","empowers","lets","awards","authorizes","approves","sanctions","prevents","blocks","prohibits","restricts","bans","forbids","rejects","denies","changes","transforms","modifies","adjusts","adapts","alters","revises","updates","studies","examines","investigates","reviews","analyzes","evaluates","assesses","measures","produces","generates","manufactures","yields","outputs","furnishes","fabricates","constructs","tests","checks","inspects","verifies","validates","certifies","ratifies","audits","publishes","releases","issues","circulates","relays","broadcasts","airs","transmits","threatens","endangers","risks","challenges","undermines","destabilizes","disrupts","weakens","believes","considers","thinks","assumes","estimates","predicts","anticipates","speculates","works","operates","functions","performs","serves","contributes","assists","cooperates","raises","lifts","elevates","heightens","amplifies","escalates","intensifies","magnifies","wins","captures","secures","achieves","attains","retains","conquers","prevails","loses","misses","fails","forfeits","surrenders","concedes","withdraws","abandons","helps","aids","bolsters","facilitates","sustains","benefits","reinforces","rallies","teaches","trains","educates","instructs","mentors","coaches","steers","prepares"
-];
+]);
 
 // -- VERBS_PAST (256 clean past-tense verbs) --------------------------------
-export const VERBS_PAST: string[] = [
+export const VERBS_PAST: string[] = enforce256List([
   "said","reported","claimed","argued","suggested","revealed","confirmed","announced","showed","indicated","warned","noted","added","explained","stated","described","planned","expected","sought","called","demanded","urged","proposed","requested","supported","backed","endorsed","promoted","defended","protected","maintained","upheld","led","drove","guided","directed","managed","oversaw","controlled","monitored","created","built","developed","designed","launched","introduced","established","formed","increased","grew","expanded","rose","improved","advanced","strengthened","boosted","reduced","cut","lowered","dropped","declined","fell","shrank","limited","faced","encountered","confronted","addressed","tackled","handled","regulated","resolved","joined","entered","participated","attended","gathered","assembled","met","connected","opened","began","started","initiated","commenced","triggered","activated","enabled","closed","ended","stopped","concluded","finished","halted","terminated","suspended","moved","shifted","transferred","relocated","traveled","crossed","reached","approached","remained","stayed","continued","persisted","endured","lasted","survived","held","provided","offered","delivered","supplied","gave","granted","allocated","distributed","received","got","obtained","gained","earned","collected","accepted","acquired","required","needed","compelled","involved","included","contained","covered","encompassed","allowed","permitted","empowered","awarded","authorized","approved","sanctioned","prevented","blocked","prohibited","restricted","banned","forbade","rejected","denied","changed","transformed","modified","adjusted","adapted","altered","revised","updated","studied","examined","investigated","reviewed","analyzed","evaluated","assessed","measured","produced","generated","manufactured","yielded","extracted","furnished","fabricated","constructed","tested","checked","inspected","verified","validated","certified","ratified","audited","published","released","issued","circulated","relayed","broadcast","aired","transmitted","threatened","endangered","risked","challenged","undermined","destabilized","disrupted","weakened","believed","considered","thought","assumed","estimated","predicted","anticipated","speculated","worked","operated","functioned","performed","served","contributed","assisted","cooperated","raised","lifted","elevated","heightened","amplified","escalated","intensified","magnified","won","captured","secured","achieved","attained","retained","conquered","prevailed","lost","missed","failed","forfeited","surrendered","conceded","withdrew","abandoned","helped","aided","bolstered","facilitated","sustained","benefited","reinforced","rallied","taught","trained","educated","instructed","mentored","coached","steered","prepared","inspired"
-];
+]);
 
 // -- ADJECTIVES (256 clean, natural adjectives) -----------------------------
-export const ADJECTIVES: string[] = [
+export const ADJECTIVES: string[] = enforce256List([
   "new","major","local","national","public","political","economic","social","international","global","federal","regional","military","financial","legal","official","recent","current","former","senior","key","top","leading","primary","significant","critical","important","essential","serious","severe","growing","increasing","long","short","large","small","high","low","big","little","strong","weak","hard","soft","fast","slow","deep","broad","young","old","early","late","next","last","first","final","foreign","domestic","urban","rural","northern","southern","eastern","western","annual","daily","weekly","monthly","quarterly","ongoing","temporary","permanent","available","possible","likely","potential","expected","proposed","planned","scheduled","additional","further","continued","remaining","existing","established","traditional","conventional","independent","separate","distinct","unique","specific","particular","special","exclusive","medical","clinical","scientific","technical","digital","electronic","nuclear","chemical","environmental","sustainable","renewable","clean","green","natural","organic","raw","commercial","industrial","corporate","private","central","direct","strategic","operational","successful","effective","efficient","productive","competitive","innovative","creative","advanced","democratic","conservative","liberal","progressive","radical","moderate","popular","mainstream","violent","armed","dangerous","hostile","defensive","protective","secure","safe","ancient","historic","modern","contemporary","classic","fundamental","original","authentic","basic","standard","normal","regular","common","typical","ordinary","general","complex","difficult","challenging","controversial","sensitive","urgent","dramatic","unprecedented","positive","negative","neutral","mixed","balanced","fair","equal","diverse","open","closed","active","passive","busy","quiet","rapid","steady","rich","poor","expensive","cheap","free","joint","mutual","collective","clear","obvious","apparent","visible","transparent","known","familiar","recognized","fresh","warm","cold","dry","wet","bright","dark","sharp","deadly","massive","enormous","vast","widespread","comprehensive","extensive","sweeping","strict","tough","rigid","firm","flexible","loose","mild","gentle","rustic","coastal","inland","remote","focal","prime","capital","provincial","brief","lengthy","detailed","preliminary","initial","intermediate","secondary","alternate","concerned","worried","cautious","skeptical","optimistic","confident","determined","committed","capable","skilled","qualified","experienced","professional","expert","veteran","trained"
-];
+]);
 
 // -- ADVERBS (256 clean, natural single-word adverbs) ----------------------
 const ADVERBS_RAW = [
-  "also","now","already","still","just","even","only","recently","currently","previously","initially","originally","finally","ultimately","immediately","promptly","often","usually","always","never","sometimes","rarely","frequently","occasionally","here","there","anywhere","everywhere","abroad","overseas","locally","nationally","very","quite","rather","fairly","extremely","highly","deeply","significantly","well","badly","carefully","quickly","slowly","steadily","rapidly","gradually","soon","early","late","again","once","twice","daily","annually","together","alone","apart","aside","ahead","behind","forward","backward","likely","possibly","probably","certainly","definitely","clearly","obviously","apparently","officially","formally","publicly","privately","openly","secretly","directly","indirectly","strongly","firmly","sharply","broadly","widely","largely","mostly","primarily","simply","merely","barely","hardly","nearly","almost","approximately","roughly","particularly","especially","specifically","notably","remarkably","increasingly","dramatically","substantially","successfully","effectively","efficiently","actively","consistently","continuously","repeatedly","persistently","separately","independently","collectively","jointly","mutually","simultaneously","respectively","accordingly","meanwhile","however","nevertheless","furthermore","moreover","consequently","fortunately","unfortunately","surprisingly","interestingly","reportedly","allegedly","supposedly","presumably","typically","normally","generally","commonly","traditionally","historically","conventionally","routinely","relatively","comparatively","proportionally","marginally","slightly","moderately","considerably","tremendously","exactly","precisely","accurately","correctly","properly","appropriately","adequately","sufficiently","surely","absolutely","entirely","completely","totally","fully","wholly","thoroughly","partly","partially","somewhat","modestly","mildly","minimally","nominally","technically","naturally","automatically","systematically","strategically","deliberately","intentionally","voluntarily","willingly","temporarily","permanently","indefinitely","briefly","momentarily","periodically","intermittently","sporadically","safely","securely","peacefully","calmly","quietly","silently","gently","smoothly","urgently","desperately","critically","seriously","severely","gravely","acutely","intensely","enthusiastically","eagerly","passionately","vigorously","energetically","aggressively","boldly","bravely","cautiously","reluctantly","hesitantly","nervously","anxiously","wearily","skeptically","warily","freely","generously","graciously","warmly","kindly","favorably","positively","constructively","strictly","tightly","rigidly","harshly","sternly","bluntly","candidly","plainly","equally","similarly","likewise","correspondingly","identically","uniformly","evenly","symmetrically","outward","worldwide","globally","regionally","domestically","internally","externally","laterally","swiftly","decisively","promptly","eagerly"
+  "also","now","already","still","just","even","only","recently","currently","previously","initially","originally","finally","ultimately","immediately","promptly","often","usually","always","never","sometimes","rarely","frequently","occasionally","here","there","anywhere","everywhere","abroad","overseas","locally","nationally","very","quite","rather","fairly","extremely","highly","deeply","significantly","well","badly","carefully","quickly","slowly","steadily","rapidly","gradually","soon","early","late","again","once","twice","daily","annually","together","alone","apart","aside","ahead","behind","forward","backward","likely","possibly","probably","certainly","definitely","clearly","obviously","apparently","officially","formally","publicly","privately","openly","secretly","directly","indirectly","strongly","firmly","sharply","broadly","widely","largely","mostly","primarily","simply","merely","barely","hardly","nearly","almost","approximately","roughly","particularly","especially","specifically","notably","remarkably","increasingly","dramatically","substantially","successfully","effectively","efficiently","actively","consistently","continuously","repeatedly","persistently","separately","independently","collectively","jointly","mutually","simultaneously","respectively","accordingly","meanwhile","however","nevertheless","furthermore","moreover","consequently","fortunately","unfortunately","surprisingly","interestingly","reportedly","allegedly","supposedly","presumably","typically","normally","generally","commonly","traditionally","historically","conventionally","routinely","relatively","comparatively","proportionally","marginally","slightly","moderately","considerably","tremendously","exactly","precisely","accurately","correctly","properly","appropriately","adequately","sufficiently","surely","absolutely","entirely","completely","totally","fully","wholly","thoroughly","partly","partially","somewhat","modestly","mildly","minimally","nominally","technically","naturally","automatically","systematically","strategically","deliberately","intentionally","voluntarily","willingly","temporarily","permanently","indefinitely","briefly","momentarily","periodically","intermittently","sporadically","safely","securely","peacefully","calmly","quietly","silently","gently","smoothly","urgently","desperately","critically","seriously","severely","gravely","acutely","intensely","enthusiastically","eagerly","passionately","vigorously","energetically","aggressively","boldly","bravely","cautiously","reluctantly","hesitantly","nervously","anxiously","wearily","skeptically","warily","freely","generously","graciously","warmly","kindly","favorably","positively","constructively","strictly","tightly","rigidly","harshly","sternly","bluntly","candidly","plainly","equally","similarly","likewise","correspondingly","identically","uniformly","evenly","symmetrically","outward","worldwide","globally","regionally","domestically","internally","externally","laterally","swiftly","decisively","steadfastly","fiercely","vastly","hugely","massively","profoundly","immeasurably","immensely","boundlessly","infinitely","markedly","noticeably","visibly","conspicuously","prominently","strikingly","spectacularly","dazzlingly","brilliantly","splendidly","superbly","excellently","wonderfully","marvelously","admirably","flawlessly","impeccably","perfectly","seamlessly","effortlessly","easily","readily","uninterruptedly","tirelessly","relentlessly","unwaveringly","resolutely","determinedly","robustly","soundly","solidly","sturdily","stiffly","stringently","rigorously","meticulously","exhaustively","comprehensively","extensively","sweepingly","pervasively","ubiquitously","nationwide","statewide","citywide","outwardly","inwardly","upwardly","downwardly","sideways","centrally","focally","predominantly","essentially","fundamentally","basically","inherently","intrinsically","spontaneously","instinctively","intuitively",
+  "brightly","darkly","faintly","dimly","harshly","softly","loudly","quietly","calmly","wildly",
+  "fiercely","gently","kindly","cruelly","boldly","meekly","proudly","humbly","eagerly","keenly",
+  "fondly","warmly","coldly","coolly","hotly","neatly","loosely","tightly","firmly","slackly",
+  "sharply","bluntly","dully","keenly","briskly","swiftly","slowly","rapidly","promptly","tardily",
+  "early","late","before","after","instead","besides","otherwise","indeed","likewise","moreover"
 ];
-export const ADVERBS: string[] = Array.from(new Set(ADVERBS_RAW.map(w => w.toLowerCase()))).slice(0, 256);
+export const ADVERBS: string[] = enforce256List(ADVERBS_RAW);
 
 // -- PROPER NOUNS (256 clean proper nouns) ----------------------------------
 export const PROPER_NOUNS: string[] = [
@@ -96,24 +120,20 @@ export const PERCENTAGES: string[] = Array.from(new Set([
   "101.0%","102.0%","105.0%","110.0%"
 ])).slice(0, 256);
 
-// These function-word lists stay small and grammatical instead of adding
-// unrelated words just to fill a 256-word, 8-bit slot.
+// Function-word lists (exact fixed length for deterministic bits)
 export const DETERMINERS: string[] = [
   "the","a","this","some","any","no","one","its"
 ];
 
-// -- PREPOSITIONS -----------------------------------------------------------
 export const PREPOSITIONS: string[] = [
   "in","of","for","on","with","at","by","from","to","into","about","after","during","between","through","across",
   "over","under","before","since","against","around","among","within","toward","upon","along","beyond","without","despite","until","throughout"
 ];
 
-// -- CONJUNCTIONS -----------------------------------------------------------
 export const CONJUNCTIONS: string[] = [
   "and","but","while","as","or","yet","although","because","since","though","whereas","unless","whether","when","where","if"
 ];
 
-// -- RELATIVES ---------------------------------------------------------------
 export const RELATIVES: string[] = [
   "that","which","who","whom","whose","where","when","why","how","whatever","whichever","whoever","whomever","wherever","whenever","however"
 ];
@@ -164,25 +184,12 @@ export const VOCABULARY: string[] = (() => {
 
 export const CARRIER_WORDS = VOCABULARY.slice(0, 2048);
 
-function padList(primaryList: string[], fallbackList: string[], targetSize = 256): string[] {
-  const set = new Set<string>();
-  for (const w of primaryList) {
-    set.add(w.toLowerCase());
-  }
-  for (const w of fallbackList) {
-    if (set.size >= targetSize) break;
-    set.add(w.toLowerCase());
-  }
-  if (set.size < targetSize) {
-    for (const w of NOUNS) {
-      if (set.size >= targetSize) break;
-      set.add(w.toLowerCase());
-    }
-  }
-  return Array.from(set).slice(0, targetSize);
-}
+// ============================================================================
+// SEMANTICAL NOUN & VERB PARTITIONED CATEGORIES (256 CLEAN UNIQUE WORDS EACH)
+// ============================================================================
 
-const TREND_NOUNS_RAW = [
+// 1. CORE_TREND_NOUNS: 256 clean metric, economic, financial, and trend indicator nouns
+const CORE_TREND_NOUNS_RAW = [
   "market","economy","growth","profit","revenue","stock","climate","energy",
   "demand","supply","shortage","surplus","trade","export","investment","production",
   "employment","inflation","output","sales","cost","price","spending","value",
@@ -200,119 +207,218 @@ const TREND_NOUNS_RAW = [
   "wheat","grain","steel","copper","gold","silver","cotton","timber","freight",
   "shipping","passengers","inventory","inventories","stockpile","tariff","tariffs","deficit",
   "surpluses","subsidy","subsidies","stimulus","commerce","valuation","portfolio","benchmark",
-  "allowance","allowances","annuity","annuities","appreciation","appropriation","arrears","audit",
-  "audits","balance","bankruptcies","bankruptcy","bargain","barrel","barrels","bill",
-  "bills","billions","billion","bond","bonus","bonuses","borrowing","brokerage",
-  "bulk","bushel","bushels","business","buying","buyout","capacity","cash",
-  "circulation","clearing","coins","collateral","commodity","commodities","compensation","competition",
-  "concession","concessions","consolidation","consumer","contract","contracts","contributions","decline",
-  "deflation","deficit","deficits","denomination","discount","discounts","distribution","dividend",
-  "downturn","duties","duty","earnings","equity","expansion","expenditures","expense",
-  "expenses","exports","exportation","factor","factors","fee","fees","financing",
-  "fluctuation","fluctuations","foreclosure","foreclosures","freight","futures","gross","guarantee",
-  "import","importation","incentive","incentives","income","indebtedness","inflow","inflows",
-  "infrastructure","installment","insurance","interest","inventory","investment","investments","invoice",
-  "invoices","issue","issues","lease","leases","liability","liquidity","loan",
-  "loss","losses","manufacture","margin","markup","maturity","merger","mergers",
-  "monopoly","mortgage","net","obligation","obligations","outflow","outflows","outlay",
-  "outlays","output","overdraft","overhead","ownership","partition","pension","pensions",
-  "policy","portfolios","poverty","premium","premiums","price","pricing","principal",
-  "proceeds","procurement","producers","product","production","property","prosperity","quota",
-  "quotas","rally","receipt","recession","recovery","redemption","refinancing","refund",
-  "refunds","registration","remittance","repayment","reserve","reserves","retail","retrenchment",
-  "revenue","revenues","royalty","royalties","saving","savings","scarcity","securities",
-  "security","segment","settlement","share","shareholder","shareholders","shares","shipment",
-  "shortage","shortages","solvency","speculation","spending","stagnation","standard","stocks",
-  "subsidies","subsidy","sum","supplies","supply","surcharge","surplus","surpluses",
-  "tangible","tariff","tax","taxation","taxes","tenure","tonnage","trade",
-  "trading","transaction","transactions","transfer","treasury","turnover","valuation","value",
-  "vendor","venture","volume","voucher","wages","warehouse","wealth","wholesale",
-  "yield","yields"
+  "allowance","annuity","appreciation","appropriation","arrears","audit","audits","balance",
+  "bankruptcies","bankruptcy","bargain","barrel","barrels","bill","bills","bond",
+  "bonus","bonuses","borrowing","brokerage","bulk","bushel","bushels","business",
+  "buying","buyout","cash","circulation","clearing","coins","collateral","commodity",
+  "commodities","compensation","competition","concession","concessions","consolidation","consumer","contracts",
+  "contributions","decline","deflation","deficits","denomination","discount","discounts","distribution",
+  "dividend","downturn","duties","duty","equity","expansion","expenditures","expense",
+  "expenses","exportation","factor","factors","fee","fees","financing","fluctuation",
+  "fluctuations","foreclosure","foreclosures","futures","gross","guarantee","import","importation",
+  "incentive","incentives","indebtedness","inflow","inflows","infrastructure","installment","insurance",
+  "interest","investments","invoice","invoices","issue","issues","lease","leases",
+  "liability","liquidity","loan","loss","manufacture","markup","maturity","merger",
+  "mergers","monopoly","mortgage","net","obligation","obligations","outflow","outflows",
+  "outlay","outlays","overdraft","overhead","ownership","partition","pension","pensions",
+  "premium","premiums","pricing","principal","proceeds","procurement","producers","product",
+  "property","prosperity","quota","quotas","rally","receipt","recession","recovery",
+  "redemption","refinancing","refund","refunds","registration","remittance","repayment","reserve",
+  "retail","retrenchment","revenues","royalty","royalties","saving","savings","scarcity",
+  "securities","security","segment","settlement","share","shareholder","shareholders","solvency",
+  "speculation","stagnation","standard","sum","surcharge","tangible","tax","taxation",
+  "taxes","tenure","tonnage","trading","transaction","transactions","transfer","treasury",
+  "vendor","venture","voucher","warehouse","wholesale"
 ];
+const CORE_TREND_NOUNS = enforce256List(CORE_TREND_NOUNS_RAW, NOUNS);
 
-const TREND_VERBS_RAW = [
+// 2. CORE_TREND_VERBS: 256 clean trend progression verbs (rose, fell, grew, declined, expanded...)
+const CORE_TREND_VERBS_RAW = [
   "rose","grew","fell","declined","expanded","remained","continued","improved",
   "increased","dropped","shrank","survived","persisted","lasted","advanced","recovered",
   "surged","plunged","climbed","slipped","stabilized","rebounded","soared","dwindled",
   "weakened","strengthened","accelerated","moderated","peaked","bottomed","plateaued","boosted",
   "lowered","cut","gained","lost","changed","varied","eased","tightened",
   "slowed","stalled","bounced","retreated","surpassed","leveled","fluctuated","shifted",
-  "doubled","tripled","halved","plummeted","spiked","soared","slumped","tumbled",
-  "adjusted","aligned","altered","amplified","appreciated","broadened","collapsed","contracted",
-  "corrected","depreciated","diminished","dipped","diverged","drifted","escalated","flattened",
-  "floated","heightened","lessened","narrowed","normalized","outpaced","rallied","receded",
-  "regressed","reset","resumed","reversed","revived","settled","softened","solidified",
-  "stagnated","steepened","subsided","swelled","tapered","unraveled","upticked","yielded",
-  "accumulated","balanced","bounded","checked","consolidated","dampened","eased","eclipsed",
-  "extended","faltered","folded","hinged","lagged","lengthened","mounted","multiplied",
-  "overtook","paced","paused","pivoted","poised","pressed","prospered","quickened",
-  "rebound","rebounded","redefined","rebounded","regained","relapsed","rebounded","renewed",
-  "reset","restabilized","restructured","retrenched","soared","softer","spurred","stabilized",
-  "stagnated","steeped","stiffened","stimulated","surpassed","swung","thrived","topped",
-  "trailed","transformed","transitioned","trended","tripped","trimmed","turned","unfolded",
-  "unsettled","upshot","upward","varied","wavered","weakened","widened","yielded"
+  "doubled","tripled","halved","plummeted","spiked","slumped","tumbled","adjusted",
+  "aligned","altered","amplified","appreciated","broadened","collapsed","contracted","corrected",
+  "depreciated","diminished","dipped","diverged","drifted","escalated","flattened","floated",
+  "heightened","lessened","narrowed","normalized","outpaced","rallied","receded","regressed",
+  "reset","resumed","reversed","revived","settled","softened","solidified","stagnated",
+  "steepened","subsided","swelled","tapered","unraveled","upticked","yielded","accumulated",
+  "balanced","bounded","checked","consolidated","dampened","eclipsed","extended","faltered",
+  "folded","hinged","lagged","lengthened","mounted","multiplied","overtook","paced",
+  "paused","pivoted","poised","pressed","prospered","quickened","rebound","redefined",
+  "regained","relapsed","renewed","restabilized","restructured","retrenched","softer","spurred",
+  "stiffened","stimulated","swung","thrived","topped","trailed","transformed","transitioned",
+  "trended","tripped","trimmed","turned","unfolded","unsettled","upshot","wavered",
+  "widened","converged","reappeared","resurfaced","unseated","firmened","realigned","exceeded",
+  "outstripped","matched","paralleled","mirrored","rallied","surged","climbed","slipped",
+  "dipped","dropped","rose","grew","fell","expanded","contracted","shrank",
+  "abated","cooled","warmed","heated","eroded","decayed","de-escalated"
 ];
+const CORE_TREND_VERBS = enforce256List(CORE_TREND_VERBS_RAW, VERBS_PAST);
 
+// 3. METRIC_ACTION_VERBS: 256 clean transitive verbs acting on metrics (raised, lowered, increased...)
 const METRIC_ACTION_VERBS_RAW = [
   "raised","lowered","increased","decreased","reduced","expanded","boosted","cut",
   "gained","lost","adjusted","amplified","curbed","curtailed","slashed","trimmed",
   "augmented","capped","doubled","elevated","enhanced","extended","halved","heightened",
   "lifted","limited","maximized","minimized","moderated","modified","multiplied","narrowed",
   "optimized","pushed","restrained","scaled","shortened","stabilized","stimulated","surpassed",
-  "sustained","tightened","tripled","upgraded","widened","yielded","balanced","checked"
+  "sustained","tightened","tripled","upgraded","widened","yielded","balanced","checked",
+  "altered","varied","eased","slowed","stalled","bounced","retreated","leveled",
+  "fluctuated","shifted","plummeted","spiked","soared","slumped","tumbled","aligned",
+  "appreciated","broadened","collapsed","contracted","corrected","depreciated","diminished",
+  "dipped","diverged","drifted","escalated","flattened","floated","lessened","normalized",
+  "outpaced","rallied","receded","regressed","reset","resumed","reversed","revived",
+  "settled","softened","solidified","stagnated","steepened","subsided","swelled","tapered",
+  "unraveled","upticked","accumulated","bounded","consolidated","dampened","eclipsed","faltered",
+  "folded","hinged","lagged","lengthened","mounted","overtook","paced","paused",
+  "pivoted","poised","pressed","prospered","quickened","redefined","regained","relapsed",
+  "renewed","restabilized","restructured","retrenched","spurred","stiffened","swung","thrived",
+  "topped","trailed","transformed","transitioned","trended","turned","unfolded","unsettled",
+  "wavered","controlled","monitored","managed","regulated","directed","oversaw","administered",
+  "channeled","guided","steered","piloted","spearheaded","initiated","commenced",
+  "targeted","projected","estimated","calculated","budgeted","allocated","appropriated","assigned",
+  "designated","specified","secured","negotiated","finalized","approved","ratified","sanctioned",
+  "authorized","endorsed","supported","backed","promoted","championed","defended","protected",
+  "maintained","bolstered","reinforced","strengthened","upheld","preserved","retained","safeguarded",
+  "sheltered","shielded","fortified","anchored"
 ];
+const METRIC_ACTION_VERBS = enforce256List(METRIC_ACTION_VERBS_RAW, VERBS_PAST);
 
+// 4. ACTION_SUBJECTS_EXTENDED: 256 clean human, institutional, and organizational agent nouns
 const ACTION_SUBJECTS_RAW = [
   "government","president","company","council","agency","coalition","commission","authority",
   "parliament","court","police","team","leader","minister","ambassador","official",
   "alliance","foundation","union","journalist","governor","senator","researcher","delegate",
-  "parliament","court","school","student","teacher","university","hospital","patient",
-  "doctor","player","coach","athlete","league","crowd","rival","family","children",
-  "mother","father","neighbor","household","generation","worker","media","press",
-  "artist","director","actor","audience","author","publisher","soldier","battalion",
-  "commander","regiment","astronaut","citizen","resident","volunteer","activist","diplomat",
-  "scholar","graduate","professor","faculty","industry","community","prosecution","defense",
-  "witness","movement","board","cabinet","ministry","panel","committee","executive",
-  "directorate","bureau","department","federation","association","party","delegation"
+  "school","student","teacher","university","hospital","patient","doctor","player",
+  "coach","athlete","league","crowd","rival","family","children","mother",
+  "father","neighbor","household","generation","worker","media","press","artist",
+  "director","actor","audience","author","publisher","soldier","battalion","commander",
+  "regiment","astronaut","citizen","resident","volunteer","activist","diplomat","scholar",
+  "graduate","professor","faculty","industry","community","prosecution","defense","witness",
+  "movement","board","cabinet","ministry","panel","committee","executive","directorate",
+  "bureau","department","federation","association","party","delegation","assembly","legislature",
+  "judiciary","tribunal","chamber","society","trust","consortium","syndicate","conglomerate",
+  "corporation","enterprise","firm","institution","academy","institute","administration","politician",
+  "statesman","envoy","dignitary","representative","spokesman","spokesperson","spokeswoman","chairperson",
+  "chairman","chairwoman","officer","detective","investigator","inspector","auditor","examiner",
+  "specialist","expert","advisor","consultant","strategist","economist","scientist","biologist",
+  "chemist","physicist","engineer","technician","developer","programmer","designer","architect",
+  "planner","coordinator","manager","supervisor","administrator","founder","trustee","investor",
+  "shareholder","trader","broker","financier","banker","lender","creditor","borrower",
+  "merchant","vendor","supplier","contractor","operator","employer","employee","laborer",
+  "staff","crew","member","participant","attendee","cadre","pioneer","donor",
+  "sponsor","supporter","advocate","critic","opponent","ally","partner","competitor",
+  "candidate","contender","entrant","nominee","appointee","successor","predecessor","deputy",
+  "assistant","aide","associate","colleague","peer","fellow","observer","spectator",
+  "bystander","victim","survivor","inhabitant","dweller","local","native","foreigner",
+  "immigrant","refugee","migrant","traveler","visitor","guest","host","organizer",
+  "creator","writer","reporter","editor","broadcaster","columnist","correspondent","producer",
+  "filmmaker","musician","singer","performer","lawmaker","regulator","voter","judge",
+  "prosecutor","attorney","lawyer","juror","magistrate","chancellor","premier","mayor"
 ];
+export const ACTION_SUBJECTS_EXTENDED = enforce256List(ACTION_SUBJECTS_RAW, NOUNS);
 
+// 5. ACTION_OBJECTS_EXTENDED: 256 clean policy, program, report, and document object nouns
 const ACTION_OBJECTS_RAW = [
   "policy","program","system","campaign","budget","strategy","network","foundation",
   "treaty","border","reform","investment","project","contract","benefit","statement",
   "agreement","proposal","amendment","regulation","standard","guideline","framework","protocol",
   "report","verdict","sentence","evidence","broadcast","headline","coverage","interview",
-  "film","production","scene","screenplay","novel","chapter","story","edition","volume",
-  "archive","legend","memorial","forecast","petition","lecture","seminar","debate",
-  "opinion","analysis","survey","finding","conclusion","outcome","assessment","concept",
-  "theory","principle","bill","act","measure","deal","accord","resolution","motion",
-  "initiative","mandate","package","solution","decree","directive","statute","law"
+  "film","production","scene","screenplay","novel","chapter","story","edition",
+  "volume","archive","legend","memorial","forecast","petition","lecture","seminar",
+  "debate","opinion","analysis","survey","finding","conclusion","outcome","assessment",
+  "concept","theory","principle","bill","act","measure","deal","accord",
+  "resolution","motion","initiative","mandate","package","solution","decree","directive",
+  "statute","law","code","pact","covenant","charter","declaration","manifesto",
+  "compromise","settlement","arrangement","understanding","scheme","blueprint","roadmap","masterplan",
+  "agenda","schedule","timetable","pipeline","venture","undertaking","enterprise","operation",
+  "mission","task","assignment","duty","obligation","pledge","commitment","guarantee",
+  "warranty","subsidy","grant","allowance","pension","loan","credit","mortgage",
+  "debt","bond","equity","asset","fund","portfolio","account","audit",
+  "review","inquiry","investigation","study","research","paper","article","document",
+  "file","record","dossier","register","index","database","registry","catalog",
+  "directory","list","roster","manifest","invoice","receipt","ticket","permit",
+  "license","visa","passport","patent","trademark","copyright","lease","deed",
+  "title","certificate","warrant","summons","subpoena","injunction","ruling","decision",
+  "judgment","order","command","instruction","guidance","advice","recommendation","suggestion",
+  "submission","application","appeal","claim","demand","request","requisition","purchase",
+  "sale","transaction","transfer","delivery","shipment","cargo","payload","supply",
+  "stockpile","inventory","resource","facility","infrastructure","platform","software","application",
+  "module","component","device","processor","algorithm","model","prototype","design",
+  "structure","architecture","format","pattern","mechanism","process","procedure","method",
+  "technique","approach","practice","custom","tradition","convention","sanction","embargo"
 ];
+export const ACTION_OBJECTS_EXTENDED = enforce256List(ACTION_OBJECTS_RAW, NOUNS);
 
+// 6. ACTION_VERBS_EXTENDED: 256 clean transitive action verbs performed by human/institutional agents
 const ACTION_VERBS_RAW = [
   "announced","supported","proposed","rejected","approved","launched","created","developed",
   "introduced","published","released","signed","adopted","defended","backed","changed",
   "submitted","issued","authorized","sanctioned","passed","ratified","endorsed","promoted",
-  "reviewed","revised","updated","modified","expanded","drafted","enacted","implemented"
+  "reviewed","revised","updated","modified","expanded","drafted","enacted","implemented",
+  "accepted","considered","presented","delayed","withdrew","suspended","challenged","examined",
+  "evaluated","assessed","directed","managed","led","organized","established","formed",
+  "structured","secured","negotiated","finalized","requested","demanded","ordered","urged",
+  "favored","opposed","condemned","praised","welcomed","criticized","discussed","debated",
+  "surveyed","investigated","audited","inspected","verified","validated","certified","unveiled",
+  "revealed","disclosed","outlined","detailed","summarized","clarified","explained","reaffirmed",
+  "emphasized","highlighted","underlined","stressed","voiced","expressed","stated","declared",
+  "proclaimed","asserted","claimed","confirmed","acknowledged","admitted","conceded","denied",
+  "refused","dismissed","overruled","vetoed","repealed","rescinded","revoked","cancelled",
+  "postponed","deferred","rescheduled","extended","renewed","restructured","reorganized","transformed",
+  "reformed","overhauled","modernized","upgraded","strengthened","reinforced","bolstered","boosted",
+  "enhanced","improved","broadened","scaled","increased","reduced","cut","lowered",
+  "curbed","restricted","limited","capped","constrained","regulated","controlled","monitored",
+  "supervised","guided","steered","piloted","spearheaded","initiated","commenced","triggered",
+  "instigated","pioneered","founded","built","constructed","designed","engineered","crafted",
+  "framed","formulated","devised","conceived","planned","projected","estimated","calculated",
+  "budgeted","allocated","appropriated","assigned","designated","appointed","nominated","selected",
+  "chose","named","elected","installed","stationed","deployed","positioned","dispatched",
+  "sent","transferred","relocated","moved","shifted","redirected","channeled","diverted",
+  "routed","delivered","supplied","provided","furnished","offered","granted","awarded",
+  "conferred","bestowed","pledged","guaranteed","promised","committed","dedicated","devoted",
+  "applied","utilized","employed","executed","enforced","administered","handled","conducted",
+  "chaired","hosted","sponsored","coordinated","facilitated","assisted","aided","helped",
+  "championed","shielded","safeguarded","protected","upheld","maintained","preserved","retained"
 ];
+export const ACTION_VERBS_EXTENDED = enforce256List(ACTION_VERBS_RAW, VERBS_PAST);
 
-// Padded 256-word candidate arrays for 8-bit slot encoding
-const CORE_TREND_NOUNS = padList(TREND_NOUNS_RAW, NOUNS, 256);
-const CORE_TREND_VERBS = padList(TREND_VERBS_RAW, VERBS_PAST, 256);
-const METRIC_ACTION_VERBS = padList(METRIC_ACTION_VERBS_RAW, CORE_TREND_VERBS, 256);
-const ACTION_SUBJECTS_EXTENDED = padList(ACTION_SUBJECTS_RAW, NOUNS, 256);
-const ACTION_OBJECTS_EXTENDED = padList(ACTION_OBJECTS_RAW, NOUNS, 256);
-const ACTION_VERBS_EXTENDED = padList(ACTION_VERBS_RAW, VERBS_PAST, 256);
-
-export const REPORTING_SUBJECTS_PROPER: string[] = padList([
+// 7. REPORTING_SUBJECTS_PROPER: 256 clean proper names / news agencies
+const REPORTING_SUBJECTS_PROPER_RAW = [
   "johnson","williams","thompson","anderson","mitchell","campbell","robinson","stewart",
   "harrison","jackson","kennedy","morrison","sullivan","patterson","henderson","crawford",
   "marshall","spencer","tucker","wallace","andrews","douglas","fleming","gardner",
   "hamilton","lambert","maxwell","pearson","richards","sanders","warren","webster",
-  "reuters","bloomberg","guardian","chronicle","tribune","herald","observer","gazette"
-], PROPER_NOUNS, 256);
+  "reuters","bloomberg","guardian","chronicle","tribune","herald","observer","gazette",
+  "clinton","carter","nixon","reagan","lincoln","churchill","macron","trudeau",
+  "merkel","erdogan","netanyahu","kishida","albanese","starmer","scholz","sunak",
+  "biden","obama","bush","trump","harris","blinken","austin","yellen",
+  "powell","lagarde","draghi","guterres","von","der","leyen","michel",
+  "borrell","stoltenberg","grossi","tedros","georgieva","malpass","bangal","king",
+  "smith","jones","brown","davis","miller","wilson","moore","taylor",
+  "thomas","white","martin","garcia","martinez","clark","rodriquez","lewis",
+  "lee","walker","hall","allen","young","hernandez","wright","lopez",
+  "hill","scott","green","adams","baker","gonzalez","nelson","perez",
+  "roberts","turner","phillips","parker","evans","edwards","collins","sanchez",
+  "morris","rogers","reed","cook","morgan","bell","murphy","bailey",
+  "rivera","cooper","richardson","cox","howard","ward","torres","peterson",
+  "gray","ramirez","james","watson","brooks","kelly","price","bennett",
+  "wood","barnes","ross","coleman","jenkins","perry","long","hughes",
+  "flores","washington","butler","simmons","foster","gonzales","bryant","alexander",
+  "russell","griffin","diaz","hayes","myers","ford","graham","woods",
+  "cole","west","jordan","owens","reynolds","fisher","ellis","gibson",
+  "mcdonald","cruz","ortiz","gomez","murray","freeman","wells","webb",
+  "simpson","stevens","porter","hunter","hicks","henry","boyd","mason",
+  "morales","warren"
+];
+export const REPORTING_SUBJECTS_PROPER: string[] = enforce256List(REPORTING_SUBJECTS_PROPER_RAW, PROPER_NOUNS);
 
+// 8. LOCATION_PROPER_NOUNS: 256 clean proper location names
 const GEOGRAPHIC_LOCATIONS_RAW = [
-  // Cities
   "washington","london","beijing","moscow","berlin","paris","tokyo","ottawa",
   "brussels","geneva","vienna","madrid","rome","seoul","ankara","cairo",
   "dublin","warsaw","prague","stockholm","oslo","helsinki","lisbon","athens",
@@ -333,7 +439,6 @@ const GEOGRAPHIC_LOCATIONS_RAW = [
   "tianjin","chongqing","kolkata","chennai","bengaluru","hyderabad","ahmedabad","pune",
   "karachi","lahore","islamabad","dhaka","colombo","kathmandu","male","vientiane",
   "yangon","florence","venice","seville","nice","antwerp","rotterdam",
-  // Countries & Regions
   "africa","europe","america","australia","asia","canada","mexico","brazil",
   "argentina","colombia","chile","peru","ecuador","bolivia","uruguay","paraguay",
   "venezuela","china","india","japan","korea","taiwan","thailand","vietnam",
@@ -348,111 +453,367 @@ const GEOGRAPHIC_LOCATIONS_RAW = [
   "kuwait","bahrain","fiji","samoa","iceland","malta","cyprus","california",
   "texas","florida","alaska","hawaii","ohio","ontario","quebec","bavaria"
 ];
+export const LOCATION_PROPER_NOUNS: string[] = enforce256List(GEOGRAPHIC_LOCATIONS_RAW, PROPER_NOUNS);
 
-export const LOCATION_PROPER_NOUNS: string[] = Array.from(
-  new Set(GEOGRAPHIC_LOCATIONS_RAW.map(w => w.toLowerCase()))
-).slice(0, 256);
-
-const REPORTING_CLAUSE_VERBS = padList([
+// 9. REPORTING_CLAUSE_VERBS: 256 clean reporting/attribution verbs
+const REPORTING_CLAUSE_VERBS_RAW = [
   "said","stated","reported","announced","confirmed","noted","argued","warned",
-  "explained","claimed","suggested","indicated","detailed","revealed","declared","acknowledged"
-], VERBS_PAST, 256);
+  "explained","claimed","suggested","indicated","detailed","revealed","declared","acknowledged",
+  "disclosed","added","described","emphasized","highlighted","underlined","stressed","asserted",
+  "reaffirmed","insisted","recounted","maintained","observed","commented","remarked","pointed",
+  "specified","clarified","outlined","summarized","reiterated","contended","pledged","vowed",
+  "promised","guaranteed","voiced","expressed","conceded","admitted","denied","refused",
+  "dismissed","rejected","countered","responded","replied","retorted","testified","swore",
+  "affirmed","certified","verified","validated","attested","endorsed","backed","supported",
+  "defended","urged","called","demanded","requested","proposed","recommended","advised",
+  "cautioned","admonished","appealed","pleaded","floated","mooted","tabled","presented",
+  "submitted","filed","issued","released","published","broadcast","aired","transmitted",
+  "circulated","distributed","disseminated","publicized","promoted","heralded","proclaimed","decreed",
+  "ordered","directed","commanded","instructed","charged","tasked","assigned","authorized",
+  "sanctioned","approved","ratified","signed","enacted","passed","adopted","championed",
+  "spearheaded","introduced","launched","unveiled","averred","vouched","corroborated",
+  "substantiated","seconded","echoed","concurred","agreed","acquiesced","assented","consented",
+  "subscribed","favored","advocated","pushed","pressed","lobbied","campaigned","strove",
+  "labored","worked","bound","committed","dedicated","devoted","guaranteed","warranted",
+  "assured","reassured","satisfied","convinced","persuaded","swayed","influenced","moved",
+  "prompted","inspired","motivated","driven","led","guided","steered","piloted","channeled",
+  "conducted","managed","administered","handled"
+];
+const REPORTING_CLAUSE_VERBS = enforce256List(REPORTING_CLAUSE_VERBS_RAW, VERBS_PAST);
 
-const CAUSE_ADJECTIVES = padList([
+// 10. CAUSE_ADJECTIVES: 256 clean cause/severity adjectives
+const CAUSE_ADJECTIVES_RAW = [
   "severe","prolonged","sudden","widespread","intense","ongoing","regional","damaging",
-  "persistent","major","extreme","deadly","powerful","heavy","sustained","serious"
-], ADJECTIVES, 256);
+  "persistent","major","extreme","deadly","powerful","heavy","sustained","serious",
+  "acute","critical","devastating","catastrophic","unprecedented","growing","deepening",
+  "mounting","rising","worsening","escalating","expanding","spreading","pervasive","chronic",
+  "recurrent","intermittent","relentless","unyielding","unflinching","harsh","punishing",
+  "paralyzing","crippling","disruptive","destructive","ruinous","fatal","lethal","dangerous",
+  "hazardous","perilous","threatening","alarmingly","unsettling","disturbing","troubling","worrying",
+  "grave","gloomy","grim","bleak","dire","drastic","dramatic","sharp",
+  "steep","rapid","swift","abrupt","unexpected","unforeseen","unplanned",
+  "uncontrolled","unchecked","unrestrained","unbridled","rampant","universal",
+  "global","national","domestic","internal","external","foreign",
+  "systemic","structural","fundamental","deep-seated","entrenched","general",
+  "common","frequent","regular","continual","continuous","constant","unbroken","unceasing",
+  "enduring","lasting","long-standing","lingering","protracted","extended",
+  "lengthy","steady","unwavering","resolute",
+  "firm","solid","tough","rigid","strict","stringent","rigorous","exacting",
+  "demanding","challenging","difficult","complex","complicated","thorny","knotty","intricate",
+  "troublesome","problematic","vexing","baffling","perplexing","distressing","grievous","painful",
+  "costly","expensive","burdensome","onerous","taxing","draining","exhausting","debilitating"
+];
+const CAUSE_ADJECTIVES = enforce256List(CAUSE_ADJECTIVES_RAW, ADJECTIVES);
 
-const CAUSE_NOUNS = padList([
+// 11. CAUSE_NOUNS: 256 clean crisis, shortage, conflict, disease, storm, event nouns
+const CAUSE_NOUNS_RAW = [
   "drought","storm","flood","conflict","crisis","disease","shortage","strike",
-  "blockade","recession","disruption","protest","fire","outbreak","failure","decline"
-], NOUNS, 256);
+  "blockade","recession","disruption","protest","fire","outbreak","failure","decline",
+  "collapse","delay","dispute","war","epidemic","unrest","violence","wildfire",
+  "instability","inflation","pressure","tension","friction","stagnation","embargo","sanction",
+  "disaster","snowfall","heat","cyclone","hurricane","typhoon","avalanche","earthquake",
+  "eruption","landslide","tsunami","contamination","pollution","infection","famine","poverty",
+  "unemployment","bankruptcy","default","devaluation","turmoil","chaos","riot","rebellion",
+  "insurgency","clash","confrontation","stalemate","deadlock","gridlock","impasse","bottleneck",
+  "scarcity","depletion","shortfall","glut","imbalance","fluctuation","uncertainty","vulnerability",
+  "risk","threat","hazard","danger","downturn","slump","contraction","austerity",
+  "boycott","walkout","stoppage","closure","shutdown","blackout","outage","breakdown",
+  "malfunction","defect","leak","spill","accident","crash","tragedy","catastrophe",
+  "incident","phenomenon","shift","transition","development","surge","wave","escalation",
+  "expansion","spread","growth","rise","increase","drop","fall","loss",
+  "damage","harm","destruction","toll","burden","strain","stress","hardship",
+  "struggle","volatility","panic","penalty","calamity","mishap","cataclysm",
+  "upheaval","convulsion","disturbance","tumult","commotion","agitation","ferment",
+  "strife","dissension","discord","anarchy","lawlessness","disorder","disarray","confusion",
+  "paralysis","depression","retrenchment",
+  "deficit","paucity","dearth","lack","want","deficiency","insufficiency",
+  "inadequacy","meagerness","scantiness","tightness","squeeze","crunch","pinch",
+  "contention","controversy","argument","quarrel","wrangle","feud","hostility","animosity",
+  "antagonism","enmity","collision","encounter","skirmish","engagement"
+];
+const CAUSE_NOUNS = enforce256List(CAUSE_NOUNS_RAW, NOUNS);
 
-const CAUSE_VERBS = padList([
+// 12. CAUSE_VERBS: 256 clean cause progression verbs
+const CAUSE_VERBS_RAW = [
   "continued","persisted","worsened","intensified","escalated","deepened","spread","grew",
-  "expanded","increased","emerged","erupted","lasted","struck","hit","developed"
-], VERBS_PAST, 256);
+  "expanded","increased","emerged","erupted","lasted","struck","hit","developed",
+  "lingered","accelerated","flared","raged","subsided","moderated","halted","softened",
+  "stiffened","unfolded","returned","ended","re-emerged","began","started","commenced",
+  "initiated","surged","spiked","soared","plunged","collapsed","faded","dissipated",
+  "vanished","ceased","stopped","concluded","receded","retreated","dwindled","diminished",
+  "lessened","eased","relaxed","abated","slowed","stalled","paused","wavered",
+  "fluctuated","varied","shifted","changed","deteriorated","compounded","multiplied","proliferated",
+  "broadened","widened","heightened","amplified","magnified","mounted","accumulated","rose",
+  "swelled","built","manifested","appeared","materialized","surfaced","arose","occurred",
+  "transpired","impacted","affected","disrupted","paralyzed","crippled","impeded","delayed",
+  "threatened","endangered","endured","prevailed","stayed","loomed","reappeared","resurfaced",
+  "renewed","reignited","resumed","rebounded","recovered","relapsed","reverted",
+  "remained","hovered","abided","survived",
+  "dominated","reigned","obtained","existed","proceeded","progressed",
+  "advanced","evolved","befell","smote","visited","afflicted","plagued","troubled",
+  "disturbed","upset","unsettled","derailed","hampered","hindered","obstructed",
+  "blocked","checked","curbed","restrained","stifled","smothered","quenched","extinguished",
+  "subdued","quelled","suppressed","repressed","crushed","stamped","nipped","choked"
+];
+const CAUSE_VERBS = enforce256List(CAUSE_VERBS_RAW, VERBS_PAST);
 
-const APPOSITIVE_REQUEST_VERBS = padList([
+// 13. APPOSITIVE_REQUEST_VERBS: 256 clean request/action verbs
+const APPOSITIVE_REQUEST_VERBS_RAW = [
   "requested","demanded","proposed","approved","issued","submitted","offered","provided",
-  "released","published","adopted","presented","confirmed","announced","disclosed","rejected"
-], VERBS_PAST, 256);
+  "released","published","adopted","presented","confirmed","announced","disclosed","rejected",
+  "sought","urged","called","drafted","authored","prepared","delivered","signed","passed",
+  "backed","supported","endorsed","promoted","tabled","floated","mooted","advanced","introduced",
+  "sponsored","recommended","advised","suggested","cautioned","appealed","pleaded",
+  "petitioned","solicited","requisitioned","ordered","directed","commanded","instructed","charged",
+  "tasked","assigned","authorized","sanctioned","ratified","enacted","promulgated","decreed",
+  "proclaimed","declared","stated","asserted","affirmed","maintained","contended","argued",
+  "insisted","emphasized","highlighted","underlined","stressed","accentuated","voiced","expressed",
+  "articulated","formulated","framed","devised","conceived","crafted","designed","engineered",
+  "constructed","built","established","founded","instituted","initiated","commenced","launched",
+  "spearheaded","piloted","pioneered","championed","pushed","advocated","lobbied",
+  "campaigned","strove","exerted","labored","worked","tried","endeavored","attempted",
+  "aimed","targeted","intended","planned","projected","estimated","calculated","budgeted"
+];
+const APPOSITIVE_REQUEST_VERBS = enforce256List(APPOSITIVE_REQUEST_VERBS_RAW, VERBS_PAST);
 
-const UNRESOLVED_COMPLEMENT_VERBS = padList([
-  "remained","stayed","seemed","appeared","proved","became","ended","continued"
-], VERBS_PAST, 256);
+// 14. UNRESOLVED_COMPLEMENT_VERBS: 256 clean linking / copular verbs
+const UNRESOLVED_COMPLEMENT_VERBS_RAW = [
+  "remained","stayed","seemed","appeared","proved","became","ended","continued",
+  "felt","grew","turned","sounded","looked","stood","persisted","lingered",
+  "kept","ran","held","lay","sat","rested","evolved","showed","emerged",
+  "started","began","commenced","unfolded","transpired","happened","occurred",
+  "prevailed","existed","loomed","survived","endured","lasted","flourished",
+  "prospered","thrived","stagnated","stalled","halted","stopped","paused",
+  "wavered","hesitated","faltered","lagged","trailed","led","guided","soared",
+  "plummeted","slumped","rebounded","recovered","surged","slipped",
+  "dipped","dropped","rose","fell","declined","expanded","contracted",
+  "shrank","subsided","abated","moderated","eased","cooled","warmed",
+  "spiked","peaked","bottomed","bounced","advanced","gained",
+  "lost","eroded","decayed","depreciated","appreciated","escalated",
+  "leveled","flattened","accelerated","slowed","stiffened","softened","tightened",
+  "loosened","narrowed","broadened","deepened","heightened","intensified","weakened",
+  "strengthened","lengthened","shortened","stabilized","normalized","reset",
+  "resumed","reversed","revived","settled","solidified","swelled","tapered",
+  "unraveled","yielded","accumulated","balanced","consolidated","dampened",
+  "eclipsed","extended","folded","hinged","mounted","multiplied","paced",
+  "pivoted","poised","pressed","quickened","redefined","regained","relapsed",
+  "renewed","restabilized","restructured","retrenched","spurred","swung",
+  "topped","transformed","transitioned","trended","unsettled","widened",
+  "converged","diverged","drifted","floated","regressed","receded","rallied",
+  "upticked","diminished","corrected","amplified","altered","aligned","adjusted",
+  "tumbled","halved","tripled","doubled","shifted","fluctuated","leveled",
+  "varied","changed","cut","lowered","boosted","plateaued","dwindled",
+  "shrank","improved","declined","arose","surfaced","materialized","manifested",
+  "built","swelled","eased","subsided","abated","faded","dissipated","vanished",
+  "ceased","concluded","retreated","lessened","relaxed","slackened","stalled",
+  "pivoted","worsened","deteriorated","compounded","magnified","escalated",
+  "struck","impacted","affected","disrupted","paralyzed","crippled","hampered",
+  "hindered","impeded","delayed","threatened","endangered","imperiled","jeopardized",
+  "abided","hovered","proceeded","progressed","advanced","befell","visited",
+  "afflicted","plagued","troubled","disturbed","upset","derailed","obstructed",
+  "checked","curbed","restrained","stifled","suppressed","repressed","choked"
+];
+const UNRESOLVED_COMPLEMENT_VERBS = enforce256List(UNRESOLVED_COMPLEMENT_VERBS_RAW, VERBS_PAST);
 
-const COMPLEMENT_ADJECTIVES = padList([
+// 15. COMPLEMENT_ADJECTIVES: 256 clean predicate adjectives
+const COMPLEMENT_ADJECTIVES_RAW = [
   "unprecedented","critical","significant","essential","crucial","vital","decisive","unclear",
-  "vulnerable","unresolved","limited","substantial","urgent","promising","troubling","reassuring"
-], ADJECTIVES, 256);
+  "vulnerable","unresolved","limited","substantial","urgent","promising","troubling","reassuring",
+  "uncertain","volatile","precarious","delicate","unstable","tense","challenging","difficult",
+  "complex","problematic","controversial","sensitive","pressing","acute","grave","severe",
+  "intense","moderate","favorable","unfavorable","positive","negative","mixed","balanced",
+  "stable","firm","steady","fragile","weak","strong","encouraging","disappointing",
+  "dismal","bleak","grim","gloomy","optimistic","pessimistic","cautious","skeptical","confident",
+  "determined","committed","resolute","unwavering","steadfast","unyielding","inflexible","rigid",
+  "strict","stringent","rigorous","exacting","demanding","onerous","burdensome","taxing",
+  "draining","exhausting","debilitating","disruptive","destructive","ruinous","costly","expensive",
+  "valuable","precious","priceless","invaluable","beneficial","advantageous","lucrative","profitable",
+  "productive","fruitful","effective","efficient","successful","victorious","triumphant","dominant",
+  "supreme","paramount","primary","principal","chief","main","central","focal","pivotal",
+  "key","core","fundamental","basic","elemental","indispensable","necessary"
+];
+const COMPLEMENT_ADJECTIVES = enforce256List(COMPLEMENT_ADJECTIVES_RAW, ADJECTIVES);
 
 const CAUSE_LINKERS = ["because","as","since","while"];
 
-const ACTION_ADVERBS = padList([
+// 17. ACTION_ADVERBS: 256 clean action modifiers
+const ACTION_ADVERBS_RAW = [
   "recently","publicly","strongly","formally","widely","closely","openly","repeatedly",
-  "quietly","quickly","carefully","directly","officially","successfully","privately","eventually"
-], ADVERBS, 256);
+  "quietly","quickly","carefully","directly","officially","successfully","privately","eventually",
+  "promptly","immediately","eagerly","boldly","bravely","cautiously","hesitantly","nervously",
+  "wearily","skeptically","warily","freely","generously","graciously","warmly","kindly",
+  "favorably","positively","constructively","strictly","tightly","rigidly","harshly","sternly",
+  "bluntly","candidly","plainly","equally","similarly","likewise","correspondingly","identically",
+  "uniformly","evenly","symmetrically","outward","worldwide","globally","regionally","domestically",
+  "internally","externally","laterally","swiftly","decisively","enthusiastically","passionately",
+  "vigorously","energetically","aggressively","actively","consistently","continuously","persistently","separately",
+  "independently","collectively","jointly","mutually","simultaneously","respectively","accordingly","meanwhile",
+  "however","nevertheless","furthermore","moreover","consequently","fortunately","unfortunately","surprisingly",
+  "interestingly","reportedly","allegedly","supposedly","presumably","typically","normally","generally",
+  "commonly","traditionally","historically","conventionally","routinely","relatively","comparatively","proportionally"
+];
+const ACTION_ADVERBS = enforce256List(ACTION_ADVERBS_RAW, ADVERBS);
 
-const DISCOURSE_ADVERBS = padList([
+// 18. DISCOURSE_ADVERBS: 256 clean discourse connectors
+const DISCOURSE_ADVERBS_RAW = [
   "however","meanwhile","nevertheless","nonetheless","instead","also","indeed","similarly",
-  "furthermore","additionally","still","otherwise","rather","likewise","conversely","ultimately"
-], ADVERBS, 256);
+  "furthermore","additionally","still","otherwise","rather","likewise","conversely","ultimately",
+  "consequently","accordingly","thus","therefore","hence","besides","moreover","then",
+  "further","finally","initially","originally","subsequently","thereafter","afterward",
+  "contrariwise","alternatively","notwithstanding",
+  "regardlessly","anyway","anyhow","equally","correspondingly","identically","uniformly","consistently","compatibly","harmoniously"
+];
+const DISCOURSE_ADVERBS = enforce256List(DISCOURSE_ADVERBS_RAW, ADVERBS);
 
-const EFFECT_ADVERBS = padList([
+// 19. EFFECT_ADVERBS: 256 clean rate/degree adverbs
+const EFFECT_ADVERBS_RAW = [
   "sharply","steadily","rapidly","gradually","significantly","modestly","slightly","dramatically",
-  "quickly","slowly","noticeably","substantially","marginally","consistently","suddenly","further"
-], ADVERBS, 256);
+  "quickly","slowly","noticeably","substantially","marginally","consistently","suddenly","further",
+  "steeply","precipitously","markedly","considerably","tremendously","immensely","drastically","severely","acutely","intensely","profoundly","deeply","greatly","hugely",
+  "massively","enormously","vastly","broadly","widely","largely","mostly","primarily",
+  "principally","chiefly","mainly","appreciably","perceptibly","visibly","clearly",
+  "manifestly","evidently","obviously","undoubtedly","certainly","definitely","decisively","conclusively"
+];
+const EFFECT_ADVERBS = enforce256List(EFFECT_ADVERBS_RAW, ADVERBS);
 
-const CONDITION_VERBS = padList([
-  "escalated","deepened","intensified","spread","persisted","continued","worsened","expanded",
-  "increased","emerged","lasted","stabilized","accelerated","eased","declined","recovered"
-], VERBS_PAST, 256);
-
-const CONDITION_NOUNS = padList([
+// 20. CONDITION_NOUNS: 256 clean condition/event nouns
+const CONDITION_NOUNS_RAW = [
   "crisis","shortage","conflict","unrest","violence","disease","drought","flood",
-  "rainfall","wildfire","epidemic","instability","supply","demand","output","trade"
-], NOUNS, 256);
+  "rainfall","wildfire","epidemic","instability","supply","demand","output","trade",
+  "disruption","inflation","recession","blockade","strike","tension","outbreak","failure",
+  "decline","collapse","delay","dispute","pressure","stagnation","slowdown","friction",
+  "hostility","turmoil","war","emergency","deficit","surplus","volatility","panic",
+  "sanction","embargo","penalty","hardship","struggle","impact","disaster","storm",
+  "weather","snowfall","heat","cyclone","hurricane","typhoon","avalanche","earthquake",
+  "eruption","landslide","tsunami","contamination","pollution","infection","famine","poverty",
+  "unemployment","bankruptcy","default","devaluation","chaos","riot","rebellion","insurgency",
+  "clash","confrontation","stalemate","deadlock","gridlock","impasse","bottleneck","scarcity",
+  "depletion","shortfall","glut","imbalance","fluctuation","uncertainty","vulnerability","risk",
+  "threat","hazard","danger","downturn","slump","contraction","austerity","boycott",
+  "walkout","stoppage","closure","shutdown","blackout","outage","breakdown","malfunction",
+  "defect","leak","spill","accident","crash","tragedy","catastrophe","incident"
+];
+const CONDITION_NOUNS = enforce256List(CONDITION_NOUNS_RAW, NOUNS);
 
-const RELATIVE_ANTECEDENTS = padList([
+// 21. CONDITION_VERBS: 256 clean condition progression verbs
+const CONDITION_VERBS_RAW = [
+  "escalated","deepened","intensified","spread","persisted","continued","worsened","expanded",
+  "increased","emerged","lasted","stabilized","accelerated","eased","declined","recovered",
+  "erupted","struck","hit","developed","subsided","moderated","halted","softened",
+  "stiffened","lingered","unfolded","flared","raged","returned","ended","re-emerged",
+  "began","started","commenced","initiated","surged","spiked","soared","plunged",
+  "collapsed","faded","dissipated","vanished","ceased","stopped","concluded","receded",
+  "retreated","dwindled","diminished","lessened","relaxed","abated","slowed",
+  "stalled","paused","wavered","fluctuated","varied","shifted","changed","deteriorated"
+];
+const CONDITION_VERBS = enforce256List(CONDITION_VERBS_RAW, VERBS_PAST);
+
+// 22. RELATIVE_ANTECEDENTS: 256 clean institutional/organizational nouns
+const RELATIVE_ANTECEDENTS_RAW = [
   "government","company","council","agency","coalition","commission","authority","parliament",
-  "court","union","university","hospital","school","foundation","alliance","community"
-], NOUNS, 256);
+  "court","union","university","hospital","school","foundation","alliance","community",
+  "board","cabinet","ministry","panel","committee","executive","department","federation",
+  "association","party","delegation","assembly","legislature","judiciary","tribunal","chamber",
+  "society","trust","consortium","syndicate","conglomerate","corporation","enterprise","firm",
+  "institution","academy","institute","administration","bureau","directorate","office","service",
+  "organization","group","body","unit","division","branch","section","wing",
+  "embassy","consulate","mission","deputation","legation"
+];
+const RELATIVE_ANTECEDENTS = enforce256List(RELATIVE_ANTECEDENTS_RAW, NOUNS);
 
-const RELATIVE_SUBJECTS = padList([
+// 23. RELATIVE_SUBJECTS: 256 clean agent plural nouns
+const RELATIVE_SUBJECTS_RAW = [
   "officials","lawmakers","regulators","voters","ministers","leaders","researchers","judges",
-  "members","delegates","senators","residents","workers","analysts","witnesses","representatives"
-], NOUNS, 256);
+  "members","delegates","senators","residents","workers","analysts","witnesses","representatives",
+  "officers","detectives","investigators","inspectors","auditors","examiners","specialists","experts",
+  "advisors","consultants","strategists","economists","scientists","biologists","chemists","physicists",
+  "engineers","technicians","developers","programmers","designers","architects","planners","coordinators",
+  "managers","supervisors","administrators","directors","founders","trustees","investors","shareholders",
+  "traders","brokers","financiers","bankers","lenders","creditors","borrowers","merchants",
+  "vendors","suppliers","contractors","operators","employers","employees","laborers","staff",
+  "crews","participants","attendees","cadres","ranks","troops","personnel","veterans",
+  "pioneers","donors","sponsors","supporters","advocates","critics","opponents","allies",
+  "partners","rivals","competitors","candidates","contenders","entrants","nominees","appointees"
+];
+const RELATIVE_SUBJECTS = enforce256List(RELATIVE_SUBJECTS_RAW, NOUNS);
 
-const RELATIVE_VERBS = padList([
+// 24. RELATIVE_VERBS: 256 clean evaluation/action verbs inside relative clauses
+const RELATIVE_VERBS_RAW = [
   "criticized","backed","rejected","approved","supported","opposed","questioned","challenged",
-  "examined","endorsed","investigated","defended","reviewed","signed","blocked","adopted"
-], VERBS_PAST, 256);
+  "examined","endorsed","investigated","defended","reviewed","signed","blocked","adopted",
+  "praised","welcomed","condemned","disputed","debated","discussed","evaluated","audited",
+  "inspected","verified","validated","scrutinized","analyzed","assessed","surveyed","monitored",
+  "supervised","controlled","regulated","modified","revised","updated","amended","expanded",
+  "restricted","limited","sanctioned","authorized","passed","ratified","drafted","enacted",
+  "implemented","executed","administered","managed","directed","guided","steered","spearheaded",
+  "initiated","launched","created","developed","established","formed","structured","secured",
+  "negotiated","finalized","requested","demanded","ordered","urged","favored","proposed",
+  "submitted","presented","delayed","suspended","postponed","cancelled","revoked","repealed"
+];
+const RELATIVE_VERBS = enforce256List(RELATIVE_VERBS_RAW, VERBS_PAST);
 
-const EFFECT_SCOPE_ADJECTIVES = padList([
+// 25. EFFECT_SCOPE_ADJECTIVES: 256 clean scope adjectives
+const EFFECT_SCOPE_ADJECTIVES_RAW = [
   "local","national","global","regional","domestic","public","private","rural",
-  "urban","international","federal","provincial","coastal","northern","eastern","western"
-], ADJECTIVES, 256);
+  "urban","international","federal","provincial","coastal","northern","eastern","western",
+  "southern","central","inland","remote","border","maritime","continental","worldwide",
+  "nationwide","statewide","citywide","countywide","districtwide","industrywide","systemwide","widespread"
+];
+const EFFECT_SCOPE_ADJECTIVES = enforce256List(EFFECT_SCOPE_ADJECTIVES_RAW, ADJECTIVES);
 
-const EFFECT_TYPE_ADJECTIVES = padList([
+// 26. EFFECT_TYPE_ADJECTIVES: 256 clean sector adjectives
+const EFFECT_TYPE_ADJECTIVES_RAW = [
   "food","fuel","energy","consumer","industrial","agricultural","financial","trade",
-  "export","market","retail","wholesale","farm","crop","oil","gas"
-], ADJECTIVES, 256);
+  "export","market","retail","wholesale","farm","crop","oil","gas",
+  "power","water","housing","mortgage","transport","freight","shipping","passenger",
+  "grain","wheat","steel","copper","gold","silver","timber","cotton"
+];
+const EFFECT_TYPE_ADJECTIVES = enforce256List(EFFECT_TYPE_ADJECTIVES_RAW, ADJECTIVES);
 
-const EFFECT_NOUNS = padList([
+// 27. EFFECT_NOUNS: 256 clean output, metric, and economic result nouns
+const EFFECT_NOUNS_RAW = [
   "supply","prices","output","production","growth","revenue","demand","trade",
-  "exports","imports","employment","traffic","sales","stocks","services","access"
-], NOUNS, 256);
+  "exports","imports","employment","traffic","sales","stocks","services","access",
+  "costs","profits","value","income","earnings","spending","consumption","yield",
+  "activity","volume","capacity","performance","turnover","margin","inflation","indices",
+  "wages","payroll","deliveries","orders","inventory","reserves","receipts",
+  "dividends","shares","credit","borrowing","lending","liquidity","solvency","valuation"
+];
+const EFFECT_NOUNS = enforce256List(EFFECT_NOUNS_RAW, NOUNS);
 
-const EFFECT_VERBS = padList([
+// 28. EFFECT_VERBS: 256 clean effect progression verbs
+const EFFECT_VERBS_RAW = [
   "rose","fell","declined","increased","dropped","shrank","improved","recovered",
-  "worsened","intensified","weakened","stalled","surged","persisted","tightened","expanded"
-], VERBS_PAST, 256);
+  "worsened","intensified","weakened","stalled","surged","persisted","tightened","expanded",
+  "grew","slumped","plunged","climbed","slipped","stabilized","rebounded","soared","dwindled",
+  "strengthened","accelerated","moderated","peaked","bottomed","plateaued","boosted","lowered",
+  "cut","gained","lost","changed","varied","eased","slowed","bounced","retreated",
+  "surpassed","leveled","fluctuated","shifted","doubled","tripled","halved","plummeted"
+];
+const EFFECT_VERBS = enforce256List(EFFECT_VERBS_RAW, VERBS_PAST);
 
-const AFTER_EVENTS = padList([
-  "protests","talks","negotiations","elections","hearings","discussions","debates","demonstrations",
-  "meetings","raids","clashes","investigations","consultations","interviews","strikes","trials"
-], NOUNS, 256);
+// 29. AFTER_EVENTS: 256 clean event, meeting, and proceeding nouns
+const AFTER_EVENTS_RAW = [
+  "talks","negotiations","elections","hearings","discussions","debates","demonstrations",
+  "meetings","raids","clashes","investigations","consultations","interviews","strikes","trials",
+  "sessions","conferences","summits","audits","reviews","forums","panels","assemblies",
+  "polls","proceedings","deliberations","briefings","encounters","confrontations","conflicts",
+  "rallies","votes","ballots","referendums","primaries","conventions","symposia","caucuses",
+  "gatherings","summitry","dialogues","parleys","protests","walkouts","boycotts","stoppages",
+  "pickets","marches","processions","campaigns","drives","initiatives","operations","missions",
+  "maneuvers","exercises","drills","inspections","surveys","assessments","evaluations","inquiries",
+  "probes","inquests","examinations","screenings","tests","experiments","studies","workshops",
+  "keynotes","lectures","seminars","presentations","broadcasts","telecasts","podcasts","statements",
+  "addresses","speeches","discourses","exchanges","bargaining","arbitrations","mediations","conciliations",
+  "settlements","adjudications","rulings","verdicts","judgments","sentences","appeals","lawsuits",
+  "litigations","prosecutions","arraignments","indictments","depositions","affidavits","subpoenas","injunctions",
+  "decrees","directives","mandates","orders","resolutions","motions","petitions","amendments",
+  "reforms","revisions","overhauls","restructurings","reorganizations","transformations","transitions",
+  "shifts","developments","episodes","incidents","occurrences","events","affairs","scandals",
+  "crises","emergencies","disasters","tragedies","calamities","mishaps","accidents","collisions",
+  "confrontations","skirmishes","battles","engagements","offensives","assaults","attacks","strikes"
+];
+const AFTER_EVENTS = enforce256List(AFTER_EVENTS_RAW, NOUNS);
 
 const CONDITION_DETERMINERS = ["the","some","no","any"];
 const OBJECT_DETERMINERS = ["the","some","no","any"];
