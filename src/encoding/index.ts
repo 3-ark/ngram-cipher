@@ -18,33 +18,37 @@ import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
 export { BitStreamReader, BitStreamWriter };
 
-// 4 distinct 2-bit codes for lossless decoding without exclamation marks
-const NEWS_ENDINGS = [".", ";", "...", "…"];
-const NEWS_ENDING_TO_CODE: Record<string, number> = {
-  ".": 0,
-  ";": 1,
-  "...": 2,
-  "…": 3,
+const NEWS_ENDING_CODES: Record<string, string> = {
+  ".": "0",
+  ";": "10",
+  "...": "110",
+  "…": "111",
+};
+const NEWS_ENDING_CODE_TO_SYMBOL: Record<string, string> = {
+  "0": ".",
+  "10": ";",
+  "110": "...",
+  "111": "…",
 };
 
 const DETERMINER_CODES: Record<string, string> = {
   the: "0",
-  some: "100",
-  its: "101",
-  no: "110",
-  any: "1110",
-  a: "11110",
-  this: "111110",
+  a: "10",
+  this: "1100",
+  its: "1101",
+  some: "1110",
+  no: "11110",
+  any: "111110",
   one: "111111",
 };
 const DETERMINER_CODE_TO_WORD: Record<string, string> = {
   "0": "the",
-  "100": "some",
-  "101": "its",
-  "110": "no",
-  "1110": "any",
-  "11110": "a",
-  "111110": "this",
+  "10": "a",
+  "1100": "this",
+  "1101": "its",
+  "1110": "some",
+  "11110": "no",
+  "111110": "any",
   "111111": "one",
 };
 
@@ -319,8 +323,14 @@ export function bytesToEnglishText(
         const endingCode = reader.hasBits ? reader.readBits(2) : 0;
         ending = POETRY_ENDINGS[endingCode % POETRY_ENDINGS.length];
       } else {
-        const endingCode = reader.hasBits ? reader.readBits(2) : 0;
-        ending = NEWS_ENDINGS[endingCode % NEWS_ENDINGS.length];
+        let code = "";
+        let decodedEnding: string | undefined;
+        for (let i = 0; i < 4; i++) {
+          code += (reader.hasBits ? reader.readBits(1) : 0).toString();
+          decodedEnding = NEWS_ENDING_CODE_TO_SYMBOL[code];
+          if (decodedEnding) break;
+        }
+        ending = decodedEnding ?? ".";
       }
     }
 
@@ -561,8 +571,10 @@ export function englishTextToBytes(
         const endingCode = POETRY_ENDING_TO_CODE[endingStr] ?? 0;
         rawWriter.writeBits(endingCode, 2);
       } else {
-        const endingCode = NEWS_ENDING_TO_CODE[endingStr] ?? 0;
-        rawWriter.writeBits(endingCode, 2);
+        const code = NEWS_ENDING_CODES[endingStr] ?? "0";
+        for (const bit of code) {
+          rawWriter.writeBits(Number(bit), 1);
+        }
       }
     }
     if (!isPoetry && sentenceOpener) {

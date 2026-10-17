@@ -186,31 +186,119 @@ const TREND_NOUNS_RAW = [
   "market","economy","growth","profit","revenue","stock","climate","energy",
   "demand","supply","shortage","surplus","trade","export","investment","production",
   "employment","inflation","output","sales","cost","price","spending","value",
-  "capacity","earnings","imports","exports","yield","assets","wages","rates"
+  "capacity","earnings","imports","exports","yield","assets","wages","rates",
+  "budget","finance","salary","benefit","temperature","rainfall","pollution","resource",
+  "cargo","delivery","debt","income","volume","level","activity","traffic",
+  "attendance","services","costs","prices","profits","performance","record","harvest",
+  "crops","transport","coverage","stocks","access","resources","deliveries","shortages",
+  "shipments","supplies","liabilities","dividends","shares","equities","bonds","funds",
+  "capital","wealth","payroll","returns","losses","gains","balances","reserves",
+  "deposits","loans","credit","expenditure","consumption","manufacturing","orders","receipts",
+  "turnover","margin","margins","yields","productivity","efficiency","unemployment","housing",
+  "rent","mortgages","construction","index","indices","exchange","currency","dollar",
+  "euro","pound","oil","gas","coal","electricity","power","water","food",
+  "wheat","grain","steel","copper","gold","silver","cotton","timber","freight",
+  "shipping","passengers","inventory","inventories","stockpile","tariff","tariffs","deficit",
+  "surpluses","subsidy","subsidies","stimulus","commerce","valuation","portfolio","benchmark",
+  "allowance","allowances","annuity","annuities","appreciation","appropriation","arrears","audit",
+  "audits","balance","bankruptcies","bankruptcy","bargain","barrel","barrels","bill",
+  "bills","billions","billion","bond","bonus","bonuses","borrowing","brokerage",
+  "bulk","bushel","bushels","business","buying","buyout","capacity","cash",
+  "circulation","clearing","coins","collateral","commodity","commodities","compensation","competition",
+  "concession","concessions","consolidation","consumer","contract","contracts","contributions","decline",
+  "deflation","deficit","deficits","denomination","discount","discounts","distribution","dividend",
+  "downturn","duties","duty","earnings","equity","expansion","expenditures","expense",
+  "expenses","exports","exportation","factor","factors","fee","fees","financing",
+  "fluctuation","fluctuations","foreclosure","foreclosures","freight","futures","gross","guarantee",
+  "import","importation","incentive","incentives","income","indebtedness","inflow","inflows",
+  "infrastructure","installment","insurance","interest","inventory","investment","investments","invoice",
+  "invoices","issue","issues","lease","leases","liability","liquidity","loan",
+  "loss","losses","manufacture","margin","markup","maturity","merger","mergers",
+  "monopoly","mortgage","net","obligation","obligations","outflow","outflows","outlay",
+  "outlays","output","overdraft","overhead","ownership","partition","pension","pensions",
+  "policy","portfolios","poverty","premium","premiums","price","pricing","principal",
+  "proceeds","procurement","producers","product","production","property","prosperity","quota",
+  "quotas","rally","receipt","recession","recovery","redemption","refinancing","refund",
+  "refunds","registration","remittance","repayment","reserve","reserves","retail","retrenchment",
+  "revenue","revenues","royalty","royalties","saving","savings","scarcity","securities",
+  "security","segment","settlement","share","shareholder","shareholders","shares","shipment",
+  "shortage","shortages","solvency","speculation","spending","stagnation","standard","stocks",
+  "subsidies","subsidy","sum","supplies","supply","surcharge","surplus","surpluses",
+  "tangible","tariff","tax","taxation","taxes","tenure","tonnage","trade",
+  "trading","transaction","transactions","transfer","treasury","turnover","valuation","value",
+  "vendor","venture","volume","voucher","wages","warehouse","wealth","wholesale",
+  "yield","yields"
 ];
+
 const TREND_VERBS_RAW = [
   "rose","grew","fell","declined","expanded","remained","continued","improved",
   "increased","dropped","shrank","survived","persisted","lasted","advanced","recovered",
-  "surged","plunged","climbed","slipped","stabilized","rebounded","soared","dwindled"
+  "surged","plunged","climbed","slipped","stabilized","rebounded","soared","dwindled",
+  "weakened","strengthened","accelerated","moderated","peaked","bottomed","plateaued","boosted",
+  "lowered","cut","gained","lost","changed","varied","eased","tightened",
+  "slowed","stalled","bounced","retreated","surpassed","leveled","fluctuated","shifted",
+  "doubled","tripled","halved","plummeted","spiked","soared","slumped","tumbled",
+  "adjusted","aligned","altered","amplified","appreciated","broadened","collapsed","contracted",
+  "corrected","depreciated","diminished","dipped","diverged","drifted","escalated","flattened",
+  "floated","heightened","lessened","narrowed","normalized","outpaced","rallied","receded",
+  "regressed","reset","resumed","reversed","revived","settled","softened","solidified",
+  "stagnated","steepened","subsided","swelled","tapered","unraveled","upticked","yielded",
+  "accumulated","balanced","bounded","checked","consolidated","dampened","eased","eclipsed",
+  "extended","faltered","folded","hinged","lagged","lengthened","mounted","multiplied",
+  "overtook","paced","paused","pivoted","poised","pressed","prospered","quickened",
+  "rebound","rebounded","redefined","rebounded","regained","relapsed","rebounded","renewed",
+  "reset","restabilized","restructured","retrenched","soared","softer","spurred","stabilized",
+  "stagnated","steeped","stiffened","stimulated","surpassed","swung","thrived","topped",
+  "trailed","transformed","transitioned","trended","tripped","trimmed","turned","unfolded",
+  "unsettled","upshot","upward","varied","wavered","weakened","widened","yielded"
 ];
+
+const METRIC_ACTION_VERBS_RAW = [
+  "raised","lowered","increased","decreased","reduced","expanded","boosted","cut",
+  "gained","lost","adjusted","amplified","curbed","curtailed","slashed","trimmed",
+  "augmented","capped","doubled","elevated","enhanced","extended","halved","heightened",
+  "lifted","limited","maximized","minimized","moderated","modified","multiplied","narrowed",
+  "optimized","pushed","restrained","scaled","shortened","stabilized","stimulated","surpassed",
+  "sustained","tightened","tripled","upgraded","widened","yielded","balanced","checked"
+];
+
 const ACTION_SUBJECTS_RAW = [
   "government","president","company","council","agency","coalition","commission","authority",
   "parliament","court","police","team","leader","minister","ambassador","official",
-  "alliance","foundation","union","journalist","governor","senator","researcher","delegate"
+  "alliance","foundation","union","journalist","governor","senator","researcher","delegate",
+  "parliament","court","school","student","teacher","university","hospital","patient",
+  "doctor","player","coach","athlete","league","crowd","rival","family","children",
+  "mother","father","neighbor","household","generation","worker","media","press",
+  "artist","director","actor","audience","author","publisher","soldier","battalion",
+  "commander","regiment","astronaut","citizen","resident","volunteer","activist","diplomat",
+  "scholar","graduate","professor","faculty","industry","community","prosecution","defense",
+  "witness","movement","board","cabinet","ministry","panel","committee","executive",
+  "directorate","bureau","department","federation","association","party","delegation"
 ];
+
 const ACTION_OBJECTS_RAW = [
   "policy","program","system","campaign","budget","strategy","network","foundation",
   "treaty","border","reform","investment","project","contract","benefit","statement",
-  "agreement","proposal","amendment","regulation","standard","guideline","framework","protocol"
+  "agreement","proposal","amendment","regulation","standard","guideline","framework","protocol",
+  "report","verdict","sentence","evidence","broadcast","headline","coverage","interview",
+  "film","production","scene","screenplay","novel","chapter","story","edition","volume",
+  "archive","legend","memorial","forecast","petition","lecture","seminar","debate",
+  "opinion","analysis","survey","finding","conclusion","outcome","assessment","concept",
+  "theory","principle","bill","act","measure","deal","accord","resolution","motion",
+  "initiative","mandate","package","solution","decree","directive","statute","law"
 ];
+
 const ACTION_VERBS_RAW = [
   "announced","supported","proposed","rejected","approved","launched","created","developed",
-  "introduced","published","released","signed","adopted","defended","backed","changed"
+  "introduced","published","released","signed","adopted","defended","backed","changed",
+  "submitted","issued","authorized","sanctioned","passed","ratified","endorsed","promoted",
+  "reviewed","revised","updated","modified","expanded","drafted","enacted","implemented"
 ];
 
 // Padded 256-word candidate arrays for 8-bit slot encoding
 const CORE_TREND_NOUNS = padList(TREND_NOUNS_RAW, NOUNS, 256);
 const CORE_TREND_VERBS = padList(TREND_VERBS_RAW, VERBS_PAST, 256);
+const METRIC_ACTION_VERBS = padList(METRIC_ACTION_VERBS_RAW, CORE_TREND_VERBS, 256);
 const ACTION_SUBJECTS_EXTENDED = padList(ACTION_SUBJECTS_RAW, NOUNS, 256);
 const ACTION_OBJECTS_EXTENDED = padList(ACTION_OBJECTS_RAW, NOUNS, 256);
 const ACTION_VERBS_EXTENDED = padList(ACTION_VERBS_RAW, VERBS_PAST, 256);
@@ -223,12 +311,47 @@ export const REPORTING_SUBJECTS_PROPER: string[] = padList([
   "reuters","bloomberg","guardian","chronicle","tribune","herald","observer","gazette"
 ], PROPER_NOUNS, 256);
 
-export const LOCATION_PROPER_NOUNS: string[] = padList([
+const GEOGRAPHIC_LOCATIONS_RAW = [
+  // Cities
   "washington","london","beijing","moscow","berlin","paris","tokyo","ottawa",
   "brussels","geneva","vienna","madrid","rome","seoul","ankara","cairo",
   "dublin","warsaw","prague","stockholm","oslo","helsinki","lisbon","athens",
-  "sydney","melbourne","toronto","vancouver","montreal","auckland","mumbai","delhi"
-], PROPER_NOUNS, 256);
+  "sydney","melbourne","toronto","vancouver","montreal","auckland","mumbai","delhi",
+  "shanghai","taipei","singapore","bangkok","jakarta","manila","hanoi","riyadh",
+  "tehran","baghdad","kabul","nairobi","lagos","pretoria","accra","addis",
+  "chicago","houston","phoenix","dallas","boston","atlanta","miami","seattle",
+  "denver","detroit","minneapolis","amsterdam","budapest","bucharest","kiev","zurich",
+  "frankfurt","munich","milan","naples","barcelona","valencia","porto","edinburgh",
+  "belfast","lyon","marseille","copenhagen","riga","vilnius","tallinn","zagreb",
+  "belgrade","sofia","bratislava","ljubljana","sarajevo","skopje","tirana","yerevan",
+  "tbilisi","baku","tashkent","almaty","astana","doha","dubai","muscat",
+  "amman","beirut","damascus","jerusalem","jeddah","alexandria","tunis","algiers",
+  "rabat","casablanca","khartoum","kampala","kigali","lusaka","harare","maputo",
+  "luanda","kinshasa","dakar","abidjan","johannesburg","canberra","perth","brisbane",
+  "adelaide","hobart","christchurch","wellington","osaka","kyoto","nagoya","fukuoka",
+  "sapporo","busan","incheon","guangzhou","shenzhen","chengdu","wuhan","xian",
+  "tianjin","chongqing","kolkata","chennai","bengaluru","hyderabad","ahmedabad","pune",
+  "karachi","lahore","islamabad","dhaka","colombo","kathmandu","male","vientiane",
+  "yangon","florence","venice","seville","nice","antwerp","rotterdam",
+  // Countries & Regions
+  "africa","europe","america","australia","asia","canada","mexico","brazil",
+  "argentina","colombia","chile","peru","ecuador","bolivia","uruguay","paraguay",
+  "venezuela","china","india","japan","korea","taiwan","thailand","vietnam",
+  "malaysia","indonesia","philippines","myanmar","pakistan","bangladesh","nepal","lanka",
+  "cambodia","germany","france","britain","spain","italy","poland","ukraine",
+  "romania","sweden","norway","denmark","finland","ireland","scotland","belgium",
+  "austria","egypt","turkey","iran","iraq","syria","jordan","lebanon",
+  "israel","nigeria","kenya","ghana","ethiopia","tanzania","uganda","rwanda",
+  "senegal","russia","georgia","belarus","armenia","serbia","croatia","bulgaria",
+  "hungary","greece","portugal","netherlands","switzerland","morocco","algeria","tunisia",
+  "sudan","zambia","zimbabwe","angola","congo","qatar","oman","yemen",
+  "kuwait","bahrain","fiji","samoa","iceland","malta","cyprus","california",
+  "texas","florida","alaska","hawaii","ohio","ontario","quebec","bavaria"
+];
+
+export const LOCATION_PROPER_NOUNS: string[] = Array.from(
+  new Set(GEOGRAPHIC_LOCATIONS_RAW.map(w => w.toLowerCase()))
+).slice(0, 256);
 
 const REPORTING_CLAUSE_VERBS = padList([
   "said","stated","reported","announced","confirmed","noted","argued","warned",
@@ -355,10 +478,10 @@ export const TEMPLATES: Slot[][] = [
   [D(EFFECT_SCOPE_ADJECTIVES, "A"), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP"), D(PERCENTAGES, "PCT"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP"), D(CAUSE_LINKERS, "c"), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP")],
 
   // 6 / 14 words: "The central bank raised interest rates 5.1%", Johnson announced recently in an interview in Washington.
-  [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ACTION_OBJECTS_EXTENDED, "N"), D(PERCENTAGES, "PCT", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(ACTION_ADVERBS, "R"), F(["in"], "p"), F(["an"], "d"), F(["interview"], "N"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
+  [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(METRIC_ACTION_VERBS, "VP"), D(CORE_TREND_NOUNS, "N"), D(PERCENTAGES, "PCT", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(ACTION_ADVERBS, "R"), F(["in"], "p"), F(["an"], "d"), F(["interview"], "N"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
 
   // 7 / 15 words: Johnson said that the central bank raised interest rates 5.1%, but the agency rejected the proposal.
-  [D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ACTION_OBJECTS_EXTENDED, "N"), D(PERCENTAGES, "PCT", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
+  [D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(METRIC_ACTION_VERBS, "VP"), D(CORE_TREND_NOUNS, "N"), D(PERCENTAGES, "PCT", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
   // 8 / 17 words: "The major company backed the proposal," Johnson said in London, "since the severe shortage persisted in Geneva."
   [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", ","), D(CAUSE_LINKERS, "c", undefined, '"'), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", '"')],
