@@ -1,5 +1,5 @@
 /**
- * 1-4 Gram N-Gram Language Model Calculation Engine
+ * 1-5 Gram N-Gram Language Model Calculation Engine
  */
 
 export type NounCategory = "AGENT" | "DOCUMENT" | "METRIC" | "EVENT" | "SYSTEM_OBJECT";
@@ -184,11 +184,26 @@ const BIGRAM_MAP: Record<string, Record<string, number>> = {
   shadow: { fell: 10, lengthened: 10, danced: 9, vanished: 8 },
   rain: { fell: 10, washed: 9, poured: 9, stopped: 8 },
   sunlight: { warmed: 10, streamed: 10, filled: 9, faded: 8 },
+  energy: { output: 10, prices: 10, supply: 9, demand: 9, market: 8, crisis: 8 },
+  food: { prices: 10, supply: 10, production: 9, shortages: 9, market: 8 },
+  consumer: { prices: 10, spending: 10, demand: 9, confidence: 9, goods: 8 },
+  interest: { rates: 10, rate: 10 },
+  central: { bank: 10, government: 8 },
+  trade: { deficit: 10, surplus: 10, agreement: 9, policy: 9, volume: 8 },
+  severe: { shortage: 10, drought: 10, crisis: 9, storm: 9, impact: 8 },
+  shortage: { persisted: 10, worsened: 9, continued: 9, eased: 8 },
+  talks: { remained: 10, continued: 9, resumed: 8, ended: 8 },
+  proposal: { passed: 9, rejected: 10, approved: 10, accepted: 9 },
+  reform: { backed: 10, approved: 9, passed: 9, proposed: 8 },
+  rates: { rose: 10, fell: 10, increased: 9, dropped: 9 },
+  agency: { approved: 10, rejected: 10, announced: 9, reported: 9 },
+  coalition: { backed: 10, approved: 9, criticized: 8, formed: 8 },
   the: {
     major: 10, global: 10, national: 10, public: 10, new: 10, economic: 9,
     government: 10, president: 10, market: 10, company: 9, report: 9,
     court: 8, council: 8, economy: 9, system: 8, country: 9, election: 8,
     minister: 8, official: 8, leader: 8, conference: 8, committee: 8,
+    agency: 9, coalition: 9, energy: 9, food: 9, central: 9,
     moon: 10, river: 10, silent: 9, quiet: 9, ancient: 9, luminous: 9,
     endless: 9, golden: 9, sacred: 9, gentle: 9, starlight: 9, twilight: 9
   },
@@ -310,6 +325,17 @@ const TRIGRAM_MAP: Record<string, Record<string, number>> = {
   "the minister": { stated: 10, confirmed: 9, urged: 8, emphasized: 8, promised: 8 },
   "the company": { announced: 10, reported: 10, launched: 9, expanded: 8, acquired: 8 },
   "the council": { approved: 10, adopted: 9, passed: 9, met: 8, reviewed: 8 },
+  "the agency": { approved: 10, rejected: 10, announced: 9, reported: 9 },
+  "the coalition": { backed: 10, approved: 9, criticized: 8, formed: 8 },
+  "the central": { bank: 10 },
+  "central bank": { raised: 10, lowered: 10, kept: 9, cut: 9 },
+  "interest rates": { rose: 10, fell: 10, increased: 9, dropped: 9 },
+  "energy output": { rose: 10, fell: 10, increased: 9, dropped: 9 },
+  "food prices": { rose: 10, fell: 10, increased: 9, dropped: 9 },
+  "consumer prices": { rose: 10, fell: 10, increased: 9, dropped: 9 },
+  "severe shortage": { persisted: 10, worsened: 9, continued: 9 },
+  "the talks": { remained: 10, continued: 9, ended: 8 },
+  "remained unresolved": { as: 8, because: 8, while: 8 },
   "in a": { recent: 10, major: 9, statement: 8, report: 8, meeting: 8 },
   "according to": { reports: 10, officials: 9, sources: 9, experts: 8, data: 8 },
   "a new": { policy: 10, report: 9, study: 9, project: 9, initiative: 8, system: 8 },
