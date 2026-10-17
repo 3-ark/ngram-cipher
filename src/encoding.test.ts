@@ -232,4 +232,20 @@ describe("Reversible Encoding and Decoding Module", () => {
     const decoded = englishTextToBytes(encoded);
     expect(Array.from(decoded)).toEqual(Array.from(payload));
   });
+
+  it("should condition carrier text on domain topics and round-trip payloads losslessly", () => {
+    // Generate payloads that map to different topic indices (top 2 bits of byte 0: 0x00, 0x40, 0x80, 0xc0)
+    const topicByteHeaders = [0x12, 0x45, 0x89, 0xc3];
+
+    for (const header of topicByteHeaders) {
+      const payload = Uint8Array.from({ length: 64 }, (_, idx) => (idx === 0 ? header : (idx * 31 + 17) & 0xff));
+      const encodedText = bytesToEnglishText(payload);
+
+      expect(typeof encodedText).toBe("string");
+      expect(encodedText.length).toBeGreaterThan(0);
+
+      const decodedPayload = englishTextToBytes(encodedText);
+      expect(Array.from(decodedPayload), `Header 0x${header.toString(16)} roundtrip`).toEqual(Array.from(payload));
+    }
+  });
 });

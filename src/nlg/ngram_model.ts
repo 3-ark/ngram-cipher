@@ -3,6 +3,54 @@
  */
 
 export type NounCategory = "AGENT" | "DOCUMENT" | "METRIC" | "EVENT" | "SYSTEM_OBJECT";
+export type DomainTopic = "finance" | "governance" | "diplomacy" | "crisis";
+
+export const DOMAIN_TOPICS: DomainTopic[] = ["finance", "governance", "diplomacy", "crisis"];
+
+const FINANCE_WORDS = new Set([
+  "market","economy","budget","finance","trade","export","investment","growth","profit",
+  "revenue","stock","salary","benefit","rate","rates","value","cost","price","capital",
+  "assets","liabilities","dividends","shares","equities","bonds","funds","credit","income",
+  "earnings","yield","yields","tax","tariff","currency","dollar","euro","pound","oil","gas",
+  "gold","silver","bank","brokerage","inflation","output","sales","debt","spending","turnover",
+  "margin","margins","valuation","portfolio","rose","grew","fell","declined","expanded","surged",
+  "dropped","shrank","recovered","stabilized","boosted","lowered","cut","gained","lost","plunged"
+]);
+
+const GOVERNANCE_WORDS = new Set([
+  "government","president","council","agency","coalition","commission","authority","parliament",
+  "court","police","official","leader","minister","governor","senator","policy","program",
+  "reform","strategy","verdict","sentence","evidence","contract","statement","proposal",
+  "amendment","regulation","standard","guideline","framework","protocol","bill","act","measure",
+  "accord","resolution","mandate","decree","directive","statute","law","code","announced",
+  "approved","passed","signed","adopted","ratified","enacted","rejected","vetoed","repealed"
+]);
+
+const DIPLOMACY_WORDS = new Set([
+  "summit","treaty","alliance","foundation","ambassador","diplomat","delegate","envoy",
+  "representatives","dignitary","emissary","talks","negotiations","discussions","debates",
+  "meetings","sessions","conferences","briefings","dialogues","proceedings","agreements",
+  "settlements","reconciliations","compromises","pacts","charters","covenants","washington",
+  "london","beijing","moscow","berlin","paris","tokyo","brussels","geneva","vienna","madrid",
+  "rome","seoul","cairo","warsaw","prague","stockholm","helsinki","reuters","bloomberg","guardian",
+  "stated","reported","confirmed","noted","argued","explained","revealed","declared","reaffirmed"
+]);
+
+const CRISIS_WORDS = new Set([
+  "drought","storm","flood","conflict","crisis","shortage","strike","blockade","recession",
+  "disruption","protest","fire","outbreak","failure","collapse","delay","dispute","war",
+  "epidemic","unrest","violence","wildfire","instability","pressure","tension","friction",
+  "embargo","sanction","disaster","snowfall","heat","cyclone","hurricane","earthquake",
+  "damage","threat","hazard","danger","downturn","hardship","struggle","calamity","upheaval",
+  "escalated","deepened","intensified","spread","persisted","worsened","erupted","struck","hit"
+]);
+
+const TOPIC_WORD_SETS: Record<DomainTopic, Set<string>> = {
+  finance: FINANCE_WORDS,
+  governance: GOVERNANCE_WORDS,
+  diplomacy: DIPLOMACY_WORDS,
+  crisis: CRISIS_WORDS,
+};
 
 const AGENT_NOUN_SET = new Set([
   "government","president","council","agency","coalition","alliance","foundation","commission",
@@ -210,7 +258,8 @@ function largestPowerOfTwoSubset(candidates: string[]): string[] {
 export function getCompatibleCandidates(
   candidates: string[],
   context: string[],
-  slotLabel: string
+  slotLabel: string,
+  topic?: DomainTopic
 ): string[] {
   if (candidates.length < 2) return [...candidates];
 
@@ -260,7 +309,11 @@ export function getCompatibleCandidates(
     compatible = candidates.filter(word => EFFECT_RATE_ADVERBS.has(word.toLowerCase()));
   }
 
-  if (!compatible || compatible.length < 2) return [...candidates];
+  if (!compatible) {
+    compatible = [...candidates];
+  }
+
+  if (compatible.length < 2) return [...candidates];
   return largestPowerOfTwoSubset(compatible);
 }
 
@@ -540,7 +593,7 @@ const FIVEGRAM_MAP: Record<string, Record<string, number>> = {
 /**
  * Calculates 1-5 gram language model score for a candidate word given prior context words.
  */
-export function calculateNGramScore(candidate: string, context: string[]): number {
+export function calculateNGramScore(candidate: string, context: string[], topic?: DomainTopic): number {
   const w = candidate.toLowerCase();
   let score = 0;
 
@@ -632,7 +685,12 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
     }
   }
 
-  // 6. Repetition penalty: penalize repeating non-function words already present in sentence context
+  // 6. Topic Domain Score Boost
+  if (topic && TOPIC_WORD_SETS[topic] && TOPIC_WORD_SETS[topic].has(w)) {
+    score += 100;
+  }
+
+  // 7. Repetition penalty: penalize repeating non-function words already present in sentence context
   if (context.some(c => c.toLowerCase() === w) && !FUNCTION_WORDS_SET.has(w)) {
     score -= 500;
   }
@@ -644,7 +702,7 @@ export function calculateNGramScore(candidate: string, context: string[]): numbe
  * Deterministically ranks candidate words for a slot using 1-4 gram context scoring.
  * Words with higher N-gram scores appear first. Ties are broken by original index / alphabetical order.
  */
-export function rankCandidates(candidates: string[], context: string[]): string[] {
+export function rankCandidates(candidates: string[], context: string[], topic?: DomainTopic): string[] {
   if (!candidates || candidates.length <= 1) {
     return candidates ? [...candidates] : [];
   }
@@ -652,7 +710,7 @@ export function rankCandidates(candidates: string[], context: string[]): string[
   const scored = candidates.map((word, originalIndex) => ({
     word,
     originalIndex,
-    score: calculateNGramScore(word, context)
+    score: calculateNGramScore(word, context, topic)
   }));
 
   // Sort descending by score; tie-break by originalIndex to guarantee deterministic order
