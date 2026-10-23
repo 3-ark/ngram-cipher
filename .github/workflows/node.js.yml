@@ -1,0 +1,35 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: 自动集成
+
+on:
+  push:
+    branches: ["main", "dev_nodejs"]
+  pull_request:
+    branches: ["main", "dev_nodejs"]
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [24.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v6.0.3
+      - name: 使用 Node.js 版本 ${{ matrix.node-version }} 尝试构建
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build
+      - name: 保存构建工件
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: Abracadabra-[${{ github.run_id }}]-Artifact.zip
+          path: |
+            dist
+            !dist/**/*.md

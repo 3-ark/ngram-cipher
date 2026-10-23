@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English N-Gram Cipher Tester</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+    h1 {
+      color: #0f172a;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 12px;
+    }
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      margin-bottom: 24px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+    input[type="password"], textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 15px;
+      font-family: inherit;
+    }
+    textarea {
+      height: 110px;
+      resize: vertical;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      background-color: #2563eb;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    button.secondary {
+      background-color: #475569;
+    }
+    button.secondary:hover {
+      background-color: #334155;
+    }
+    .error {
+      color: #dc2626;
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 16px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔏 English N-Gram Cipher Tester</h1>
+
+  <div class="card">
+    <label for="password">Secret Password / Key</label>
+    <input type="password" id="password" placeholder="Enter password..." value="MySecretKey123">
+
+    <label for="plaintext">Plaintext</label>
+    <textarea id="plaintext" placeholder="Type message to encode...">Hello world! This secret message will be encoded into natural English text.</textarea>
+
+    <label for="style">Writing style</label>
+    <select id="style">
+      <option value="news">News prose</option>
+      <option value="poetry">Poetry</option>
+    </select>
+
+    <div class="btn-group">
+      <button id="encodeBtn">🔒 Encode to English Prose</button>
+      <button id="decodeBtn" class="secondary">🔓 Decode to Plaintext</button>
+    </div>
+
+    <div id="error" class="error"></div>
+
+    <label for="ciphertext">English N-Gram Ciphertext</label>
+    <textarea id="ciphertext" placeholder="Encoded English ciphertext will appear here..."></textarea>
+  </div>
+
+  <script type="module">
+    import { encode, decode } from './src/index.ts';
+
+    const plaintextEl = document.getElementById('plaintext');
+    const ciphertextEl = document.getElementById('ciphertext');
+    const passwordEl = document.getElementById('password');
+    const styleEl = document.getElementById('style');
+    const errorEl = document.getElementById('error');
+
+    function showError(msg) {
+      if (msg) {
+        errorEl.textContent = msg;
+        errorEl.style.display = 'block';
+      } else {
+        errorEl.style.display = 'none';
+      }
+    }
+
+    document.getElementById('encodeBtn').addEventListener('click', async () => {
+      showError(null);
+      try {
+        const text = plaintextEl.value;
+        const pass = passwordEl.value;
+        if (!text) return showError('Please enter plaintext to encode.');
+        if (!pass) return showError('Please enter a password.');
+        const result = await encode(text, pass, { encoding: { style: styleEl.value } });
+        ciphertextEl.value = result;
+      } catch (err) {
+        showError(err.message || 'Encoding error occurred.');
+      }
+    });
+
+    document.getElementById('decodeBtn').addEventListener('click', async () => {
+      showError(null);
+      try {
+        const cipher = ciphertextEl.value;
+        const pass = passwordEl.value;
+        if (!cipher) return showError('Please enter English ciphertext to decode.');
+        if (!pass) return showError('Please enter a password.');
+        const result = await decode(cipher, pass, { encoding: { style: styleEl.value } });
+        plaintextEl.value = result;
+      } catch (err) {
+        showError(err.message || 'Decoding error occurred.');
+      }
+    });
+  </script>
+</body>
+</html>
