@@ -18,8 +18,9 @@ import {
   type DomainTopic,
 } from "../nlg/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
+import { bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache } from "./llm.js";
 
-export { BitStreamReader, BitStreamWriter };
+export { BitStreamReader, BitStreamWriter, bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache };
 
 const NEWS_ENDING_CODES: Record<string, string> = {
   ".": "0",
@@ -197,9 +198,13 @@ function startsWithVowelSound(word: string): boolean {
 export function bytesToEnglishText(
   bytes: Uint8Array,
   config: EncodingConfig = DEFAULT_CONFIG.encoding
-): string {
+): string | Promise<string> {
   if (!bytes || bytes.length === 0) {
     return "";
+  }
+
+  if (config.style === "llm") {
+    return bytesToLlmText(bytes, config);
   }
 
   const isPoetry = config.style === "poetry";
@@ -415,9 +420,13 @@ export function bytesToEnglishText(
 export function englishTextToBytes(
   text: string,
   config: EncodingConfig = DEFAULT_CONFIG.encoding
-): Uint8Array {
+): Uint8Array | Promise<Uint8Array> {
   if (!text || typeof text !== "string" || text.trim().length === 0) {
     return new Uint8Array(0);
+  }
+
+  if (config.style === "llm") {
+    return llmTextToBytes(text, config);
   }
 
   const isPoetry = config.style === "poetry";
