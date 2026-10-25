@@ -14,7 +14,7 @@ import {
 } from "./config/index.js";
 import { encryptBytes, decryptBytes, deriveKeystream, xorBytes } from "./crypto/index.js";
 import { packFrame, unpackFrame } from "./framing/index.js";
-import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
+import { bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, normalizeModelName } from "./encoding/index.js";
 import { VOCABULARY, analyzeCarrierText, type CarrierAnalysis } from "./nlg/index.js";
 
 export {
@@ -22,6 +22,9 @@ export {
   decryptBytes,
   bytesToEnglishText,
   englishTextToBytes,
+  bytesToLlmText,
+  llmTextToBytes,
+  normalizeModelName,
   VOCABULARY,
   analyzeCarrierText
 };
