@@ -157,22 +157,53 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     try {
       model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, modelOptions);
     } catch (primaryErr: unknown) {
-      try {
-        const { AutoConfig } = await import("@xenova/transformers");
-        const loadedConfig = await AutoConfig.from_pretrained(parsed.modelId, {
-          revision: parsed.revision ?? "main",
-        } as any);
-        if (loadedConfig) {
-          delete (loadedConfig as any).subfolder;
-          modelOptions.config = loadedConfig;
+      let resolved = false;
+
+      // Fallback 1: Try explicit candidate ONNX file names and subfolders (e.g. Supra-Mini-v2-0.1M-ONNX has "onnx/model_quantized.onnx")
+      if (!modelOptions.model_file_name) {
+        const candidateNames = ["model_quantized", "model", "model_fp16", "decoder_model_merged", "decoder_model"];
+        const candidateSubfolders = modelOptions.subfolder
+          ? [modelOptions.subfolder, "onnx", undefined]
+          : ["onnx", undefined];
+
+        for (const sf of candidateSubfolders) {
+          for (const fileName of candidateNames) {
+            try {
+              const fallbackOpts = {
+                ...modelOptions,
+                subfolder: sf || undefined,
+                model_file_name: fileName,
+                quantized: false,
+              };
+              model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, fallbackOpts);
+              resolved = true;
+              break;
+            } catch {
+              // Try next candidate
+            }
+          }
+          if (resolved) break;
         }
-        model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, modelOptions);
-      } catch {
+      }
+
+      if (!resolved) {
         try {
-          const { PreTrainedModel } = await import("@xenova/transformers");
-          model = await (PreTrainedModel as any).from_pretrained(parsed.modelId, modelOptions);
+          const { AutoConfig } = await import("@xenova/transformers");
+          const loadedConfig = await AutoConfig.from_pretrained(parsed.modelId, {
+            revision: parsed.revision ?? "main",
+          } as any);
+          if (loadedConfig) {
+            delete (loadedConfig as any).subfolder;
+            modelOptions.config = loadedConfig;
+          }
+          model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, modelOptions);
         } catch {
-          throw primaryErr;
+          try {
+            const { PreTrainedModel } = await import("@xenova/transformers");
+            model = await (PreTrainedModel as any).from_pretrained(parsed.modelId, modelOptions);
+          } catch {
+            throw primaryErr;
+          }
         }
       }
     }

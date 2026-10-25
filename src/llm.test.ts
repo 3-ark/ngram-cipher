@@ -111,6 +111,14 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
       modelId: "Xenova/gpt2",
       quantized: true,
     });
+
+    const repoWithTree = "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/tree/main";
+    const parsedTree = parseHfUrl(repoWithTree);
+    expect(parsedTree).toEqual({
+      modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
+      revision: "main",
+      quantized: true,
+    });
   });
 
   it("should support custom pluggable models and tokenizers", async () => {
