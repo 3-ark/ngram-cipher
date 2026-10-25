@@ -121,6 +121,19 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     });
   });
 
+  it("should load real HF repo onnx-community/Supra-Mini-v2-0.1M-ONNX with tree URL", async () => {
+    const config = {
+      style: "llm" as const,
+      llmModel: "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/tree/main/onnx",
+      bitsPerToken: 3,
+      llmPrompt: "In recent news,"
+    };
+
+    const loaded = await loadLlmModel(config);
+    expect(loaded.model).toBeDefined();
+    expect(loaded.tokenizer).toBeDefined();
+  }, 30000);
+
   it("should support custom pluggable models and tokenizers", async () => {
     const mockPair = createMockLlmPair();
     const config = {
