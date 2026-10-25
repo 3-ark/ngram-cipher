@@ -1,5 +1,6 @@
 /**
  * Modern ONNX Language Model Steganography Module
+ * Featuring Stepwise Tokenization Verification (StepVerify)
  * Powered by @huggingface/transformers (v3)
  */
 
@@ -7,18 +8,16 @@ import {
   env,
   AutoTokenizer,
   AutoModelForCausalLM,
-  AutoConfig,
   Tensor,
 } from "@huggingface/transformers";
 
-// Disable local relative search so web dev-servers don't return HTML index pages on 404s
+// Disable local relative search to prevent 404 HTML fallback issues
 env.allowLocalModels = false;
 env.allowRemoteModels = true;
 
 import { EncodingConfig, EncodingError } from "../config/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
-// Cache for loaded model and tokenizer instances
 const modelCache = new Map<string, { model: any; tokenizer: any }>();
 
 export interface LlmModelPair {
@@ -34,28 +33,20 @@ export interface ParsedModelTarget {
 }
 
 /**
- * Clears the browser's Transformers CacheStorage to prevent poisoned 404 responses.
+ * Maps ONNX repositories that omit tokenizer files to their base model repositories.
  */
-export async function clearTransformersBrowserCache(): Promise<void> {
-  if (typeof window !== "undefined" && "caches" in window) {
-    try {
-      await window.caches.delete("transformers-cache");
-    } catch {
-      // Ignore if cache API unavailable
-    }
-  }
+function resolveTokenizerRepo(modelId: string): string {
+  const map: Record<string, string> = {
+    "onnx-community/Supra-Mini-v2-0.1M-ONNX": "SupraLabs/Supra-Mini-v2-0.1M",
+    "onnx-community/Supra-Mini-0.1M-ONNX": "SupraLabs/Supra-Mini-0.1M",
+  };
+  return map[modelId] || modelId;
 }
 
-/**
- * Normalizes user input (HF web URLs or repo IDs) into clean model IDs and dtypes.
- * Handles inputs like:
- * - "onnx-community/Supra-Mini-v2-0.1M-ONNX"
- * - "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/tree/main/onnx"
- * - "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_q4.onnx"
- */
 export function parseHfUrl(input?: string): ParsedModelTarget {
   if (!input || typeof input !== "string" || input.trim().length === 0) {
-    return { modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX", dtype: "q4" };
+    // ✅ Default to fp16 instead of q4
+    return { modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX", dtype: "fp16" };
   }
 
   const cleaned = input.trim().split("?")[0].split("#")[0];
@@ -70,18 +61,18 @@ export function parseHfUrl(input?: string): ParsedModelTarget {
     const revision = match[4] || "main";
     let rawPath = (match[5] || "").replace(/^\/+|\/+$/g, "");
 
-    let dtype: "q4" | "q8" | "fp16" | "fp32" | "auto" = "q4";
+    // Default to fp16 if no specific suffix in the filename
+    let dtype: "q4" | "q8" | "fp16" | "fp32" | "auto" = "fp16";
 
     if (rawPath.toLowerCase().endsWith(".onnx")) {
       const fileName = rawPath.split("/").pop()!.toLowerCase();
-      if (fileName.includes("q4")) dtype = "q4";
-      else if (fileName.includes("fp16")) dtype = "fp16";
+      if (fileName.includes("fp16")) dtype = "fp16";
+      else if (fileName.includes("q4")) dtype = "q4";
       else if (fileName.includes("quantized") || fileName.includes("int8") || fileName.includes("q8")) dtype = "q8";
       else dtype = "fp32";
       rawPath = rawPath.substring(0, rawPath.lastIndexOf("/"));
     }
 
-    // Strip redundant leading "onnx" folder since Transformers.js handles ONNX directory structure
     const pathParts = rawPath ? rawPath.split("/") : [];
     if (pathParts[0]?.toLowerCase() === "onnx") {
       pathParts.shift();
@@ -91,7 +82,8 @@ export function parseHfUrl(input?: string): ParsedModelTarget {
     return { modelId, revision, subfolder, dtype };
   }
 
-  return { modelId: cleaned, dtype: "q4" };
+  // ✅ Default to fp16
+  return { modelId: cleaned, dtype: "fp16" };
 }
 
 export function normalizeModelName(input?: string): string {
@@ -110,7 +102,10 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   }
 
   const parsed = parseHfUrl(config.llmModel);
-  const cacheKey = `${parsed.modelId}:${parsed.dtype}:${config.llmCacheDir || "default"}`;
+  // Allow manual override via config if needed, otherwise use parsed/default fp16
+  const selectedDtype = (config as any).llmDtype || parsed.dtype || "fp16";
+
+  const cacheKey = `${parsed.modelId}:${selectedDtype}:${config.llmCacheDir || "default"}`;
 
   if (modelCache.has(cacheKey)) {
     return modelCache.get(cacheKey)!;
@@ -121,35 +116,21 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   }
 
   try {
-    // 1. Resolve Tokenizer
-    // If the ONNX repository does not host tokenizer.json, resolve it from the parent repository
+    const tokenizerTarget = resolveTokenizerRepo(parsed.modelId);
     let tokenizer: any;
+
     try {
-      tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId, {
+      tokenizer = await AutoTokenizer.from_pretrained(tokenizerTarget, {
         revision: parsed.revision ?? "main",
       });
     } catch {
-      try {
-        // Inspect config._name_or_path to find base model (e.g. SupraLabs/Supra-Mini-v2-0.1M)
-        const modelConfig = await AutoConfig.from_pretrained(parsed.modelId, {
-          revision: parsed.revision ?? "main",
-        });
-        const parentRepo = (modelConfig as any)?._name_or_path;
-        if (parentRepo && parentRepo !== parsed.modelId) {
-          tokenizer = await AutoTokenizer.from_pretrained(parentRepo);
-        } else {
-          tokenizer = await AutoTokenizer.from_pretrained("Xenova/gpt2");
-        }
-      } catch {
-        tokenizer = await AutoTokenizer.from_pretrained("Xenova/gpt2");
-      }
+      tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId);
     }
 
-    // 2. Load Causal LM with modern v3 configuration
-    // Uses WebGPU if available, falling back to WASM automatically
+    // ✅ Loads 'onnx/model_fp16.onnx' (only ~340 KB)
     const model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, {
-      dtype: parsed.dtype,
-      device: "webgpu", // switches to WASM if WebGPU is not supported by the browser
+      dtype: selectedDtype,
+      device: "webgpu", // will fall back to wasm smoothly if needed
       revision: parsed.revision ?? "main",
     });
 
@@ -158,8 +139,6 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     return pair;
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    // If a corrupted HTML response was previously cached in the browser, evict it
-    await clearTransformersBrowserCache();
     throw new EncodingError(
       `Failed to load ONNX model '${parsed.modelId}'. Error: ${msg}`
     );
@@ -169,9 +148,9 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
 export function clearLlmModelCache(): void {
   modelCache.clear();
 }
+
 /**
  * Constructs required ONNX graph inputs: input_ids, attention_mask, and position_ids.
- * Universally compatible with Llama, Mistral, Gemma, and GPT-2 architectures.
  */
 function buildModelInputs(tokenIds: number[]) {
   const seqLen = tokenIds.length;
@@ -198,24 +177,66 @@ function buildModelInputs(tokenIds: number[]) {
 }
 
 /**
- * Deterministically sorts logits descending and breaks ties by token ID ascending.
+ * Stepwise Verification:
+ * Validates that candidateTokenId does not cause BPE subword fusion when decoded to text.
  */
-function getTopKTokenIds(logitsData: Float32Array | number[], k: number): number[] {
-  const candidates: { id: number; score: number }[] = [];
-  for (let id = 0; id < logitsData.length; id++) {
-    candidates.push({ id, score: Number(logitsData[id]) });
-  }
+function isTokenReversible(
+  currentTokens: number[],
+  candidateTokenId: number,
+  tokenizer: any
+): boolean {
+  if (candidateTokenId < 0) return false;
 
-  candidates.sort((a, b) => {
-    if (b.score !== a.score) {
-      return b.score - a.score;
-    }
-    return a.id - b.id;
-  });
+  const trialTokens = [...currentTokens, candidateTokenId];
+  const trialText = tokenizer.decode(trialTokens, { skip_special_tokens: false });
+  const reencoded = Array.from(tokenizer(trialText).input_ids.data).map(Number);
 
-  return candidates.slice(0, k).map((c) => c.id);
+  if (reencoded.length !== trialTokens.length) return false;
+  return reencoded[reencoded.length - 1] === candidateTokenId;
 }
 
+/**
+ * Selects top-K candidate tokens that are strictly reversible under BPE.
+ */
+function getTopKReversibleTokenIds(
+  logitsData: Float32Array | number[],
+  k: number,
+  currentTokens: number[],
+  tokenizer: any
+): number[] {
+  const ranked: { id: number; score: number }[] = [];
+  for (let id = 0; id < logitsData.length; id++) {
+    ranked.push({ id, score: Number(logitsData[id]) });
+  }
+
+  // Sort descending by logit score
+  ranked.sort((a, b) => (b.score !== a.score ? b.score - a.score : a.id - b.id));
+
+  const validTokens: number[] = [];
+  for (const item of ranked) {
+    if (isTokenReversible(currentTokens, item.id, tokenizer)) {
+      validTokens.push(item.id);
+      if (validTokens.length === k) break;
+    }
+  }
+
+  // If strict reversibility yielded fewer than k due to high vocabulary restriction,
+  // backfill with raw top logits
+  if (validTokens.length < k) {
+    for (const item of ranked) {
+      if (!validTokens.includes(item.id)) {
+        validTokens.push(item.id);
+        if (validTokens.length === k) break;
+      }
+    }
+  }
+
+  return validTokens.slice(0, k);
+}
+
+/**
+ * Encodes whitened binary bytes into LLM-generated carrier text.
+ */
 export async function bytesToLlmText(
   bytes: Uint8Array,
   config: EncodingConfig
@@ -234,13 +255,17 @@ export async function bytesToLlmText(
   fullPayload.set(bytes, 4);
 
   const bitReader = new BitStreamReader(fullPayload);
-  const prompt = config.llmPrompt ?? "In recent news,";
+
+  // Normalize prompt to end with a space to establish clean word boundaries
+  let prompt = config.llmPrompt ?? "In recent news,";
+  if (!prompt.endsWith(" ") && !prompt.endsWith("\n")) {
+    prompt += " ";
+  }
 
   const encodedPrompt = tokenizer(prompt);
   let currentTokenIds: number[] = Array.from(encodedPrompt.input_ids.data).map(Number);
 
   while (bitReader.hasBits) {
-    // Generate inputs with input_ids, attention_mask, and position_ids
     const inputs = buildModelInputs(currentTokenIds);
     const outputs = await model(inputs);
 
@@ -253,7 +278,14 @@ export async function bytesToLlmText(
       lastTokenLogitsOffset + vocabSize
     );
 
-    const topKTokenIds = getTopKTokenIds(lastLogitsData, k);
+    // Get the top-K tokens verified not to cause BPE merge desynchronization
+    const topKTokenIds = getTopKReversibleTokenIds(
+      lastLogitsData,
+      k,
+      currentTokenIds,
+      tokenizer
+    );
+
     const bitVal = bitReader.readBits(bitsPerToken);
     const chosenTokenId = topKTokenIds[bitVal % k];
 
@@ -275,7 +307,11 @@ export async function llmTextToBytes(
   const bitsPerToken = Math.max(1, Math.min(16, config.bitsPerToken ?? 4));
   const k = 1 << bitsPerToken;
 
-  const prompt = config.llmPrompt ?? "In recent news,";
+  let prompt = config.llmPrompt ?? "In recent news,";
+  if (!prompt.endsWith(" ") && !prompt.endsWith("\n")) {
+    prompt += " ";
+  }
+
   const promptTokenIds: number[] = Array.from(tokenizer(prompt).input_ids.data).map(Number);
   const fullTokenIds: number[] = Array.from(tokenizer(carrierText).input_ids.data).map(Number);
 
@@ -288,7 +324,6 @@ export async function llmTextToBytes(
   const generatedTokens = fullTokenIds.slice(promptTokenIds.length);
 
   for (const actualTokenId of generatedTokens) {
-    // Generate inputs with input_ids, attention_mask, and position_ids
     const inputs = buildModelInputs(currentTokenIds);
     const outputs = await model(inputs);
 
@@ -301,7 +336,14 @@ export async function llmTextToBytes(
       lastTokenLogitsOffset + vocabSize
     );
 
-    const topKTokenIds = getTopKTokenIds(lastLogitsData, k);
+    // Filter using the exact same step-verification logic
+    const topKTokenIds = getTopKReversibleTokenIds(
+      lastLogitsData,
+      k,
+      currentTokenIds,
+      tokenizer
+    );
+
     const rank = topKTokenIds.indexOf(actualTokenId);
 
     if (rank === -1) {
