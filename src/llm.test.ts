@@ -67,7 +67,7 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
   });
 
   it("should parse direct Hugging Face ONNX file URLs correctly", () => {
-    const url1 = "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_fp16.onnx";
+    const url1 = "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_fp16.onnx?download=true";
     const parsed1 = parseHfUrl(url1);
     expect(parsed1).toEqual({
       modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
@@ -85,6 +85,24 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
       subfolder: "onnx",
       model_file_name: "model_quantized",
       quantized: false,
+    });
+
+    const url3 = "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/config.json?download=true";
+    const parsed3 = parseHfUrl(url3);
+    expect(parsed3).toEqual({
+      modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
+      revision: "main",
+      subfolder: undefined,
+      quantized: true,
+    });
+
+    const url4 = "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/tree/main/onnx";
+    const parsed4 = parseHfUrl(url4);
+    expect(parsed4).toEqual({
+      modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
+      revision: "main",
+      subfolder: "onnx",
+      quantized: true,
     });
 
     const repoOnly = "Xenova/gpt2";

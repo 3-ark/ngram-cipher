@@ -40,37 +40,62 @@ export function parseHfUrl(input?: string): ParsedModelTarget {
   if (!input || typeof input !== "string" || input.trim().length === 0) {
     return { modelId: "Xenova/gpt2", quantized: true };
   }
-  const trimmed = input.trim();
+  // Strip query strings (?download=true, etc) and fragments
+  const cleaned = input.trim().split("?")[0].split("#")[0];
 
-  const urlPattern = /huggingface\.co\/([^\/]+\/[^\/]+)(?:\/resolve\/([^\/]+)\/(?:(.+)\/)?([^\/]+))?/i;
-  const match = trimmed.match(urlPattern);
+  const urlPattern = /huggingface\.co\/([^\/]+)\/([^\/]+)(?:\/(resolve|blob|tree|raw)\/([^\/]+)(?:\/(.+))?)?/i;
+  const match = cleaned.match(urlPattern);
 
   if (match) {
-    const modelId = match[1];
-    const revision = match[2] || "main";
-    const rawPath = match[3] || "";
-    let fileName = match[4];
+    const owner = match[1];
+    const repo = match[2];
+    const modelId = `${owner}/${repo}`;
+    const revision = match[4] || "main";
+    const rawPath = match[5] || "";
 
-    if (fileName) {
-      fileName = fileName.replace(/\.onnx$/i, "");
-      return {
-        modelId,
-        revision,
-        subfolder: rawPath || undefined,
-        model_file_name: fileName,
-        quantized: false,
-      };
+    if (rawPath) {
+      const lowerPath = rawPath.toLowerCase();
+      if (lowerPath.endsWith(".onnx")) {
+        const parts = rawPath.split("/");
+        const fileNameWithExt = parts.pop()!;
+        const fileName = fileNameWithExt.replace(/\.onnx$/i, "");
+        const subfolder = parts.join("/") || undefined;
+        return {
+          modelId,
+          revision,
+          subfolder,
+          model_file_name: fileName,
+          quantized: false,
+        };
+      } else if (lowerPath.endsWith(".json")) {
+        const parts = rawPath.split("/");
+        parts.pop(); // remove json filename
+        const subfolder = parts.join("/") || undefined;
+        return {
+          modelId,
+          revision,
+          subfolder,
+          quantized: true,
+        };
+      } else {
+        const cleanedSubfolder = rawPath.replace(/\/+$/, "");
+        return {
+          modelId,
+          revision,
+          subfolder: cleanedSubfolder || undefined,
+          quantized: true,
+        };
+      }
     }
 
     return {
       modelId,
       revision,
-      subfolder: rawPath || undefined,
       quantized: true,
     };
   }
 
-  return { modelId: trimmed, quantized: true };
+  return { modelId: cleaned, quantized: true };
 }
 
 export function normalizeModelName(input?: string): string {
@@ -104,11 +129,15 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   try {
     // 1. Resolve Tokenizer with fallback to GPT-2
     let tokenizer: any;
+    const tokenizerOptions: any = {};
+    if (parsed.revision) tokenizerOptions.revision = parsed.revision;
+
     try {
-      tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId);
+      tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId, tokenizerOptions);
     } catch {
       try {
         tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId, {
+          ...tokenizerOptions,
           subfolder: parsed.subfolder,
         } as any);
       } catch {
@@ -134,6 +163,7 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
           revision: parsed.revision ?? "main",
         } as any);
         if (loadedConfig) {
+          delete (loadedConfig as any).subfolder;
           modelOptions.config = loadedConfig;
         }
         model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, modelOptions);
