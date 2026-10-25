@@ -35,14 +35,54 @@ export interface ParsedModelTarget {
 }
 
 /**
- * Maps ONNX repositories that omit tokenizer files to their base model repositories.
+ * Resolves candidate repository IDs for loading tokenizers when ONNX models
+ * omit tokenizer config files or are hosted under converted onnx-community repositories.
  */
-function resolveTokenizerRepo(modelId: string): string {
-  const map: Record<string, string> = {
-    "onnx-community/Supra-Mini-v2-0.1M-ONNX": "SupraLabs/Supra-Mini-v2-0.1M",
-    "onnx-community/Supra-Mini-0.1M-ONNX": "SupraLabs/Supra-Mini-0.1M",
-  };
-  return map[modelId] || modelId;
+export function resolveTokenizerCandidates(modelId: string): string[] {
+  const candidates: string[] = [];
+
+  if (!modelId || typeof modelId !== "string" || modelId.trim().length === 0) {
+    return ["Xenova/gpt2"];
+  }
+
+  const trimmed = modelId.trim();
+  candidates.push(trimmed);
+
+  // 1. Direct Supra-Mini base repository mapping:
+  // e.g. onnx-community/Supra-Mini-v6-1M-ONNX -> SupraLabs/Supra-Mini-v6-1M
+  if (/^onnx-community\/Supra-Mini-/i.test(trimmed)) {
+    const baseName = trimmed.replace(/^onnx-community\//i, "").replace(/-ONNX$/i, "");
+    candidates.push(`SupraLabs/${baseName}`);
+  }
+
+  // 2. Generic onnx-community or -ONNX suffix pattern
+  if (/^onnx-community\//i.test(trimmed) || /-ONNX$/i.test(trimmed)) {
+    const baseRepo = trimmed.replace(/-ONNX$/i, "");
+    candidates.push(baseRepo);
+
+    const noPrefix = baseRepo.replace(/^onnx-community\//i, "");
+    candidates.push(noPrefix);
+
+    if (noPrefix.toLowerCase().startsWith("supra-mini")) {
+      candidates.push(`SupraLabs/${noPrefix}`);
+    } else if (noPrefix.toLowerCase().startsWith("llama")) {
+      candidates.push(`meta-llama/${noPrefix}`);
+    } else if (noPrefix.toLowerCase().startsWith("qwen")) {
+      candidates.push(`Qwen/${noPrefix}`);
+    } else if (noPrefix.toLowerCase().startsWith("phi")) {
+      candidates.push(`microsoft/${noPrefix}`);
+    } else if (noPrefix.toLowerCase().startsWith("gemma")) {
+      candidates.push(`google/${noPrefix}`);
+    }
+
+    candidates.push(`Xenova/${noPrefix}`);
+  }
+
+  // 3. Ultimate fallback tokenizer repository
+  candidates.push("Xenova/gpt2");
+
+  // Deduplicate while preserving priority order
+  return Array.from(new Set(candidates));
 }
 
 export function parseHfUrl(input?: string): ParsedModelTarget {
@@ -110,30 +150,63 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   }
 
   try {
-    const tokenizerTarget = resolveTokenizerRepo(parsed.modelId);
+    const tokenizerCandidates = resolveTokenizerCandidates(parsed.modelId);
     let tokenizer: any;
+    let lastTokenizerError: unknown;
 
-    try {
-      tokenizer = await AutoTokenizer.from_pretrained(tokenizerTarget, {
-        revision: parsed.revision ?? "main",
-      });
-    } catch {
-      tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId);
+    for (const candidate of tokenizerCandidates) {
+      try {
+        tokenizer = await AutoTokenizer.from_pretrained(candidate, {
+          revision: parsed.revision ?? "main",
+        });
+        if (tokenizer) break;
+      } catch (err) {
+        lastTokenizerError = err;
+        try {
+          tokenizer = await AutoTokenizer.from_pretrained(candidate);
+          if (tokenizer) break;
+        } catch (err2) {
+          lastTokenizerError = err2;
+        }
+      }
+    }
+
+    if (!tokenizer) {
+      const msg = lastTokenizerError instanceof Error ? lastTokenizerError.message : String(lastTokenizerError);
+      throw new Error(`Failed to load tokenizer for '${parsed.modelId}'. ${msg}`);
     }
 
     let model: any;
-    try {
-      model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, {
-        dtype: selectedDtype,
-        device: "webgpu",
-        revision: parsed.revision ?? "main",
-      });
-    } catch {
-      model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, {
-        dtype: selectedDtype,
-        device: "cpu",
-        revision: parsed.revision ?? "main",
-      });
+    let lastModelError: unknown;
+
+    const modelOptsBase: Record<string, any> = {};
+    if (parsed.subfolder) {
+      modelOptsBase.subfolder = parsed.subfolder;
+    }
+    if (parsed.model_file_name) {
+      modelOptsBase.file_name = parsed.model_file_name;
+    }
+
+    const modelAttempts = [
+      { ...modelOptsBase, dtype: selectedDtype, device: "webgpu" as const, revision: parsed.revision ?? "main" },
+      { ...modelOptsBase, dtype: selectedDtype, device: "cpu" as const, revision: parsed.revision ?? "main" },
+      { dtype: selectedDtype, device: "cpu" as const, revision: parsed.revision ?? "main" },
+      { dtype: selectedDtype, device: "cpu" as const },
+      { device: "cpu" as const },
+    ];
+
+    for (const opts of modelAttempts) {
+      try {
+        model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, opts);
+        if (model) break;
+      } catch (err) {
+        lastModelError = err;
+      }
+    }
+
+    if (!model) {
+      const msg = lastModelError instanceof Error ? lastModelError.message : String(lastModelError);
+      throw new Error(msg);
     }
 
     const pair = { model, tokenizer };

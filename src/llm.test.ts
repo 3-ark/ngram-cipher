@@ -6,6 +6,7 @@ import {
   loadLlmModel,
   clearLlmModelCache,
   parseHfUrl,
+  resolveTokenizerCandidates,
   type LlmModelPair
 } from "./encoding/llm.js";
 
@@ -65,6 +66,35 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
   beforeEach(() => {
     clearLlmModelCache();
   });
+
+  it("should generate correct tokenizer candidates for ONNX models", () => {
+    const candidatesV6 = resolveTokenizerCandidates("onnx-community/Supra-Mini-v6-1M-ONNX");
+    expect(candidatesV6).toContain("onnx-community/Supra-Mini-v6-1M-ONNX");
+    expect(candidatesV6).toContain("SupraLabs/Supra-Mini-v6-1M");
+    expect(candidatesV6).toContain("Xenova/gpt2");
+
+    const candidatesV2 = resolveTokenizerCandidates("onnx-community/Supra-Mini-v2-0.1M-ONNX");
+    expect(candidatesV2).toContain("SupraLabs/Supra-Mini-v2-0.1M");
+
+    const candidatesLlama = resolveTokenizerCandidates("onnx-community/Llama-3.2-1B-Instruct-ONNX");
+    expect(candidatesLlama).toContain("meta-llama/Llama-3.2-1B-Instruct");
+
+    const candidatesSimple = resolveTokenizerCandidates("Xenova/gpt2");
+    expect(candidatesSimple).toContain("Xenova/gpt2");
+  });
+
+  it("should load model onnx-community/Supra-Mini-v6-1M-ONNX successfully without tokenizer errors", async () => {
+    const config = {
+      style: "llm" as const,
+      llmModel: "onnx-community/Supra-Mini-v6-1M-ONNX",
+      bitsPerToken: 3,
+      llmPrompt: "In recent news,"
+    };
+
+    const loaded = await loadLlmModel(config);
+    expect(loaded.model).toBeDefined();
+    expect(loaded.tokenizer).toBeDefined();
+  }, 30000);
 
   it("should parse direct Hugging Face ONNX file URLs correctly", () => {
     const url1 = "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_fp16.onnx?download=true";
