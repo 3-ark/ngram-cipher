@@ -31,7 +31,7 @@
       margin-bottom: 8px;
       margin-top: 16px;
     }
-    input[type="password"], textarea {
+    input[type="text"], input[type="number"], input[type="password"], select, textarea {
       width: 100%;
       padding: 12px;
       border: 1px solid #cbd5e1;
@@ -43,6 +43,14 @@
     textarea {
       height: 110px;
       resize: vertical;
+    }
+    .llm-panel {
+      background-color: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+      display: none;
     }
     .btn-group {
       display: flex;
@@ -70,6 +78,16 @@
     button.secondary:hover {
       background-color: #334155;
     }
+    .info-status {
+      font-size: 14px;
+      color: #0369a1;
+      background-color: #e0f2fe;
+      border: 1px solid #bae6fd;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 12px;
+      display: none;
+    }
     .error {
       color: #dc2626;
       background-color: #fef2f2;
@@ -94,9 +112,24 @@
 
     <label for="style">Writing style</label>
     <select id="style">
-      <option value="news">News prose</option>
-      <option value="poetry">Poetry</option>
+      <option value="news">News prose (Google N-Gram LM)</option>
+      <option value="poetry">Poetry (Dynamic Stanzas)</option>
+      <option value="llm">LLM ONNX Mode (Transformers.js)</option>
     </select>
+
+    <div id="llmPanel" class="llm-panel">
+      <label for="llmModel">Hugging Face Model ID or URL</label>
+      <input type="text" id="llmModel" value="onnx-community/Supra-Mini-v2-0.1M-ONNX" placeholder="e.g. onnx-community/Supra-Mini-v2-0.1M-ONNX or onnx-community/Supra-Mini-v2-0.1M-ONNX">
+      <small style="color: #64748b;">Accepts model IDs (e.g. <code>onnx-community/Supra-Mini-v2-0.1M-ONNX</code>) or Hugging Face URLs. Model downloads directly from Hugging Face on first run and caches in browser IndexedDB.</small>
+
+      <label for="llmPrompt">Generation Prompt Context</label>
+      <input type="text" id="llmPrompt" value="In recent news," placeholder="Prompt context for model generation">
+
+      <label for="bitsPerToken">Bits Embedded Per Token (1-8 bits)</label>
+      <input type="number" id="bitsPerToken" min="1" max="8" value="4">
+    </div>
+
+    <div id="infoStatus" class="info-status"></div>
 
     <div class="btn-group">
       <button id="encodeBtn">🔒 Encode to English Prose</button>
@@ -110,13 +143,42 @@
   </div>
 
   <script type="module">
-    import { encode, decode } from './src/index.ts';
+    import { encode, decode, normalizeModelName } from './src/index.ts';
 
     const plaintextEl = document.getElementById('plaintext');
     const ciphertextEl = document.getElementById('ciphertext');
     const passwordEl = document.getElementById('password');
     const styleEl = document.getElementById('style');
+    const llmPanelEl = document.getElementById('llmPanel');
+    const llmModelEl = document.getElementById('llmModel');
+    const llmPromptEl = document.getElementById('llmPrompt');
+    const bitsPerTokenEl = document.getElementById('bitsPerToken');
+    const encodeBtnEl = document.getElementById('encodeBtn');
+    const decodeBtnEl = document.getElementById('decodeBtn');
+    const infoStatusEl = document.getElementById('infoStatus');
     const errorEl = document.getElementById('error');
+
+    function updateStyleUI() {
+      const selectedStyle = styleEl.value;
+      if (selectedStyle === 'llm') {
+        llmPanelEl.style.display = 'block';
+        encodeBtnEl.textContent = '🤖 Encode with ONNX LLM';
+        decodeBtnEl.textContent = '🔓 Decode with ONNX LLM';
+      } else if (selectedStyle === 'poetry') {
+        llmPanelEl.style.display = 'none';
+        encodeBtnEl.textContent = '🔒 Encode to Poetry';
+        decodeBtnEl.textContent = '🔓 Decode to Plaintext';
+      } else {
+        llmPanelEl.style.display = 'none';
+        encodeBtnEl.textContent = '🔒 Encode to English Prose';
+        decodeBtnEl.textContent = '🔓 Decode to Plaintext';
+      }
+    }
+
+    styleEl.addEventListener('change', updateStyleUI);
+    styleEl.addEventListener('input', updateStyleUI);
+    updateStyleUI();
+
 
     function showError(msg) {
       if (msg) {
@@ -127,30 +189,80 @@
       }
     }
 
-    document.getElementById('encodeBtn').addEventListener('click', async () => {
+    function showStatus(msg) {
+      if (msg) {
+        infoStatusEl.textContent = msg;
+        infoStatusEl.style.display = 'block';
+      } else {
+        infoStatusEl.style.display = 'none';
+      }
+    }
+
+    function buildOptions() {
+      const selectedStyle = styleEl.value;
+      if (selectedStyle === 'llm') {
+        return {
+          encoding: {
+            style: 'llm',
+            llmModel: llmModelEl.value.trim() || 'onnx-community/Supra-Mini-v2-0.1M-ONNX',
+            llmPrompt: llmPromptEl.value.trim() || 'In recent news,',
+            bitsPerToken: parseInt(bitsPerTokenEl.value, 10) || 4
+          }
+        };
+      }
+      return {
+        encoding: {
+          style: selectedStyle
+        }
+      };
+    }
+
+    encodeBtnEl.addEventListener('click', async () => {
       showError(null);
       try {
         const text = plaintextEl.value;
         const pass = passwordEl.value;
         if (!text) return showError('Please enter plaintext to encode.');
         if (!pass) return showError('Please enter a password.');
-        const result = await encode(text, pass, { encoding: { style: styleEl.value } });
+
+        if (styleEl.value === 'llm') {
+          const rawModel = llmModelEl.value.trim() || 'onnx-community/Supra-Mini-v2-0.1M-ONNX';
+          const normalized = normalizeModelName(rawModel);
+          showStatus(`⏳ Downloading / loading ONNX model '${normalized}' from Hugging Face...`);
+        } else {
+          showStatus(null);
+        }
+
+        const result = await encode(text, pass, buildOptions());
         ciphertextEl.value = result;
+        showStatus(styleEl.value === 'llm' ? '✅ Encoding complete! ONNX model cached in browser IndexedDB.' : null);
       } catch (err) {
+        showStatus(null);
         showError(err.message || 'Encoding error occurred.');
       }
     });
 
-    document.getElementById('decodeBtn').addEventListener('click', async () => {
+    decodeBtnEl.addEventListener('click', async () => {
       showError(null);
       try {
         const cipher = ciphertextEl.value;
         const pass = passwordEl.value;
         if (!cipher) return showError('Please enter English ciphertext to decode.');
         if (!pass) return showError('Please enter a password.');
-        const result = await decode(cipher, pass, { encoding: { style: styleEl.value } });
+
+        if (styleEl.value === 'llm') {
+          const rawModel = llmModelEl.value.trim() || 'onnx-community/Supra-Mini-v2-0.1M-ONNX';
+          const normalized = normalizeModelName(rawModel);
+          showStatus(`⏳ Loading ONNX model '${normalized}' for decoding...`);
+        } else {
+          showStatus(null);
+        }
+
+        const result = await decode(cipher, pass, buildOptions());
         plaintextEl.value = result;
+        showStatus(styleEl.value === 'llm' ? '✅ Decoding complete!' : null);
       } catch (err) {
+        showStatus(null);
         showError(err.message || 'Decoding error occurred.');
       }
     });

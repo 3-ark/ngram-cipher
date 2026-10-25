@@ -51,7 +51,14 @@ export interface FramingConfig {
 
 export interface EncodingConfig {
   sentenceEndingVariance: boolean;
-  style?: "news" | "poetry";
+  style?: "news" | "poetry" | "llm";
+  llmModel?: string;
+  llmPrompt?: string;
+  bitsPerToken?: number;
+  llmCustomModel?: any;
+  llmCustomTokenizer?: any;
+  llmQuantized?: boolean;
+  llmCacheDir?: string;
 }
 
 export interface StegoConfig {
@@ -80,6 +87,10 @@ export const DEFAULT_CONFIG: StegoConfig = {
   encoding: {
     sentenceEndingVariance: true,
     style: "news",
+    llmModel: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
+    llmPrompt: "In recent news,",
+    bitsPerToken: 4,
+    llmQuantized: true,
   },
 };
 

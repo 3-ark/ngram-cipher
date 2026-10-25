@@ -17,6 +17,13 @@ export default defineConfig({
       formats: ["es", "cjs"],
     },
     rollupOptions: {
+      external: [
+        "@huggingface/transformers",
+        /^@huggingface\/transformers\/.*/,
+        "onnxruntime-web",
+        /^onnxruntime-web\/.*/,
+        /^node:.*/
+      ],
       output: {
         exports: "named",
       },

@@ -14,7 +14,7 @@ import {
 } from "./config/index.js";
 import { encryptBytes, decryptBytes, deriveKeystream, xorBytes } from "./crypto/index.js";
 import { packFrame, unpackFrame } from "./framing/index.js";
-import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
+import { bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, normalizeModelName } from "./encoding/index.js";
 import { VOCABULARY, analyzeCarrierText, type CarrierAnalysis } from "./nlg/index.js";
 
 export {
@@ -22,6 +22,9 @@ export {
   decryptBytes,
   bytesToEnglishText,
   englishTextToBytes,
+  bytesToLlmText,
+  llmTextToBytes,
+  normalizeModelName,
   VOCABULARY,
   analyzeCarrierText
 };
@@ -233,7 +236,7 @@ export async function encode(
   whitenedFrame.set(xorBytes(framed.subarray(saltLength), payloadKeystream), saltLength);
 
   // 4. Encode whitened binary stream into English prose
-  return bytesToEnglishText(whitenedFrame, config.encoding);
+  return await bytesToEnglishText(whitenedFrame, config.encoding);
 }
 
 /**
@@ -253,7 +256,7 @@ export async function decode(
   const config = mergeConfig(options);
   let whitenedBytes: Uint8Array;
   try {
-    whitenedBytes = englishTextToBytes(cipherText, config.encoding);
+    whitenedBytes = await englishTextToBytes(cipherText, config.encoding);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     throw new CryptoError(`Invalid ciphertext: ${msg}`);
