@@ -18,6 +18,26 @@ export interface LlmModelPair {
 }
 
 /**
+ * Normalizes user-provided HuggingFace URLs or model repository identifiers.
+ * e.g., "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_fp16.onnx"
+ * -> "onnx-community/Supra-Mini-v2-0.1M-ONNX"
+ */
+export function normalizeModelName(input?: string): string {
+  if (!input || typeof input !== "string" || input.trim().length === 0) {
+    return "Xenova/gpt2";
+  }
+  const trimmed = input.trim();
+
+  // If a full Hugging Face URL was provided, extract the org/repo pattern
+  const hfMatch = trimmed.match(/huggingface\.co\/([^\/]+\/[^\/]+)/i);
+  if (hfMatch) {
+    return hfMatch[1];
+  }
+
+  return trimmed;
+}
+
+/**
  * Loads or retrieves a cached ONNX Causal Language Model and Tokenizer.
  */
 export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair> {
@@ -28,8 +48,8 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     };
   }
 
-  const modelName = config.llmModel || "Xenova/gpt2-tiny-onnx";
-  const cacheKey = `${modelName}:${config.llmQuantized !== false}:${config.llmCacheDir || "default"}`;
+  const modelIdentifier = normalizeModelName(config.llmModel);
+  const cacheKey = `${modelIdentifier}:${config.llmQuantized !== false}:${config.llmCacheDir || "default"}`;
 
   if (modelCache.has(cacheKey)) {
     return modelCache.get(cacheKey)!;
@@ -40,8 +60,15 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   }
 
   try {
-    const tokenizer = await AutoTokenizer.from_pretrained(modelName);
-    const model = await AutoModelForCausalLM.from_pretrained(modelName, {
+    let tokenizer: any;
+    try {
+      tokenizer = await AutoTokenizer.from_pretrained(modelIdentifier);
+    } catch {
+      // Fallback tokenizer to Xenova/gpt2 if custom repo lacks tokenizer_config.json
+      tokenizer = await AutoTokenizer.from_pretrained("Xenova/gpt2");
+    }
+
+    const model = await AutoModelForCausalLM.from_pretrained(modelIdentifier, {
       quantized: config.llmQuantized !== false,
     });
 
@@ -50,7 +77,9 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     return pair;
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    throw new EncodingError(`Failed to load ONNX model '${modelName}': ${msg}`);
+    throw new EncodingError(
+      `Failed to load ONNX model from '${modelIdentifier}'. Ensure the Hugging Face repository exists and contains ONNX weights. Error: ${msg}`
+    );
   }
 }
 

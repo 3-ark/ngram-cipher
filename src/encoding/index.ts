@@ -18,9 +18,9 @@ import {
   type DomainTopic,
 } from "../nlg/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
-import { bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache } from "./llm.js";
+import { bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache, normalizeModelName } from "./llm.js";
 
-export { BitStreamReader, BitStreamWriter, bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache };
+export { BitStreamReader, BitStreamWriter, bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache, normalizeModelName };
 
 const NEWS_ENDING_CODES: Record<string, string> = {
   ".": "0",

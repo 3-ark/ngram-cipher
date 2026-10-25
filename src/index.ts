@@ -11,6 +11,9 @@ import {
   decryptBytes,
   bytesToEnglishText,
   englishTextToBytes,
+  bytesToLlmText,
+  llmTextToBytes,
+  normalizeModelName,
   VOCABULARY,
   analyzeCarrierText
 } from "./ngram.js";
@@ -22,6 +25,9 @@ export {
   decryptBytes,
   bytesToEnglishText,
   englishTextToBytes,
+  bytesToLlmText,
+  llmTextToBytes,
+  normalizeModelName,
   VOCABULARY,
   analyzeCarrierText
 };
@@ -39,6 +45,9 @@ const ngramCipher = {
   decryptBytes,
   bytesToEnglishText,
   englishTextToBytes,
+  bytesToLlmText,
+  llmTextToBytes,
+  normalizeModelName,
   VOCABULARY,
   analyzeCarrierText
 };

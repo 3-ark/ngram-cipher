@@ -118,9 +118,9 @@
     </select>
 
     <div id="llmPanel" class="llm-panel">
-      <label for="llmModel">Hugging Face Model ID / Address</label>
-      <input type="text" id="llmModel" value="Xenova/gpt2-tiny-onnx" placeholder="e.g. Xenova/gpt2-tiny-onnx or custom ONNX model path">
-      <small style="color: #64748b;">Model will automatically download from Hugging Face on first run and cache locally in browser IndexedDB.</small>
+      <label for="llmModel">Hugging Face Model ID or URL</label>
+      <input type="text" id="llmModel" value="Xenova/gpt2" placeholder="e.g. Xenova/gpt2 or onnx-community/Supra-Mini-v2-0.1M-ONNX">
+      <small style="color: #64748b;">Accepts model IDs (e.g. <code>Xenova/gpt2</code>) or Hugging Face URLs. Model downloads directly from Hugging Face on first run and caches in browser IndexedDB.</small>
 
       <label for="llmPrompt">Generation Prompt Context</label>
       <input type="text" id="llmPrompt" value="In recent news," placeholder="Prompt context for model generation">
@@ -143,7 +143,7 @@
   </div>
 
   <script type="module">
-    import { encode, decode } from './src/index.ts';
+    import { encode, decode, normalizeModelName } from './src/index.ts';
 
     const plaintextEl = document.getElementById('plaintext');
     const ciphertextEl = document.getElementById('ciphertext');
@@ -153,14 +153,36 @@
     const llmModelEl = document.getElementById('llmModel');
     const llmPromptEl = document.getElementById('llmPrompt');
     const bitsPerTokenEl = document.getElementById('bitsPerToken');
+    const encodeBtnEl = document.getElementById('encodeBtn');
+    const decodeBtnEl = document.getElementById('decodeBtn');
     const infoStatusEl = document.getElementById('infoStatus');
     const errorEl = document.getElementById('error');
 
-    styleEl.addEventListener('change', () => {
-      if (styleEl.value === 'llm') {
+    function updateStyleUI() {
+      const selectedStyle = styleEl.value;
+      if (selectedStyle === 'llm') {
         llmPanelEl.style.display = 'block';
+        encodeBtnEl.textContent = '🤖 Encode with ONNX LLM';
+        decodeBtnEl.textContent = '🔓 Decode with ONNX LLM';
+      } else if (selectedStyle === 'poetry') {
+        llmPanelEl.style.display = 'none';
+        encodeBtnEl.textContent = '🔒 Encode to Poetry';
+        decodeBtnEl.textContent = '🔓 Decode to Plaintext';
       } else {
         llmPanelEl.style.display = 'none';
+        encodeBtnEl.textContent = '🔒 Encode to English Prose';
+        decodeBtnEl.textContent = '🔓 Decode to Plaintext';
+      }
+    }
+
+    styleEl.addEventListener('change', updateStyleUI);
+    styleEl.addEventListener('input', updateStyleUI);
+    updateStyleUI();
+
+    llmModelEl.addEventListener('blur', () => {
+      const normalized = normalizeModelName(llmModelEl.value);
+      if (normalized && normalized !== llmModelEl.value.trim()) {
+        llmModelEl.value = normalized;
       }
     });
 
@@ -188,7 +210,7 @@
         return {
           encoding: {
             style: 'llm',
-            llmModel: llmModelEl.value.trim() || 'Xenova/gpt2-tiny-onnx',
+            llmModel: normalizeModelName(llmModelEl.value) || 'Xenova/gpt2',
             llmPrompt: llmPromptEl.value.trim() || 'In recent news,',
             bitsPerToken: parseInt(bitsPerTokenEl.value, 10) || 4
           }
@@ -201,7 +223,7 @@
       };
     }
 
-    document.getElementById('encodeBtn').addEventListener('click', async () => {
+    encodeBtnEl.addEventListener('click', async () => {
       showError(null);
       try {
         const text = plaintextEl.value;
@@ -210,21 +232,21 @@
         if (!pass) return showError('Please enter a password.');
 
         if (styleEl.value === 'llm') {
-          showStatus(`⏳ Downloading / loading ONNX model '${llmModelEl.value.trim()}' from Hugging Face (will be cached in browser)...`);
+          showStatus(`⏳ Downloading / loading ONNX model '${normalizeModelName(llmModelEl.value)}' from Hugging Face...`);
         } else {
           showStatus(null);
         }
 
         const result = await encode(text, pass, buildOptions());
         ciphertextEl.value = result;
-        showStatus(styleEl.value === 'llm' ? '✅ Encoding complete! Model cached in browser IndexedDB.' : null);
+        showStatus(styleEl.value === 'llm' ? '✅ Encoding complete! ONNX model cached in browser IndexedDB.' : null);
       } catch (err) {
         showStatus(null);
         showError(err.message || 'Encoding error occurred.');
       }
     });
 
-    document.getElementById('decodeBtn').addEventListener('click', async () => {
+    decodeBtnEl.addEventListener('click', async () => {
       showError(null);
       try {
         const cipher = ciphertextEl.value;
@@ -233,7 +255,7 @@
         if (!pass) return showError('Please enter a password.');
 
         if (styleEl.value === 'llm') {
-          showStatus(`⏳ Loading ONNX model '${llmModelEl.value.trim()}' for decoding...`);
+          showStatus(`⏳ Loading ONNX model '${normalizeModelName(llmModelEl.value)}' for decoding...`);
         } else {
           showStatus(null);
         }
