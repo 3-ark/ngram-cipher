@@ -105,10 +105,10 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
       quantized: true,
     });
 
-    const repoOnly = "Xenova/gpt2";
+    const repoOnly = "onnx-community/Supra-Mini-v2-0.1M-ONNX";
     const parsedRepo = parseHfUrl(repoOnly);
     expect(parsedRepo).toEqual({
-      modelId: "Xenova/gpt2",
+      modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
       quantized: true,
     });
 

@@ -87,7 +87,7 @@ export const DEFAULT_CONFIG: StegoConfig = {
   encoding: {
     sentenceEndingVariance: true,
     style: "news",
-    llmModel: "Xenova/gpt2",
+    llmModel: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
     llmPrompt: "In recent news,",
     bitsPerToken: 4,
     llmQuantized: true,

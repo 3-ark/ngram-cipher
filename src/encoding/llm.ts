@@ -42,7 +42,7 @@ export interface ParsedModelTarget {
  */
 export function parseHfUrl(input?: string): ParsedModelTarget {
   if (!input || typeof input !== "string" || input.trim().length === 0) {
-    return { modelId: "Xenova/gpt2", quantized: true };
+    return { modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX", quantized: true };
   }
   // Strip query strings (?download=true, etc) and fragments
   const cleaned = input.trim().split("?")[0].split("#")[0];
@@ -145,7 +145,7 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
           subfolder: parsed.subfolder,
         } as any);
       } catch {
-        tokenizer = await AutoTokenizer.from_pretrained("Xenova/gpt2");
+        tokenizer = await AutoTokenizer.from_pretrained("onnx-community/Supra-Mini-v2-0.1M-ONNX");
       }
     }
 

@@ -119,8 +119,8 @@
 
     <div id="llmPanel" class="llm-panel">
       <label for="llmModel">Hugging Face Model ID or URL</label>
-      <input type="text" id="llmModel" value="Xenova/gpt2" placeholder="e.g. Xenova/gpt2 or onnx-community/Supra-Mini-v2-0.1M-ONNX">
-      <small style="color: #64748b;">Accepts model IDs (e.g. <code>Xenova/gpt2</code>) or Hugging Face URLs. Model downloads directly from Hugging Face on first run and caches in browser IndexedDB.</small>
+      <input type="text" id="llmModel" value="onnx-community/Supra-Mini-v2-0.1M-ONNX" placeholder="e.g. onnx-community/Supra-Mini-v2-0.1M-ONNX or onnx-community/Supra-Mini-v2-0.1M-ONNX">
+      <small style="color: #64748b;">Accepts model IDs (e.g. <code>onnx-community/Supra-Mini-v2-0.1M-ONNX</code>) or Hugging Face URLs. Model downloads directly from Hugging Face on first run and caches in browser IndexedDB.</small>
 
       <label for="llmPrompt">Generation Prompt Context</label>
       <input type="text" id="llmPrompt" value="In recent news," placeholder="Prompt context for model generation">
@@ -204,7 +204,7 @@
         return {
           encoding: {
             style: 'llm',
-            llmModel: llmModelEl.value.trim() || 'Xenova/gpt2',
+            llmModel: llmModelEl.value.trim() || 'onnx-community/Supra-Mini-v2-0.1M-ONNX',
             llmPrompt: llmPromptEl.value.trim() || 'In recent news,',
             bitsPerToken: parseInt(bitsPerTokenEl.value, 10) || 4
           }
@@ -226,7 +226,7 @@
         if (!pass) return showError('Please enter a password.');
 
         if (styleEl.value === 'llm') {
-          const rawModel = llmModelEl.value.trim() || 'Xenova/gpt2';
+          const rawModel = llmModelEl.value.trim() || 'onnx-community/Supra-Mini-v2-0.1M-ONNX';
           const normalized = normalizeModelName(rawModel);
           showStatus(`⏳ Downloading / loading ONNX model '${normalized}' from Hugging Face...`);
         } else {
@@ -251,7 +251,7 @@
         if (!pass) return showError('Please enter a password.');
 
         if (styleEl.value === 'llm') {
-          const rawModel = llmModelEl.value.trim() || 'Xenova/gpt2';
+          const rawModel = llmModelEl.value.trim() || 'onnx-community/Supra-Mini-v2-0.1M-ONNX';
           const normalized = normalizeModelName(rawModel);
           showStatus(`⏳ Loading ONNX model '${normalized}' for decoding...`);
         } else {
