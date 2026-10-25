@@ -179,12 +179,6 @@
     styleEl.addEventListener('input', updateStyleUI);
     updateStyleUI();
 
-    llmModelEl.addEventListener('blur', () => {
-      const normalized = normalizeModelName(llmModelEl.value);
-      if (normalized && normalized !== llmModelEl.value.trim()) {
-        llmModelEl.value = normalized;
-      }
-    });
 
     function showError(msg) {
       if (msg) {
@@ -210,7 +204,7 @@
         return {
           encoding: {
             style: 'llm',
-            llmModel: normalizeModelName(llmModelEl.value) || 'Xenova/gpt2',
+            llmModel: llmModelEl.value.trim() || 'Xenova/gpt2',
             llmPrompt: llmPromptEl.value.trim() || 'In recent news,',
             bitsPerToken: parseInt(bitsPerTokenEl.value, 10) || 4
           }
@@ -232,7 +226,7 @@
         if (!pass) return showError('Please enter a password.');
 
         if (styleEl.value === 'llm') {
-          showStatus(`⏳ Downloading / loading ONNX model '${normalizeModelName(llmModelEl.value)}' from Hugging Face...`);
+          showStatus(`⏳ Downloading / loading ONNX model '${llmModelEl.value.trim() || 'Xenova/gpt2'}' from Hugging Face...`);
         } else {
           showStatus(null);
         }
@@ -255,7 +249,7 @@
         if (!pass) return showError('Please enter a password.');
 
         if (styleEl.value === 'llm') {
-          showStatus(`⏳ Loading ONNX model '${normalizeModelName(llmModelEl.value)}' for decoding...`);
+          showStatus(`⏳ Loading ONNX model '${llmModelEl.value.trim() || 'Xenova/gpt2'}' for decoding...`);
         } else {
           showStatus(null);
         }

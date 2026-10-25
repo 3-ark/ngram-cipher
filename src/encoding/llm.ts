@@ -22,19 +22,60 @@ export interface LlmModelPair {
  * e.g., "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_fp16.onnx"
  * -> "onnx-community/Supra-Mini-v2-0.1M-ONNX"
  */
-export function normalizeModelName(input?: string): string {
+export interface ParsedModelTarget {
+  modelId: string;
+  revision?: string;
+  subfolder?: string;
+  model_file_name?: string;
+  quantized: boolean;
+}
+
+/**
+ * Parses user-provided HuggingFace URLs or model repository identifiers into
+ * modelId, revision, subfolder, and model_file_name parameters.
+ * e.g., "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_quantized.onnx"
+ * -> { modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX", revision: "main", subfolder: "onnx", model_file_name: "model_quantized", quantized: false }
+ */
+export function parseHfUrl(input?: string): ParsedModelTarget {
   if (!input || typeof input !== "string" || input.trim().length === 0) {
-    return "Xenova/gpt2";
+    return { modelId: "Xenova/gpt2", quantized: true };
   }
   const trimmed = input.trim();
 
-  // If a full Hugging Face URL was provided, extract the org/repo pattern
-  const hfMatch = trimmed.match(/huggingface\.co\/([^\/]+\/[^\/]+)/i);
-  if (hfMatch) {
-    return hfMatch[1];
+  const urlPattern = /huggingface\.co\/([^\/]+\/[^\/]+)(?:\/resolve\/([^\/]+)\/(?:(.+)\/)?([^\/]+))?/i;
+  const match = trimmed.match(urlPattern);
+
+  if (match) {
+    const modelId = match[1];
+    const revision = match[2] || "main";
+    const rawPath = match[3] || "";
+    let fileName = match[4];
+
+    if (fileName) {
+      fileName = fileName.replace(/\.onnx$/i, "");
+      return {
+        modelId,
+        revision,
+        subfolder: rawPath || undefined,
+        model_file_name: fileName,
+        quantized: false,
+      };
+    }
+
+    return {
+      modelId,
+      revision,
+      subfolder: rawPath || undefined,
+      quantized: true,
+    };
   }
 
-  return trimmed;
+  return { modelId: trimmed, quantized: true };
+}
+
+export function normalizeModelName(input?: string): string {
+  const parsed = parseHfUrl(input);
+  return parsed.modelId;
 }
 
 /**
@@ -48,8 +89,9 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     };
   }
 
-  const modelIdentifier = normalizeModelName(config.llmModel);
-  const cacheKey = `${modelIdentifier}:${config.llmQuantized !== false}:${config.llmCacheDir || "default"}`;
+  const parsed = parseHfUrl(config.llmModel);
+  const isQuantized = config.llmQuantized ?? parsed.quantized;
+  const cacheKey = `${parsed.modelId}:${parsed.subfolder || ""}:${parsed.model_file_name || ""}:${isQuantized}:${config.llmCacheDir || "default"}`;
 
   if (modelCache.has(cacheKey)) {
     return modelCache.get(cacheKey)!;
@@ -62,15 +104,25 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   try {
     let tokenizer: any;
     try {
-      tokenizer = await AutoTokenizer.from_pretrained(modelIdentifier);
+      tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId);
     } catch {
-      // Fallback tokenizer to Xenova/gpt2 if custom repo lacks tokenizer_config.json
-      tokenizer = await AutoTokenizer.from_pretrained("Xenova/gpt2");
+      try {
+        tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId, {
+          subfolder: parsed.subfolder,
+        } as any);
+      } catch {
+        tokenizer = await AutoTokenizer.from_pretrained("Xenova/gpt2");
+      }
     }
 
-    const model = await AutoModelForCausalLM.from_pretrained(modelIdentifier, {
-      quantized: config.llmQuantized !== false,
-    });
+    const modelOptions: any = {
+      quantized: isQuantized,
+    };
+    if (parsed.revision) modelOptions.revision = parsed.revision;
+    if (parsed.subfolder) modelOptions.subfolder = parsed.subfolder;
+    if (parsed.model_file_name) modelOptions.model_file_name = parsed.model_file_name;
+
+    const model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, modelOptions);
 
     const pair = { model, tokenizer };
     modelCache.set(cacheKey, pair);
@@ -78,7 +130,7 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     throw new EncodingError(
-      `Failed to load ONNX model from '${modelIdentifier}'. Ensure the Hugging Face repository exists and contains ONNX weights. Error: ${msg}`
+      `Failed to load ONNX model from '${config.llmModel || parsed.modelId}'. Ensure the Hugging Face repository exists and contains valid ONNX weights. Error: ${msg}`
     );
   }
 }

@@ -5,6 +5,7 @@ import {
   llmTextToBytes,
   loadLlmModel,
   clearLlmModelCache,
+  parseHfUrl,
   type LlmModelPair
 } from "./encoding/llm.js";
 
@@ -63,6 +64,35 @@ function createMockLlmPair(): LlmModelPair {
 describe("Pluggable ONNX LLM Steganography Module", () => {
   beforeEach(() => {
     clearLlmModelCache();
+  });
+
+  it("should parse direct Hugging Face ONNX file URLs correctly", () => {
+    const url1 = "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_fp16.onnx";
+    const parsed1 = parseHfUrl(url1);
+    expect(parsed1).toEqual({
+      modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
+      revision: "main",
+      subfolder: "onnx",
+      model_file_name: "model_fp16",
+      quantized: false,
+    });
+
+    const url2 = "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_quantized.onnx";
+    const parsed2 = parseHfUrl(url2);
+    expect(parsed2).toEqual({
+      modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
+      revision: "main",
+      subfolder: "onnx",
+      model_file_name: "model_quantized",
+      quantized: false,
+    });
+
+    const repoOnly = "Xenova/gpt2";
+    const parsedRepo = parseHfUrl(repoOnly);
+    expect(parsedRepo).toEqual({
+      modelId: "Xenova/gpt2",
+      quantized: true,
+    });
   });
 
   it("should support custom pluggable models and tokenizers", async () => {
