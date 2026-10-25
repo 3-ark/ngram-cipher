@@ -31,7 +31,7 @@
       margin-bottom: 8px;
       margin-top: 16px;
     }
-    input[type="password"], textarea {
+    input[type="text"], input[type="number"], input[type="password"], select, textarea {
       width: 100%;
       padding: 12px;
       border: 1px solid #cbd5e1;
@@ -43,6 +43,14 @@
     textarea {
       height: 110px;
       resize: vertical;
+    }
+    .llm-panel {
+      background-color: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+      display: none;
     }
     .btn-group {
       display: flex;
@@ -70,6 +78,16 @@
     button.secondary:hover {
       background-color: #334155;
     }
+    .info-status {
+      font-size: 14px;
+      color: #0369a1;
+      background-color: #e0f2fe;
+      border: 1px solid #bae6fd;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 12px;
+      display: none;
+    }
     .error {
       color: #dc2626;
       background-color: #fef2f2;
@@ -94,9 +112,24 @@
 
     <label for="style">Writing style</label>
     <select id="style">
-      <option value="news">News prose</option>
-      <option value="poetry">Poetry</option>
+      <option value="news">News prose (Google N-Gram LM)</option>
+      <option value="poetry">Poetry (Dynamic Stanzas)</option>
+      <option value="llm">LLM ONNX Mode (Transformers.js)</option>
     </select>
+
+    <div id="llmPanel" class="llm-panel">
+      <label for="llmModel">Hugging Face Model ID / Address</label>
+      <input type="text" id="llmModel" value="Xenova/gpt2-tiny-onnx" placeholder="e.g. Xenova/gpt2-tiny-onnx or custom ONNX model path">
+      <small style="color: #64748b;">Model will automatically download from Hugging Face on first run and cache locally in browser IndexedDB.</small>
+
+      <label for="llmPrompt">Generation Prompt Context</label>
+      <input type="text" id="llmPrompt" value="In recent news," placeholder="Prompt context for model generation">
+
+      <label for="bitsPerToken">Bits Embedded Per Token (1-8 bits)</label>
+      <input type="number" id="bitsPerToken" min="1" max="8" value="4">
+    </div>
+
+    <div id="infoStatus" class="info-status"></div>
 
     <div class="btn-group">
       <button id="encodeBtn">🔒 Encode to English Prose</button>
@@ -116,7 +149,20 @@
     const ciphertextEl = document.getElementById('ciphertext');
     const passwordEl = document.getElementById('password');
     const styleEl = document.getElementById('style');
+    const llmPanelEl = document.getElementById('llmPanel');
+    const llmModelEl = document.getElementById('llmModel');
+    const llmPromptEl = document.getElementById('llmPrompt');
+    const bitsPerTokenEl = document.getElementById('bitsPerToken');
+    const infoStatusEl = document.getElementById('infoStatus');
     const errorEl = document.getElementById('error');
+
+    styleEl.addEventListener('change', () => {
+      if (styleEl.value === 'llm') {
+        llmPanelEl.style.display = 'block';
+      } else {
+        llmPanelEl.style.display = 'none';
+      }
+    });
 
     function showError(msg) {
       if (msg) {
@@ -127,6 +173,34 @@
       }
     }
 
+    function showStatus(msg) {
+      if (msg) {
+        infoStatusEl.textContent = msg;
+        infoStatusEl.style.display = 'block';
+      } else {
+        infoStatusEl.style.display = 'none';
+      }
+    }
+
+    function buildOptions() {
+      const selectedStyle = styleEl.value;
+      if (selectedStyle === 'llm') {
+        return {
+          encoding: {
+            style: 'llm',
+            llmModel: llmModelEl.value.trim() || 'Xenova/gpt2-tiny-onnx',
+            llmPrompt: llmPromptEl.value.trim() || 'In recent news,',
+            bitsPerToken: parseInt(bitsPerTokenEl.value, 10) || 4
+          }
+        };
+      }
+      return {
+        encoding: {
+          style: selectedStyle
+        }
+      };
+    }
+
     document.getElementById('encodeBtn').addEventListener('click', async () => {
       showError(null);
       try {
@@ -134,9 +208,18 @@
         const pass = passwordEl.value;
         if (!text) return showError('Please enter plaintext to encode.');
         if (!pass) return showError('Please enter a password.');
-        const result = await encode(text, pass, { encoding: { style: styleEl.value } });
+
+        if (styleEl.value === 'llm') {
+          showStatus(`⏳ Downloading / loading ONNX model '${llmModelEl.value.trim()}' from Hugging Face (will be cached in browser)...`);
+        } else {
+          showStatus(null);
+        }
+
+        const result = await encode(text, pass, buildOptions());
         ciphertextEl.value = result;
+        showStatus(styleEl.value === 'llm' ? '✅ Encoding complete! Model cached in browser IndexedDB.' : null);
       } catch (err) {
+        showStatus(null);
         showError(err.message || 'Encoding error occurred.');
       }
     });
@@ -148,9 +231,18 @@
         const pass = passwordEl.value;
         if (!cipher) return showError('Please enter English ciphertext to decode.');
         if (!pass) return showError('Please enter a password.');
-        const result = await decode(cipher, pass, { encoding: { style: styleEl.value } });
+
+        if (styleEl.value === 'llm') {
+          showStatus(`⏳ Loading ONNX model '${llmModelEl.value.trim()}' for decoding...`);
+        } else {
+          showStatus(null);
+        }
+
+        const result = await decode(cipher, pass, buildOptions());
         plaintextEl.value = result;
+        showStatus(styleEl.value === 'llm' ? '✅ Decoding complete!' : null);
       } catch (err) {
+        showStatus(null);
         showError(err.message || 'Decoding error occurred.');
       }
     });
