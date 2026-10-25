@@ -29,7 +29,9 @@ export interface ParsedModelTarget {
   modelId: string;
   revision?: string;
   subfolder?: string;
-  dtype: "q4" | "q8" | "fp16" | "fp32" | "auto";
+  model_file_name?: string;
+  quantized?: boolean;
+  dtype?: "q4" | "q8" | "fp16" | "fp32" | "auto";
 }
 
 /**
@@ -45,8 +47,7 @@ function resolveTokenizerRepo(modelId: string): string {
 
 export function parseHfUrl(input?: string): ParsedModelTarget {
   if (!input || typeof input !== "string" || input.trim().length === 0) {
-    // ✅ Default to fp16 instead of q4
-    return { modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX", dtype: "fp16" };
+    return { modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX", quantized: true };
   }
 
   const cleaned = input.trim().split("?")[0].split("#")[0];
@@ -61,29 +62,22 @@ export function parseHfUrl(input?: string): ParsedModelTarget {
     const revision = match[4] || "main";
     let rawPath = (match[5] || "").replace(/^\/+|\/+$/g, "");
 
-    // Default to fp16 if no specific suffix in the filename
-    let dtype: "q4" | "q8" | "fp16" | "fp32" | "auto" = "fp16";
+    let model_file_name: string | undefined;
+    let quantized = true;
 
     if (rawPath.toLowerCase().endsWith(".onnx")) {
-      const fileName = rawPath.split("/").pop()!.toLowerCase();
-      if (fileName.includes("fp16")) dtype = "fp16";
-      else if (fileName.includes("q4")) dtype = "q4";
-      else if (fileName.includes("quantized") || fileName.includes("int8") || fileName.includes("q8")) dtype = "q8";
-      else dtype = "fp32";
+      quantized = false;
+      const fileNameWithExt = rawPath.split("/").pop()!;
+      model_file_name = fileNameWithExt.substring(0, fileNameWithExt.lastIndexOf("."));
       rawPath = rawPath.substring(0, rawPath.lastIndexOf("/"));
     }
 
-    const pathParts = rawPath ? rawPath.split("/") : [];
-    if (pathParts[0]?.toLowerCase() === "onnx") {
-      pathParts.shift();
-    }
-    const subfolder = pathParts.length > 0 ? pathParts.join("/") : undefined;
+    const subfolder = rawPath && rawPath !== "config.json" ? rawPath : undefined;
 
-    return { modelId, revision, subfolder, dtype };
+    return { modelId, revision, subfolder, model_file_name, quantized };
   }
 
-  // ✅ Default to fp16
-  return { modelId: cleaned, dtype: "fp16" };
+  return { modelId: cleaned, quantized: true };
 }
 
 export function normalizeModelName(input?: string): string {
@@ -127,12 +121,20 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
       tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId);
     }
 
-    // ✅ Loads 'onnx/model_fp16.onnx' (only ~340 KB)
-    const model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, {
-      dtype: selectedDtype,
-      device: "webgpu", // will fall back to wasm smoothly if needed
-      revision: parsed.revision ?? "main",
-    });
+    let model: any;
+    try {
+      model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, {
+        dtype: selectedDtype,
+        device: "webgpu",
+        revision: parsed.revision ?? "main",
+      });
+    } catch {
+      model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, {
+        dtype: selectedDtype,
+        device: "cpu",
+        revision: parsed.revision ?? "main",
+      });
+    }
 
     const pair = { model, tokenizer };
     modelCache.set(cacheKey, pair);
