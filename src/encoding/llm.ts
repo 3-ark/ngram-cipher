@@ -102,6 +102,7 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   }
 
   try {
+    // 1. Resolve Tokenizer with fallback to GPT-2
     let tokenizer: any;
     try {
       tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId);
@@ -115,6 +116,7 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
       }
     }
 
+    // 2. Resolve Model Configuration and Instance
     const modelOptions: any = {
       quantized: isQuantized,
     };
@@ -122,21 +124,28 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     if (parsed.subfolder) modelOptions.subfolder = parsed.subfolder;
     if (parsed.model_file_name) modelOptions.model_file_name = parsed.model_file_name;
 
-    if (parsed.subfolder || parsed.model_file_name) {
-      try {
-        const customConfig = await (AutoTokenizer as any).prototype.constructor ? await AutoTokenizer.from_pretrained(parsed.modelId) : null; // fetch config from root
-      } catch {}
+    let model: any;
+    try {
+      model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, modelOptions);
+    } catch (primaryErr: unknown) {
       try {
         const { AutoConfig } = await import("@xenova/transformers");
-        const loadedConfig = await AutoConfig.from_pretrained(parsed.modelId);
+        const loadedConfig = await AutoConfig.from_pretrained(parsed.modelId, {
+          revision: parsed.revision ?? "main",
+        } as any);
         if (loadedConfig) {
-          delete (loadedConfig as any).subfolder;
           modelOptions.config = loadedConfig;
         }
-      } catch {}
+        model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, modelOptions);
+      } catch {
+        try {
+          const { PreTrainedModel } = await import("@xenova/transformers");
+          model = await (PreTrainedModel as any).from_pretrained(parsed.modelId, modelOptions);
+        } catch {
+          throw primaryErr;
+        }
+      }
     }
-
-    const model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, modelOptions);
 
     const pair = { model, tokenizer };
     modelCache.set(cacheKey, pair);
