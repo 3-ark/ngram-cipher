@@ -6,6 +6,9 @@
  */
 
 import { env, AutoTokenizer, AutoModelForCausalLM, Tensor } from "@xenova/transformers";
+
+// Disable local relative model searching in browser environments so fetches do not hit local SPA routes (e.g., ./models/...) which return index.html
+env.allowLocalModels = false;
 import { EncodingConfig, EncodingError } from "../config/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
