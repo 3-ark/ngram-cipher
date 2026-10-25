@@ -122,6 +122,20 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     if (parsed.subfolder) modelOptions.subfolder = parsed.subfolder;
     if (parsed.model_file_name) modelOptions.model_file_name = parsed.model_file_name;
 
+    if (parsed.subfolder || parsed.model_file_name) {
+      try {
+        const customConfig = await (AutoTokenizer as any).prototype.constructor ? await AutoTokenizer.from_pretrained(parsed.modelId) : null; // fetch config from root
+      } catch {}
+      try {
+        const { AutoConfig } = await import("@xenova/transformers");
+        const loadedConfig = await AutoConfig.from_pretrained(parsed.modelId);
+        if (loadedConfig) {
+          delete (loadedConfig as any).subfolder;
+          modelOptions.config = loadedConfig;
+        }
+      } catch {}
+    }
+
     const model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, modelOptions);
 
     const pair = { model, tokenizer };
