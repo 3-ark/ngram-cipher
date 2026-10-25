@@ -1,19 +1,24 @@
 /**
- * Pluggable ONNX Language Model Steganography Module
- *
- * Uses Transformers.js (@xenova/transformers) to losslessly encode and decode
- * whitened bitstreams into autoregressively generated carrier text.
+ * Modern ONNX Language Model Steganography Module
+ * Powered by @huggingface/transformers (v3)
  */
 
-import { env, AutoTokenizer, AutoModelForCausalLM, Tensor } from "@xenova/transformers";
+import {
+  env,
+  AutoTokenizer,
+  AutoModelForCausalLM,
+  AutoConfig,
+  Tensor,
+} from "@huggingface/transformers";
 
-// Disable local relative model searching in browser environments so fetches do not hit local relative routes (e.g. ./models/...) which return index.html in web servers
+// Disable local relative search so web dev-servers don't return HTML index pages on 404s
 env.allowLocalModels = false;
 env.allowRemoteModels = true;
+
 import { EncodingConfig, EncodingError } from "../config/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
 
-// Cache for loaded model and tokenizer instances to avoid redundant disk/browser loads
+// Cache for loaded model and tokenizer instances
 const modelCache = new Map<string, { model: any; tokenizer: any }>();
 
 export interface LlmModelPair {
@@ -21,33 +26,41 @@ export interface LlmModelPair {
   tokenizer: any;
 }
 
-/**
- * Normalizes user-provided HuggingFace URLs or model repository identifiers.
- * e.g., "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_fp16.onnx"
- * -> "onnx-community/Supra-Mini-v2-0.1M-ONNX"
- */
 export interface ParsedModelTarget {
   modelId: string;
   revision?: string;
   subfolder?: string;
-  model_file_name?: string;
-  quantized: boolean;
+  dtype: "q4" | "q8" | "fp16" | "fp32" | "auto";
 }
 
 /**
- * Parses user-provided HuggingFace URLs or model repository identifiers into
- * modelId, revision, subfolder, and model_file_name parameters.
- * e.g., "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_quantized.onnx"
- * -> { modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX", revision: "main", subfolder: "onnx", model_file_name: "model_quantized", quantized: false }
+ * Clears the browser's Transformers CacheStorage to prevent poisoned 404 responses.
+ */
+export async function clearTransformersBrowserCache(): Promise<void> {
+  if (typeof window !== "undefined" && "caches" in window) {
+    try {
+      await window.caches.delete("transformers-cache");
+    } catch {
+      // Ignore if cache API unavailable
+    }
+  }
+}
+
+/**
+ * Normalizes user input (HF web URLs or repo IDs) into clean model IDs and dtypes.
+ * Handles inputs like:
+ * - "onnx-community/Supra-Mini-v2-0.1M-ONNX"
+ * - "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/tree/main/onnx"
+ * - "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_q4.onnx"
  */
 export function parseHfUrl(input?: string): ParsedModelTarget {
   if (!input || typeof input !== "string" || input.trim().length === 0) {
-    return { modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX", quantized: true };
+    return { modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX", dtype: "q4" };
   }
-  // Strip query strings (?download=true, etc) and fragments
-  const cleaned = input.trim().split("?")[0].split("#")[0];
 
-  const urlPattern = /huggingface\.co\/([^\/]+)\/([^\/]+)(?:\/(resolve|blob|tree|raw)\/([^\/]+)(?:\/(.+))?)?/i;
+  const cleaned = input.trim().split("?")[0].split("#")[0];
+  const urlPattern =
+    /huggingface\.co\/([^\/]+)\/([^\/]+)(?:\/(resolve|blob|tree|raw)\/([^\/]+)(?:\/(.+))?)?/i;
   const match = cleaned.match(urlPattern);
 
   if (match) {
@@ -55,56 +68,34 @@ export function parseHfUrl(input?: string): ParsedModelTarget {
     const repo = match[2];
     const modelId = `${owner}/${repo}`;
     const revision = match[4] || "main";
-    const rawPath = match[5] || "";
+    let rawPath = (match[5] || "").replace(/^\/+|\/+$/g, "");
 
-    if (rawPath) {
-      const lowerPath = rawPath.toLowerCase();
-      if (lowerPath.endsWith(".onnx")) {
-        const parts = rawPath.split("/");
-        const fileNameWithExt = parts.pop()!;
-        const fileName = fileNameWithExt.replace(/\.onnx$/i, "");
-        const subfolder = parts.join("/") || undefined;
-        return {
-          modelId,
-          revision,
-          subfolder,
-          model_file_name: fileName,
-          quantized: false,
-        };
-      } else if (lowerPath.endsWith(".json")) {
-        const parts = rawPath.split("/");
-        parts.pop(); // remove json filename
-        const subfolder = parts.join("/") || undefined;
-        return {
-          modelId,
-          revision,
-          subfolder,
-          quantized: true,
-        };
-      } else {
-        const cleanedSubfolder = rawPath.replace(/\/+$/, "");
-        return {
-          modelId,
-          revision,
-          subfolder: cleanedSubfolder || undefined,
-          quantized: true,
-        };
-      }
+    let dtype: "q4" | "q8" | "fp16" | "fp32" | "auto" = "q4";
+
+    if (rawPath.toLowerCase().endsWith(".onnx")) {
+      const fileName = rawPath.split("/").pop()!.toLowerCase();
+      if (fileName.includes("q4")) dtype = "q4";
+      else if (fileName.includes("fp16")) dtype = "fp16";
+      else if (fileName.includes("quantized") || fileName.includes("int8") || fileName.includes("q8")) dtype = "q8";
+      else dtype = "fp32";
+      rawPath = rawPath.substring(0, rawPath.lastIndexOf("/"));
     }
 
-    return {
-      modelId,
-      revision,
-      quantized: true,
-    };
+    // Strip redundant leading "onnx" folder since Transformers.js handles ONNX directory structure
+    const pathParts = rawPath ? rawPath.split("/") : [];
+    if (pathParts[0]?.toLowerCase() === "onnx") {
+      pathParts.shift();
+    }
+    const subfolder = pathParts.length > 0 ? pathParts.join("/") : undefined;
+
+    return { modelId, revision, subfolder, dtype };
   }
 
-  return { modelId: cleaned, quantized: true };
+  return { modelId: cleaned, dtype: "q4" };
 }
 
 export function normalizeModelName(input?: string): string {
-  const parsed = parseHfUrl(input);
-  return parsed.modelId;
+  return parseHfUrl(input).modelId;
 }
 
 /**
@@ -119,8 +110,7 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   }
 
   const parsed = parseHfUrl(config.llmModel);
-  const isQuantized = config.llmQuantized ?? parsed.quantized;
-  const cacheKey = `${parsed.modelId}:${parsed.subfolder || ""}:${parsed.model_file_name || ""}:${isQuantized}:${config.llmCacheDir || "default"}`;
+  const cacheKey = `${parsed.modelId}:${parsed.dtype}:${config.llmCacheDir || "default"}`;
 
   if (modelCache.has(cacheKey)) {
     return modelCache.get(cacheKey)!;
@@ -131,107 +121,84 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   }
 
   try {
-    // 1. Resolve Tokenizer with fallback to GPT-2
+    // 1. Resolve Tokenizer
+    // If the ONNX repository does not host tokenizer.json, resolve it from the parent repository
     let tokenizer: any;
-    const tokenizerOptions: any = {};
-    if (parsed.revision) tokenizerOptions.revision = parsed.revision;
-
     try {
-      tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId, tokenizerOptions);
+      tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId, {
+        revision: parsed.revision ?? "main",
+      });
     } catch {
       try {
-        tokenizer = await AutoTokenizer.from_pretrained(parsed.modelId, {
-          ...tokenizerOptions,
-          subfolder: parsed.subfolder,
-        } as any);
+        // Inspect config._name_or_path to find base model (e.g. SupraLabs/Supra-Mini-v2-0.1M)
+        const modelConfig = await AutoConfig.from_pretrained(parsed.modelId, {
+          revision: parsed.revision ?? "main",
+        });
+        const parentRepo = (modelConfig as any)?._name_or_path;
+        if (parentRepo && parentRepo !== parsed.modelId) {
+          tokenizer = await AutoTokenizer.from_pretrained(parentRepo);
+        } else {
+          tokenizer = await AutoTokenizer.from_pretrained("Xenova/gpt2");
+        }
       } catch {
-        tokenizer = await AutoTokenizer.from_pretrained("onnx-community/Supra-Mini-v2-0.1M-ONNX");
+        tokenizer = await AutoTokenizer.from_pretrained("Xenova/gpt2");
       }
     }
 
-    // 2. Resolve Model Configuration and Instance
-    const modelOptions: any = {
-      quantized: isQuantized,
-    };
-    if (parsed.revision) modelOptions.revision = parsed.revision;
-    if (parsed.subfolder) modelOptions.subfolder = parsed.subfolder;
-    if (parsed.model_file_name) modelOptions.model_file_name = parsed.model_file_name;
-
-    let model: any;
-    try {
-      model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, modelOptions);
-    } catch (primaryErr: unknown) {
-      let resolved = false;
-
-      // Fallback 1: Try explicit candidate ONNX file names and subfolders (e.g. Supra-Mini-v2-0.1M-ONNX has "onnx/model_quantized.onnx")
-      if (!modelOptions.model_file_name) {
-        const candidateNames = ["model_quantized", "model", "model_fp16", "decoder_model_merged", "decoder_model"];
-        const candidateSubfolders = modelOptions.subfolder
-          ? [modelOptions.subfolder, "onnx", undefined]
-          : ["onnx", undefined];
-
-        for (const sf of candidateSubfolders) {
-          for (const fileName of candidateNames) {
-            try {
-              const fallbackOpts = {
-                ...modelOptions,
-                subfolder: sf || undefined,
-                model_file_name: fileName,
-                quantized: false,
-              };
-              model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, fallbackOpts);
-              resolved = true;
-              break;
-            } catch {
-              // Try next candidate
-            }
-          }
-          if (resolved) break;
-        }
-      }
-
-      if (!resolved) {
-        try {
-          const { AutoConfig } = await import("@xenova/transformers");
-          const loadedConfig = await AutoConfig.from_pretrained(parsed.modelId, {
-            revision: parsed.revision ?? "main",
-          } as any);
-          if (loadedConfig) {
-            delete (loadedConfig as any).subfolder;
-            modelOptions.config = loadedConfig;
-          }
-          model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, modelOptions);
-        } catch {
-          try {
-            const { PreTrainedModel } = await import("@xenova/transformers");
-            model = await (PreTrainedModel as any).from_pretrained(parsed.modelId, modelOptions);
-          } catch {
-            throw primaryErr;
-          }
-        }
-      }
-    }
+    // 2. Load Causal LM with modern v3 configuration
+    // Uses WebGPU if available, falling back to WASM automatically
+    const model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, {
+      dtype: parsed.dtype,
+      device: "webgpu", // switches to WASM if WebGPU is not supported by the browser
+      revision: parsed.revision ?? "main",
+    });
 
     const pair = { model, tokenizer };
     modelCache.set(cacheKey, pair);
     return pair;
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
+    // If a corrupted HTML response was previously cached in the browser, evict it
+    await clearTransformersBrowserCache();
     throw new EncodingError(
-      `Failed to load ONNX model from '${config.llmModel || parsed.modelId}'. Ensure the Hugging Face repository exists and contains valid ONNX weights. Error: ${msg}`
+      `Failed to load ONNX model '${parsed.modelId}'. Error: ${msg}`
     );
   }
 }
 
-/**
- * Clears cached ONNX models from memory.
- */
 export function clearLlmModelCache(): void {
   modelCache.clear();
 }
+/**
+ * Constructs required ONNX graph inputs: input_ids, attention_mask, and position_ids.
+ * Universally compatible with Llama, Mistral, Gemma, and GPT-2 architectures.
+ */
+function buildModelInputs(tokenIds: number[]) {
+  const seqLen = tokenIds.length;
+
+  const input_ids = new Tensor(
+    "int64",
+    BigInt64Array.from(tokenIds.map((id) => BigInt(id))),
+    [1, seqLen]
+  );
+
+  const attention_mask = new Tensor(
+    "int64",
+    new BigInt64Array(seqLen).fill(1n),
+    [1, seqLen]
+  );
+
+  const position_ids = new Tensor(
+    "int64",
+    BigInt64Array.from({ length: seqLen }, (_, i) => BigInt(i)),
+    [1, seqLen]
+  );
+
+  return { input_ids, attention_mask, position_ids };
+}
 
 /**
- * Deterministically sorts logits to extract top-K candidate token IDs.
+ * Deterministically sorts logits descending and breaks ties by token ID ascending.
  */
 function getTopKTokenIds(logitsData: Float32Array | number[], k: number): number[] {
   const candidates: { id: number; score: number }[] = [];
@@ -239,7 +206,6 @@ function getTopKTokenIds(logitsData: Float32Array | number[], k: number): number
     candidates.push({ id, score: Number(logitsData[id]) });
   }
 
-  // Sort descending by logit score; tie-break deterministically by token ID ascending
   candidates.sort((a, b) => {
     if (b.score !== a.score) {
       return b.score - a.score;
@@ -250,9 +216,6 @@ function getTopKTokenIds(logitsData: Float32Array | number[], k: number): number
   return candidates.slice(0, k).map((c) => c.id);
 }
 
-/**
- * Encodes whitened binary bytes into LLM-generated carrier text.
- */
 export async function bytesToLlmText(
   bytes: Uint8Array,
   config: EncodingConfig
@@ -260,9 +223,8 @@ export async function bytesToLlmText(
   const { model, tokenizer } = await loadLlmModel(config);
 
   const bitsPerToken = Math.max(1, Math.min(16, config.bitsPerToken ?? 4));
-  const k = 1 << bitsPerToken; // 2^bitsPerToken candidate tokens per step
+  const k = 1 << bitsPerToken;
 
-  // Write a 32-bit payload bit-length header so the decoder knows exact payload boundary
   const header = new Uint8Array(4);
   const totalPayloadBits = bytes.length * 8;
   new DataView(header.buffer).setUint32(0, totalPayloadBits, false);
@@ -278,16 +240,13 @@ export async function bytesToLlmText(
   let currentTokenIds: number[] = Array.from(encodedPrompt.input_ids.data).map(Number);
 
   while (bitReader.hasBits) {
-    const inputTensor = new Tensor("int64", BigInt64Array.from(currentTokenIds.map((id) => BigInt(id))), [
-      1,
-      currentTokenIds.length,
-    ]);
+    // Generate inputs with input_ids, attention_mask, and position_ids
+    const inputs = buildModelInputs(currentTokenIds);
+    const outputs = await model(inputs);
 
-    const outputs = await model({ input_ids: inputTensor });
     const logits = outputs.logits;
-    const [batchSize, seqLen, vocabSize] = logits.dims;
+    const [, seqLen, vocabSize] = logits.dims;
 
-    // Get logits for the last token position
     const lastTokenLogitsOffset = (seqLen - 1) * vocabSize;
     const lastLogitsData = logits.data.subarray(
       lastTokenLogitsOffset,
@@ -301,8 +260,7 @@ export async function bytesToLlmText(
     currentTokenIds.push(chosenTokenId);
   }
 
-  const generatedText = tokenizer.decode(currentTokenIds, { skip_special_tokens: true });
-  return generatedText;
+  return tokenizer.decode(currentTokenIds, { skip_special_tokens: true });
 }
 
 /**
@@ -325,27 +283,17 @@ export async function llmTextToBytes(
     throw new EncodingError("Carrier text does not contain any generated LLM payload tokens.");
   }
 
-  // Verify prompt prefix matches
-  for (let i = 0; i < promptTokenIds.length; i++) {
-    if (fullTokenIds[i] !== promptTokenIds[i]) {
-      // In case tokenizer whitespace handling slightly varies, search for token alignment
-      break;
-    }
-  }
-
   const bitWriter = new BitStreamWriter();
   let currentTokenIds: number[] = promptTokenIds.slice();
   const generatedTokens = fullTokenIds.slice(promptTokenIds.length);
 
   for (const actualTokenId of generatedTokens) {
-    const inputTensor = new Tensor("int64", BigInt64Array.from(currentTokenIds.map((id) => BigInt(id))), [
-      1,
-      currentTokenIds.length,
-    ]);
+    // Generate inputs with input_ids, attention_mask, and position_ids
+    const inputs = buildModelInputs(currentTokenIds);
+    const outputs = await model(inputs);
 
-    const outputs = await model({ input_ids: inputTensor });
     const logits = outputs.logits;
-    const [batchSize, seqLen, vocabSize] = logits.dims;
+    const [, seqLen, vocabSize] = logits.dims;
 
     const lastTokenLogitsOffset = (seqLen - 1) * vocabSize;
     const lastLogitsData = logits.data.subarray(
