@@ -226,7 +226,9 @@
         if (!pass) return showError('Please enter a password.');
 
         if (styleEl.value === 'llm') {
-          showStatus(`⏳ Downloading / loading ONNX model '${llmModelEl.value.trim() || 'Xenova/gpt2'}' from Hugging Face...`);
+          const rawModel = llmModelEl.value.trim() || 'Xenova/gpt2';
+          const normalized = normalizeModelName(rawModel);
+          showStatus(`⏳ Downloading / loading ONNX model '${normalized}' from Hugging Face...`);
         } else {
           showStatus(null);
         }
@@ -249,7 +251,9 @@
         if (!pass) return showError('Please enter a password.');
 
         if (styleEl.value === 'llm') {
-          showStatus(`⏳ Loading ONNX model '${llmModelEl.value.trim() || 'Xenova/gpt2'}' for decoding...`);
+          const rawModel = llmModelEl.value.trim() || 'Xenova/gpt2';
+          const normalized = normalizeModelName(rawModel);
+          showStatus(`⏳ Loading ONNX model '${normalized}' for decoding...`);
         } else {
           showStatus(null);
         }
