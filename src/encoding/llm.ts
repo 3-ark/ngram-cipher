@@ -60,19 +60,24 @@ export function resolveTokenizerCandidates(modelId: string): string[] {
     const noPrefix = baseRepo.replace(/^onnx-community\//i, "");
     candidates.push(noPrefix);
 
-    if (noPrefix.toLowerCase().startsWith("supra-mini")) {
-      candidates.push(`SupraLabs/${noPrefix}`);
-    } else if (noPrefix.toLowerCase().startsWith("llama")) {
-      candidates.push(`meta-llama/${noPrefix}`);
-    } else if (noPrefix.toLowerCase().startsWith("qwen")) {
-      candidates.push(`Qwen/${noPrefix}`);
-    } else if (noPrefix.toLowerCase().startsWith("phi")) {
-      candidates.push(`microsoft/${noPrefix}`);
-    } else if (noPrefix.toLowerCase().startsWith("gemma")) {
-      candidates.push(`google/${noPrefix}`);
+    const parts = noPrefix.split("/");
+    const repoName = parts[parts.length - 1];
+    const lowerRepoName = repoName.toLowerCase();
+    const lowerNoPrefix = noPrefix.toLowerCase();
+
+    if (lowerRepoName.startsWith("supra-mini") || lowerNoPrefix.startsWith("supra-mini")) {
+      candidates.push(`SupraLabs/${repoName}`);
+    } else if (lowerRepoName.startsWith("llama") || lowerNoPrefix.startsWith("llama")) {
+      candidates.push(`meta-llama/${repoName}`);
+    } else if (lowerRepoName.startsWith("qwen") || lowerNoPrefix.startsWith("qwen")) {
+      candidates.push(`Qwen/${repoName}`);
+    } else if (lowerRepoName.startsWith("phi") || lowerNoPrefix.startsWith("phi")) {
+      candidates.push(`microsoft/${repoName}`);
+    } else if (lowerRepoName.startsWith("gemma") || lowerNoPrefix.startsWith("gemma")) {
+      candidates.push(`google/${repoName}`);
     }
 
-    candidates.push(`Xenova/${noPrefix}`);
+    candidates.push(`Xenova/${repoName}`);
   }
 
   candidates.push("Xenova/gpt2");
@@ -103,7 +108,7 @@ export function parseHfUrl(input?: string): ParsedModelTarget {
       quantized = false;
       const fileNameWithExt = rawPath.split("/").pop()!;
       model_file_name = fileNameWithExt.substring(0, fileNameWithExt.lastIndexOf("."));
-      rawPath = rawPath.substring(0, rawPath.lastIndexOf("/"));
+      rawPath = rawPath.includes("/") ? rawPath.substring(0, rawPath.lastIndexOf("/")) : "";
     }
 
     const subfolder = rawPath && rawPath !== "config.json" ? rawPath : undefined;
@@ -261,7 +266,8 @@ function isTokenReversible(
   
   // Re-encode WITHOUT injecting extra BOS tokens to prevent length mismatch false negatives
   const encoded = tokenizer(trialText, { add_special_tokens: false });
-  const reencoded: number[] = Array.from(encoded.input_ids.data).map(Number);
+  const rawData = encoded?.input_ids?.data ?? encoded?.input_ids ?? encoded;
+  const reencoded: number[] = Array.from(rawData ?? []).map(Number);
 
   if (reencoded.length !== trialTokens.length) {
     return false;
@@ -298,7 +304,7 @@ export function getTopKReversibleTokenIds(
   // 1. Exclude special tokens (EOS, BOS, PAD, etc.) from ever entering steganography pools
   const specialIds = new Set<number>(tokenizer.all_special_ids ?? []);
 
-  const ranked: { id: number; score: number }[] = [];
+  let ranked: { id: number; score: number }[] = [];
   for (let id = 0; id < logitsData.length; id++) {
     if (specialIds.has(id)) continue;
     const rawScore = Number(logitsData[id]);
@@ -308,7 +314,35 @@ export function getTopKReversibleTokenIds(
   // Deterministic descending sort, ties broken by lower token ID
   ranked.sort((a, b) => (b.score !== a.score ? b.score - a.score : a.id - b.id));
 
-  // 2. Select ONLY reversible tokens up to capacity k
+  // 2. Apply Top-K truncation if specified
+  if (options?.topK && options.topK > 0) {
+    const effectiveTopK = Math.max(options.topK, k);
+    if (ranked.length > effectiveTopK) {
+      ranked = ranked.slice(0, effectiveTopK);
+    }
+  }
+
+  // 3. Apply Top-P nucleus sampling if specified
+  if (options?.topP && options.topP > 0 && options.topP < 1.0) {
+    const maxScore = ranked.length > 0 ? Math.max(...ranked.map((r) => r.score)) : 0;
+    const exps = ranked.map((r) => Math.exp(r.score - maxScore));
+    const sumExp = exps.reduce((a, b) => a + b, 0);
+
+    if (sumExp > 0) {
+      let cumProb = 0;
+      let cutoffIndex = ranked.length;
+      for (let i = 0; i < ranked.length; i++) {
+        cumProb += exps[i] / sumExp;
+        if (cumProb >= options.topP) {
+          cutoffIndex = Math.max(i + 1, k);
+          break;
+        }
+      }
+      ranked = ranked.slice(0, cutoffIndex);
+    }
+  }
+
+  // 4. Select ONLY reversible tokens up to capacity k
   const validTokens: number[] = [];
   const searchBound = Math.min(ranked.length, maxSearchLimit);
 
@@ -320,7 +354,7 @@ export function getTopKReversibleTokenIds(
     }
   }
 
-  // 3. Strict verification: Never backfill unverified tokens!
+  // 5. Strict verification: Never backfill unverified tokens!
   if (validTokens.length < k) {
     throw new EncodingError(
       `StepVerify failed: Insufficient reversible tokens (found ${validTokens.length}/${k}) ` +
@@ -361,7 +395,8 @@ export async function bytesToLlmText(
   }
 
   const encodedPrompt = tokenizer(prompt, { add_special_tokens: false });
-  const currentTokenIds: number[] = Array.from(encodedPrompt.input_ids.data).map(Number);
+  const promptRaw = encodedPrompt?.input_ids?.data ?? encodedPrompt?.input_ids ?? encodedPrompt;
+  const currentTokenIds: number[] = Array.from(promptRaw).map(Number);
 
   while (bitReader.hasBits) {
     const inputs = buildModelInputs(currentTokenIds);
@@ -418,13 +453,13 @@ export async function llmTextToBytes(
     prompt += " ";
   }
 
-  const promptTokenIds: number[] = Array.from(
-    tokenizer(prompt, { add_special_tokens: false }).input_ids.data
-  ).map(Number);
+  const promptEncoded = tokenizer(prompt, { add_special_tokens: false });
+  const promptRaw = promptEncoded?.input_ids?.data ?? promptEncoded?.input_ids ?? promptEncoded;
+  const promptTokenIds: number[] = Array.from(promptRaw).map(Number);
 
-  const fullTokenIds: number[] = Array.from(
-    tokenizer(carrierText, { add_special_tokens: false }).input_ids.data
-  ).map(Number);
+  const fullEncoded = tokenizer(carrierText, { add_special_tokens: false });
+  const fullRaw = fullEncoded?.input_ids?.data ?? fullEncoded?.input_ids ?? fullEncoded;
+  const fullTokenIds: number[] = Array.from(fullRaw).map(Number);
 
   if (fullTokenIds.length <= promptTokenIds.length) {
     throw new EncodingError("Carrier text does not contain any generated LLM payload tokens.");
@@ -517,12 +552,13 @@ export async function llmTextToBytes(
     totalPayloadBits = new DataView(rawBytes.buffer, rawBytes.byteOffset, 4).getUint32(0, false);
   }
 
-  const expectedPayloadBytes = Math.ceil(totalPayloadBits / 8);
-  if (rawBytes.length < 4 + expectedPayloadBytes) {
+  const requiredTotalBits = 32 + totalPayloadBits;
+  if (totalBitsRead < requiredTotalBits) {
     throw new EncodingError(
-      `Truncated carrier text: Expected ${expectedPayloadBytes} payload bytes, but received ${rawBytes.length - 4}.`
+      `Truncated carrier text: Expected ${totalPayloadBits} payload bits, but received only ${Math.max(0, totalBitsRead - 32)} payload bits.`
     );
   }
 
+  const expectedPayloadBytes = Math.ceil(totalPayloadBits / 8);
   return rawBytes.subarray(4, 4 + expectedPayloadBytes);
 }
