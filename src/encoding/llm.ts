@@ -11,14 +11,12 @@ import {
   Tensor,
 } from "@huggingface/transformers";
 
-// Disable local relative search to prevent 404 HTML fallback issues
+// Disable local relative search to prevent 404 HTML fallback issues in web/node environments
 env.allowLocalModels = false;
 env.allowRemoteModels = true;
 
 import { EncodingConfig, EncodingError } from "../config/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
-
-const modelCache = new Map<string, { model: any; tokenizer: any }>();
 
 export interface LlmModelPair {
   model: any;
@@ -34,6 +32,8 @@ export interface ParsedModelTarget {
   dtype?: "q4" | "q8" | "fp16" | "fp32" | "auto";
 }
 
+const modelCache = new Map<string, LlmModelPair>();
+
 /**
  * Resolves candidate repository IDs for loading tokenizers when ONNX models
  * omit tokenizer config files or are hosted under converted onnx-community repositories.
@@ -48,14 +48,11 @@ export function resolveTokenizerCandidates(modelId: string): string[] {
   const trimmed = modelId.trim();
   candidates.push(trimmed);
 
-  // 1. Direct Supra-Mini base repository mapping:
-  // e.g. onnx-community/Supra-Mini-v6-1M-ONNX -> SupraLabs/Supra-Mini-v6-1M
   if (/^onnx-community\/Supra-Mini-/i.test(trimmed)) {
     const baseName = trimmed.replace(/^onnx-community\//i, "").replace(/-ONNX$/i, "");
     candidates.push(`SupraLabs/${baseName}`);
   }
 
-  // 2. Generic onnx-community or -ONNX suffix pattern
   if (/^onnx-community\//i.test(trimmed) || /-ONNX$/i.test(trimmed)) {
     const baseRepo = trimmed.replace(/-ONNX$/i, "");
     candidates.push(baseRepo);
@@ -78,10 +75,7 @@ export function resolveTokenizerCandidates(modelId: string): string[] {
     candidates.push(`Xenova/${noPrefix}`);
   }
 
-  // 3. Ultimate fallback tokenizer repository
   candidates.push("Xenova/gpt2");
-
-  // Deduplicate while preserving priority order
   return Array.from(new Set(candidates));
 }
 
@@ -113,7 +107,6 @@ export function parseHfUrl(input?: string): ParsedModelTarget {
     }
 
     const subfolder = rawPath && rawPath !== "config.json" ? rawPath : undefined;
-
     return { modelId, revision, subfolder, model_file_name, quantized };
   }
 
@@ -136,10 +129,18 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   }
 
   const parsed = parseHfUrl(config.llmModel);
-  // Allow manual override via config if needed, otherwise use parsed/default fp16
   const selectedDtype = (config as any).llmDtype || parsed.dtype || "fp16";
 
-  const cacheKey = `${parsed.modelId}:${selectedDtype}:${config.llmDevice || "cpu"}:${config.llmCacheDir || "default"}`;
+  // Cache key includes complete model provenance to avoid cross-configuration pollution
+  const cacheKey = [
+    parsed.modelId,
+    parsed.revision ?? "main",
+    parsed.subfolder ?? "root",
+    parsed.model_file_name ?? "default",
+    selectedDtype,
+    config.llmDevice ?? "cpu",
+    config.llmCacheDir ?? "default",
+  ].join("::");
 
   if (modelCache.has(cacheKey)) {
     return modelCache.get(cacheKey)!;
@@ -180,12 +181,8 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     let lastModelError: unknown;
 
     const modelOptsBase: Record<string, any> = {};
-    if (parsed.subfolder) {
-      modelOptsBase.subfolder = parsed.subfolder;
-    }
-    if (parsed.model_file_name) {
-      modelOptsBase.file_name = parsed.model_file_name;
-    }
+    if (parsed.subfolder) modelOptsBase.subfolder = parsed.subfolder;
+    if (parsed.model_file_name) modelOptsBase.file_name = parsed.model_file_name;
 
     const primaryDevice = config.llmDevice === "webgpu" ? ("webgpu" as const) : ("cpu" as const);
     const secondaryDevice = primaryDevice === "cpu" ? ("webgpu" as const) : ("cpu" as const);
@@ -217,9 +214,7 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     return pair;
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    throw new EncodingError(
-      `Failed to load ONNX model '${parsed.modelId}'. Error: ${msg}`
-    );
+    throw new EncodingError(`Failed to load ONNX model '${parsed.modelId}'. Error: ${msg}`);
   }
 }
 
@@ -228,9 +223,10 @@ export function clearLlmModelCache(): void {
 }
 
 /**
- * Constructs required ONNX graph inputs: input_ids, attention_mask, and position_ids.
+ * Builds standard ONNX CausalLM inputs: input_ids and attention_mask.
+ * Note: position_ids is omitted to prevent 'Invalid Feed Name' runtime errors on various ONNX models.
  */
-function buildModelInputs(tokenIds: number[]) {
+function buildModelInputs(tokenIds: number[]): { input_ids: Tensor; attention_mask: Tensor } {
   const seqLen = tokenIds.length;
 
   const input_ids = new Tensor(
@@ -245,18 +241,12 @@ function buildModelInputs(tokenIds: number[]) {
     [1, seqLen]
   );
 
-  const position_ids = new Tensor(
-    "int64",
-    BigInt64Array.from({ length: seqLen }, (_, i) => BigInt(i)),
-    [1, seqLen]
-  );
-
-  return { input_ids, attention_mask, position_ids };
+  return { input_ids, attention_mask };
 }
 
 /**
  * Stepwise Verification:
- * Validates that candidateTokenId does not cause BPE subword fusion when decoded to text.
+ * Strictly ensures candidateTokenId does not fuse with preceding subwords or alter the tokenization sequence.
  */
 function isTokenReversible(
   currentTokens: number[],
@@ -266,15 +256,29 @@ function isTokenReversible(
   if (candidateTokenId < 0) return false;
 
   const trialTokens = [...currentTokens, candidateTokenId];
+  // Decode without dropping tokens
   const trialText = tokenizer.decode(trialTokens, { skip_special_tokens: false });
-  const reencoded = Array.from(tokenizer(trialText).input_ids.data).map(Number);
+  
+  // Re-encode WITHOUT injecting extra BOS tokens to prevent length mismatch false negatives
+  const encoded = tokenizer(trialText, { add_special_tokens: false });
+  const reencoded: number[] = Array.from(encoded.input_ids.data).map(Number);
 
-  if (reencoded.length !== trialTokens.length) return false;
-  return reencoded[reencoded.length - 1] === candidateTokenId;
+  if (reencoded.length !== trialTokens.length) {
+    return false;
+  }
+
+  // Strict element-by-element verification of the entire token sequence
+  for (let i = 0; i < trialTokens.length; i++) {
+    if (reencoded[i] !== trialTokens[i]) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**
- * Selects top-K candidate tokens that are strictly reversible under BPE.
+ * Selects top-K candidate tokens that are strictly reversible under tokenizer re-encoding.
  */
 export function getTopKReversibleTokenIds(
   logitsData: Float32Array | number[],
@@ -288,71 +292,47 @@ export function getTopKReversibleTokenIds(
   }
 ): number[] {
   const temp = options?.temperature && options.temperature > 0 ? options.temperature : 1.0;
-  const topKLimit = Math.max(k, options?.topK && options.topK > 0 ? options.topK : 50);
-  const topPVal = options?.topP !== undefined && options.topP > 0 && options.topP <= 1.0 ? options.topP : 0.95;
+  // Maximum search horizon to identify k strictly reversible tokens
+  const maxSearchLimit = Math.min(logitsData.length, Math.max(k * 20, 500));
+
+  // 1. Exclude special tokens (EOS, BOS, PAD, etc.) from ever entering steganography pools
+  const specialIds = new Set<number>(tokenizer.all_special_ids ?? []);
 
   const ranked: { id: number; score: number }[] = [];
   for (let id = 0; id < logitsData.length; id++) {
+    if (specialIds.has(id)) continue;
     const rawScore = Number(logitsData[id]);
     ranked.push({ id, score: temp !== 1.0 ? rawScore / temp : rawScore });
   }
 
-  // Sort descending by score, breaking ties deterministically by token ID
+  // Deterministic descending sort, ties broken by lower token ID
   ranked.sort((a, b) => (b.score !== a.score ? b.score - a.score : a.id - b.id));
 
-  // 1. Truncate candidate pool to topKLimit
-  let candidatePool = ranked.slice(0, topKLimit);
-
-  // 2. Apply Top-P (nucleus) probability thresholding if topPVal < 1.0
-  if (topPVal < 1.0 && candidatePool.length > k) {
-    const maxScore = candidatePool[0].score;
-    let expSum = 0;
-    const exps = candidatePool.map((item) => {
-      const e = Math.exp(item.score - maxScore);
-      expSum += e;
-      return e;
-    });
-
-    let cumProb = 0;
-    let cutoffIndex = candidatePool.length;
-
-    for (let i = 0; i < candidatePool.length; i++) {
-      cumProb += exps[i] / expSum;
-      if (cumProb >= topPVal) {
-        cutoffIndex = i + 1;
-        break;
-      }
-    }
-
-    // Ensure nucleus candidate pool maintains at least k tokens for steganography bit capacity
-    const safeCutoff = Math.max(k, cutoffIndex);
-    candidatePool = candidatePool.slice(0, safeCutoff);
-  }
-
-  // 3. Select tokens verified not to cause BPE merge desynchronization
+  // 2. Select ONLY reversible tokens up to capacity k
   const validTokens: number[] = [];
-  for (const item of candidatePool) {
-    if (isTokenReversible(currentTokens, item.id, tokenizer)) {
-      validTokens.push(item.id);
+  const searchBound = Math.min(ranked.length, maxSearchLimit);
+
+  for (let i = 0; i < searchBound; i++) {
+    const candidateId = ranked[i].id;
+    if (isTokenReversible(currentTokens, candidateId, tokenizer)) {
+      validTokens.push(candidateId);
       if (validTokens.length === k) break;
     }
   }
 
-  // 4. Backfill from ranked candidates if reversibility yielded fewer than k
+  // 3. Strict verification: Never backfill unverified tokens!
   if (validTokens.length < k) {
-    for (const item of ranked) {
-      if (!validTokens.includes(item.id)) {
-        validTokens.push(item.id);
-        if (validTokens.length === k) break;
-      }
-    }
+    throw new EncodingError(
+      `StepVerify failed: Insufficient reversible tokens (found ${validTokens.length}/${k}) ` +
+      `within top ${searchBound} candidates. Aborting to prevent data corruption.`
+    );
   }
 
-  return validTokens.slice(0, k);
+  return validTokens;
 }
 
 /**
- * Encodes whitened binary bytes into LLM-generated carrier text.
+ * Encodes binary payload into LLM-generated carrier text.
  */
 export async function bytesToLlmText(
   bytes: Uint8Array,
@@ -363,8 +343,9 @@ export async function bytesToLlmText(
   const bitsPerToken = Math.max(1, Math.min(16, config.bitsPerToken ?? 4));
   const k = 1 << bitsPerToken;
 
-  const header = new Uint8Array(4);
+  // Header: 32-bit Big-Endian payload length in bits
   const totalPayloadBits = bytes.length * 8;
+  const header = new Uint8Array(4);
   new DataView(header.buffer).setUint32(0, totalPayloadBits, false);
 
   const fullPayload = new Uint8Array(4 + bytes.length);
@@ -373,14 +354,14 @@ export async function bytesToLlmText(
 
   const bitReader = new BitStreamReader(fullPayload);
 
-  // Normalize prompt to end with a space to establish clean word boundaries
+  // Normalize prompt with trailing space for clean word boundary tokenization
   let prompt = config.llmPrompt ?? "In recent news,";
   if (!prompt.endsWith(" ") && !prompt.endsWith("\n")) {
     prompt += " ";
   }
 
-  const encodedPrompt = tokenizer(prompt);
-  let currentTokenIds: number[] = Array.from(encodedPrompt.input_ids.data).map(Number);
+  const encodedPrompt = tokenizer(prompt, { add_special_tokens: false });
+  const currentTokenIds: number[] = Array.from(encodedPrompt.input_ids.data).map(Number);
 
   while (bitReader.hasBits) {
     const inputs = buildModelInputs(currentTokenIds);
@@ -395,7 +376,6 @@ export async function bytesToLlmText(
       lastTokenLogitsOffset + vocabSize
     );
 
-    // Get the top-K tokens verified not to cause BPE merge desynchronization
     const topKTokenIds = getTopKReversibleTokenIds(
       lastLogitsData,
       k,
@@ -408,17 +388,21 @@ export async function bytesToLlmText(
       }
     );
 
-    const bitVal = bitReader.readBits(bitsPerToken);
-    const chosenTokenId = topKTokenIds[bitVal % k];
-
+    // Read up to bitsPerToken (may read fewer bits at EOF)
+    const bitsToRead = Math.min(bitsPerToken, bitReader.remainingBits ?? bitsPerToken);
+    const bitVal = bitReader.readBits(bitsToRead);
+    
+    // Select token index deterministically
+    const chosenTokenId = topKTokenIds[bitVal];
     currentTokenIds.push(chosenTokenId);
   }
 
-  return tokenizer.decode(currentTokenIds, { skip_special_tokens: true });
+  // skip_special_tokens is false to guarantee exact string reproduction
+  return tokenizer.decode(currentTokenIds, { skip_special_tokens: false });
 }
 
 /**
- * Decodes LLM carrier text back into whitened binary bytes.
+ * Decodes LLM carrier text back into binary bytes with dynamic boundary termination.
  */
 export async function llmTextToBytes(
   carrierText: string,
@@ -434,18 +418,41 @@ export async function llmTextToBytes(
     prompt += " ";
   }
 
-  const promptTokenIds: number[] = Array.from(tokenizer(prompt).input_ids.data).map(Number);
-  const fullTokenIds: number[] = Array.from(tokenizer(carrierText).input_ids.data).map(Number);
+  const promptTokenIds: number[] = Array.from(
+    tokenizer(prompt, { add_special_tokens: false }).input_ids.data
+  ).map(Number);
+
+  const fullTokenIds: number[] = Array.from(
+    tokenizer(carrierText, { add_special_tokens: false }).input_ids.data
+  ).map(Number);
 
   if (fullTokenIds.length <= promptTokenIds.length) {
     throw new EncodingError("Carrier text does not contain any generated LLM payload tokens.");
   }
 
+  // Validate exact prompt prefix alignment
+  for (let i = 0; i < promptTokenIds.length; i++) {
+    if (fullTokenIds[i] !== promptTokenIds[i]) {
+      throw new EncodingError(
+        `Carrier text prompt token mismatch at index ${i}: expected ${promptTokenIds[i]}, got ${fullTokenIds[i]}.`
+      );
+    }
+  }
+
   const bitWriter = new BitStreamWriter();
-  let currentTokenIds: number[] = promptTokenIds.slice();
+  const currentTokenIds: number[] = promptTokenIds.slice();
   const generatedTokens = fullTokenIds.slice(promptTokenIds.length);
 
+  let totalPayloadBits: number | null = null;
+  let totalBitsRead = 0;
+
   for (const actualTokenId of generatedTokens) {
+    // If we've already extracted the 32-bit header and all payload bits, stop immediately.
+    // This prevents evaluating tokens outside the steganography sequence that would trigger rank === -1.
+    if (totalPayloadBits !== null && totalBitsRead >= 32 + totalPayloadBits) {
+      break;
+    }
+
     const inputs = buildModelInputs(currentTokenIds);
     const outputs = await model(inputs);
 
@@ -458,7 +465,6 @@ export async function llmTextToBytes(
       lastTokenLogitsOffset + vocabSize
     );
 
-    // Filter using the exact same step-verification logic
     const topKTokenIds = getTopKReversibleTokenIds(
       lastLogitsData,
       k,
@@ -472,15 +478,34 @@ export async function llmTextToBytes(
     );
 
     const rank = topKTokenIds.indexOf(actualTokenId);
-
     if (rank === -1) {
       throw new EncodingError(
-        `Decoding failed: Token ID ${actualTokenId} was not in top ${k} candidate pool during reconstruction.`
+        `Decoding failed: Token ID ${actualTokenId} was not found in top ${k} candidate pool during reconstruction.`
       );
     }
 
-    bitWriter.writeBits(rank, bitsPerToken);
+    // Determine how many bits this token actually carries
+    let bitsToExtract = bitsPerToken;
+    if (totalPayloadBits !== null) {
+      const remainingBitsNeeded = (32 + totalPayloadBits) - totalBitsRead;
+      if (remainingBitsNeeded < bitsToExtract) {
+        bitsToExtract = remainingBitsNeeded;
+      }
+    }
+
+    bitWriter.writeBits(rank, bitsToExtract);
+    totalBitsRead += bitsToExtract;
     currentTokenIds.push(actualTokenId);
+
+    // Parse header length as soon as the first 32 bits are available
+    if (totalPayloadBits === null && totalBitsRead >= 32) {
+      const interimBytes = bitWriter.toBytes();
+      totalPayloadBits = new DataView(
+        interimBytes.buffer,
+        interimBytes.byteOffset,
+        4
+      ).getUint32(0, false);
+    }
   }
 
   const rawBytes = bitWriter.toBytes();
@@ -488,9 +513,11 @@ export async function llmTextToBytes(
     throw new EncodingError("Carrier text payload is too short to read length header.");
   }
 
-  const totalPayloadBits = new DataView(rawBytes.buffer, rawBytes.byteOffset, 4).getUint32(0, false);
-  const expectedPayloadBytes = Math.ceil(totalPayloadBits / 8);
+  if (totalPayloadBits === null) {
+    totalPayloadBits = new DataView(rawBytes.buffer, rawBytes.byteOffset, 4).getUint32(0, false);
+  }
 
+  const expectedPayloadBytes = Math.ceil(totalPayloadBits / 8);
   if (rawBytes.length < 4 + expectedPayloadBytes) {
     throw new EncodingError(
       `Truncated carrier text: Expected ${expectedPayloadBytes} payload bytes, but received ${rawBytes.length - 4}.`
