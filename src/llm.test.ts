@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { encode, decode } from "./ngram.js";
+import { EncodingError } from "./config/index.js";
 import {
   bytesToLlmText,
   llmTextToBytes,
@@ -8,6 +9,7 @@ import {
   parseHfUrl,
   resolveTokenizerCandidates,
   getTopKReversibleTokenIds,
+  normalizeModelName,
   type LlmModelPair
 } from "./encoding/llm.js";
 
@@ -68,7 +70,7 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     clearLlmModelCache();
   });
 
-  it("should generate correct tokenizer candidates for ONNX models", () => {
+  it("should generate correct tokenizer candidates for ONNX models across various organizational prefixes and edge cases", () => {
     const candidatesV6 = resolveTokenizerCandidates("onnx-community/Supra-Mini-v6-1M-ONNX");
     expect(candidatesV6).toContain("onnx-community/Supra-Mini-v6-1M-ONNX");
     expect(candidatesV6).toContain("SupraLabs/Supra-Mini-v6-1M");
@@ -80,8 +82,26 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     const candidatesLlama = resolveTokenizerCandidates("onnx-community/Llama-3.2-1B-Instruct-ONNX");
     expect(candidatesLlama).toContain("meta-llama/Llama-3.2-1B-Instruct");
 
+    const candidatesQwen = resolveTokenizerCandidates("onnx-community/Qwen2.5-0.5B-Instruct-ONNX");
+    expect(candidatesQwen).toContain("Qwen/Qwen2.5-0.5B-Instruct");
+
+    const candidatesPhi = resolveTokenizerCandidates("onnx-community/Phi-3.5-mini-instruct-ONNX");
+    expect(candidatesPhi).toContain("microsoft/Phi-3.5-mini-instruct");
+
+    const candidatesGemma = resolveTokenizerCandidates("onnx-community/gemma-2-2b-it-ONNX");
+    expect(candidatesGemma).toContain("google/gemma-2-2b-it");
+
+    const candidatesCustom = resolveTokenizerCandidates("my-org/my-model-ONNX");
+    expect(candidatesCustom).toContain("my-org/my-model");
+
     const candidatesSimple = resolveTokenizerCandidates("Xenova/gpt2");
     expect(candidatesSimple).toContain("Xenova/gpt2");
+
+    const candidatesEmpty = resolveTokenizerCandidates("");
+    expect(candidatesEmpty).toEqual(["Xenova/gpt2"]);
+
+    const candidatesNull = resolveTokenizerCandidates(null as any);
+    expect(candidatesNull).toEqual(["Xenova/gpt2"]);
   });
 
   it("should load model onnx-community/Supra-Mini-v6-1M-ONNX successfully without tokenizer errors", async () => {
@@ -97,7 +117,7 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     expect(loaded.tokenizer).toBeDefined();
   }, 30000);
 
-  it("should parse direct Hugging Face ONNX file URLs correctly", () => {
+  it("should parse direct Hugging Face ONNX file URLs correctly and normalize model names", () => {
     const url1 = "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_fp16.onnx?download=true";
     const parsed1 = parseHfUrl(url1);
     expect(parsed1).toEqual({
@@ -107,6 +127,7 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
       model_file_name: "model_fp16",
       quantized: false,
     });
+    expect(normalizeModelName(url1)).toBe("onnx-community/Supra-Mini-v2-0.1M-ONNX");
 
     const url2 = "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/onnx/model_quantized.onnx";
     const parsed2 = parseHfUrl(url2);
@@ -136,6 +157,16 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
       quantized: true,
     });
 
+    const urlRootFile = "https://huggingface.co/onnx-community/Supra-Mini-v2-0.1M-ONNX/resolve/main/model.onnx#fragment";
+    const parsedRoot = parseHfUrl(urlRootFile);
+    expect(parsedRoot).toEqual({
+      modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
+      revision: "main",
+      subfolder: undefined,
+      model_file_name: "model",
+      quantized: false,
+    });
+
     const repoOnly = "onnx-community/Supra-Mini-v2-0.1M-ONNX";
     const parsedRepo = parseHfUrl(repoOnly);
     expect(parsedRepo).toEqual({
@@ -148,6 +179,12 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     expect(parsedTree).toEqual({
       modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
       revision: "main",
+      quantized: true,
+    });
+
+    const parsedEmpty = parseHfUrl("");
+    expect(parsedEmpty).toEqual({
+      modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
       quantized: true,
     });
   });
@@ -247,6 +284,107 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     });
 
     expect(resHighTemp.length).toBe(4);
+  });
+
+  it("should enforce StepVerify subword reversibility and reject non-reversible fusing token candidates", () => {
+    // Custom tokenizer with subword fusion behavior:
+    // Token 0: "un", Token 1: "able", Token 2: "unable"
+    // Decoding [0, 1] yields "un able" -> tokenized as [0, 1]
+    // Decoding [0, 2] yields "un unable" -> tokenized as [0, 2]
+    // But if candidate is token 3 ("able" without space) such that [0, 3] yields "unable" -> re-encodes as single token [2] (length 1 != 2), failing reversibility!
+    const specialIds = [99];
+    const mockTokenizer = (text: string) => {
+      const trimmed = text.trim();
+      if (trimmed === "un able") return { input_ids: [0, 1] };
+      if (trimmed === "unable") return { input_ids: [2] }; // Fused token!
+      if (trimmed === "un safe") return { input_ids: [0, 4] };
+      return { input_ids: [0] };
+    };
+
+    mockTokenizer.all_special_ids = specialIds;
+    mockTokenizer.decode = (ids: number[]) => {
+      const idList = Array.from(ids);
+      if (idList.length === 2 && idList[0] === 0 && idList[1] === 3) return "unable"; // fuses!
+      if (idList.length === 2 && idList[0] === 0 && idList[1] === 1) return "un able";
+      if (idList.length === 2 && idList[0] === 0 && idList[1] === 4) return "un safe";
+      return "un";
+    };
+
+    const logits = new Float32Array(100);
+    // Token 99: special token (should be excluded)
+    logits[99] = 1000;
+    // Token 3: score 100 (fuses into single token [2] when following 0, so NOT reversible)
+    logits[3] = 100;
+    // Token 1: score 50 (reversible)
+    logits[1] = 50;
+    // Token 4: score 40 (reversible)
+    logits[4] = 40;
+
+    // Ask for 2 reversible tokens starting with token [0]
+    const selected = getTopKReversibleTokenIds(logits, 2, [0], mockTokenizer);
+
+    // Should NOT contain special token 99
+    expect(selected).not.toContain(99);
+    // Should NOT contain fusing token 3
+    expect(selected).not.toContain(3);
+    // Should contain reversible tokens 1 and 4 in score order
+    expect(selected).toEqual([1, 4]);
+  });
+
+  it("should throw EncodingError when StepVerify cannot find enough reversible tokens", () => {
+    const mockTokenizer = (text: string) => ({ input_ids: [0, 1] });
+    mockTokenizer.all_special_ids = [];
+    mockTokenizer.decode = (ids: number[]) => "fused"; // always fuses to length 1
+
+    const logits = new Float32Array(10);
+
+    expect(() => {
+      getTopKReversibleTokenIds(logits, 4, [0], mockTokenizer);
+    }).toThrowError(EncodingError);
+  });
+
+  it("should throw EncodingError for decoding failures in llmTextToBytes on prompt or token corruption", async () => {
+    const mockPair = createMockLlmPair();
+    const config = {
+      style: "llm" as const,
+      llmCustomModel: mockPair.model,
+      llmCustomTokenizer: mockPair.tokenizer,
+      bitsPerToken: 3,
+      llmPrompt: "word0 word1"
+    };
+
+    // 1. Carrier text with wrong prompt prefix
+    const corruptedPromptCarrier = "word5 word6 word2 word3";
+    await expect(llmTextToBytes(corruptedPromptCarrier, config)).rejects.toThrowError(EncodingError);
+
+    // 2. Carrier text containing only prompt (no payload tokens)
+    const promptOnlyCarrier = "word0 word1";
+    await expect(llmTextToBytes(promptOnlyCarrier, config)).rejects.toThrowError(EncodingError);
+
+    // 3. Truncated carrier text where tokens are cut short before reading the full payload
+    const originalBytes = new Uint8Array([10, 20, 30, 40, 50, 60, 70, 80]);
+    const carrierText = await bytesToLlmText(originalBytes, config);
+    const words = carrierText.split(" ");
+    const truncatedCarrier = words.slice(0, words.length - 2).join(" ");
+
+    await expect(llmTextToBytes(truncatedCarrier, config)).rejects.toThrowError(EncodingError);
+  });
+
+  it("should clear LLM model cache when clearLlmModelCache is called", async () => {
+    const mockPair = createMockLlmPair();
+    const config = {
+      style: "llm" as const,
+      llmCustomModel: mockPair.model,
+      llmCustomTokenizer: mockPair.tokenizer,
+    };
+
+    const loaded1 = await loadLlmModel(config);
+    expect(loaded1).toBeDefined();
+
+    clearLlmModelCache();
+
+    const loaded2 = await loadLlmModel(config);
+    expect(loaded2).toBeDefined();
   });
 
   it("should round-trip steganography with custom temperature, topK, topP, and llmDevice settings", async () => {
