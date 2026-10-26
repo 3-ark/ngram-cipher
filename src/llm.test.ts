@@ -7,6 +7,7 @@ import {
   clearLlmModelCache,
   parseHfUrl,
   resolveTokenizerCandidates,
+  getTopKReversibleTokenIds,
   type LlmModelPair
 } from "./encoding/llm.js";
 
@@ -219,6 +220,56 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     const carrierText = await encode(secretText, password, stegoOptions);
     expect(typeof carrierText).toBe("string");
     expect(carrierText.length).toBeGreaterThan(0);
+
+    const decrypted = await decode(carrierText, password, stegoOptions);
+    expect(decrypted).toBe(secretText);
+  });
+
+  it("should apply temperature, top-K, and top-P sampling deterministically in getTopKReversibleTokenIds", () => {
+    const mockPair = createMockLlmPair();
+    const logits = new Float32Array(64);
+    for (let i = 0; i < 64; i++) {
+      logits[i] = (i % 10) * 2;
+    }
+
+    const resStandard = getTopKReversibleTokenIds(logits, 4, [0], mockPair.tokenizer, {
+      temperature: 1.0,
+      topK: 50,
+      topP: 0.95
+    });
+
+    expect(resStandard.length).toBe(4);
+
+    const resHighTemp = getTopKReversibleTokenIds(logits, 4, [0], mockPair.tokenizer, {
+      temperature: 2.0,
+      topK: 20,
+      topP: 0.8
+    });
+
+    expect(resHighTemp.length).toBe(4);
+  });
+
+  it("should round-trip steganography with custom temperature, topK, topP, and llmDevice settings", async () => {
+    const mockPair = createMockLlmPair();
+    const secretText = "Custom sampling settings stego roundtrip";
+    const password = "secure-passphrase";
+
+    const stegoOptions = {
+      encoding: {
+        style: "llm" as const,
+        llmCustomModel: mockPair.model,
+        llmCustomTokenizer: mockPair.tokenizer,
+        bitsPerToken: 3,
+        llmPrompt: "word0 word1",
+        llmDevice: "cpu" as const,
+        llmTemperature: 0.7,
+        llmTopK: 32,
+        llmTopP: 0.9,
+      }
+    };
+
+    const carrierText = await encode(secretText, password, stegoOptions);
+    expect(carrierText.startsWith("word0 word1")).toBe(true);
 
     const decrypted = await decode(carrierText, password, stegoOptions);
     expect(decrypted).toBe(secretText);

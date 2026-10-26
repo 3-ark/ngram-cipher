@@ -59,6 +59,10 @@ export interface EncodingConfig {
   llmCustomTokenizer?: any;
   llmQuantized?: boolean;
   llmCacheDir?: string;
+  llmDevice?: "cpu" | "webgpu" | "auto";
+  llmTemperature?: number;
+  llmTopK?: number;
+  llmTopP?: number;
 }
 
 export interface StegoConfig {
@@ -91,6 +95,10 @@ export const DEFAULT_CONFIG: StegoConfig = {
     llmPrompt: "In recent news,",
     bitsPerToken: 4,
     llmQuantized: true,
+    llmDevice: "cpu",
+    llmTemperature: 1.0,
+    llmTopK: 50,
+    llmTopP: 0.95,
   },
 };
 

@@ -139,7 +139,7 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
   // Allow manual override via config if needed, otherwise use parsed/default fp16
   const selectedDtype = (config as any).llmDtype || parsed.dtype || "fp16";
 
-  const cacheKey = `${parsed.modelId}:${selectedDtype}:${config.llmCacheDir || "default"}`;
+  const cacheKey = `${parsed.modelId}:${selectedDtype}:${config.llmDevice || "cpu"}:${config.llmCacheDir || "default"}`;
 
   if (modelCache.has(cacheKey)) {
     return modelCache.get(cacheKey)!;
@@ -187,9 +187,12 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
       modelOptsBase.file_name = parsed.model_file_name;
     }
 
+    const primaryDevice = config.llmDevice === "webgpu" ? ("webgpu" as const) : ("cpu" as const);
+    const secondaryDevice = primaryDevice === "cpu" ? ("webgpu" as const) : ("cpu" as const);
+
     const modelAttempts = [
-      { ...modelOptsBase, dtype: selectedDtype, device: "webgpu" as const, revision: parsed.revision ?? "main" },
-      { ...modelOptsBase, dtype: selectedDtype, device: "cpu" as const, revision: parsed.revision ?? "main" },
+      { ...modelOptsBase, dtype: selectedDtype, device: primaryDevice, revision: parsed.revision ?? "main" },
+      { ...modelOptsBase, dtype: selectedDtype, device: secondaryDevice, revision: parsed.revision ?? "main" },
       { dtype: selectedDtype, device: "cpu" as const, revision: parsed.revision ?? "main" },
       { dtype: selectedDtype, device: "cpu" as const },
       { device: "cpu" as const },
@@ -273,30 +276,69 @@ function isTokenReversible(
 /**
  * Selects top-K candidate tokens that are strictly reversible under BPE.
  */
-function getTopKReversibleTokenIds(
+export function getTopKReversibleTokenIds(
   logitsData: Float32Array | number[],
   k: number,
   currentTokens: number[],
-  tokenizer: any
+  tokenizer: any,
+  options?: {
+    temperature?: number;
+    topP?: number;
+    topK?: number;
+  }
 ): number[] {
+  const temp = options?.temperature && options.temperature > 0 ? options.temperature : 1.0;
+  const topKLimit = Math.max(k, options?.topK && options.topK > 0 ? options.topK : 50);
+  const topPVal = options?.topP !== undefined && options.topP > 0 && options.topP <= 1.0 ? options.topP : 0.95;
+
   const ranked: { id: number; score: number }[] = [];
   for (let id = 0; id < logitsData.length; id++) {
-    ranked.push({ id, score: Number(logitsData[id]) });
+    const rawScore = Number(logitsData[id]);
+    ranked.push({ id, score: temp !== 1.0 ? rawScore / temp : rawScore });
   }
 
-  // Sort descending by logit score
+  // Sort descending by score, breaking ties deterministically by token ID
   ranked.sort((a, b) => (b.score !== a.score ? b.score - a.score : a.id - b.id));
 
+  // 1. Truncate candidate pool to topKLimit
+  let candidatePool = ranked.slice(0, topKLimit);
+
+  // 2. Apply Top-P (nucleus) probability thresholding if topPVal < 1.0
+  if (topPVal < 1.0 && candidatePool.length > k) {
+    const maxScore = candidatePool[0].score;
+    let expSum = 0;
+    const exps = candidatePool.map((item) => {
+      const e = Math.exp(item.score - maxScore);
+      expSum += e;
+      return e;
+    });
+
+    let cumProb = 0;
+    let cutoffIndex = candidatePool.length;
+
+    for (let i = 0; i < candidatePool.length; i++) {
+      cumProb += exps[i] / expSum;
+      if (cumProb >= topPVal) {
+        cutoffIndex = i + 1;
+        break;
+      }
+    }
+
+    // Ensure nucleus candidate pool maintains at least k tokens for steganography bit capacity
+    const safeCutoff = Math.max(k, cutoffIndex);
+    candidatePool = candidatePool.slice(0, safeCutoff);
+  }
+
+  // 3. Select tokens verified not to cause BPE merge desynchronization
   const validTokens: number[] = [];
-  for (const item of ranked) {
+  for (const item of candidatePool) {
     if (isTokenReversible(currentTokens, item.id, tokenizer)) {
       validTokens.push(item.id);
       if (validTokens.length === k) break;
     }
   }
 
-  // If strict reversibility yielded fewer than k due to high vocabulary restriction,
-  // backfill with raw top logits
+  // 4. Backfill from ranked candidates if reversibility yielded fewer than k
   if (validTokens.length < k) {
     for (const item of ranked) {
       if (!validTokens.includes(item.id)) {
@@ -358,7 +400,12 @@ export async function bytesToLlmText(
       lastLogitsData,
       k,
       currentTokenIds,
-      tokenizer
+      tokenizer,
+      {
+        temperature: config.llmTemperature,
+        topP: config.llmTopP,
+        topK: config.llmTopK,
+      }
     );
 
     const bitVal = bitReader.readBits(bitsPerToken);
@@ -416,7 +463,12 @@ export async function llmTextToBytes(
       lastLogitsData,
       k,
       currentTokenIds,
-      tokenizer
+      tokenizer,
+      {
+        temperature: config.llmTemperature,
+        topP: config.llmTopP,
+        topK: config.llmTopK,
+      }
     );
 
     const rank = topKTokenIds.indexOf(actualTokenId);
