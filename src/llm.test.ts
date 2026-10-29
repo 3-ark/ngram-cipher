@@ -233,7 +233,9 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     const carrierText = await bytesToLlmText(originalBytes, config);
 
     expect(typeof carrierText).toBe("string");
-    expect(carrierText.startsWith("word0 word1")).toBe(true);
+    // Prompt is excluded from carrier text output; only generated tokens appear
+    expect(carrierText.startsWith("word0 word1")).toBe(false);
+    expect(carrierText.length).toBeGreaterThan(0);
 
     const recoveredBytes = await llmTextToBytes(carrierText, config);
     expect(recoveredBytes).toEqual(originalBytes);
@@ -353,13 +355,11 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
       llmPrompt: "word0 word1"
     };
 
-    // 1. Carrier text with wrong prompt prefix
-    const corruptedPromptCarrier = "word5 word6 word2 word3";
-    await expect(llmTextToBytes(corruptedPromptCarrier, config)).rejects.toThrowError(EncodingError);
+    // 1. Empty carrier text (no payload tokens)
+    await expect(llmTextToBytes("", config)).rejects.toThrowError(EncodingError);
 
-    // 2. Carrier text containing only prompt (no payload tokens)
-    const promptOnlyCarrier = "word0 word1";
-    await expect(llmTextToBytes(promptOnlyCarrier, config)).rejects.toThrowError(EncodingError);
+    // 2. Carrier text with only whitespace (no tokens after tokenization)
+    await expect(llmTextToBytes("   ", config)).rejects.toThrowError(EncodingError);
 
     // 3. Truncated carrier text where tokens are cut short before reading the full payload
     const originalBytes = new Uint8Array([10, 20, 30, 40, 50, 60, 70, 80]);
@@ -407,7 +407,9 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     };
 
     const carrierText = await encode(secretText, password, stegoOptions);
-    expect(carrierText.startsWith("word0 word1")).toBe(true);
+    // Prompt is excluded from carrier text output
+    expect(carrierText.startsWith("word0 word1")).toBe(false);
+    expect(carrierText.length).toBeGreaterThan(0);
 
     const decrypted = await decode(carrierText, password, stegoOptions);
     expect(decrypted).toBe(secretText);

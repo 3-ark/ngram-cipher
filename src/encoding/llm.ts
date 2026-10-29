@@ -285,6 +285,8 @@ function isTokenReversible(
 
 /**
  * Selects top-K candidate tokens that are strictly reversible under tokenizer re-encoding.
+ * Tokens whose decoded text contains paragraph-breaking characters (newlines, carriage returns)
+ * are excluded to preserve the structural integrity of the carrier text.
  */
 export function getTopKReversibleTokenIds(
   logitsData: Float32Array | number[],
@@ -307,6 +309,9 @@ export function getTopKReversibleTokenIds(
   let ranked: { id: number; score: number }[] = [];
   for (let id = 0; id < logitsData.length; id++) {
     if (specialIds.has(id)) continue;
+    // Exclude tokens whose decoded text would introduce paragraph-breaking whitespace
+    const decodedCandidate: string = tokenizer.decode([id], { skip_special_tokens: false });
+    if (/[\r\n]/.test(decodedCandidate)) continue;
     const rawScore = Number(logitsData[id]);
     ranked.push({ id, score: temp !== 1.0 ? rawScore / temp : rawScore });
   }
@@ -396,7 +401,8 @@ export async function bytesToLlmText(
 
   const encodedPrompt = tokenizer(prompt, { add_special_tokens: false });
   const promptRaw = encodedPrompt?.input_ids?.data ?? encodedPrompt?.input_ids ?? encodedPrompt;
-  const currentTokenIds: number[] = Array.from(promptRaw).map(Number);
+  const promptTokenIds: number[] = Array.from(promptRaw).map(Number);
+  const currentTokenIds: number[] = promptTokenIds.slice();
 
   while (bitReader.hasBits) {
     const inputs = buildModelInputs(currentTokenIds);
@@ -432,8 +438,10 @@ export async function bytesToLlmText(
     currentTokenIds.push(chosenTokenId);
   }
 
-  // skip_special_tokens is false to guarantee exact string reproduction
-  return tokenizer.decode(currentTokenIds, { skip_special_tokens: false });
+  // Decode only the generated tokens, excluding the prompt prefix.
+  // The prompt is used purely as LLM context and must not appear in the carrier text output.
+  const generatedTokenIds = currentTokenIds.slice(promptTokenIds.length);
+  return tokenizer.decode(generatedTokenIds, { skip_special_tokens: false });
 }
 
 /**
@@ -457,26 +465,19 @@ export async function llmTextToBytes(
   const promptRaw = promptEncoded?.input_ids?.data ?? promptEncoded?.input_ids ?? promptEncoded;
   const promptTokenIds: number[] = Array.from(promptRaw).map(Number);
 
+  // Carrier text contains only the generated tokens (prompt is excluded from the output).
+  // Re-tokenize the carrier text to recover the generated token IDs.
   const fullEncoded = tokenizer(carrierText, { add_special_tokens: false });
   const fullRaw = fullEncoded?.input_ids?.data ?? fullEncoded?.input_ids ?? fullEncoded;
-  const fullTokenIds: number[] = Array.from(fullRaw).map(Number);
+  const generatedTokens: number[] = Array.from(fullRaw).map(Number);
 
-  if (fullTokenIds.length <= promptTokenIds.length) {
+  if (generatedTokens.length === 0) {
     throw new EncodingError("Carrier text does not contain any generated LLM payload tokens.");
   }
 
-  // Validate exact prompt prefix alignment
-  for (let i = 0; i < promptTokenIds.length; i++) {
-    if (fullTokenIds[i] !== promptTokenIds[i]) {
-      throw new EncodingError(
-        `Carrier text prompt token mismatch at index ${i}: expected ${promptTokenIds[i]}, got ${fullTokenIds[i]}.`
-      );
-    }
-  }
-
   const bitWriter = new BitStreamWriter();
+  // Seed the context with the prompt tokens so the LLM conditioning is identical to encoding.
   const currentTokenIds: number[] = promptTokenIds.slice();
-  const generatedTokens = fullTokenIds.slice(promptTokenIds.length);
 
   let totalPayloadBits: number | null = null;
   let totalBitsRead = 0;
