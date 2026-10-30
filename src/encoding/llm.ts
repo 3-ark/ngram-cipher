@@ -35,6 +35,68 @@ export interface ParsedModelTarget {
 const modelCache = new Map<string, LlmModelPair>();
 
 /**
+ * Resolves requested device to valid ONNX Runtime execution provider device strings.
+ * In browser environments, ONNX Runtime Web expects "wasm" for CPU execution.
+ * In Node.js environments, ONNX Runtime Node expects "cpu" for CPU execution.
+ */
+export function resolveLlmDevice(
+  requestedDevice?: string,
+  isNodeEnvironment?: boolean
+): string {
+  const isNode =
+    isNodeEnvironment ??
+    (typeof process !== "undefined" &&
+      process.versions != null &&
+      process.versions.node != null);
+
+  if (!requestedDevice || requestedDevice === "auto") {
+    return "auto";
+  }
+
+  const normalized = requestedDevice.toLowerCase();
+
+  if (normalized === "cpu") {
+    return isNode ? "cpu" : "wasm";
+  }
+
+  if (normalized === "wasm") {
+    return "wasm";
+  }
+
+  if (normalized === "webgpu") {
+    return "webgpu";
+  }
+
+  return requestedDevice;
+}
+
+/**
+ * Resolves candidate repository IDs for loading ONNX Causal Language Models
+ * across original model hubs and converted ONNX community hubs.
+ */
+export function resolveModelRepoCandidates(modelId: string): string[] {
+  const candidates: string[] = [];
+
+  if (!modelId || typeof modelId !== "string" || modelId.trim().length === 0) {
+    return ["onnx-community/Supra-Mini-v2-0.1M-ONNX"];
+  }
+
+  const trimmed = modelId.trim();
+  candidates.push(trimmed);
+
+  if (/^SupraLabs\/Supra-Mini-/i.test(trimmed)) {
+    const baseName = trimmed.replace(/^SupraLabs\//i, "").replace(/-ONNX$/i, "");
+    candidates.push(`onnx-community/${baseName}-ONNX`);
+    candidates.push(`onnx-community/${baseName}`);
+  } else if (/^onnx-community\/Supra-Mini-/i.test(trimmed)) {
+    const baseName = trimmed.replace(/^onnx-community\//i, "").replace(/-ONNX$/i, "");
+    candidates.push(`SupraLabs/${baseName}`);
+  }
+
+  return Array.from(new Set(candidates));
+}
+
+/**
  * Resolves candidate repository IDs for loading tokenizers when ONNX models
  * omit tokenizer config files or are hosted under converted onnx-community repositories.
  */
@@ -51,6 +113,10 @@ export function resolveTokenizerCandidates(modelId: string): string[] {
   if (/^onnx-community\/Supra-Mini-/i.test(trimmed)) {
     const baseName = trimmed.replace(/^onnx-community\//i, "").replace(/-ONNX$/i, "");
     candidates.push(`SupraLabs/${baseName}`);
+  } else if (/^SupraLabs\/Supra-Mini-/i.test(trimmed)) {
+    const baseName = trimmed.replace(/^SupraLabs\//i, "").replace(/-ONNX$/i, "");
+    candidates.push(`onnx-community/${baseName}-ONNX`);
+    candidates.push(`onnx-community/${baseName}`);
   }
 
   if (/^onnx-community\//i.test(trimmed) || /-ONNX$/i.test(trimmed)) {
@@ -189,24 +255,40 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     if (parsed.subfolder) modelOptsBase.subfolder = parsed.subfolder;
     if (parsed.model_file_name) modelOptsBase.file_name = parsed.model_file_name;
 
-    const primaryDevice = config.llmDevice === "webgpu" ? ("webgpu" as const) : ("cpu" as const);
-    const secondaryDevice = primaryDevice === "cpu" ? ("webgpu" as const) : ("cpu" as const);
+    const primaryDevice = resolveLlmDevice(config.llmDevice);
+    const secondaryDevice =
+      primaryDevice === "webgpu"
+        ? resolveLlmDevice("cpu")
+        : "webgpu";
 
-    const modelAttempts = [
-      { ...modelOptsBase, dtype: selectedDtype, device: primaryDevice, revision: parsed.revision ?? "main" },
-      { ...modelOptsBase, dtype: selectedDtype, device: secondaryDevice, revision: parsed.revision ?? "main" },
-      { dtype: selectedDtype, device: "cpu" as const, revision: parsed.revision ?? "main" },
-      { dtype: selectedDtype, device: "cpu" as const },
-      { device: "cpu" as const },
-    ];
+    const modelAttempts: Record<string, any>[] = [];
 
-    for (const opts of modelAttempts) {
-      try {
-        model = await AutoModelForCausalLM.from_pretrained(parsed.modelId, opts);
-        if (model) break;
-      } catch (err) {
-        lastModelError = err;
+    // Attempt with explicit device choices
+    if (primaryDevice !== "auto") {
+      modelAttempts.push({ ...modelOptsBase, dtype: selectedDtype, device: primaryDevice, revision: parsed.revision ?? "main" });
+    }
+    if (secondaryDevice !== "auto" && secondaryDevice !== primaryDevice) {
+      modelAttempts.push({ ...modelOptsBase, dtype: selectedDtype, device: secondaryDevice, revision: parsed.revision ?? "main" });
+    }
+
+    // Auto / environment default fallback attempts
+    modelAttempts.push({ ...modelOptsBase, dtype: selectedDtype, device: "auto", revision: parsed.revision ?? "main" });
+    modelAttempts.push({ ...modelOptsBase, dtype: selectedDtype, revision: parsed.revision ?? "main" });
+    modelAttempts.push({ dtype: selectedDtype });
+    modelAttempts.push({});
+
+    const repoCandidates = resolveModelRepoCandidates(parsed.modelId);
+
+    for (const repoId of repoCandidates) {
+      for (const opts of modelAttempts) {
+        try {
+          model = await AutoModelForCausalLM.from_pretrained(repoId, opts);
+          if (model) break;
+        } catch (err) {
+          lastModelError = err;
+        }
       }
+      if (model) break;
     }
 
     if (!model) {

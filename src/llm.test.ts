@@ -8,6 +8,8 @@ import {
   clearLlmModelCache,
   parseHfUrl,
   resolveTokenizerCandidates,
+  resolveModelRepoCandidates,
+  resolveLlmDevice,
   getTopKReversibleTokenIds,
   normalizeModelName,
   type LlmModelPair
@@ -70,11 +72,39 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     clearLlmModelCache();
   });
 
+  it("should resolve device options correctly for Node vs Browser environments", () => {
+    // In Node.js environment, 'cpu' stays 'cpu'
+    expect(resolveLlmDevice("cpu", true)).toBe("cpu");
+
+    // In Browser environment, 'cpu' maps to 'wasm' because ONNX Runtime Web uses 'wasm'
+    expect(resolveLlmDevice("cpu", false)).toBe("wasm");
+
+    // Explicit 'wasm', 'webgpu', 'auto' are preserved across both environments
+    expect(resolveLlmDevice("wasm", false)).toBe("wasm");
+    expect(resolveLlmDevice("webgpu", false)).toBe("webgpu");
+    expect(resolveLlmDevice("auto", false)).toBe("auto");
+    expect(resolveLlmDevice(undefined, false)).toBe("auto");
+  });
+
+  it("should resolve model repository candidates bi-directionally between SupraLabs and onnx-community", () => {
+    const reposFromSupraLabs = resolveModelRepoCandidates("SupraLabs/Supra-Mini-v6-1M");
+    expect(reposFromSupraLabs).toContain("SupraLabs/Supra-Mini-v6-1M");
+    expect(reposFromSupraLabs).toContain("onnx-community/Supra-Mini-v6-1M-ONNX");
+
+    const reposFromOnnxComm = resolveModelRepoCandidates("onnx-community/Supra-Mini-v6-1M-ONNX");
+    expect(reposFromOnnxComm).toContain("onnx-community/Supra-Mini-v6-1M-ONNX");
+    expect(reposFromOnnxComm).toContain("SupraLabs/Supra-Mini-v6-1M");
+  });
+
   it("should generate correct tokenizer candidates for ONNX models across various organizational prefixes and edge cases", () => {
     const candidatesV6 = resolveTokenizerCandidates("onnx-community/Supra-Mini-v6-1M-ONNX");
     expect(candidatesV6).toContain("onnx-community/Supra-Mini-v6-1M-ONNX");
     expect(candidatesV6).toContain("SupraLabs/Supra-Mini-v6-1M");
     expect(candidatesV6).toContain("Xenova/gpt2");
+
+    const candidatesSupraDirect = resolveTokenizerCandidates("SupraLabs/Supra-Mini-v6-1M");
+    expect(candidatesSupraDirect).toContain("SupraLabs/Supra-Mini-v6-1M");
+    expect(candidatesSupraDirect).toContain("onnx-community/Supra-Mini-v6-1M-ONNX");
 
     const candidatesV2 = resolveTokenizerCandidates("onnx-community/Supra-Mini-v2-0.1M-ONNX");
     expect(candidatesV2).toContain("SupraLabs/Supra-Mini-v2-0.1M");
