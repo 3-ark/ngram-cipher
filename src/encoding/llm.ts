@@ -35,9 +35,8 @@ export interface ParsedModelTarget {
 const modelCache = new Map<string, LlmModelPair>();
 
 /**
- * Resolves requested device to valid ONNX Runtime execution provider device strings.
- * In browser environments, ONNX Runtime Web expects "wasm" for CPU execution.
- * In Node.js environments, ONNX Runtime Node expects "cpu" for CPU execution.
+ * Resolves requested device to CPU execution provider device strings ("cpu" in Node.js, "wasm" in Browser)
+ * to prevent GPU floating-point non-determinism across platforms from corrupting steganographic logit ranks.
  */
 export function resolveLlmDevice(
   requestedDevice?: string,
@@ -49,25 +48,7 @@ export function resolveLlmDevice(
       process.versions != null &&
       process.versions.node != null);
 
-  if (!requestedDevice || requestedDevice === "auto") {
-    return "auto";
-  }
-
-  const normalized = requestedDevice.toLowerCase();
-
-  if (normalized === "cpu") {
-    return isNode ? "cpu" : "wasm";
-  }
-
-  if (normalized === "wasm") {
-    return "wasm";
-  }
-
-  if (normalized === "webgpu") {
-    return "webgpu";
-  }
-
-  return requestedDevice;
+  return isNode ? "cpu" : "wasm";
 }
 
 /**
@@ -255,24 +236,12 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     if (parsed.subfolder) modelOptsBase.subfolder = parsed.subfolder;
     if (parsed.model_file_name) modelOptsBase.file_name = parsed.model_file_name;
 
-    const primaryDevice = resolveLlmDevice(config.llmDevice);
-    const secondaryDevice =
-      primaryDevice === "webgpu"
-        ? resolveLlmDevice("cpu")
-        : "webgpu";
+    const resolvedDevice = resolveLlmDevice(config.llmDevice);
 
     const modelAttempts: Record<string, any>[] = [];
 
-    // Attempt with explicit device choices
-    if (primaryDevice !== "auto") {
-      modelAttempts.push({ ...modelOptsBase, dtype: selectedDtype, device: primaryDevice, revision: parsed.revision ?? "main" });
-    }
-    if (secondaryDevice !== "auto" && secondaryDevice !== primaryDevice) {
-      modelAttempts.push({ ...modelOptsBase, dtype: selectedDtype, device: secondaryDevice, revision: parsed.revision ?? "main" });
-    }
-
-    // Auto / environment default fallback attempts
-    modelAttempts.push({ ...modelOptsBase, dtype: selectedDtype, device: "auto", revision: parsed.revision ?? "main" });
+    // Model loading strictly uses deterministic CPU/WASM execution
+    modelAttempts.push({ ...modelOptsBase, dtype: selectedDtype, device: resolvedDevice, revision: parsed.revision ?? "main" });
     modelAttempts.push({ ...modelOptsBase, dtype: selectedDtype, revision: parsed.revision ?? "main" });
     modelAttempts.push({ dtype: selectedDtype });
     modelAttempts.push({});
