@@ -72,18 +72,20 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     clearLlmModelCache();
   });
 
-  it("should resolve device options correctly for Node vs Browser environments", () => {
-    // In Node.js environment, 'cpu' stays 'cpu'
+  it("should resolve device options strictly to CPU ('cpu' in Node, 'wasm' in Browser) to guarantee deterministic logit ranks", () => {
+    // In Node.js environment, all requested devices map to 'cpu'
     expect(resolveLlmDevice("cpu", true)).toBe("cpu");
+    expect(resolveLlmDevice("wasm", true)).toBe("cpu");
+    expect(resolveLlmDevice("webgpu", true)).toBe("cpu");
+    expect(resolveLlmDevice("auto", true)).toBe("cpu");
+    expect(resolveLlmDevice(undefined, true)).toBe("cpu");
 
-    // In Browser environment, 'cpu' maps to 'wasm' because ONNX Runtime Web uses 'wasm'
+    // In Browser environment, all requested devices map to 'wasm' (ONNX Runtime Web CPU EP)
     expect(resolveLlmDevice("cpu", false)).toBe("wasm");
-
-    // Explicit 'wasm', 'webgpu', 'auto' are preserved across both environments
     expect(resolveLlmDevice("wasm", false)).toBe("wasm");
-    expect(resolveLlmDevice("webgpu", false)).toBe("webgpu");
-    expect(resolveLlmDevice("auto", false)).toBe("auto");
-    expect(resolveLlmDevice(undefined, false)).toBe("auto");
+    expect(resolveLlmDevice("webgpu", false)).toBe("wasm");
+    expect(resolveLlmDevice("auto", false)).toBe("wasm");
+    expect(resolveLlmDevice(undefined, false)).toBe("wasm");
   });
 
   it("should resolve model repository candidates bi-directionally between SupraLabs and onnx-community", () => {

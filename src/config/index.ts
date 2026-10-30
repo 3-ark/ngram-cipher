@@ -59,7 +59,7 @@ export interface EncodingConfig {
   llmCustomTokenizer?: any;
   llmQuantized?: boolean;
   llmCacheDir?: string;
-  llmDevice?: "cpu" | "wasm" | "webgpu" | "auto";
+  llmDevice?: "cpu" | "wasm" | "auto";
   llmTemperature?: number;
   llmTopK?: number;
   llmTopP?: number;
