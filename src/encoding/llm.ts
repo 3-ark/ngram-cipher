@@ -319,51 +319,63 @@ export function getTopKReversibleTokenIds(
   // Deterministic descending sort, ties broken by lower token ID
   ranked.sort((a, b) => (b.score !== a.score ? b.score - a.score : a.id - b.id));
 
-  // 2. Apply Top-K truncation if specified
+  // 2. Build preferred search pool with Top-K / Top-P sampling if specified
+  let searchPool = ranked;
   if (options?.topK && options.topK > 0) {
     const effectiveTopK = Math.max(options.topK, k);
     if (ranked.length > effectiveTopK) {
-      ranked = ranked.slice(0, effectiveTopK);
+      searchPool = ranked.slice(0, effectiveTopK);
     }
   }
 
-  // 3. Apply Top-P nucleus sampling if specified
   if (options?.topP && options.topP > 0 && options.topP < 1.0) {
-    const maxScore = ranked.length > 0 ? Math.max(...ranked.map((r) => r.score)) : 0;
-    const exps = ranked.map((r) => Math.exp(r.score - maxScore));
+    const maxScore = searchPool.length > 0 ? Math.max(...searchPool.map((r) => r.score)) : 0;
+    const exps = searchPool.map((r) => Math.exp(r.score - maxScore));
     const sumExp = exps.reduce((a, b) => a + b, 0);
 
     if (sumExp > 0) {
       let cumProb = 0;
-      let cutoffIndex = ranked.length;
-      for (let i = 0; i < ranked.length; i++) {
+      let cutoffIndex = searchPool.length;
+      for (let i = 0; i < searchPool.length; i++) {
         cumProb += exps[i] / sumExp;
         if (cumProb >= options.topP) {
           cutoffIndex = Math.max(i + 1, k);
           break;
         }
       }
-      ranked = ranked.slice(0, cutoffIndex);
+      searchPool = searchPool.slice(0, cutoffIndex);
     }
   }
 
-  // 4. Select ONLY reversible tokens up to capacity k
+  // 3. Select strictly reversible tokens up to capacity k from preferred pool first
   const validTokens: number[] = [];
-  const searchBound = Math.min(ranked.length, maxSearchLimit);
+  const triedIds = new Set<number>();
 
-  for (let i = 0; i < searchBound; i++) {
-    const candidateId = ranked[i].id;
-    if (isTokenReversible(currentTokens, candidateId, tokenizer)) {
-      validTokens.push(candidateId);
+  for (const item of searchPool) {
+    triedIds.add(item.id);
+    if (isTokenReversible(currentTokens, item.id, tokenizer)) {
+      validTokens.push(item.id);
       if (validTokens.length === k) break;
     }
   }
 
-  // 5. Strict verification: Never backfill unverified tokens!
+  // 4. Dynamic expansion: If preferred pool yields fewer than k reversible tokens, continue down full ranked logits
+  if (validTokens.length < k) {
+    for (const item of ranked) {
+      if (triedIds.has(item.id)) continue;
+      triedIds.add(item.id);
+      if (isTokenReversible(currentTokens, item.id, tokenizer)) {
+        validTokens.push(item.id);
+        if (validTokens.length === k) break;
+      }
+    }
+  }
+
+  // 5. Strict verification check
   if (validTokens.length < k) {
     throw new EncodingError(
       `StepVerify failed: Insufficient reversible tokens (found ${validTokens.length}/${k}) ` +
-      `within top ${searchBound} candidates. Aborting to prevent data corruption.`
+      `across entire vocabulary pool. Aborting to prevent data corruption.`
     );
   }
 
