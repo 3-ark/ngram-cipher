@@ -446,4 +446,22 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     const decrypted = await decode(carrierText, password, stegoOptions);
     expect(decrypted).toBe(secretText);
   });
+
+  it("should encode and decode using real ONNX model with fast CPU inference and KV caching", async () => {
+    const config = {
+      style: "llm" as const,
+      llmModel: "onnx-community/Supra-Mini-v6-1M-ONNX",
+      bitsPerToken: 3,
+      llmPrompt: "In recent news,",
+      llmDevice: "cpu" as const,
+    };
+
+    const originalBytes = new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f]); // "Hello"
+    const carrierText = await bytesToLlmText(originalBytes, config);
+    expect(carrierText).toBeDefined();
+    expect(carrierText.length).toBeGreaterThan(0);
+
+    const decodedBytes = await llmTextToBytes(carrierText, config);
+    expect(decodedBytes).toEqual(originalBytes);
+  }, 30000);
 });

@@ -238,12 +238,44 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
 
     const resolvedDevice = resolveLlmDevice(config.llmDevice);
 
+    // Resolve optimal CPU thread count for ONNX Runtime session execution
+    let optimalCpuThreads = 4;
+    try {
+      if (typeof process !== "undefined" && process.versions?.node != null) {
+        // Dynamic import or require os for Node.js environments
+        const os = await import("node:os");
+        optimalCpuThreads = Math.max(1, os.cpus?.().length || 4);
+      } else if (typeof navigator !== "undefined" && (navigator as any).hardwareConcurrency) {
+        optimalCpuThreads = Math.max(1, (navigator as any).hardwareConcurrency);
+      }
+    } catch {
+      optimalCpuThreads = 4;
+    }
+
+    const defaultSessionOptions = {
+      intraOpNumThreads: optimalCpuThreads,
+      graphOptimizationLevel: "all",
+      ...((config as any).llmSessionOptions ?? {}),
+    };
+
     const modelAttempts: Record<string, any>[] = [];
 
-    // Model loading strictly uses deterministic CPU/WASM execution
-    modelAttempts.push({ ...modelOptsBase, dtype: selectedDtype, device: resolvedDevice, revision: parsed.revision ?? "main" });
-    modelAttempts.push({ ...modelOptsBase, dtype: selectedDtype, revision: parsed.revision ?? "main" });
-    modelAttempts.push({ dtype: selectedDtype });
+    // Model loading strictly uses deterministic CPU/WASM execution with multi-threaded session options
+    modelAttempts.push({
+      ...modelOptsBase,
+      dtype: selectedDtype,
+      device: resolvedDevice,
+      revision: parsed.revision ?? "main",
+      session_options: defaultSessionOptions,
+    });
+    modelAttempts.push({
+      ...modelOptsBase,
+      dtype: selectedDtype,
+      revision: parsed.revision ?? "main",
+      session_options: defaultSessionOptions,
+    });
+    modelAttempts.push({ dtype: selectedDtype, session_options: defaultSessionOptions });
+    modelAttempts.push({ session_options: defaultSessionOptions });
     modelAttempts.push({});
 
     const repoCandidates = resolveModelRepoCandidates(parsed.modelId);
@@ -300,6 +332,76 @@ function buildModelInputs(tokenIds: number[]): { input_ids: Tensor; attention_ma
   return { input_ids, attention_mask };
 }
 
+// WeakMap cache of single-token properties (e.g. contains newline) per tokenizer instance
+// 0 = uninspected, 1 = valid (no newline), 2 = invalid (contains newline or carriage return)
+const tokenizerTokenValidityCache = new WeakMap<object, Map<number, boolean>>();
+
+function isCandidateTokenAllowed(id: number, tokenizer: any): boolean {
+  let cache = typeof tokenizer === "object" && tokenizer !== null
+    ? tokenizerTokenValidityCache.get(tokenizer)
+    : undefined;
+  if (!cache && typeof tokenizer === "object" && tokenizer !== null) {
+    cache = new Map<number, boolean>();
+    tokenizerTokenValidityCache.set(tokenizer, cache);
+  }
+
+  if (cache && cache.has(id)) {
+    return cache.get(id)!;
+  }
+
+  const decodedCandidate: string = tokenizer.decode([id], { skip_special_tokens: false });
+  const allowed = !/[\r\n]/.test(decodedCandidate);
+  if (cache) {
+    cache.set(id, allowed);
+  }
+  return allowed;
+}
+
+/**
+ * In-place deterministic quickselect to partition indices such that the top targetN
+ * highest-scoring items are in indices[0..targetN-1].
+ * Ties in scores are deterministically broken by lower token index.
+ */
+function quickselectTopIndices(
+  indices: Int32Array,
+  scores: Float32Array,
+  targetN: number
+): void {
+  function select(left: number, right: number, target: number) {
+    if (left >= right) return;
+    const pivotIdx = (left + right) >> 1;
+    const pivotId = indices[pivotIdx];
+    const pivotVal = scores[pivotId];
+
+    // Swap pivot to right
+    indices[pivotIdx] = indices[right];
+    indices[right] = pivotId;
+
+    let storeIdx = left;
+    for (let i = left; i < right; i++) {
+      const curId = indices[i];
+      const curVal = scores[curId];
+      if (curVal > pivotVal || (curVal === pivotVal && curId < pivotId)) {
+        indices[i] = indices[storeIdx];
+        indices[storeIdx] = curId;
+        storeIdx++;
+      }
+    }
+
+    indices[right] = indices[storeIdx];
+    indices[storeIdx] = pivotId;
+
+    if (storeIdx === target) return;
+    if (storeIdx > target) {
+      select(left, storeIdx - 1, target);
+    } else {
+      select(storeIdx + 1, right, target);
+    }
+  }
+
+  select(0, indices.length - 1, targetN);
+}
+
 /**
  * Stepwise Verification:
  * Strictly ensures candidateTokenId does not fuse with preceding subwords or alter the tokenization sequence.
@@ -351,24 +453,55 @@ export function getTopKReversibleTokenIds(
   }
 ): number[] {
   const temp = options?.temperature && options.temperature > 0 ? options.temperature : 1.0;
-  // Maximum search horizon to identify k strictly reversible tokens
-  const maxSearchLimit = Math.min(logitsData.length, Math.max(k * 20, 500));
+  const vocabSize = logitsData.length;
 
   // 1. Exclude special tokens (EOS, BOS, PAD, etc.) from ever entering steganography pools
   const specialIds = new Set<number>(tokenizer.all_special_ids ?? []);
 
-  let ranked: { id: number; score: number }[] = [];
-  for (let id = 0; id < logitsData.length; id++) {
-    if (specialIds.has(id)) continue;
-    // Exclude tokens whose decoded text would introduce paragraph-breaking whitespace
-    const decodedCandidate: string = tokenizer.decode([id], { skip_special_tokens: false });
-    if (/[\r\n]/.test(decodedCandidate)) continue;
-    const rawScore = Number(logitsData[id]);
-    ranked.push({ id, score: temp !== 1.0 ? rawScore / temp : rawScore });
+  // Compute scaled scores in a Float32Array
+  const scores = new Float32Array(vocabSize);
+  for (let i = 0; i < vocabSize; i++) {
+    const raw = Number(logitsData[i]);
+    scores[i] = temp !== 1.0 ? raw / temp : raw;
   }
 
-  // Deterministic descending sort, ties broken by lower token ID
-  ranked.sort((a, b) => (b.score !== a.score ? b.score - a.score : a.id - b.id));
+  // Use quickselect / top-slice indexing instead of sorting the entire vocabulary
+  // If topP is specified, we need enough candidates to calculate cumulative probability,
+  // or full sort if necessary. For standard generation (default or topK), a slice is vastly faster.
+  const needsFullSort = options?.topP && options.topP > 0 && options.topP < 1.0;
+
+  let ranked: { id: number; score: number }[] = [];
+
+  if (needsFullSort) {
+    // When Top-P nucleus sampling is requested across the distribution
+    for (let id = 0; id < vocabSize; id++) {
+      if (specialIds.has(id)) continue;
+      if (!isCandidateTokenAllowed(id, tokenizer)) continue;
+      ranked.push({ id, score: scores[id] });
+    }
+    ranked.sort((a, b) => (b.score !== a.score ? b.score - a.score : a.id - b.id));
+  } else {
+    // Standard and topK generation: quickselect top slice
+    const candidateLimit = options?.topK && options.topK > 0
+      ? Math.max(options.topK, k * 20, 500)
+      : Math.max(k * 20, 500);
+    const targetN = Math.min(vocabSize, candidateLimit);
+
+    const indices = new Int32Array(vocabSize);
+    for (let i = 0; i < vocabSize; i++) indices[i] = i;
+
+    quickselectTopIndices(indices, scores, targetN);
+    const topIndices = indices.subarray(0, targetN);
+    // Sort top candidate indices deterministically
+    topIndices.sort((a, b) => (scores[b] !== scores[a] ? scores[b] - scores[a] : a - b));
+
+    for (let i = 0; i < topIndices.length; i++) {
+      const id = topIndices[i];
+      if (specialIds.has(id)) continue;
+      if (!isCandidateTokenAllowed(id, tokenizer)) continue;
+      ranked.push({ id, score: scores[id] });
+    }
+  }
 
   // 2. Build preferred search pool with Top-K / Top-P sampling if specified
   let searchPool = ranked;
@@ -410,9 +543,29 @@ export function getTopKReversibleTokenIds(
     }
   }
 
-  // 4. Dynamic expansion: If preferred pool yields fewer than k reversible tokens, continue down full ranked logits
+  // 4. Dynamic expansion: If preferred pool yields fewer than k reversible tokens, continue down remaining candidates
   if (validTokens.length < k) {
     for (const item of ranked) {
+      if (triedIds.has(item.id)) continue;
+      triedIds.add(item.id);
+      if (isTokenReversible(currentTokens, item.id, tokenizer)) {
+        validTokens.push(item.id);
+        if (validTokens.length === k) break;
+      }
+    }
+  }
+
+  // If still fewer than k and we used partial quickselect, fallback to full vocabulary scan
+  if (validTokens.length < k && !needsFullSort) {
+    const fullRanked: { id: number; score: number }[] = [];
+    for (let id = 0; id < vocabSize; id++) {
+      if (specialIds.has(id) || triedIds.has(id)) continue;
+      if (!isCandidateTokenAllowed(id, tokenizer)) continue;
+      fullRanked.push({ id, score: scores[id] });
+    }
+    fullRanked.sort((a, b) => (b.score !== a.score ? b.score - a.score : a.id - b.id));
+
+    for (const item of fullRanked) {
       if (triedIds.has(item.id)) continue;
       triedIds.add(item.id);
       if (isTokenReversible(currentTokens, item.id, tokenizer)) {
@@ -467,38 +620,100 @@ export async function bytesToLlmText(
   const promptTokenIds: number[] = Array.from(promptRaw).map(Number);
   const currentTokenIds: number[] = promptTokenIds.slice();
 
-  while (bitReader.hasBits) {
-    const inputs = buildModelInputs(currentTokenIds);
-    const outputs = await model(inputs);
+  const supportsKvCache =
+    typeof model.forward === "function" &&
+    typeof model._update_model_kwargs_for_generation === "function";
 
-    const logits = outputs.logits;
-    const [, seqLen, vocabSize] = logits.dims;
+  let modelInputs: any = null;
+  let currentOutputs: any = null;
 
-    const lastTokenLogitsOffset = (seqLen - 1) * vocabSize;
-    const lastLogitsData = logits.data.subarray(
-      lastTokenLogitsOffset,
-      lastTokenLogitsOffset + vocabSize
-    );
+  try {
+    if (supportsKvCache) {
+      // Initialize with full prompt tokens in first step
+      const initialInputs = buildModelInputs(promptTokenIds);
+      modelInputs = {
+        input_ids: initialInputs.input_ids,
+        attention_mask: initialInputs.attention_mask,
+      };
+      currentOutputs = await model.forward(modelInputs);
+    }
 
-    const topKTokenIds = getTopKReversibleTokenIds(
-      lastLogitsData,
-      k,
-      currentTokenIds,
-      tokenizer,
-      {
-        temperature: config.llmTemperature,
-        topP: config.llmTopP,
-        topK: config.llmTopK,
+    while (bitReader.hasBits) {
+      let logits: any;
+      let lastLogitsData: Float32Array;
+
+      if (supportsKvCache && currentOutputs) {
+        logits = currentOutputs.logits;
+        const [, sLen, vocabSize] = logits.dims;
+        const lastTokenLogitsOffset = (sLen - 1) * vocabSize;
+        lastLogitsData = logits.data.subarray(
+          lastTokenLogitsOffset,
+          lastTokenLogitsOffset + vocabSize
+        );
+      } else {
+        const inputs = buildModelInputs(currentTokenIds);
+        const outputs = await model(inputs);
+        logits = outputs.logits;
+        const [, sLen, vocabSize] = logits.dims;
+        const lastTokenLogitsOffset = (sLen - 1) * vocabSize;
+        lastLogitsData = logits.data.subarray(
+          lastTokenLogitsOffset,
+          lastTokenLogitsOffset + vocabSize
+        );
       }
-    );
 
-    // Read up to bitsPerToken (may read fewer bits at EOF)
-    const bitsToRead = Math.min(bitsPerToken, bitReader.remainingBits ?? bitsPerToken);
-    const bitVal = bitReader.readBits(bitsToRead);
-    
-    // Select token index deterministically
-    const chosenTokenId = topKTokenIds[bitVal];
-    currentTokenIds.push(chosenTokenId);
+      const topKTokenIds = getTopKReversibleTokenIds(
+        lastLogitsData,
+        k,
+        currentTokenIds,
+        tokenizer,
+        {
+          temperature: config.llmTemperature,
+          topP: config.llmTopP,
+          topK: config.llmTopK,
+        }
+      );
+
+      // Read up to bitsPerToken (may read fewer bits at EOF)
+      const bitsToRead = Math.min(bitsPerToken, bitReader.remainingBits ?? bitsPerToken);
+      const bitVal = bitReader.readBits(bitsToRead);
+
+      // Select token index deterministically
+      const chosenTokenId = topKTokenIds[bitVal];
+      currentTokenIds.push(chosenTokenId);
+
+      // Advance KV cache if supported and more bits remain
+      if (supportsKvCache && bitReader.hasBits) {
+        try {
+          if (model._update_model_kwargs_for_generation.length === 1) {
+            modelInputs = model._update_model_kwargs_for_generation({
+              generated_input_ids: [[BigInt(chosenTokenId)]],
+              outputs: currentOutputs,
+              model_inputs: modelInputs,
+              is_encoder_decoder: false,
+            });
+          } else {
+            modelInputs = model._update_model_kwargs_for_generation(
+              currentOutputs,
+              modelInputs,
+              false
+            );
+            if (modelInputs) {
+              modelInputs.input_ids = new Tensor("int64", BigInt64Array.from([BigInt(chosenTokenId)]), [1, 1]);
+            }
+          }
+          currentOutputs = await model.forward(modelInputs);
+        } catch {
+          // If KV cache update or forward fails on non-standard model variants, fallback gracefully to full sequence
+          modelInputs = null;
+          currentOutputs = null;
+        }
+      }
+    }
+  } finally {
+    if (modelInputs?.past_key_values && typeof modelInputs.past_key_values.dispose === "function") {
+      modelInputs.past_key_values.dispose().catch?.(() => {});
+    }
   }
 
   // Decode only the generated tokens, excluding the prompt prefix.
@@ -545,65 +760,130 @@ export async function llmTextToBytes(
   let totalPayloadBits: number | null = null;
   let totalBitsRead = 0;
 
-  for (const actualTokenId of generatedTokens) {
-    // If we've already extracted the 32-bit header and all payload bits, stop immediately.
-    // This prevents evaluating tokens outside the steganography sequence that would trigger rank === -1.
-    if (totalPayloadBits !== null && totalBitsRead >= 32 + totalPayloadBits) {
-      break;
+  const supportsKvCache =
+    typeof model.forward === "function" &&
+    typeof model._update_model_kwargs_for_generation === "function";
+
+  let modelInputs: any = null;
+  let currentOutputs: any = null;
+
+  try {
+    if (supportsKvCache) {
+      const initialInputs = buildModelInputs(promptTokenIds);
+      modelInputs = {
+        input_ids: initialInputs.input_ids,
+        attention_mask: initialInputs.attention_mask,
+      };
+      currentOutputs = await model.forward(modelInputs);
     }
 
-    const inputs = buildModelInputs(currentTokenIds);
-    const outputs = await model(inputs);
+    for (let i = 0; i < generatedTokens.length; i++) {
+      const actualTokenId = generatedTokens[i];
 
-    const logits = outputs.logits;
-    const [, seqLen, vocabSize] = logits.dims;
-
-    const lastTokenLogitsOffset = (seqLen - 1) * vocabSize;
-    const lastLogitsData = logits.data.subarray(
-      lastTokenLogitsOffset,
-      lastTokenLogitsOffset + vocabSize
-    );
-
-    const topKTokenIds = getTopKReversibleTokenIds(
-      lastLogitsData,
-      k,
-      currentTokenIds,
-      tokenizer,
-      {
-        temperature: config.llmTemperature,
-        topP: config.llmTopP,
-        topK: config.llmTopK,
+      // If we've already extracted the 32-bit header and all payload bits, stop immediately.
+      if (totalPayloadBits !== null && totalBitsRead >= 32 + totalPayloadBits) {
+        break;
       }
-    );
 
-    const rank = topKTokenIds.indexOf(actualTokenId);
-    if (rank === -1) {
-      throw new EncodingError(
-        `Decoding failed: Token ID ${actualTokenId} was not found in top ${k} candidate pool during reconstruction.`
+      let logits: any;
+      let lastLogitsData: Float32Array;
+
+      if (supportsKvCache && currentOutputs) {
+        logits = currentOutputs.logits;
+        const [, sLen, vocabSize] = logits.dims;
+        const lastTokenLogitsOffset = (sLen - 1) * vocabSize;
+        lastLogitsData = logits.data.subarray(
+          lastTokenLogitsOffset,
+          lastTokenLogitsOffset + vocabSize
+        );
+      } else {
+        const inputs = buildModelInputs(currentTokenIds);
+        const outputs = await model(inputs);
+        logits = outputs.logits;
+        const [, sLen, vocabSize] = logits.dims;
+        const lastTokenLogitsOffset = (sLen - 1) * vocabSize;
+        lastLogitsData = logits.data.subarray(
+          lastTokenLogitsOffset,
+          lastTokenLogitsOffset + vocabSize
+        );
+      }
+
+      const topKTokenIds = getTopKReversibleTokenIds(
+        lastLogitsData,
+        k,
+        currentTokenIds,
+        tokenizer,
+        {
+          temperature: config.llmTemperature,
+          topP: config.llmTopP,
+          topK: config.llmTopK,
+        }
       );
-    }
 
-    // Determine how many bits this token actually carries
-    let bitsToExtract = bitsPerToken;
-    if (totalPayloadBits !== null) {
-      const remainingBitsNeeded = (32 + totalPayloadBits) - totalBitsRead;
-      if (remainingBitsNeeded < bitsToExtract) {
-        bitsToExtract = remainingBitsNeeded;
+      const rank = topKTokenIds.indexOf(actualTokenId);
+      if (rank === -1) {
+        throw new EncodingError(
+          `Decoding failed: Token ID ${actualTokenId} was not found in top ${k} candidate pool during reconstruction.`
+        );
+      }
+
+      // Determine how many bits this token actually carries
+      let bitsToExtract = bitsPerToken;
+      if (totalPayloadBits !== null) {
+        const remainingBitsNeeded = (32 + totalPayloadBits) - totalBitsRead;
+        if (remainingBitsNeeded < bitsToExtract) {
+          bitsToExtract = remainingBitsNeeded;
+        }
+      }
+
+      bitWriter.writeBits(rank, bitsToExtract);
+      totalBitsRead += bitsToExtract;
+      currentTokenIds.push(actualTokenId);
+
+      // Parse header length as soon as the first 32 bits are available
+      if (totalPayloadBits === null && totalBitsRead >= 32) {
+        const interimBytes = bitWriter.toBytes();
+        totalPayloadBits = new DataView(
+          interimBytes.buffer,
+          interimBytes.byteOffset,
+          4
+        ).getUint32(0, false);
+      }
+
+      // Check if we reached the end of the required payload
+      const done = totalPayloadBits !== null && totalBitsRead >= 32 + totalPayloadBits;
+
+      // Advance KV cache if more tokens need to be processed
+      if (supportsKvCache && !done && i + 1 < generatedTokens.length) {
+        try {
+          if (model._update_model_kwargs_for_generation.length === 1) {
+            modelInputs = model._update_model_kwargs_for_generation({
+              generated_input_ids: [[BigInt(actualTokenId)]],
+              outputs: currentOutputs,
+              model_inputs: modelInputs,
+              is_encoder_decoder: false,
+            });
+          } else {
+            modelInputs = model._update_model_kwargs_for_generation(
+              currentOutputs,
+              modelInputs,
+              false
+            );
+            if (modelInputs) {
+              modelInputs.input_ids = new Tensor("int64", BigInt64Array.from([BigInt(actualTokenId)]), [1, 1]);
+            }
+          }
+          currentOutputs = await model.forward(modelInputs);
+        } catch {
+          // If KV cache update or forward fails on non-standard model variants, fallback gracefully to full sequence
+          modelInputs = null;
+          currentOutputs = null;
+        }
       }
     }
-
-    bitWriter.writeBits(rank, bitsToExtract);
-    totalBitsRead += bitsToExtract;
-    currentTokenIds.push(actualTokenId);
-
-    // Parse header length as soon as the first 32 bits are available
-    if (totalPayloadBits === null && totalBitsRead >= 32) {
-      const interimBytes = bitWriter.toBytes();
-      totalPayloadBits = new DataView(
-        interimBytes.buffer,
-        interimBytes.byteOffset,
-        4
-      ).getUint32(0, false);
+  } finally {
+    if (modelInputs?.past_key_values && typeof modelInputs.past_key_values.dispose === "function") {
+      modelInputs.past_key_values.dispose().catch?.(() => {});
     }
   }
 
