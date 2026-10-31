@@ -1,0 +1,16 @@
+export declare const CORE_TREND_NOUNS_RAW: string[];
+export declare const CORE_TREND_VERBS_RAW: string[];
+export declare const ACTION_SUBJECTS_RAW: string[];
+export declare const ACTION_OBJECTS_RAW: string[];
+export declare const REPORTING_SUBJECTS_PROPER_RAW: string[];
+export declare const CAUSE_ADJECTIVES_RAW: string[];
+export declare const CAUSE_NOUNS_RAW: string[];
+export declare const CAUSE_VERBS_RAW: string[];
+export declare const COMPLEMENT_ADJECTIVES_RAW: string[];
+export declare const CONDITION_NOUNS_RAW: string[];
+export declare const CONDITION_VERBS_RAW: string[];
+export declare const RELATIVE_ANTECEDENTS_RAW: string[];
+export declare const EFFECT_SCOPE_ADJECTIVES_RAW: string[];
+export declare const EFFECT_TYPE_ADJECTIVES_RAW: string[];
+export declare const EFFECT_NOUNS_RAW: string[];
+export declare const EFFECT_VERBS_RAW: string[];
