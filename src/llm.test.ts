@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { encode, decode } from "./ngram.js";
+import { encode, decode } from "./ngram.llm.js";
 import { EncodingError } from "./config/index.js";
 import {
   bytesToLlmText,

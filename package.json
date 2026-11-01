@@ -12,6 +12,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/ngram-cipher.js",
       "require": "./dist/ngram-cipher.cjs"
+    },
+    "./llm": {
+      "types": "./dist/index.llm.d.ts",
+      "import": "./dist/ngram-cipher-llm.js",
+      "require": "./dist/ngram-cipher-llm.cjs"
     }
   },
   "type": "module",
