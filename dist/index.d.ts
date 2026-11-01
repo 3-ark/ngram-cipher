@@ -1,10 +1,10 @@
 /**
- * Natural English N-Gram Cipher
+ * Natural English N-Gram Cipher (Lightweight Non-LLM)
  *
  * Encrypts data using AES-256-GCM and encodes ciphertext bits into natural English prose.
  */
-import { encode, decode, encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, normalizeModelName, VOCABULARY, analyzeCarrierText } from "./ngram.js";
-export { encode, decode, encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, normalizeModelName, VOCABULARY, analyzeCarrierText };
+import { encode, decode, encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, VOCABULARY, analyzeCarrierText } from "./ngram.js";
+export { encode, decode, encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, VOCABULARY, analyzeCarrierText };
 export * from "./config/index.js";
 export * from "./crypto/index.js";
 export * from "./framing/index.js";
@@ -17,9 +17,6 @@ declare const ngramCipher: {
     decryptBytes: typeof decryptBytes;
     bytesToEnglishText: typeof bytesToEnglishText;
     englishTextToBytes: typeof englishTextToBytes;
-    bytesToLlmText: typeof bytesToLlmText;
-    llmTextToBytes: typeof llmTextToBytes;
-    normalizeModelName: typeof normalizeModelName;
     VOCABULARY: string[];
     analyzeCarrierText: typeof analyzeCarrierText;
 };

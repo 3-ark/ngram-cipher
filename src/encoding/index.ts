@@ -1,5 +1,5 @@
 /**
- * Reversible Encoding and Decoding Engine
+ * Reversible Encoding and Decoding Engine (Lightweight non-LLM)
  */
 
 import { EncodingError, EncodingConfig, DEFAULT_CONFIG } from "../config/index.js";
@@ -18,9 +18,8 @@ import {
   type DomainTopic,
 } from "../nlg/index.js";
 import { BitStreamReader, BitStreamWriter } from "./bitstream.js";
-import { bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache, normalizeModelName } from "./llm.js";
 
-export { BitStreamReader, BitStreamWriter, bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache, normalizeModelName };
+export { BitStreamReader, BitStreamWriter };
 
 const NEWS_ENDING_CODES: Record<string, string> = {
   ".": "0",
@@ -193,18 +192,20 @@ function startsWithVowelSound(word: string): boolean {
 }
 
 /**
- * Encodes a Uint8Array byte stream into English-like carrier text.
+ * Encodes a Uint8Array byte stream into English-like carrier text (lightweight non-LLM).
  */
 export function bytesToEnglishText(
   bytes: Uint8Array,
   config: EncodingConfig = DEFAULT_CONFIG.encoding
-): string | Promise<string> {
+): string {
   if (!bytes || bytes.length === 0) {
     return "";
   }
 
   if (config.style === "llm") {
-    return bytesToLlmText(bytes, config);
+    throw new EncodingError(
+      'LLM steganography style requires the full LLM build. Please import from "ngram-cipher/llm".'
+    );
   }
 
   const isPoetry = config.style === "poetry";
@@ -415,18 +416,20 @@ export function bytesToEnglishText(
 }
 
 /**
- * Decodes carrier text back into the encoded Uint8Array byte stream.
+ * Decodes carrier text back into the encoded Uint8Array byte stream (lightweight non-LLM).
  */
 export function englishTextToBytes(
   text: string,
   config: EncodingConfig = DEFAULT_CONFIG.encoding
-): Uint8Array | Promise<Uint8Array> {
+): Uint8Array {
   if (!text || typeof text !== "string" || text.trim().length === 0) {
     return new Uint8Array(0);
   }
 
   if (config.style === "llm") {
-    return llmTextToBytes(text, config);
+    throw new EncodingError(
+      'LLM steganography style requires the full LLM build. Please import from "ngram-cipher/llm".'
+    );
   }
 
   const isPoetry = config.style === "poetry";

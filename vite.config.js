@@ -11,10 +11,16 @@ export default defineConfig({
     minify: true,
     sourcemap: true,
     lib: {
-      entry: "./src/index.ts",
+      entry: {
+        "ngram-cipher": "./src/index.ts",
+        "ngram-cipher-llm": "./src/index.llm.ts",
+      },
       name: "ngramCipher",
-      fileName: "ngram-cipher",
       formats: ["es", "cjs"],
+      fileName: (format, entryName) => {
+        const ext = format === "es" ? "js" : "cjs";
+        return `${entryName}.${ext}`;
+      },
     },
     rollupOptions: {
       external: [
@@ -22,7 +28,7 @@ export default defineConfig({
         /^@huggingface\/transformers\/.*/,
         "onnxruntime-web",
         /^onnxruntime-web\/.*/,
-        /^node:.*/
+        /^node:.*/,
       ],
       output: {
         exports: "named",

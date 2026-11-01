@@ -1,14 +1,14 @@
 /**
- * Natural English N-Gram Cipher
+ * Natural English N-Gram Cipher (Lightweight Non-LLM)
  *
  * Facade uniting Cryptography, Binary Framing, Reversible Encoding,
  * and Natural-Language Generation.
  */
 import { StegoOptions } from "./config/index.js";
 import { encryptBytes, decryptBytes } from "./crypto/index.js";
-import { bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, normalizeModelName } from "./encoding/index.js";
+import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 import { VOCABULARY, analyzeCarrierText, type CarrierAnalysis } from "./nlg/index.js";
-export { encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, normalizeModelName, VOCABULARY, analyzeCarrierText };
+export { encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, VOCABULARY, analyzeCarrierText };
 export type { CarrierAnalysis };
 export * from "./config/index.js";
 export * from "./crypto/index.js";

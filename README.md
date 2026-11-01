@@ -18,6 +18,7 @@ Unlike classic steganography that hides bits in image pixels or audio noise, `ng
 - **🔄 100% Losslessly Reversible**: Bit allocation using power-of-two power ranks and deterministic context continuation guarantees bit-exact payload recovery.
 - **🗜️ Automatic Compression**: Uses gzip or reversible common-word packing when smaller; dictionary-packed data is padded to 16-byte blocks to limit fine-grained compressed-length leakage.
 - **📦 Universal ES Module & CommonJS Support**: Includes full TypeScript declarations (`.d.ts`), works seamlessly in Node.js, modern browsers, and bundlers.
+- **🪶 Lightweight Non-LLM Build**: Dedicated ultra-light build without heavy ONNX Runtime or Transformers.js dependencies (~7 KB minified, 0 WASM binaries), ideal for size-sensitive environments like Chrome Extensions. Full LLM version is available separately under `ngram-cipher/llm`.
 
 ---
 
@@ -26,6 +27,17 @@ Unlike classic steganography that hides bits in image pixels or audio noise, `ng
 ```bash
 npm install ngram-cipher
 ```
+
+---
+
+## Light vs Full (LLM) Builds
+
+`ngram-cipher` provides two separate builds to accommodate different performance and size constraints:
+
+| Package Import | Built Bundle | Bundle Size | Heavy Dependencies | Description |
+|---|---|---|---|---|
+| `ngram-cipher` (default) | `ngram-cipher.js` / `.cjs` | **~7 KB** | None (0 MB WASM) | **Lightweight version**. Fast, stable, statistical N-gram continuation (`news`, `poetry`). Ideal for Chrome extensions, embedded scripts, and serverless. |
+| `ngram-cipher/llm` | `ngram-cipher-llm.js` / `.cjs` | ~21 KB | `@huggingface/transformers` (~26 MB WASM/ONNX) | **Full version**. Includes experimental ONNX LLM steganography mode (`style: "llm"`) alongside standard styles. |
 
 ---
 
@@ -104,9 +116,11 @@ Our snowy mist reflected while any unspoken brook transformed...
 
 ### LLM Mode (`"llm"` - Experimental)
 
-Embeds secret payload bits directly into causal language model token selections using Hugging Face Transformers (`@huggingface/transformers`) and ONNX Runtime.
+Embeds secret payload bits directly into causal language model token selections using Hugging Face Transformers (`@huggingface/transformers`) and ONNX Runtime. Note that this requires importing from `ngram-cipher/llm`:
 
 ```typescript
+import { encode } from "ngram-cipher/llm";
+
 const llmText = await encode("Secret message", "password123", {
   encoding: {
     style: "llm",

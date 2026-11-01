@@ -1,5 +1,5 @@
 /**
- * Natural English N-Gram Cipher
+ * Natural English N-Gram Cipher (Lightweight Non-LLM)
  *
  * Encrypts data using AES-256-GCM and encodes ciphertext bits into natural English prose.
  */
@@ -11,9 +11,6 @@ import {
   decryptBytes,
   bytesToEnglishText,
   englishTextToBytes,
-  bytesToLlmText,
-  llmTextToBytes,
-  normalizeModelName,
   VOCABULARY,
   analyzeCarrierText
 } from "./ngram.js";
@@ -25,9 +22,6 @@ export {
   decryptBytes,
   bytesToEnglishText,
   englishTextToBytes,
-  bytesToLlmText,
-  llmTextToBytes,
-  normalizeModelName,
   VOCABULARY,
   analyzeCarrierText
 };
@@ -45,9 +39,6 @@ const ngramCipher = {
   decryptBytes,
   bytesToEnglishText,
   englishTextToBytes,
-  bytesToLlmText,
-  llmTextToBytes,
-  normalizeModelName,
   VOCABULARY,
   analyzeCarrierText
 };
