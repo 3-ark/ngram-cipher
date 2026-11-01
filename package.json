@@ -22,7 +22,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tsc --emitDeclarationOnly",
+    "build": "node scripts/build.js && tsc --emitDeclarationOnly",
     "preview": "vite preview",
     "coverage:preview": "vite coverage",
     "test": "vitest run",
