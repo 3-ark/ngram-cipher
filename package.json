@@ -25,16 +25,16 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^5.0.3",
+    "@vitest/coverage-v8": "^5.0.5",
     "typescript": "^7.0.2",
-    "vite": "^8.3.4",
-    "vitest": "^5.0.3"
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
   },
   "files": [
     "dist",
     "LICENSE.md"
   ],
   "dependencies": {
-    "@huggingface/transformers": "^4.3.1"
+    "@huggingface/transformers": "^4.3.2"
   }
 }
