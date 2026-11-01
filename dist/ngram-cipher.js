@@ -1920,6 +1920,9 @@ function It(e, t) {
 	return t ?? (typeof process < "u" && process.versions != null && process.versions.node != null) ? "cpu" : "wasm";
 }
 function Lt(e) {
+	return Math.max(1, e || 20);
+}
+function Rt(e) {
 	let t = [];
 	if (!e || typeof e != "string" || e.trim().length === 0) return ["onnx-community/Supra-Mini-v2-0.1M-ONNX"];
 	let n = e.trim();
@@ -1932,7 +1935,7 @@ function Lt(e) {
 	}
 	return Array.from(new Set(t));
 }
-function Rt(e) {
+function zt(e) {
 	let t = [];
 	if (!e || typeof e != "string" || e.trim().length === 0) return ["Xenova/gpt2"];
 	let n = e.trim();
@@ -1953,7 +1956,7 @@ function Rt(e) {
 	}
 	return t.push("Xenova/gpt2"), Array.from(new Set(t));
 }
-function zt(e) {
+function Bt(e) {
 	if (!e || typeof e != "string" || e.trim().length === 0) return {
 		modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
 		quantized: !0
@@ -1979,15 +1982,15 @@ function zt(e) {
 		quantized: !0
 	};
 }
-function Bt(e) {
-	return zt(e).modelId;
+function Vt(e) {
+	return Bt(e).modelId;
 }
-async function Vt(n) {
+async function Ht(n) {
 	if (n.llmCustomModel && n.llmCustomTokenizer) return {
 		model: n.llmCustomModel,
 		tokenizer: n.llmCustomTokenizer
 	};
-	let i = zt(n.llmModel), a = n.llmDtype || i.dtype || "fp16", o = [
+	let i = Bt(n.llmModel), a = n.llmDtype || i.dtype || "fp16", o = [
 		i.modelId,
 		i.revision ?? "main",
 		i.subfolder ?? "root",
@@ -1999,7 +2002,7 @@ async function Vt(n) {
 	if (Ft.has(o)) return Ft.get(o);
 	n.llmCacheDir && (r.cacheDir = n.llmCacheDir);
 	try {
-		let r = Rt(i.modelId), s, c;
+		let r = zt(i.modelId), s, c;
 		for (let e of r) try {
 			if (s = await t.from_pretrained(e, { revision: i.revision ?? "main" }), s) break;
 		} catch (n) {
@@ -2016,38 +2019,29 @@ async function Vt(n) {
 		}
 		let l, u, d = {};
 		i.subfolder && (d.subfolder = i.subfolder), i.model_file_name && (d.file_name = i.model_file_name);
-		let f = It(n.llmDevice), p = 20;
-		try {
-			if (typeof process < "u" && process.versions?.node != null) {
-				let e = await import("node:os");
-				p = Math.max(1, e.cpus?.().length || 20);
-			} else typeof navigator < "u" && navigator.hardwareConcurrency && (p = Math.max(1, navigator.hardwareConcurrency));
-		} catch {
-			p = 20;
-		}
-		let m = {
-			intraOpNumThreads: p,
+		let f = It(n.llmDevice), p = {
+			intraOpNumThreads: Lt(typeof navigator < "u" ? navigator.hardwareConcurrency : void 0),
 			graphOptimizationLevel: "all",
 			...n.llmSessionOptions ?? {}
-		}, h = [];
-		h.push({
+		}, m = [];
+		m.push({
 			...d,
 			dtype: a,
 			device: f,
 			revision: i.revision ?? "main",
-			session_options: m
-		}), h.push({
+			session_options: p
+		}), m.push({
 			...d,
 			dtype: a,
 			revision: i.revision ?? "main",
-			session_options: m
-		}), h.push({
+			session_options: p
+		}), m.push({
 			dtype: a,
-			session_options: m
-		}), h.push({ session_options: m }), h.push({});
-		let g = Lt(i.modelId);
-		for (let t of g) {
-			for (let n of h) try {
+			session_options: p
+		}), m.push({ session_options: p }), m.push({});
+		let h = Rt(i.modelId);
+		for (let t of h) {
+			for (let n of m) try {
 				if (l = await e.from_pretrained(t, n), l) break;
 			} catch (e) {
 				u = e;
@@ -2058,34 +2052,34 @@ async function Vt(n) {
 			let e = u instanceof Error ? u.message : String(u);
 			throw Error(e);
 		}
-		let _ = {
+		let g = {
 			model: l,
 			tokenizer: s
 		};
-		return Ft.set(o, _), _;
+		return Ft.set(o, g), g;
 	} catch (e) {
 		let t = e instanceof Error ? e.message : String(e);
 		throw new s(`Failed to load ONNX model '${i.modelId}'. Error: ${t}`);
 	}
 }
-function Ht() {
+function Ut() {
 	Ft.clear();
 }
-function Ut(e) {
+function Wt(e) {
 	let t = e.length;
 	return {
 		input_ids: new n("int64", BigInt64Array.from(e.map((e) => BigInt(e))), [1, t]),
 		attention_mask: new n("int64", new BigInt64Array(t).fill(1n), [1, t])
 	};
 }
-var Wt = /* @__PURE__ */ new WeakMap();
-function Gt(e, t) {
-	let n = typeof t == "object" && t ? Wt.get(t) : void 0;
-	if (!n && typeof t == "object" && t && (n = /* @__PURE__ */ new Map(), Wt.set(t, n)), n && n.has(e)) return n.get(e);
+var Gt = /* @__PURE__ */ new WeakMap();
+function Kt(e, t) {
+	let n = typeof t == "object" && t ? Gt.get(t) : void 0;
+	if (!n && typeof t == "object" && t && (n = /* @__PURE__ */ new Map(), Gt.set(t, n)), n && n.has(e)) return n.get(e);
 	let r = t.decode([e], { skip_special_tokens: !1 }), i = !/[\r\n]/.test(r);
 	return n && n.set(e, i), i;
 }
-function Kt(e, t, n) {
+function qt(e, t, n) {
 	function r(n, i, a) {
 		if (n >= i) return;
 		let o = n + i >> 1, s = e[o], c = t[s];
@@ -2099,14 +2093,14 @@ function Kt(e, t, n) {
 	}
 	r(0, e.length - 1, n);
 }
-function qt(e, t, n) {
+function Jt(e, t, n) {
 	if (t < 0) return !1;
 	let r = [...e, t], i = n(n.decode(r, { skip_special_tokens: !1 }), { add_special_tokens: !1 }), a = i?.input_ids?.data ?? i?.input_ids ?? i, o = Array.from(a ?? []).map(Number);
 	if (o.length !== r.length) return !1;
 	for (let e = 0; e < r.length; e++) if (o[e] !== r[e]) return !1;
 	return !0;
 }
-function Jt(e, t, n, r, i) {
+function Yt(e, t, n, r, i) {
 	let a = i?.temperature && i.temperature > 0 ? i.temperature : 1, o = e.length, c = new Set(r.all_special_ids ?? []), l = i?.precision ?? 100, u = new Float32Array(o);
 	for (let t = 0; t < o; t++) {
 		let n = Number(e[t]), r = a === 1 ? n : n / a;
@@ -2114,7 +2108,7 @@ function Jt(e, t, n, r, i) {
 	}
 	let d = i?.topP && i.topP > 0 && i.topP < 1, f = [];
 	if (d) {
-		for (let e = 0; e < o; e++) c.has(e) || Gt(e, r) && f.push({
+		for (let e = 0; e < o; e++) c.has(e) || Kt(e, r) && f.push({
 			id: e,
 			score: u[e]
 		});
@@ -2122,12 +2116,12 @@ function Jt(e, t, n, r, i) {
 	} else {
 		let e = i?.topK && i.topK > 0 ? Math.max(i.topK, t * 20, 500) : Math.max(t * 20, 500), n = Math.min(o, e), a = new Int32Array(o);
 		for (let e = 0; e < o; e++) a[e] = e;
-		Kt(a, u, n);
+		qt(a, u, n);
 		let s = a.subarray(0, n);
 		s.sort((e, t) => u[t] === u[e] ? e - t : u[t] - u[e]);
 		for (let e = 0; e < s.length; e++) {
 			let t = s[e];
-			c.has(t) || Gt(t, r) && f.push({
+			c.has(t) || Kt(t, r) && f.push({
 				id: t,
 				score: u[t]
 			});
@@ -2150,24 +2144,24 @@ function Jt(e, t, n, r, i) {
 		}
 	}
 	let m = [], h = /* @__PURE__ */ new Set();
-	for (let e of p) if (h.add(e.id), qt(n, e.id, r) && (m.push(e.id), m.length === t)) break;
+	for (let e of p) if (h.add(e.id), Jt(n, e.id, r) && (m.push(e.id), m.length === t)) break;
 	if (m.length < t) {
-		for (let e of f) if (!h.has(e.id) && (h.add(e.id), qt(n, e.id, r) && (m.push(e.id), m.length === t))) break;
+		for (let e of f) if (!h.has(e.id) && (h.add(e.id), Jt(n, e.id, r) && (m.push(e.id), m.length === t))) break;
 	}
 	if (m.length < t && !d) {
 		let e = [];
-		for (let t = 0; t < o; t++) c.has(t) || h.has(t) || Gt(t, r) && e.push({
+		for (let t = 0; t < o; t++) c.has(t) || h.has(t) || Kt(t, r) && e.push({
 			id: t,
 			score: u[t]
 		});
 		e.sort((e, t) => t.score === e.score ? e.id - t.id : t.score - e.score);
-		for (let i of e) if (!h.has(i.id) && (h.add(i.id), qt(n, i.id, r) && (m.push(i.id), m.length === t))) break;
+		for (let i of e) if (!h.has(i.id) && (h.add(i.id), Jt(n, i.id, r) && (m.push(i.id), m.length === t))) break;
 	}
 	if (m.length < t) throw new s(`StepVerify failed: Insufficient reversible tokens (found ${m.length}/${t}) across entire vocabulary pool. Aborting to prevent data corruption.`);
 	return m;
 }
-async function Yt(e, t) {
-	let { model: r, tokenizer: i } = await Vt(t), a = Math.max(1, Math.min(16, t.bitsPerToken ?? 4)), o = 1 << a, s = e.length * 8, c = /* @__PURE__ */ new Uint8Array(4);
+async function Xt(e, t) {
+	let { model: r, tokenizer: i } = await Ht(t), a = Math.max(1, Math.min(16, t.bitsPerToken ?? 4)), o = 1 << a, s = e.length * 8, c = /* @__PURE__ */ new Uint8Array(4);
 	new DataView(c.buffer).setUint32(0, s, !1);
 	let l = new Uint8Array(4 + e.length);
 	l.set(c, 0), l.set(e, 4);
@@ -2176,7 +2170,7 @@ async function Yt(e, t) {
 	let f = i(d, { add_special_tokens: !1 }), p = f?.input_ids?.data ?? f?.input_ids ?? f, m = Array.from(p).map(Number), h = m.slice(), g = typeof r.forward == "function" && typeof r._update_model_kwargs_for_generation == "function", _ = null, v = null;
 	try {
 		if (g) {
-			let e = Ut(m);
+			let e = Wt(m);
 			_ = {
 				input_ids: e.input_ids,
 				attention_mask: e.attention_mask
@@ -2189,11 +2183,11 @@ async function Yt(e, t) {
 				let [, t, n] = e.dims, r = (t - 1) * n;
 				s = e.data.subarray(r, r + n);
 			} else {
-				e = (await r(Ut(h))).logits;
+				e = (await r(Wt(h))).logits;
 				let [, t, n] = e.dims, i = (t - 1) * n;
 				s = e.data.subarray(i, i + n);
 			}
-			let c = Jt(s, o, h, i, {
+			let c = Yt(s, o, h, i, {
 				temperature: t.llmTemperature,
 				topP: t.llmTopP,
 				topK: t.llmTopK,
@@ -2216,15 +2210,15 @@ async function Yt(e, t) {
 	let y = h.slice(m.length);
 	return i.decode(y, { skip_special_tokens: !1 });
 }
-async function Xt(e, t) {
-	let { model: r, tokenizer: i } = await Vt(t), a = Math.max(1, Math.min(16, t.bitsPerToken ?? 4)), o = 1 << a, c = t.llmPrompt ?? "In recent news,";
+async function Zt(e, t) {
+	let { model: r, tokenizer: i } = await Ht(t), a = Math.max(1, Math.min(16, t.bitsPerToken ?? 4)), o = 1 << a, c = t.llmPrompt ?? "In recent news,";
 	!c.endsWith(" ") && !c.endsWith("\n") && (c += " ");
 	let l = i(c, { add_special_tokens: !1 }), u = l?.input_ids?.data ?? l?.input_ids ?? l, d = Array.from(u).map(Number), f = i(e, { add_special_tokens: !1 }), p = f?.input_ids?.data ?? f?.input_ids ?? f, m = Array.from(p).map(Number);
 	if (m.length === 0) throw new s("Carrier text does not contain any generated LLM payload tokens.");
 	let h = new Pt(), g = d.slice(), _ = null, v = 0, y = typeof r.forward == "function" && typeof r._update_model_kwargs_for_generation == "function", b = null, x = null;
 	try {
 		if (y) {
-			let e = Ut(d);
+			let e = Wt(d);
 			b = {
 				input_ids: e.input_ids,
 				attention_mask: e.attention_mask
@@ -2239,11 +2233,11 @@ async function Xt(e, t) {
 				let [, e, t] = l.dims, n = (e - 1) * t;
 				u = l.data.subarray(n, n + t);
 			} else {
-				l = (await r(Ut(g))).logits;
+				l = (await r(Wt(g))).logits;
 				let [, e, t] = l.dims, n = (e - 1) * t;
 				u = l.data.subarray(n, n + t);
 			}
-			let d = Jt(u, o, g, i, {
+			let d = Yt(u, o, g, i, {
 				temperature: t.llmTemperature,
 				topP: t.llmTopP,
 				topK: t.llmTopK,
@@ -2283,17 +2277,17 @@ async function Xt(e, t) {
 	return S.subarray(4, 4 + w);
 }
 // src/encoding/index.ts
-var Zt = {
+var Qt = {
 	".": "0",
 	";": "10",
 	"...": "110",
 	"…": "111"
-}, Qt = {
+}, $t = {
 	0: ".",
 	10: ";",
 	110: "...",
 	111: "…"
-}, $t = {
+}, en = {
 	the: "0",
 	a: "10",
 	this: "1100",
@@ -2302,7 +2296,7 @@ var Zt = {
 	no: "11110",
 	any: "111110",
 	one: "111111"
-}, en = {
+}, tn = {
 	0: "the",
 	10: "a",
 	1100: "this",
@@ -2311,7 +2305,7 @@ var Zt = {
 	11110: "no",
 	111110: "any",
 	111111: "one"
-}, tn = { 7: [
+}, nn = { 7: [
 	"00",
 	"01",
 	"100",
@@ -2320,9 +2314,9 @@ var Zt = {
 	"1110",
 	"1111"
 ] };
-for (let e = 8; e <= J.length; e++) tn[e] = ["0", ...tn[e - 1].map((e) => `1${e}`)];
-var nn = 3;
-function rn(e) {
+for (let e = 8; e <= J.length; e++) nn[e] = ["0", ...nn[e - 1].map((e) => `1${e}`)];
+var rn = 3;
+function an(e) {
 	let t = 0;
 	for (let n = 0; n < e.length; n++) {
 		let r = e[n];
@@ -2330,7 +2324,7 @@ function rn(e) {
 	}
 	return (t + 4) / e.length;
 }
-function an(e, t, n = !0) {
+function on(e, t, n = !0) {
 	let r = Array.from({ length: e.length }, (e, t) => t);
 	if (n) for (let e of t) {
 		let t = r.indexOf(e);
@@ -2338,12 +2332,12 @@ function an(e, t, n = !0) {
 	}
 	let i = /* @__PURE__ */ new Map();
 	if (!n) return r.forEach((e, t) => i.set(e, t.toString(2).padStart(3, "0"))), i;
-	let a = tn[r.length];
+	let a = nn[r.length];
 	if (!a) throw new s("Template count does not support the recent-template repetition rule.");
-	let o = [...a].sort((e, t) => e.length - t.length), c = r.includes(nn) ? o.pop() : void 0;
-	return r.filter((e) => e !== nn || c === void 0).sort((t, n) => rn(e[n]) - rn(e[t]) || t - n).forEach((e, t) => i.set(e, o[t])), c !== void 0 && i.set(nn, c), i;
+	let o = [...a].sort((e, t) => e.length - t.length), c = r.includes(rn) ? o.pop() : void 0;
+	return r.filter((e) => e !== rn || c === void 0).sort((t, n) => an(e[n]) - an(e[t]) || t - n).forEach((e, t) => i.set(e, o[t])), c !== void 0 && i.set(rn, c), i;
 }
-function on(e, t) {
+function sn(e, t) {
 	let n = t.length >= 1 ? t[t.length - 1] : void 0, r = e.filter((e) => e.toLowerCase() !== n).map((e, t) => ({
 		word: e,
 		weight: e.toLowerCase() === "the" ? 8 : 1,
@@ -2364,35 +2358,35 @@ function on(e, t) {
 	};
 	return a(r[0], ""), i;
 }
-var sn = [
+var cn = [
 	".",
 	" —",
 	"...",
 	","
-], cn = {
+], ln = {
 	".": 0,
 	" —": 1,
 	"...": 2,
 	",": 3,
 	"?": 0
 };
-function ln(e) {
+function un(e) {
 	return e.charAt(0).toUpperCase() + e.slice(1);
 }
-function un(e) {
+function dn(e) {
 	let t = e.toLowerCase();
 	return /^(?:ewe|eul|euro|one|once|uni(?:corn|form|fy|on|t|vers|que)|use|usual|user|utility|utopia)/.test(t) ? !1 : /^(?:hour|honest|honor|heir)/.test(t) ? !0 : /^[aeiou]/i.test(e);
 }
-function dn(e, t = l.encoding) {
+function fn(e, t = l.encoding) {
 	if (!e || e.length === 0) return "";
-	if (t.style === "llm") return Yt(e, t);
+	if (t.style === "llm") return Xt(e, t);
 	let n = t.style === "poetry", r = e.length, i = /* @__PURE__ */ new Uint8Array(2);
 	new DataView(i.buffer).setUint16(0, r, !1);
 	let a = new Uint8Array(e.length + 2);
 	a.set(e, 0), a.set(i, e.length);
 	let o = new Nt(a), c = [], u = n ? At : J, d = [], f = [], p = 0, m = n ? void 0 : he[a[0] >> 6 & 3];
 	for (; o.hasBits;) {
-		let e = an(u, f, !n), r = new Map(Array.from(e, ([e, t]) => [t, e])), i = "", a;
+		let e = on(u, f, !n), r = new Map(Array.from(e, ([e, t]) => [t, e])), i = "", a;
 		for (let e = 0; e < 16 && (i += o.readBits(1).toString(), a = r.get(i), a === void 0); e++);
 		if (a === void 0) throw new s("Unable to decode sentence template.");
 		let l = u[a], h = [], g = [];
@@ -2405,7 +2399,7 @@ function dn(e, t = l.encoding) {
 			}
 			let a;
 			if (!n && h.length === 0) {
-				let e = on(i, d), t = new Map(Array.from(e, ([e, t]) => [t, e])), n = "", r;
+				let e = sn(i, d), t = new Map(Array.from(e, ([e, t]) => [t, e])), n = "", r;
 				for (let e = 0; e < 16 && (n += o.readBits(1).toString(), r = t.get(n), !r); e++);
 				if (!r) throw new s("Unable to decode sentence opening word.");
 				a = r;
@@ -2414,7 +2408,7 @@ function dn(e, t = l.encoding) {
 				a = i[qe(o.hasBits ? o.readBits(e) : 0, e, i.length) % i.length];
 			} else if (!n && e.label === "d") {
 				let e = "", t;
-				for (let n = 0; n < 6 && (e += o.readBits(1).toString(), t = en[e], !t); n++);
+				for (let n = 0; n < 6 && (e += o.readBits(1).toString(), t = tn[e], !t); n++);
 				if (!t) throw new s("Unable to decode determiner prefix code.");
 				a = t;
 			} else {
@@ -2424,17 +2418,17 @@ function dn(e, t = l.encoding) {
 			h.push(a), g.push(a.toLowerCase());
 		}
 		if (h.length === 0) break;
-		for (let e = 0; e < h.length; e++) h[e].toLowerCase() === "a" && e + 1 < h.length && un(h[e + 1]) && (h[e] = h[e] === "A" ? "An" : "an");
+		for (let e = 0; e < h.length; e++) h[e].toLowerCase() === "a" && e + 1 < h.length && dn(h[e + 1]) && (h[e] = h[e] === "A" ? "An" : "an");
 		for (let e = 0; e < h.length; e++) {
 			let t = l[e]?.label, n = h[e];
-			(e === 0 || t === "NP") && (h[e] = ln(n));
+			(e === 0 || t === "NP") && (h[e] = un(n));
 		}
 		let _ = ".";
 		if (t.sentenceEndingVariance) {
-			if (n) _ = sn[(o.hasBits ? o.readBits(2) : 0) % sn.length];
+			if (n) _ = cn[(o.hasBits ? o.readBits(2) : 0) % cn.length];
 			else {
 				let e = "", t;
-				for (let n = 0; n < 4 && (e += (o.hasBits ? o.readBits(1) : 0).toString(), t = Qt[e], !t); n++);
+				for (let n = 0; n < 4 && (e += (o.hasBits ? o.readBits(1) : 0).toString(), t = $t[e], !t); n++);
 				_ = t ?? ".";
 			}
 		}
@@ -2460,9 +2454,9 @@ function dn(e, t = l.encoding) {
 	}
 	return h.join("\n\n");
 }
-function fn(e, t = l.encoding) {
+function pn(e, t = l.encoding) {
 	if (!e || typeof e != "string" || e.trim().length === 0) return /* @__PURE__ */ new Uint8Array();
-	if (t.style === "llm") return Xt(e, t);
+	if (t.style === "llm") return Zt(e, t);
 	let n = t.style === "poetry", r = e.replace(/[\r\n]+/g, "\n").trim(), i = [];
 	if (n) {
 		let e = r.split("\n").map((e) => e.trim()).filter((e) => e.length > 0);
@@ -2495,7 +2489,7 @@ function fn(e, t = l.encoding) {
 	for (let e = 0; e < i.length; e++) {
 		let { sentenceStr: r, endingStr: l } = i[e], f = r.split(/\s+/).filter((e) => e.length > 0);
 		if (f.length === 0) continue;
-		let p = jt(f, o), m = an(o, u, !n).get(p);
+		let p = jt(f, o), m = on(o, u, !n).get(p);
 		if (!m) throw new s(`Sentence template repeats within the previous two sentences at sentence ${e + 1}.`);
 		for (let e of m) a.writeBits(Number(e), 1);
 		let h = o[p], g = 0, _ = [], v = "";
@@ -2503,7 +2497,7 @@ function fn(e, t = l.encoding) {
 			if (g >= f.length) break;
 			let r = f[g], i = r.replace(/^[ "'“‘]+/g, "").replace(/[ "'”’.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 			t.type === "data" && i === "an" && t.label === "d" && (i = "a");
-			let o = e === 0 || n ? void 0 : d, l = t.list && t.list.length > 0 ? t.list : it, u = Ke(t.type === "data" && !n ? Ie(l, _, t.label, o) : l, _, o), p = !n && g === 0 && t.type === "data" ? on(u, c) : void 0, m = u.findIndex((e) => e.toLowerCase() === i);
+			let o = e === 0 || n ? void 0 : d, l = t.list && t.list.length > 0 ? t.list : it, u = Ke(t.type === "data" && !n ? Ie(l, _, t.label, o) : l, _, o), p = !n && g === 0 && t.type === "data" ? sn(u, c) : void 0, m = u.findIndex((e) => e.toLowerCase() === i);
 			if (m === -1) throw new s(`Invalid or unrecognized token in cipher text: "${r}" (not in carrier vocabulary, sentence ${e + 1})`);
 			if (t.type === "data") {
 				if (p) {
@@ -2514,7 +2508,7 @@ function fn(e, t = l.encoding) {
 					let e = Math.floor(Math.log2(u.length)), t = Je(m, e, u.length);
 					a.writeBits(t, e);
 				} else if (!n && t.label === "d") {
-					let e = $t[i];
+					let e = en[i];
 					if (!e) throw new s(`No determiner code is defined for "${i}".`);
 					for (let t of e) a.writeBits(Number(t), 1);
 				} else {
@@ -2530,10 +2524,10 @@ function fn(e, t = l.encoding) {
 		}
 		if (t.sentenceEndingVariance) {
 			if (n) {
-				let e = cn[l] ?? 0;
+				let e = ln[l] ?? 0;
 				a.writeBits(e, 2);
 			} else {
-				let e = Zt[l] ?? "0";
+				let e = Qt[l] ?? "0";
 				for (let t of e) a.writeBits(Number(t), 1);
 			}
 		}
@@ -2552,25 +2546,25 @@ function fn(e, t = l.encoding) {
 	return p === -1 ? /* @__PURE__ */ new Uint8Array() : f.subarray(0, p);
 }
 // src/ngram.ts
-var $ = 10485760, pn = 16, mn = /* @__PURE__ */ "the.be.to.of.and.a.in.that.have.i.it.for.not.on.with.he.as.you.do.at.this.but.his.by.from.they.we.say.her.she.or.an.will.my.one.all.would.there.their.what.so.up.out.if.about.who.get.which.go.me.when.make.can.like.time.no.just.him.know.take.people.into.year.your.good.some.could.them.see.other.than.then.now.look.only.come.its.over.think.also.back.after.use.two.how.our.work.first.well.way.even.new.want.because.any.these.give.day.most.us.hello.world.secret.message.encoded.natural.english.text.is.are.was.were.has.had.said.more.very.much.through.before.between.under".split("."), hn = new Map(mn.map((e, t) => [e, t])), gn = new TextEncoder();
-function _n(e, t) {
+var $ = 10485760, mn = 16, hn = /* @__PURE__ */ "the.be.to.of.and.a.in.that.have.i.it.for.not.on.with.he.as.you.do.at.this.but.his.by.from.they.we.say.her.she.or.an.will.my.one.all.would.there.their.what.so.up.out.if.about.who.get.which.go.me.when.make.can.like.time.no.just.him.know.take.people.into.year.your.good.some.could.them.see.other.than.then.now.look.only.come.its.over.think.also.back.after.use.two.how.our.work.first.well.way.even.new.want.because.any.these.give.day.most.us.hello.world.secret.message.encoded.natural.english.text.is.are.was.were.has.had.said.more.very.much.through.before.between.under".split("."), gn = new Map(hn.map((e, t) => [e, t])), _n = new TextEncoder();
+function vn(e, t) {
 	let n = new Uint8Array(t), r = 0, i = (e) => r + e.length >= t ? !1 : (n.set(e, r), r += e.length, !0), a = 0;
 	for (let t of e.matchAll(/[A-Za-z]+/g)) {
 		let n = t.index, r = t[0];
-		if (!i(gn.encode(e.slice(a, n)))) return;
-		let o = r.toLowerCase(), s = hn.get(o), c = r === o, l = r === o[0].toUpperCase() + o.slice(1);
+		if (!i(_n.encode(e.slice(a, n)))) return;
+		let o = r.toLowerCase(), s = gn.get(o), c = r === o, l = r === o[0].toUpperCase() + o.slice(1);
 		if (s !== void 0 && (c || l)) {
 			if (!i(Uint8Array.of(255, s | (l ? 128 : 0)))) return;
-		} else if (!i(gn.encode(r))) return;
+		} else if (!i(_n.encode(r))) return;
 		a = n + r.length;
 	}
-	if (!i(gn.encode(e.slice(a))) || r > 65535) return;
-	let o = r + 2, s = Math.ceil(o / pn) * pn;
+	if (!i(_n.encode(e.slice(a))) || r > 65535) return;
+	let o = r + 2, s = Math.ceil(o / mn) * mn;
 	if (s >= t) return;
 	let c = new Uint8Array(s);
 	return new DataView(c.buffer).setUint16(0, r, !1), c.set(n.subarray(0, r), 2), c;
 }
-function vn(e) {
+function yn(e) {
 	if (e.length < 2) throw new a("Invalid dictionary-compressed payload.");
 	let t = new DataView(e.buffer, e.byteOffset, e.byteLength).getUint16(0, !1);
 	if (t > e.length - 2 || t > $) throw new a("Invalid dictionary-compressed payload.");
@@ -2586,14 +2580,14 @@ function vn(e) {
 			continue;
 		}
 		if (e + 1 >= n.length) throw new a("Invalid dictionary-compressed payload.");
-		let t = n[++e], r = mn[t & 127];
+		let t = n[++e], r = hn[t & 127];
 		if (r === void 0) throw new a("Invalid dictionary-compressed payload.");
 		let i = t & 128 ? r[0].toUpperCase() + r.slice(1) : r;
-		o(gn.encode(i));
+		o(_n.encode(i));
 	}
 	return r.slice(0, i);
 }
-async function yn(e, t) {
+async function bn(e, t) {
 	let n = e.buffer.slice(e.byteOffset, e.byteOffset + e.byteLength), r = new Blob([n]).stream().pipeThrough(t).getReader(), i = [], o = 0;
 	for (;;) {
 		let { done: e, value: t } = await r.read();
@@ -2607,23 +2601,23 @@ async function yn(e, t) {
 	for (let e of i) s.set(e, c), c += e.length;
 	return s;
 }
-async function bn(e, t, n) {
+async function xn(e, t, n) {
 	d(t), f(e);
 	let r = u(n), i = new TextEncoder().encode(e);
 	if (i.length > $) throw new a(`Plaintext size exceeds maximum allowed limit of ${$} bytes.`);
 	if (typeof CompressionStream > "u") throw new a("Compression Streams API is required to encode messages.");
-	let o = await yn(i, new CompressionStream("gzip")), s = _n(e, i.length), c = 0, l = i;
+	let o = await bn(i, new CompressionStream("gzip")), s = vn(e, i.length), c = 0, l = i;
 	o.length < l.length && (c = 1, l = o), s && s.length < l.length && (c = 2, l = s);
 	let p = new Uint8Array(l.length + 1);
 	p[0] = c, p.set(l, 1);
 	let m = await g(p, t, r.crypto), h = S(m, r.framing), _ = r.crypto.saltByteLength, b = m.subarray(0, _), x = await y(t, /* @__PURE__ */ new Uint8Array(), _), C = await y(t, b, h.length - _), w = new Uint8Array(h.length);
-	return w.set(v(h.subarray(0, _), x), 0), w.set(v(h.subarray(_), C), _), await dn(w, r.encoding);
+	return w.set(v(h.subarray(0, _), x), 0), w.set(v(h.subarray(_), C), _), await fn(w, r.encoding);
 }
-async function xn(e, t, n) {
+async function Sn(e, t, n) {
 	if (d(t), typeof e != "string" || e.trim().length === 0) throw new a("Carrier text must be a non-empty string.");
 	let r = u(n), i;
 	try {
-		i = await fn(e, r.encoding);
+		i = await pn(e, r.encoding);
 	} catch (e) {
 		throw new a(`Invalid ciphertext: ${e instanceof Error ? e.message : String(e)}`);
 	}
@@ -2642,24 +2636,24 @@ async function xn(e, t, n) {
 	let g = h.subarray(1);
 	if (h[0] === 1) {
 		if (typeof DecompressionStream > "u") throw new a("Decompression Streams API is required to decode this message.");
-		g = await yn(g, new DecompressionStream("gzip"));
-	} else h[0] === 2 && (g = vn(g));
+		g = await bn(g, new DecompressionStream("gzip"));
+	} else h[0] === 2 && (g = yn(g));
 	return new TextDecoder("utf-8", { fatal: !0 }).decode(g);
 }
 // src/index.ts
-var Sn = {
-	encode: bn,
-	decode: xn,
+var Cn = {
+	encode: xn,
+	decode: Sn,
 	encryptBytes: g,
 	decryptBytes: b,
-	bytesToEnglishText: dn,
-	englishTextToBytes: fn,
-	bytesToLlmText: Yt,
-	llmTextToBytes: Xt,
-	normalizeModelName: Bt,
+	bytesToEnglishText: fn,
+	englishTextToBytes: pn,
+	bytesToLlmText: Xt,
+	llmTextToBytes: Zt,
+	normalizeModelName: Vt,
 	VOCABULARY: L,
 	analyzeCarrierText: Mt
 };
-export { G as ACTION_ADVERBS, B as ACTION_OBJECTS_EXTENDED, z as ACTION_SUBJECTS_EXTENDED, V as ACTION_VERBS_EXTENDED, N as ADJECTIVES, P as ADVERBS, wt as AFTER_EVENTS, ut as APPOSITIVE_REQUEST_VERBS, Nt as BitStreamReader, Pt as BitStreamWriter, it as CARRIER_WORDS, st as CAUSE_ADJECTIVES, ct as CAUSE_NOUNS, lt as CAUSE_VERBS, ft as COMPLEMENT_ADJECTIVES, gt as CONDITION_NOUNS, _t as CONDITION_VERBS, Qe as CONJUNCTIONS, R as CORE_TREND_NOUNS, at as CORE_TREND_VERBS, a as CryptoError, O as D, l as DEFAULT_CONFIG, I as DETERMINERS, mt as DISCOURSE_ADVERBS, he as DOMAIN_TOPICS, ht as EFFECT_ADVERBS, St as EFFECT_NOUNS, bt as EFFECT_SCOPE_ADJECTIVES, xt as EFFECT_TYPE_ADJECTIVES, Ct as EFFECT_VERBS, s as EncodingError, k as F, o as FramingError, U as LOCATION_PROPER_NOUNS, ot as METRIC_ACTION_VERBS, j as NOUNS, F as PERCENTAGES, At as POETRY_TEMPLATES, tt as POS_LISTS, nt as POS_SETS, rt as POS_WORD_TO_INDEX, Ze as PREPOSITIONS, et as PRONOUNS, Xe as PROPER_NOUNS, $e as RELATIVES, vt as RELATIVE_ANTECEDENTS, K as RELATIVE_SUBJECTS, yt as RELATIVE_VERBS, W as REPORTING_CLAUSE_VERBS, H as REPORTING_SUBJECTS_PROPER, i as StegoError, J as TEMPLATES, dt as UNRESOLVED_COMPLEMENT_VERBS, Ye as VERBS, M as VERBS_PAST, L as VOCABULARY, c as ValidationError, Mt as analyzeCarrierText, dn as bytesToEnglishText, Yt as bytesToLlmText, Ge as calculateNGramScore, Ht as clearLlmModelCache, x as crc32, xn as decode, b as decryptBytes, Sn as default, h as deriveKey, y as deriveKeystream, bn as encode, g as encryptBytes, fn as englishTextToBytes, Ie as getCompatibleCandidates, Se as getNounCategory, Xt as llmTextToBytes, Vt as loadLlmModel, jt as matchTemplate, u as mergeConfig, Bt as normalizeModelName, S as packFrame, Ke as rankCandidates, Je as rankToVal, _ as timingSafeEqual, C as unpackFrame, qe as valToRank, d as validatePassword, f as validatePlaintext, v as xorBytes };
+export { G as ACTION_ADVERBS, B as ACTION_OBJECTS_EXTENDED, z as ACTION_SUBJECTS_EXTENDED, V as ACTION_VERBS_EXTENDED, N as ADJECTIVES, P as ADVERBS, wt as AFTER_EVENTS, ut as APPOSITIVE_REQUEST_VERBS, Nt as BitStreamReader, Pt as BitStreamWriter, it as CARRIER_WORDS, st as CAUSE_ADJECTIVES, ct as CAUSE_NOUNS, lt as CAUSE_VERBS, ft as COMPLEMENT_ADJECTIVES, gt as CONDITION_NOUNS, _t as CONDITION_VERBS, Qe as CONJUNCTIONS, R as CORE_TREND_NOUNS, at as CORE_TREND_VERBS, a as CryptoError, O as D, l as DEFAULT_CONFIG, I as DETERMINERS, mt as DISCOURSE_ADVERBS, he as DOMAIN_TOPICS, ht as EFFECT_ADVERBS, St as EFFECT_NOUNS, bt as EFFECT_SCOPE_ADJECTIVES, xt as EFFECT_TYPE_ADJECTIVES, Ct as EFFECT_VERBS, s as EncodingError, k as F, o as FramingError, U as LOCATION_PROPER_NOUNS, ot as METRIC_ACTION_VERBS, j as NOUNS, F as PERCENTAGES, At as POETRY_TEMPLATES, tt as POS_LISTS, nt as POS_SETS, rt as POS_WORD_TO_INDEX, Ze as PREPOSITIONS, et as PRONOUNS, Xe as PROPER_NOUNS, $e as RELATIVES, vt as RELATIVE_ANTECEDENTS, K as RELATIVE_SUBJECTS, yt as RELATIVE_VERBS, W as REPORTING_CLAUSE_VERBS, H as REPORTING_SUBJECTS_PROPER, i as StegoError, J as TEMPLATES, dt as UNRESOLVED_COMPLEMENT_VERBS, Ye as VERBS, M as VERBS_PAST, L as VOCABULARY, c as ValidationError, Mt as analyzeCarrierText, fn as bytesToEnglishText, Xt as bytesToLlmText, Ge as calculateNGramScore, Ut as clearLlmModelCache, x as crc32, Sn as decode, b as decryptBytes, Cn as default, h as deriveKey, y as deriveKeystream, xn as encode, g as encryptBytes, pn as englishTextToBytes, Ie as getCompatibleCandidates, Se as getNounCategory, Zt as llmTextToBytes, Ht as loadLlmModel, jt as matchTemplate, u as mergeConfig, Vt as normalizeModelName, S as packFrame, Ke as rankCandidates, Je as rankToVal, _ as timingSafeEqual, C as unpackFrame, qe as valToRank, d as validatePassword, f as validatePlaintext, v as xorBytes };
 
 //# sourceMappingURL=ngram-cipher.js.map

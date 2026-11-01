@@ -51,6 +51,10 @@ export function resolveLlmDevice(
   return isNode ? "cpu" : "wasm";
 }
 
+export function resolveLlmCpuThreads(hardwareConcurrency?: number): number {
+  return Math.max(1, hardwareConcurrency || 20);
+}
+
 /**
  * Resolves candidate repository IDs for loading ONNX Causal Language Models
  * across original model hubs and converted ONNX community hubs.
@@ -238,19 +242,10 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
 
     const resolvedDevice = resolveLlmDevice(config.llmDevice);
 
-    // Resolve optimal CPU thread count for ONNX Runtime session execution
-    let optimalCpuThreads = 20;
-    try {
-      if (typeof process !== "undefined" && process.versions?.node != null) {
-        // Dynamic import or require os for Node.js environments
-        const os = await import("node:os");
-        optimalCpuThreads = Math.max(1, os.cpus?.().length || 20);
-      } else if (typeof navigator !== "undefined" && (navigator as any).hardwareConcurrency) {
-        optimalCpuThreads = Math.max(1, (navigator as any).hardwareConcurrency);
-      }
-    } catch {
-      optimalCpuThreads = 20;
-    }
+    // Resolve thread count without importing Node-only modules in browser builds.
+    const optimalCpuThreads = resolveLlmCpuThreads(
+      typeof navigator !== "undefined" ? navigator.hardwareConcurrency : undefined
+    );
 
     const defaultSessionOptions = {
       intraOpNumThreads: optimalCpuThreads,

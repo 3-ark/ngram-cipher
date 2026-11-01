@@ -10,6 +10,7 @@ import {
   resolveTokenizerCandidates,
   resolveModelRepoCandidates,
   resolveLlmDevice,
+  resolveLlmCpuThreads,
   getTopKReversibleTokenIds,
   normalizeModelName,
   type LlmModelPair
@@ -86,6 +87,12 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     expect(resolveLlmDevice("webgpu", false)).toBe("wasm");
     expect(resolveLlmDevice("auto", false)).toBe("wasm");
     expect(resolveLlmDevice(undefined, false)).toBe("wasm");
+  });
+
+  it("should resolve CPU thread count from hardware concurrency with a safe fallback", () => {
+    expect(resolveLlmCpuThreads(8)).toBe(8);
+    expect(resolveLlmCpuThreads(0)).toBe(20);
+    expect(resolveLlmCpuThreads(undefined)).toBe(20);
   });
 
   it("should resolve model repository candidates bi-directionally between SupraLabs and onnx-community", () => {

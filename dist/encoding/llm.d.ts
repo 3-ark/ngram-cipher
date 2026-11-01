@@ -21,6 +21,7 @@ export interface ParsedModelTarget {
  * to prevent GPU floating-point non-determinism across platforms from corrupting steganographic logit ranks.
  */
 export declare function resolveLlmDevice(requestedDevice?: string, isNodeEnvironment?: boolean): string;
+export declare function resolveLlmCpuThreads(hardwareConcurrency?: number): number;
 /**
  * Resolves candidate repository IDs for loading ONNX Causal Language Models
  * across original model hubs and converted ONNX community hubs.
