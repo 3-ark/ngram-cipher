@@ -239,17 +239,17 @@ export async function loadLlmModel(config: EncodingConfig): Promise<LlmModelPair
     const resolvedDevice = resolveLlmDevice(config.llmDevice);
 
     // Resolve optimal CPU thread count for ONNX Runtime session execution
-    let optimalCpuThreads = 4;
+    let optimalCpuThreads = 20;
     try {
       if (typeof process !== "undefined" && process.versions?.node != null) {
         // Dynamic import or require os for Node.js environments
         const os = await import("node:os");
-        optimalCpuThreads = Math.max(1, os.cpus?.().length || 4);
+        optimalCpuThreads = Math.max(1, os.cpus?.().length || 20);
       } else if (typeof navigator !== "undefined" && (navigator as any).hardwareConcurrency) {
         optimalCpuThreads = Math.max(1, (navigator as any).hardwareConcurrency);
       }
     } catch {
-      optimalCpuThreads = 4;
+      optimalCpuThreads = 20;
     }
 
     const defaultSessionOptions = {
