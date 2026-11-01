@@ -102,6 +102,34 @@ Our snowy mist reflected while any unspoken brook transformed...
 */
 ```
 
+### LLM Mode (`"llm"` - Experimental)
+
+Embeds secret payload bits directly into causal language model token selections using Hugging Face Transformers (`@huggingface/transformers`) and ONNX Runtime.
+
+```typescript
+const llmText = await encode("Secret message", "password123", {
+  encoding: {
+    style: "llm",
+    llmModel: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
+    llmPrompt: "In recent news,",
+    bitsPerToken: 4
+  }
+});
+```
+
+> ⚠️ **WARNING: The LLM steganography method is experimental and not reliable yet.**
+>
+> Steganographic decoding relies on exact, bit-identical token logit rankings between encoding and decoding passes. In practice, **too many variables can alter the computed logit distributions or tokenization sequences and corrupt decoding if you don't pay extra attention**.
+>
+> Critical variables that must match identically across both encoding and decoding environments include:
+> - **Library & Dependency Versions**: Different releases of `@huggingface/transformers`, `onnxruntime-web`, or `onnxruntime-node` may use different kernel implementations, graph optimizations, or tokenizer logic.
+> - **Model Weights & Checkpoints**: The exact model repository, commit revision, and quantization/precision format (`fp32`, `fp16`, `q4`, `q8`) must match identically. Even minor weight quantization or re-export changes can shift logit rankings.
+> - **Hardware & Execution Environment**: Underlying hardware architectures (CPU instruction sets like AVX2 vs. AVX-512 vs. ARM NEON, GPU/WebGPU driver precision differences, or WASM SIMD variations) can introduce micro-deviations in floating-point math, altering token ranks.
+> - **Generation & Sampling Parameters**: All decoding options must match the encoding configuration exactly, including `llmPrompt`, `bitsPerToken`, `llmTemperature`, `llmTopK`, `llmTopP`, and `llmLogitPrecision`.
+> - **Tokenizer Implementation**: Any discrepancy in tokenizer vocabulary, special token mappings, or subword merging will break stepwise verification and prevent payload recovery.
+>
+> Unless you have strict end-to-end control over both the encoding and decoding runtime environments, **use `"news"` or `"poetry"` styles for reliable and stable production steganography**.
+
 ---
 
 ## API Reference
@@ -153,8 +181,16 @@ const options: StegoOptions = {
     enableChecksum: true       // Include CRC32 checksum
   },
   encoding: {
-    style: "poetry",           // "news" | "poetry"
-    sentenceEndingVariance: true
+    style: "poetry",           // "news" | "poetry" | "llm" (experimental)
+    sentenceEndingVariance: true,
+    // Optional LLM mode parameters (requires identical values on decode):
+    // llmModel: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
+    // llmPrompt: "In recent news,",
+    // bitsPerToken: 4,
+    // llmTemperature: 1.0,
+    // llmTopK: 50,
+    // llmTopP: 0.95,
+    // llmLogitPrecision: 100
   }
 };
 

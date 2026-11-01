@@ -97,6 +97,25 @@
       margin-top: 16px;
       display: none;
     }
+    .warning-box {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #92400e;
+      background-color: #fffbeb;
+      border: 1px solid #fde68a;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 14px;
+    }
+    .warning-box strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #b45309;
+    }
+    .warning-box ul {
+      margin: 6px 0 0 18px;
+      padding: 0;
+    }
   </style>
 </head>
 <body>
@@ -127,6 +146,17 @@
 
       <label for="bitsPerToken">Bits Embedded Per Token (1-8 bits)</label>
       <input type="number" id="bitsPerToken" min="1" max="8" value="4">
+
+      <div class="warning-box">
+        <strong>⚠️ Warning: LLM steganography method is experimental and not reliable yet.</strong>
+        Too many variables can corrupt decoding if extra attention is not paid. For decoding to succeed, the following variables must match identically:
+        <ul>
+          <li><strong>Library version:</strong> <code>@huggingface/transformers</code> &amp; ONNX Runtime versions.</li>
+          <li><strong>Model weights:</strong> Exact model repository, commit revision, and quantization format (e.g. <code>fp16</code> vs <code>q4</code>).</li>
+          <li><strong>Hardware &amp; platform:</strong> CPU architecture/SIMD instructions, GPU/WebGPU driver precision, or WASM runtime environment.</li>
+          <li><strong>Configuration:</strong> Generation prompt context, bits per token, and sampling settings.</li>
+        </ul>
+      </div>
     </div>
 
     <div id="infoStatus" class="info-status"></div>
