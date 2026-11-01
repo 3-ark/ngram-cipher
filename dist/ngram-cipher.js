@@ -41,7 +41,8 @@ var i = class extends Error {
 		llmDevice: "cpu",
 		llmTemperature: 1,
 		llmTopK: 50,
-		llmTopP: .95
+		llmTopP: .95,
+		llmLogitPrecision: 100
 	}
 };
 function u(e) {
@@ -2106,64 +2107,64 @@ function qt(e, t, n) {
 	return !0;
 }
 function Jt(e, t, n, r, i) {
-	let a = i?.temperature && i.temperature > 0 ? i.temperature : 1, o = e.length, c = new Set(r.all_special_ids ?? []), l = new Float32Array(o);
+	let a = i?.temperature && i.temperature > 0 ? i.temperature : 1, o = e.length, c = new Set(r.all_special_ids ?? []), l = i?.precision ?? 100, u = new Float32Array(o);
 	for (let t = 0; t < o; t++) {
-		let n = Number(e[t]);
-		l[t] = a === 1 ? n : n / a;
+		let n = Number(e[t]), r = a === 1 ? n : n / a;
+		u[t] = l > 0 && Number.isFinite(l) ? Math.round(r * l) / l : r;
 	}
-	let u = i?.topP && i.topP > 0 && i.topP < 1, d = [];
-	if (u) {
-		for (let e = 0; e < o; e++) c.has(e) || Gt(e, r) && d.push({
+	let d = i?.topP && i.topP > 0 && i.topP < 1, f = [];
+	if (d) {
+		for (let e = 0; e < o; e++) c.has(e) || Gt(e, r) && f.push({
 			id: e,
-			score: l[e]
+			score: u[e]
 		});
-		d.sort((e, t) => t.score === e.score ? e.id - t.id : t.score - e.score);
+		f.sort((e, t) => t.score === e.score ? e.id - t.id : t.score - e.score);
 	} else {
 		let e = i?.topK && i.topK > 0 ? Math.max(i.topK, t * 20, 500) : Math.max(t * 20, 500), n = Math.min(o, e), a = new Int32Array(o);
 		for (let e = 0; e < o; e++) a[e] = e;
-		Kt(a, l, n);
+		Kt(a, u, n);
 		let s = a.subarray(0, n);
-		s.sort((e, t) => l[t] === l[e] ? e - t : l[t] - l[e]);
+		s.sort((e, t) => u[t] === u[e] ? e - t : u[t] - u[e]);
 		for (let e = 0; e < s.length; e++) {
 			let t = s[e];
-			c.has(t) || Gt(t, r) && d.push({
+			c.has(t) || Gt(t, r) && f.push({
 				id: t,
-				score: l[t]
+				score: u[t]
 			});
 		}
 	}
-	let f = d;
+	let p = f;
 	if (i?.topK && i.topK > 0) {
 		let e = Math.max(i.topK, t);
-		d.length > e && (f = d.slice(0, e));
+		f.length > e && (p = f.slice(0, e));
 	}
 	if (i?.topP && i.topP > 0 && i.topP < 1) {
-		let e = f.length > 0 ? Math.max(...f.map((e) => e.score)) : 0, n = f.map((t) => Math.exp(t.score - e)), r = n.reduce((e, t) => e + t, 0);
+		let e = p.length > 0 ? Math.max(...p.map((e) => e.score)) : 0, n = p.map((t) => Math.exp(t.score - e)), r = n.reduce((e, t) => e + t, 0);
 		if (r > 0) {
-			let e = 0, a = f.length;
-			for (let o = 0; o < f.length; o++) if (e += n[o] / r, e >= i.topP) {
+			let e = 0, a = p.length;
+			for (let o = 0; o < p.length; o++) if (e += n[o] / r, e >= i.topP) {
 				a = Math.max(o + 1, t);
 				break;
 			}
-			f = f.slice(0, a);
+			p = p.slice(0, a);
 		}
 	}
-	let p = [], m = /* @__PURE__ */ new Set();
-	for (let e of f) if (m.add(e.id), qt(n, e.id, r) && (p.push(e.id), p.length === t)) break;
-	if (p.length < t) {
-		for (let e of d) if (!m.has(e.id) && (m.add(e.id), qt(n, e.id, r) && (p.push(e.id), p.length === t))) break;
+	let m = [], h = /* @__PURE__ */ new Set();
+	for (let e of p) if (h.add(e.id), qt(n, e.id, r) && (m.push(e.id), m.length === t)) break;
+	if (m.length < t) {
+		for (let e of f) if (!h.has(e.id) && (h.add(e.id), qt(n, e.id, r) && (m.push(e.id), m.length === t))) break;
 	}
-	if (p.length < t && !u) {
+	if (m.length < t && !d) {
 		let e = [];
-		for (let t = 0; t < o; t++) c.has(t) || m.has(t) || Gt(t, r) && e.push({
+		for (let t = 0; t < o; t++) c.has(t) || h.has(t) || Gt(t, r) && e.push({
 			id: t,
-			score: l[t]
+			score: u[t]
 		});
 		e.sort((e, t) => t.score === e.score ? e.id - t.id : t.score - e.score);
-		for (let i of e) if (!m.has(i.id) && (m.add(i.id), qt(n, i.id, r) && (p.push(i.id), p.length === t))) break;
+		for (let i of e) if (!h.has(i.id) && (h.add(i.id), qt(n, i.id, r) && (m.push(i.id), m.length === t))) break;
 	}
-	if (p.length < t) throw new s(`StepVerify failed: Insufficient reversible tokens (found ${p.length}/${t}) across entire vocabulary pool. Aborting to prevent data corruption.`);
-	return p;
+	if (m.length < t) throw new s(`StepVerify failed: Insufficient reversible tokens (found ${m.length}/${t}) across entire vocabulary pool. Aborting to prevent data corruption.`);
+	return m;
 }
 async function Yt(e, t) {
 	let { model: r, tokenizer: i } = await Vt(t), a = Math.max(1, Math.min(16, t.bitsPerToken ?? 4)), o = 1 << a, s = e.length * 8, c = /* @__PURE__ */ new Uint8Array(4);
@@ -2195,7 +2196,8 @@ async function Yt(e, t) {
 			let c = Jt(s, o, h, i, {
 				temperature: t.llmTemperature,
 				topP: t.llmTopP,
-				topK: t.llmTopK
+				topK: t.llmTopK,
+				precision: t.llmLogitPrecision
 			}), l = Math.min(a, u.remainingBits ?? a), d = c[u.readBits(l)];
 			if (h.push(d), g && u.hasBits) try {
 				r._update_model_kwargs_for_generation.length === 1 ? _ = r._update_model_kwargs_for_generation({
@@ -2244,7 +2246,8 @@ async function Xt(e, t) {
 			let d = Jt(u, o, g, i, {
 				temperature: t.llmTemperature,
 				topP: t.llmTopP,
-				topK: t.llmTopK
+				topK: t.llmTopK,
+				precision: t.llmLogitPrecision
 			}).indexOf(c);
 			if (d === -1) throw new s(`Decoding failed: Token ID ${c} was not found in top ${o} candidate pool during reconstruction.`);
 			let f = a;

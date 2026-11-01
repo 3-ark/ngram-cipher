@@ -63,6 +63,7 @@ export interface EncodingConfig {
   llmTemperature?: number;
   llmTopK?: number;
   llmTopP?: number;
+  llmLogitPrecision?: number;
 }
 
 export interface StegoConfig {
@@ -99,6 +100,7 @@ export const DEFAULT_CONFIG: StegoConfig = {
     llmTemperature: 1.0,
     llmTopK: 50,
     llmTopP: 0.95,
+    llmLogitPrecision: 100,
   },
 };
 

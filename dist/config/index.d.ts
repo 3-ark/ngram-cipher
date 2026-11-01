@@ -40,6 +40,7 @@ export interface EncodingConfig {
     llmTemperature?: number;
     llmTopK?: number;
     llmTopP?: number;
+    llmLogitPrecision?: number;
 }
 export interface StegoConfig {
     crypto: CryptoConfig;

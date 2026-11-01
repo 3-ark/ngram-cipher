@@ -450,6 +450,7 @@ export function getTopKReversibleTokenIds(
     temperature?: number;
     topP?: number;
     topK?: number;
+    precision?: number;
   }
 ): number[] {
   const temp = options?.temperature && options.temperature > 0 ? options.temperature : 1.0;
@@ -458,11 +459,15 @@ export function getTopKReversibleTokenIds(
   // 1. Exclude special tokens (EOS, BOS, PAD, etc.) from ever entering steganography pools
   const specialIds = new Set<number>(tokenizer.all_special_ids ?? []);
 
-  // Compute scaled scores in a Float32Array
+  // Compute scaled scores in a Float32Array with optional rounding for cross-hardware determinism
+  const precision = options?.precision ?? 100;
   const scores = new Float32Array(vocabSize);
   for (let i = 0; i < vocabSize; i++) {
     const raw = Number(logitsData[i]);
-    scores[i] = temp !== 1.0 ? raw / temp : raw;
+    const scaled = temp !== 1.0 ? raw / temp : raw;
+    scores[i] = precision > 0 && Number.isFinite(precision)
+      ? Math.round(scaled * precision) / precision
+      : scaled;
   }
 
   // Use quickselect / top-slice indexing instead of sorting the entire vocabulary
@@ -671,6 +676,7 @@ export async function bytesToLlmText(
           temperature: config.llmTemperature,
           topP: config.llmTopP,
           topK: config.llmTopK,
+          precision: config.llmLogitPrecision,
         }
       );
 
@@ -817,6 +823,7 @@ export async function llmTextToBytes(
           temperature: config.llmTemperature,
           topP: config.llmTopP,
           topK: config.llmTopK,
+          precision: config.llmLogitPrecision,
         }
       );
 

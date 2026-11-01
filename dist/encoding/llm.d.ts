@@ -47,6 +47,7 @@ export declare function getTopKReversibleTokenIds(logitsData: Float32Array | num
     temperature?: number;
     topP?: number;
     topK?: number;
+    precision?: number;
 }): number[];
 /**
  * Encodes binary payload into LLM-generated carrier text.
