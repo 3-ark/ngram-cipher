@@ -51,7 +51,7 @@ export interface FramingConfig {
 
 export interface EncodingConfig {
   sentenceEndingVariance: boolean;
-  style?: "news" | "poetry" | "llm";
+  style?: "news" | "poetry" | "llm" | "equal-length" | "equal_length";
   llmModel?: string;
   llmPrompt?: string;
   bitsPerToken?: number;
@@ -64,6 +64,10 @@ export interface EncodingConfig {
   llmTopK?: number;
   llmTopP?: number;
   llmLogitPrecision?: number;
+  // Equal-length cipher options
+  equalLengthKeyPrompt?: string;
+  equalLengthPlaintextPrompt?: string;
+  equalLengthReverseRanks?: boolean;
 }
 
 export interface StegoConfig {
@@ -101,6 +105,9 @@ export const DEFAULT_CONFIG: StegoConfig = {
     llmTopK: 50,
     llmTopP: 0.95,
     llmLogitPrecision: 100,
+    equalLengthKeyPrompt: "Here is an interesting observation:",
+    equalLengthPlaintextPrompt: "A text:",
+    equalLengthReverseRanks: false,
   },
 };
 

@@ -13,6 +13,12 @@ import {
   resolveLlmCpuThreads,
   getTopKReversibleTokenIds,
   normalizeModelName,
+  getTokenRanks,
+  generateFromRanks,
+  equalLengthEncode,
+  equalLengthDecode,
+  bytesToLlmEqualLengthText,
+  llmEqualLengthTextToBytes,
   type LlmModelPair
 } from "./encoding/llm.js";
 
@@ -20,15 +26,16 @@ import {
  * Deterministic Mock Tokenizer & Causal Language Model
  * Simulates a vocabulary of 64 tokens with fixed logit distributions.
  */
-function createMockLlmPair(): LlmModelPair {
-  const vocabSize = 64;
-  const wordList = Array.from({ length: vocabSize }, (_, i) => `word${i}`);
+function createMockLlmPair(vocabSize = 64, prefix = "word"): LlmModelPair {
+  const wordList = Array.from({ length: vocabSize }, (_, i) =>
+    prefix === "b" ? `b${i.toString(16).padStart(2, "0")}` : `${prefix}${i}`
+  );
 
   const tokenizer = (text: string) => {
     const tokens = text.trim().split(/\s+/).filter(Boolean);
     const ids = tokens.map(t => {
       const idx = wordList.indexOf(t);
-      return idx >= 0 ? idx : 0;
+      return idx >= 0 ? idx : (prefix === "b" ? -1 : 0);
     });
     return {
       input_ids: {
@@ -39,7 +46,7 @@ function createMockLlmPair(): LlmModelPair {
 
   tokenizer.decode = (ids: number[] | BigInt64Array, _opts?: any) => {
     const array = Array.from(ids).map(Number);
-    return array.map(id => wordList[id % vocabSize] ?? "word0").join(" ");
+    return array.map(id => id < 0 ? "[UNK]" : (wordList[id % vocabSize] ?? wordList[0])).join(" ");
   };
 
   const model = async (inputs: { input_ids: any }) => {
@@ -471,4 +478,133 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
     const decodedBytes = await llmTextToBytes(carrierText, config);
     expect(decodedBytes).toEqual(originalBytes);
   }, 30000);
+
+  describe("Equal-Length Cipher LLM Steganography Method", () => {
+    it("should compute token ranks and generate text from ranks reversibly", async () => {
+      const mockPair = createMockLlmPair();
+      const prompt = "word1 word2";
+      const secret = "word5 word10 word15 word20";
+
+      const ranks = await getTokenRanks(secret, prompt, mockPair.model, mockPair.tokenizer);
+      expect(ranks.length).toBe(4);
+      for (const r of ranks) {
+        expect(r).toBeGreaterThanOrEqual(0);
+        expect(r).toBeLessThan(64);
+      }
+
+      const generated = await generateFromRanks(prompt, ranks, mockPair.model, mockPair.tokenizer);
+      expect(generated).toBe(secret);
+    });
+
+    it("should perform equal length encoding and decoding between different prompts", async () => {
+      const mockPair = createMockLlmPair();
+      const secretText = "word7 word12 word25 word40";
+      const config = {
+        sentenceEndingVariance: true,
+        style: "equal-length" as const,
+        llmCustomModel: mockPair.model,
+        llmCustomTokenizer: mockPair.tokenizer,
+        equalLengthKeyPrompt: "word2 word4",
+        equalLengthPlaintextPrompt: "word1 word3",
+        equalLengthReverseRanks: false,
+      };
+
+      const coverText = await equalLengthEncode(secretText, config);
+      expect(typeof coverText).toBe("string");
+      // Check token length equality
+      const secretTokens = secretText.split(/\s+/);
+      const coverTokens = coverText.split(/\s+/);
+      expect(coverTokens.length).toBe(secretTokens.length);
+
+      const recoveredSecret = await equalLengthDecode(coverText, config);
+      expect(recoveredSecret).toBe(secretText);
+    });
+
+    it("should support rank reversal option in equal length cipher", async () => {
+      const mockPair = createMockLlmPair();
+      const secretText = "word3 word8 word18 word33";
+      const config = {
+        sentenceEndingVariance: true,
+        style: "equal-length" as const,
+        llmCustomModel: mockPair.model,
+        llmCustomTokenizer: mockPair.tokenizer,
+        equalLengthKeyPrompt: "word0 word1",
+        equalLengthPlaintextPrompt: "word2",
+        equalLengthReverseRanks: true,
+      };
+
+      const coverText = await equalLengthEncode(secretText, config);
+      const secretTokens = secretText.split(/\s+/);
+      const coverTokens = coverText.split(/\s+/);
+      expect(coverTokens.length).toBe(secretTokens.length);
+
+      const recoveredSecret = await equalLengthDecode(coverText, config);
+      expect(recoveredSecret).toBe(secretText);
+    });
+
+    it("should encode and decode byte streams via equal-length cipher adapters", async () => {
+      const byteMockPair = createMockLlmPair(256, "b");
+      const config = {
+        sentenceEndingVariance: true,
+        style: "equal-length" as const,
+        llmCustomModel: byteMockPair.model,
+        llmCustomTokenizer: byteMockPair.tokenizer,
+        equalLengthKeyPrompt: "b05 b06",
+        equalLengthPlaintextPrompt: "b00",
+      };
+
+      const originalBytes = new Uint8Array([0x01, 0x02, 0x03, 0x04]);
+      const coverText = await bytesToLlmEqualLengthText(originalBytes, config);
+      expect(typeof coverText).toBe("string");
+      expect(coverText.length).toBeGreaterThan(0);
+
+      const recoveredBytes = await llmEqualLengthTextToBytes(coverText, config);
+      expect(recoveredBytes).toEqual(originalBytes);
+    });
+
+    it("should perform full encryption, binary framing, and decryption with style: 'equal-length'", async () => {
+      const byteMockPair = createMockLlmPair(256, "b");
+      const secretMessage = "Top secret equal length cipher";
+      const password = "my-equal-length-password";
+
+      const options = {
+        encoding: {
+          style: "equal-length" as const,
+          llmCustomModel: byteMockPair.model,
+          llmCustomTokenizer: byteMockPair.tokenizer,
+          equalLengthKeyPrompt: "b01 b02 b03",
+          equalLengthPlaintextPrompt: "b04 b05",
+        },
+      };
+
+      const carrierText = await encode(secretMessage, password, options);
+      expect(typeof carrierText).toBe("string");
+      expect(carrierText.length).toBeGreaterThan(0);
+
+      const decrypted = await decode(carrierText, password, options);
+      expect(decrypted).toBe(secretMessage);
+    });
+
+    it("should throw EncodingError if rank is out of bounds or decoded byte token is corrupted", async () => {
+      const byteMockPair = createMockLlmPair(256, "b");
+      await expect(
+        generateFromRanks("b01", [9999], byteMockPair.model, byteMockPair.tokenizer)
+      ).rejects.toThrowError(EncodingError);
+
+      const config = {
+        sentenceEndingVariance: true,
+        style: "equal-length" as const,
+        llmCustomModel: byteMockPair.model,
+        llmCustomTokenizer: byteMockPair.tokenizer,
+        equalLengthPlaintextPrompt: "b00",
+        equalLengthKeyPrompt: "b01",
+      };
+
+      // Corrupted cover text yielding non-matching token
+      const corruptedCover = "nonmatchingtoken";
+      await expect(
+        llmEqualLengthTextToBytes(corruptedCover, config)
+      ).rejects.toThrowError(EncodingError);
+    });
+  });
 });

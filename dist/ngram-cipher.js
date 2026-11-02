@@ -41,7 +41,10 @@ var e = class extends Error {
 		llmTemperature: 1,
 		llmTopK: 50,
 		llmTopP: .95,
-		llmLogitPrecision: 100
+		llmLogitPrecision: 100,
+		equalLengthKeyPrompt: "Here is an interesting observation:",
+		equalLengthPlaintextPrompt: "A text:",
+		equalLengthReverseRanks: !1
 	}
 };
 function o(e) {
@@ -2014,7 +2017,7 @@ function Wt(e) {
 }
 function Gt(e, t = a.encoding) {
 	if (!e || e.length === 0) return "";
-	if (t.style === "llm") throw new r("LLM steganography style requires the full LLM build. Please import from \"ngram-cipher/llm\".");
+	if (t.style === "llm" || t.style === "equal-length" || t.style === "equal_length") throw new r("LLM steganography style requires the full LLM build. Please import from \"ngram-cipher/llm\".");
 	let n = t.style === "poetry", i = e.length, o = /* @__PURE__ */ new Uint8Array(2);
 	new DataView(o.buffer).setUint16(0, i, !1);
 	let s = new Uint8Array(e.length + 2);
@@ -2091,7 +2094,7 @@ function Gt(e, t = a.encoding) {
 }
 function Kt(e, t = a.encoding) {
 	if (!e || typeof e != "string" || e.trim().length === 0) return /* @__PURE__ */ new Uint8Array();
-	if (t.style === "llm") throw new r("LLM steganography style requires the full LLM build. Please import from \"ngram-cipher/llm\".");
+	if (t.style === "llm" || t.style === "equal-length" || t.style === "equal_length") throw new r("LLM steganography style requires the full LLM build. Please import from \"ngram-cipher/llm\".");
 	let n = t.style === "poetry", i = e.replace(/[\r\n]+/g, "\n").trim(), o = [];
 	if (n) {
 		let e = i.split("\n").map((e) => e.trim()).filter((e) => e.length > 0);
