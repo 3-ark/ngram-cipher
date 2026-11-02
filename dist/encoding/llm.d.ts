@@ -61,27 +61,45 @@ export declare function llmTextToBytes(carrierText: string, config: EncodingConf
 /**
  * Computes token ranks for `text` given a conditioning prompt `prompt`.
  * For each token in `text`, its rank (0-indexed) in the model's next-token distribution is returned.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export declare function getTokenRanks(text: string, prompt: string, model: any, tokenizer: any): Promise<number[]>;
 /**
  * Generates text token-by-token from an initial prompt, selecting for each position
  * the token at the given rank (0-indexed) in sorted next-token logits.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export declare function generateFromRanks(prompt: string, ranks: number[], model: any, tokenizer: any): Promise<string>;
 /**
  * Encodes secret plaintext into an equal token length cover text using secret prompt `k`.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export declare function equalLengthEncode(secretText: string, config: EncodingConfig): Promise<string>;
 /**
  * Decodes equal token length cover text back into original secret plaintext using secret prompt `k`.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export declare function equalLengthDecode(coverText: string, config: EncodingConfig): Promise<string>;
 /**
  * Encodes raw binary bytes (such as whitened ciphertext frames) using the Equal-Length LLM cipher.
  * Converts byte payload into an intermediate string representation before encoding into cover text.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export declare function bytesToLlmEqualLengthText(bytes: Uint8Array, config: EncodingConfig): Promise<string>;
 /**
  * Decodes Equal-Length LLM cover text back into raw binary bytes.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export declare function llmEqualLengthTextToBytes(coverText: string, config: EncodingConfig): Promise<Uint8Array>;

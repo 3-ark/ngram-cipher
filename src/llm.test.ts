@@ -606,5 +606,33 @@ describe("Pluggable ONNX LLM Steganography Module", () => {
         llmEqualLengthTextToBytes(corruptedCover, config)
       ).rejects.toThrowError(EncodingError);
     });
+
+    it("should fail decoding if model or prompt context does not match identically", async () => {
+      // Simulate attempting to decode with a different prompt context or mismatched distribution
+      const mockPair1 = createMockLlmPair();
+      const mockPair2 = createMockLlmPair(); // different instance / weights
+      const secret = "word5 word10";
+      const keyPrompt = "word0 word1";
+      const plaintextPrompt = "word2 word3";
+
+      const configEncode = {
+        sentenceEndingVariance: true,
+        style: "equal-length" as const,
+        llmCustomModel: mockPair1.model,
+        llmCustomTokenizer: mockPair1.tokenizer,
+        equalLengthKeyPrompt: keyPrompt,
+        equalLengthPlaintextPrompt: plaintextPrompt,
+      };
+
+      const coverText = await equalLengthEncode(secret, configEncode);
+
+      // Decoding with wrong key prompt fails to recover the exact secret
+      const configDecodeWrongPrompt = {
+        ...configEncode,
+        equalLengthKeyPrompt: "word9 word8",
+      };
+      const badRecovered = await equalLengthDecode(coverText, configDecodeWrongPrompt);
+      expect(badRecovered).not.toBe(secret);
+    });
   });
 });

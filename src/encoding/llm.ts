@@ -935,6 +935,9 @@ function getRankOrderedTokens(logitsSlice: Float32Array | number[]): Int32Array 
 /**
  * Computes token ranks for `text` given a conditioning prompt `prompt`.
  * For each token in `text`, its rank (0-indexed) in the model's next-token distribution is returned.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export async function getTokenRanks(
   text: string,
@@ -1064,6 +1067,9 @@ export async function getTokenRanks(
 /**
  * Generates text token-by-token from an initial prompt, selecting for each position
  * the token at the given rank (0-indexed) in sorted next-token logits.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export async function generateFromRanks(
   prompt: string,
@@ -1177,6 +1183,9 @@ export async function generateFromRanks(
 
 /**
  * Encodes secret plaintext into an equal token length cover text using secret prompt `k`.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export async function equalLengthEncode(
   secretText: string,
@@ -1197,6 +1206,9 @@ export async function equalLengthEncode(
 
 /**
  * Decodes equal token length cover text back into original secret plaintext using secret prompt `k`.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export async function equalLengthDecode(
   coverText: string,
@@ -1218,6 +1230,9 @@ export async function equalLengthDecode(
 /**
  * Encodes raw binary bytes (such as whitened ciphertext frames) using the Equal-Length LLM cipher.
  * Converts byte payload into an intermediate string representation before encoding into cover text.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export async function bytesToLlmEqualLengthText(
   bytes: Uint8Array,
@@ -1248,6 +1263,9 @@ export async function bytesToLlmEqualLengthText(
 
 /**
  * Decodes Equal-Length LLM cover text back into raw binary bytes.
+ *
+ * @warning Robust decoding requires using the same runtime hardware (CPU architecture/SIMD)
+ * and exact same model (checkpoint, revision, and quantization) between encoding and decoding.
  */
 export async function llmEqualLengthTextToBytes(
   coverText: string,
