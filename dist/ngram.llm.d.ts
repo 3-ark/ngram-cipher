@@ -6,9 +6,9 @@
  */
 import { StegoOptions } from "./config/index.js";
 import { encryptBytes, decryptBytes } from "./crypto/index.js";
-import { bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache, normalizeModelName } from "./encoding/index.llm.js";
+import { bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, bytesToLlmEqualLengthText, llmEqualLengthTextToBytes, equalLengthEncode, equalLengthDecode, getTokenRanks, generateFromRanks, loadLlmModel, clearLlmModelCache, normalizeModelName } from "./encoding/index.llm.js";
 import { VOCABULARY, analyzeCarrierText, type CarrierAnalysis } from "./nlg/index.js";
-export { encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache, normalizeModelName, VOCABULARY, analyzeCarrierText };
+export { encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, bytesToLlmEqualLengthText, llmEqualLengthTextToBytes, equalLengthEncode, equalLengthDecode, getTokenRanks, generateFromRanks, loadLlmModel, clearLlmModelCache, normalizeModelName, VOCABULARY, analyzeCarrierText };
 export type { CarrierAnalysis };
 export * from "./config/index.js";
 export * from "./crypto/index.js";

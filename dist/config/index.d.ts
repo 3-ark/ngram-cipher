@@ -28,7 +28,7 @@ export interface FramingConfig {
 }
 export interface EncodingConfig {
     sentenceEndingVariance: boolean;
-    style?: "news" | "poetry" | "llm";
+    style?: "news" | "poetry" | "llm" | "equal-length" | "equal_length";
     llmModel?: string;
     llmPrompt?: string;
     bitsPerToken?: number;
@@ -41,6 +41,9 @@ export interface EncodingConfig {
     llmTopK?: number;
     llmTopP?: number;
     llmLogitPrecision?: number;
+    equalLengthKeyPrompt?: string;
+    equalLengthPlaintextPrompt?: string;
+    equalLengthReverseRanks?: boolean;
 }
 export interface StegoConfig {
     crypto: CryptoConfig;

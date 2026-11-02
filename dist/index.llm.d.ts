@@ -4,8 +4,8 @@
  * Encrypts data using AES-256-GCM and encodes ciphertext bits into natural English prose
  * or ONNX LLM steganographic tokens.
  */
-import { encode, decode, encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache, normalizeModelName, VOCABULARY, analyzeCarrierText } from "./ngram.llm.js";
-export { encode, decode, encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, loadLlmModel, clearLlmModelCache, normalizeModelName, VOCABULARY, analyzeCarrierText };
+import { encode, decode, encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, bytesToLlmEqualLengthText, llmEqualLengthTextToBytes, equalLengthEncode, equalLengthDecode, getTokenRanks, generateFromRanks, loadLlmModel, clearLlmModelCache, normalizeModelName, VOCABULARY, analyzeCarrierText } from "./ngram.llm.js";
+export { encode, decode, encryptBytes, decryptBytes, bytesToEnglishText, englishTextToBytes, bytesToLlmText, llmTextToBytes, bytesToLlmEqualLengthText, llmEqualLengthTextToBytes, equalLengthEncode, equalLengthDecode, getTokenRanks, generateFromRanks, loadLlmModel, clearLlmModelCache, normalizeModelName, VOCABULARY, analyzeCarrierText };
 export * from "./config/index.js";
 export * from "./crypto/index.js";
 export * from "./framing/index.js";
@@ -20,6 +20,12 @@ declare const ngramCipher: {
     englishTextToBytes: typeof englishTextToBytes;
     bytesToLlmText: typeof bytesToLlmText;
     llmTextToBytes: typeof llmTextToBytes;
+    bytesToLlmEqualLengthText: typeof bytesToLlmEqualLengthText;
+    llmEqualLengthTextToBytes: typeof llmEqualLengthTextToBytes;
+    equalLengthEncode: typeof equalLengthEncode;
+    equalLengthDecode: typeof equalLengthDecode;
+    getTokenRanks: typeof getTokenRanks;
+    generateFromRanks: typeof generateFromRanks;
     loadLlmModel: typeof loadLlmModel;
     clearLlmModelCache: typeof clearLlmModelCache;
     normalizeModelName: typeof normalizeModelName;

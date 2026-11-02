@@ -12,6 +12,12 @@ import {
 import {
   bytesToLlmText,
   llmTextToBytes,
+  bytesToLlmEqualLengthText,
+  llmEqualLengthTextToBytes,
+  equalLengthEncode,
+  equalLengthDecode,
+  getTokenRanks,
+  generateFromRanks,
   loadLlmModel,
   clearLlmModelCache,
   normalizeModelName,
@@ -22,13 +28,19 @@ export {
   BitStreamWriter,
   bytesToLlmText,
   llmTextToBytes,
+  bytesToLlmEqualLengthText,
+  llmEqualLengthTextToBytes,
+  equalLengthEncode,
+  equalLengthDecode,
+  getTokenRanks,
+  generateFromRanks,
   loadLlmModel,
   clearLlmModelCache,
   normalizeModelName,
 };
 
 /**
- * Encodes a Uint8Array byte stream into English-like carrier text (supporting news, poetry, and LLM).
+ * Encodes a Uint8Array byte stream into English-like carrier text (supporting news, poetry, LLM, and equal-length).
  */
 export function bytesToEnglishText(
   bytes: Uint8Array,
@@ -37,11 +49,14 @@ export function bytesToEnglishText(
   if (config.style === "llm") {
     return bytesToLlmText(bytes, config);
   }
+  if (config.style === "equal-length" || config.style === "equal_length") {
+    return bytesToLlmEqualLengthText(bytes, config);
+  }
   return lightBytesToEnglishText(bytes, config);
 }
 
 /**
- * Decodes carrier text back into the encoded Uint8Array byte stream (supporting news, poetry, and LLM).
+ * Decodes carrier text back into the encoded Uint8Array byte stream (supporting news, poetry, LLM, and equal-length).
  */
 export function englishTextToBytes(
   text: string,
@@ -49,6 +64,9 @@ export function englishTextToBytes(
 ): Uint8Array | Promise<Uint8Array> {
   if (config.style === "llm") {
     return llmTextToBytes(text, config);
+  }
+  if (config.style === "equal-length" || config.style === "equal_length") {
+    return llmEqualLengthTextToBytes(text, config);
   }
   return lightEnglishTextToBytes(text, config);
 }

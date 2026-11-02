@@ -202,7 +202,7 @@ export function bytesToEnglishText(
     return "";
   }
 
-  if (config.style === "llm") {
+  if (config.style === "llm" || config.style === "equal-length" || config.style === "equal_length") {
     throw new EncodingError(
       'LLM steganography style requires the full LLM build. Please import from "ngram-cipher/llm".'
     );
@@ -426,7 +426,7 @@ export function englishTextToBytes(
     return new Uint8Array(0);
   }
 
-  if (config.style === "llm") {
+  if (config.style === "llm" || config.style === "equal-length" || config.style === "equal_length") {
     throw new EncodingError(
       'LLM steganography style requires the full LLM build. Please import from "ngram-cipher/llm".'
     );

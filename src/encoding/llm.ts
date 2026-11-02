@@ -908,3 +908,386 @@ export async function llmTextToBytes(
   const expectedPayloadBytes = Math.ceil(totalPayloadBits / 8);
   return rawBytes.subarray(4, 4 + expectedPayloadBytes);
 }
+
+// ============================================================================
+// Equal-Length Cipher LLM Steganography Method
+// Based on "LLMs can hide text in other text of the same length" (Norelli & Bronstein, 2025)
+// ============================================================================
+
+/**
+ * Computes sorted token rankings for a given logits slice.
+ * Returns an array of token IDs sorted by descending logit score (ties broken by ascending token ID).
+ */
+function getRankOrderedTokens(logitsSlice: Float32Array | number[]): Int32Array {
+  const vocabSize = logitsSlice.length;
+  const indices = new Int32Array(vocabSize);
+  for (let i = 0; i < vocabSize; i++) indices[i] = i;
+
+  indices.sort((a, b) => {
+    const diff = Number(logitsSlice[b]) - Number(logitsSlice[a]);
+    if (diff !== 0) return diff > 0 ? 1 : -1;
+    return a - b;
+  });
+
+  return indices;
+}
+
+/**
+ * Computes token ranks for `text` given a conditioning prompt `prompt`.
+ * For each token in `text`, its rank (0-indexed) in the model's next-token distribution is returned.
+ */
+export async function getTokenRanks(
+  text: string,
+  prompt: string,
+  model: any,
+  tokenizer: any
+): Promise<number[]> {
+  const promptEncoded = tokenizer(prompt, { add_special_tokens: false });
+  const promptRaw = promptEncoded?.input_ids?.data ?? promptEncoded?.input_ids ?? promptEncoded;
+  const promptTokenIds: number[] = Array.from(promptRaw ?? []).map(Number);
+
+  const textEncoded = tokenizer(text, { add_special_tokens: false });
+  const textRaw = textEncoded?.input_ids?.data ?? textEncoded?.input_ids ?? textEncoded;
+  const textTokenIds: number[] = Array.from(textRaw ?? []).map(Number);
+
+  for (const tid of textTokenIds) {
+    if (tid < 0 || Number.isNaN(tid)) {
+      throw new EncodingError(`Tokenization failed: unknown or unencodable token in text "${text}".`);
+    }
+  }
+
+  if (textTokenIds.length === 0) {
+    return [];
+  }
+
+  const currentTokens = promptTokenIds.slice();
+  const ranks: number[] = [];
+
+  const supportsKvCache =
+    typeof model.forward === "function" &&
+    typeof model._update_model_kwargs_for_generation === "function";
+
+  let modelInputs: any = null;
+  let currentOutputs: any = null;
+
+  try {
+    if (supportsKvCache && promptTokenIds.length > 0) {
+      const initialInputs = buildModelInputs(promptTokenIds);
+      modelInputs = {
+        input_ids: initialInputs.input_ids,
+        attention_mask: initialInputs.attention_mask,
+      };
+      currentOutputs = await model.forward(modelInputs);
+    }
+
+    for (let i = 0; i < textTokenIds.length; i++) {
+      const targetTokenId = textTokenIds[i];
+
+      let logits: any;
+      let lastLogitsData: Float32Array;
+
+      if (supportsKvCache && currentOutputs) {
+        logits = currentOutputs.logits;
+        const [, sLen, vocabSize] = logits.dims;
+        const lastTokenLogitsOffset = (sLen - 1) * vocabSize;
+        lastLogitsData = logits.data.subarray(
+          lastTokenLogitsOffset,
+          lastTokenLogitsOffset + vocabSize
+        );
+      } else {
+        const inputs = buildModelInputs(currentTokens);
+        const outputs = await model(inputs);
+        logits = outputs.logits;
+        const [, sLen, vocabSize] = logits.dims;
+        const lastTokenLogitsOffset = (sLen - 1) * vocabSize;
+        lastLogitsData = logits.data.subarray(
+          lastTokenLogitsOffset,
+          lastTokenLogitsOffset + vocabSize
+        );
+      }
+
+      // Compute rank of targetTokenId in descending order of logits
+      // To optimize: count tokens with strictly higher score, or equal score with lower index
+      const targetScore = Number(lastLogitsData[targetTokenId]);
+      let rank = 0;
+      const vocabSize = lastLogitsData.length;
+      for (let v = 0; v < vocabSize; v++) {
+        const score = Number(lastLogitsData[v]);
+        if (score > targetScore || (score === targetScore && v < targetTokenId)) {
+          rank++;
+        }
+      }
+
+      ranks.push(rank);
+      currentTokens.push(targetTokenId);
+
+      // Advance KV cache if supported and more tokens remain
+      if (supportsKvCache && i + 1 < textTokenIds.length) {
+        try {
+          if (model._update_model_kwargs_for_generation.length === 1) {
+            modelInputs = model._update_model_kwargs_for_generation({
+              generated_input_ids: [[BigInt(targetTokenId)]],
+              outputs: currentOutputs,
+              model_inputs: modelInputs,
+              is_encoder_decoder: false,
+            });
+          } else {
+            modelInputs = model._update_model_kwargs_for_generation(
+              currentOutputs,
+              modelInputs,
+              false
+            );
+            if (modelInputs) {
+              modelInputs.input_ids = new Tensor(
+                "int64",
+                BigInt64Array.from([BigInt(targetTokenId)]),
+                [1, 1]
+              );
+            }
+          }
+          currentOutputs = await model.forward(modelInputs);
+        } catch {
+          modelInputs = null;
+          currentOutputs = null;
+        }
+      }
+    }
+  } finally {
+    if (modelInputs?.past_key_values && typeof modelInputs.past_key_values.dispose === "function") {
+      modelInputs.past_key_values.dispose().catch?.(() => {});
+    }
+  }
+
+  return ranks;
+}
+
+/**
+ * Generates text token-by-token from an initial prompt, selecting for each position
+ * the token at the given rank (0-indexed) in sorted next-token logits.
+ */
+export async function generateFromRanks(
+  prompt: string,
+  ranks: number[],
+  model: any,
+  tokenizer: any
+): Promise<string> {
+  if (ranks.length === 0) {
+    return "";
+  }
+
+  const promptEncoded = tokenizer(prompt, { add_special_tokens: false });
+  const promptRaw = promptEncoded?.input_ids?.data ?? promptEncoded?.input_ids ?? promptEncoded;
+  const promptTokenIds: number[] = Array.from(promptRaw ?? []).map(Number);
+  const currentTokens = promptTokenIds.slice();
+  const generatedTokens: number[] = [];
+
+  const supportsKvCache =
+    typeof model.forward === "function" &&
+    typeof model._update_model_kwargs_for_generation === "function";
+
+  let modelInputs: any = null;
+  let currentOutputs: any = null;
+
+  try {
+    if (supportsKvCache && promptTokenIds.length > 0) {
+      const initialInputs = buildModelInputs(promptTokenIds);
+      modelInputs = {
+        input_ids: initialInputs.input_ids,
+        attention_mask: initialInputs.attention_mask,
+      };
+      currentOutputs = await model.forward(modelInputs);
+    }
+
+    for (let i = 0; i < ranks.length; i++) {
+      const rank = ranks[i];
+
+      let logits: any;
+      let lastLogitsData: Float32Array;
+
+      if (supportsKvCache && currentOutputs) {
+        logits = currentOutputs.logits;
+        const [, sLen, vocabSize] = logits.dims;
+        const lastTokenLogitsOffset = (sLen - 1) * vocabSize;
+        lastLogitsData = logits.data.subarray(
+          lastTokenLogitsOffset,
+          lastTokenLogitsOffset + vocabSize
+        );
+      } else {
+        const inputs = buildModelInputs(currentTokens);
+        const outputs = await model(inputs);
+        logits = outputs.logits;
+        const [, sLen, vocabSize] = logits.dims;
+        const lastTokenLogitsOffset = (sLen - 1) * vocabSize;
+        lastLogitsData = logits.data.subarray(
+          lastTokenLogitsOffset,
+          lastTokenLogitsOffset + vocabSize
+        );
+      }
+
+      const sortedIndices = getRankOrderedTokens(lastLogitsData);
+      if (rank >= sortedIndices.length || rank < 0) {
+        throw new EncodingError(
+          `Desired rank ${rank} is out of vocabulary bounds (0..${sortedIndices.length - 1}).`
+        );
+      }
+
+      const chosenTokenId = sortedIndices[rank];
+      generatedTokens.push(chosenTokenId);
+      currentTokens.push(chosenTokenId);
+
+      // Advance KV cache if supported and more ranks remain
+      if (supportsKvCache && i + 1 < ranks.length) {
+        try {
+          if (model._update_model_kwargs_for_generation.length === 1) {
+            modelInputs = model._update_model_kwargs_for_generation({
+              generated_input_ids: [[BigInt(chosenTokenId)]],
+              outputs: currentOutputs,
+              model_inputs: modelInputs,
+              is_encoder_decoder: false,
+            });
+          } else {
+            modelInputs = model._update_model_kwargs_for_generation(
+              currentOutputs,
+              modelInputs,
+              false
+            );
+            if (modelInputs) {
+              modelInputs.input_ids = new Tensor(
+                "int64",
+                BigInt64Array.from([BigInt(chosenTokenId)]),
+                [1, 1]
+              );
+            }
+          }
+          currentOutputs = await model.forward(modelInputs);
+        } catch {
+          modelInputs = null;
+          currentOutputs = null;
+        }
+      }
+    }
+  } finally {
+    if (modelInputs?.past_key_values && typeof modelInputs.past_key_values.dispose === "function") {
+      modelInputs.past_key_values.dispose().catch?.(() => {});
+    }
+  }
+
+  return tokenizer.decode(generatedTokens, { skip_special_tokens: false });
+}
+
+/**
+ * Encodes secret plaintext into an equal token length cover text using secret prompt `k`.
+ */
+export async function equalLengthEncode(
+  secretText: string,
+  config: EncodingConfig
+): Promise<string> {
+  const { model, tokenizer } = await loadLlmModel(config);
+
+  const keyPrompt = config.equalLengthKeyPrompt ?? config.llmPrompt ?? "Here is an interesting observation:";
+  const plaintextPrompt = config.equalLengthPlaintextPrompt ?? "A text:";
+
+  const ranks = await getTokenRanks(secretText, plaintextPrompt, model, tokenizer);
+  if (config.equalLengthReverseRanks) {
+    ranks.reverse();
+  }
+
+  return await generateFromRanks(keyPrompt, ranks, model, tokenizer);
+}
+
+/**
+ * Decodes equal token length cover text back into original secret plaintext using secret prompt `k`.
+ */
+export async function equalLengthDecode(
+  coverText: string,
+  config: EncodingConfig
+): Promise<string> {
+  const { model, tokenizer } = await loadLlmModel(config);
+
+  const keyPrompt = config.equalLengthKeyPrompt ?? config.llmPrompt ?? "Here is an interesting observation:";
+  const plaintextPrompt = config.equalLengthPlaintextPrompt ?? "A text:";
+
+  const ranks = await getTokenRanks(coverText, keyPrompt, model, tokenizer);
+  if (config.equalLengthReverseRanks) {
+    ranks.reverse();
+  }
+
+  return await generateFromRanks(plaintextPrompt, ranks, model, tokenizer);
+}
+
+/**
+ * Encodes raw binary bytes (such as whitened ciphertext frames) using the Equal-Length LLM cipher.
+ * Converts byte payload into an intermediate string representation before encoding into cover text.
+ */
+export async function bytesToLlmEqualLengthText(
+  bytes: Uint8Array,
+  config: EncodingConfig
+): Promise<string> {
+  const { tokenizer } = await loadLlmModel(config);
+
+  // If custom/mock tokenizer has "bXX" byte tokens:
+  const isByteTokenModel = typeof tokenizer("b00")?.input_ids?.data !== "undefined" &&
+    tokenizer("b00")?.input_ids?.data?.length > 0 &&
+    typeof tokenizer("b00")?.input_ids?.data[0] !== "undefined" &&
+    tokenizer.decode([tokenizer("b00").input_ids.data[0]]).trim() === "b00";
+
+  let intermediateText: string;
+  if (isByteTokenModel) {
+    intermediateText = Array.from(bytes)
+      .map((b) => `b${b.toString(16).padStart(2, "0")}`)
+      .join(" ");
+  } else {
+    // Standard LLM tokenizers: space-separated 2-character hex pairs e.g. "1a 2b 3c"
+    intermediateText = Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join(" ");
+  }
+
+  return await equalLengthEncode(intermediateText, config);
+}
+
+/**
+ * Decodes Equal-Length LLM cover text back into raw binary bytes.
+ */
+export async function llmEqualLengthTextToBytes(
+  coverText: string,
+  config: EncodingConfig
+): Promise<Uint8Array> {
+  const { tokenizer } = await loadLlmModel(config);
+  const intermediateText = await equalLengthDecode(coverText, config);
+
+  const isByteTokenModel = typeof tokenizer("b00")?.input_ids?.data !== "undefined" &&
+    tokenizer("b00")?.input_ids?.data?.length > 0 &&
+    typeof tokenizer("b00")?.input_ids?.data[0] !== "undefined" &&
+    tokenizer.decode([tokenizer("b00").input_ids.data[0]]).trim() === "b00";
+
+  if (isByteTokenModel) {
+    const rawTokens = intermediateText.trim().split(/\s+/).filter(Boolean);
+    const validTokens: string[] = [];
+    for (const t of rawTokens) {
+      if (/^b[0-9a-fA-F]{2}$/.test(t)) {
+        validTokens.push(t);
+      }
+    }
+    if (validTokens.length === 0 || validTokens.length !== rawTokens.length) {
+      throw new EncodingError("Recovered equal-length cipher text is corrupted: invalid byte tokens.");
+    }
+    const bytes = new Uint8Array(validTokens.length);
+    for (let i = 0; i < validTokens.length; i++) {
+      bytes[i] = parseInt(validTokens[i].substring(1), 16);
+    }
+    return bytes;
+  }
+
+  // Standard tokenizers: extract hex tokens
+  const hexTokens = intermediateText.match(/[0-9a-fA-F]{2}/g);
+  if (!hexTokens || hexTokens.length === 0) {
+    throw new EncodingError("Recovered equal-length cipher text is corrupted: no hex tokens found.");
+  }
+
+  const bytes = new Uint8Array(hexTokens.length);
+  for (let i = 0; i < hexTokens.length; i++) {
+    bytes[i] = parseInt(hexTokens[i], 16);
+  }
+  return bytes;
+}
