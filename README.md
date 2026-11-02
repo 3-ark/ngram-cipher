@@ -131,18 +131,46 @@ const llmText = await encode("Secret message", "password123", {
 });
 ```
 
-> ⚠️ **WARNING: The LLM steganography method is experimental and not reliable yet.**
+### Equal-Length Cipher LLM Mode (`"equal-length"` - Experimental)
+
+Hides secret text or binary payload inside natural cover text of the exact same token length, based on the Equal-Length Cipher method (Norelli & Bronstein, 2025). The algorithm maps secret text tokens to their logit ranks conditioned on a public/secret prompt, then reconstructs cover text using those ranks conditioned on a key prompt:
+
+```typescript
+import { encode, decode } from "ngram-cipher/llm";
+
+const carrierText = await encode("Secret message", "password123", {
+  encoding: {
+    style: "equal-length",
+    llmModel: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
+    equalLengthKeyPrompt: "Here is an interesting observation:",
+    equalLengthPlaintextPrompt: "A text:"
+  }
+});
+
+const decrypted = await decode(carrierText, "password123", {
+  encoding: {
+    style: "equal-length",
+    llmModel: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
+    equalLengthKeyPrompt: "Here is an interesting observation:",
+    equalLengthPlaintextPrompt: "A text:"
+  }
+});
+```
+
+> ⚠️ **CRITICAL WARNING: LLM steganography methods are experimental and require identical runtime hardware and models for robust decoding.**
 >
-> Steganographic decoding relies on exact, bit-identical token logit rankings between encoding and decoding passes. In practice, **too many variables can alter the computed logit distributions or tokenization sequences and corrupt decoding if you don't pay extra attention**.
+> Steganographic decoding in both Top-K reversible token mode (`style: "llm"`) and the Equal-Length Cipher (`style: "equal-length"`) relies on computing exact, bit-identical token logit rankings across vocabulary distributions between the encoding and decoding passes.
 >
-> Critical variables that must match identically across both encoding and decoding environments include:
-> - **Library & Dependency Versions**: Different releases of `@huggingface/transformers`, `onnxruntime-web`, or `onnxruntime-node` may use different kernel implementations, graph optimizations, or tokenizer logic.
-> - **Model Weights & Checkpoints**: The exact model repository, commit revision, and quantization/precision format (`fp32`, `fp16`, `q4`, `q8`) must match identically. Even minor weight quantization or re-export changes can shift logit rankings.
-> - **Hardware & Execution Environment**: Underlying hardware architectures (CPU instruction sets like AVX2 vs. AVX-512 vs. ARM NEON, GPU/WebGPU driver precision differences, or WASM SIMD variations) can introduce micro-deviations in floating-point math, altering token ranks.
-> - **Generation & Sampling Parameters**: All decoding options must match the encoding configuration exactly, including `llmPrompt`, `bitsPerToken`, `llmTemperature`, `llmTopK`, `llmTopP`, and `llmLogitPrecision`.
-> - **Tokenizer Implementation**: Any discrepancy in tokenizer vocabulary, special token mappings, or subword merging will break stepwise verification and prevent payload recovery.
+> **Users must be warned that this method has to use the same runtime hardware and the exact same model to make sure that the decoding is robust.**
 >
-> Unless you have strict end-to-end control over both the encoding and decoding runtime environments, **use `"news"` or `"poetry"` styles for reliable and stable production steganography**.
+> Even a minor floating-point difference of $10^{-7}$ in a single logit can swap adjacent token ranks, cascading into total payload corruption or unrecoverable decoding errors. The following components **must match identically** between encoding and decoding:
+>
+> - **Runtime Hardware & Execution Provider**: You must use the **same runtime hardware** (e.g. CPU architecture, instruction set extensions such as AVX2, AVX-512, or ARM NEON). Cross-hardware execution (e.g., encoding on x86_64 and decoding on Apple Silicon / ARM64, or running with differing SIMD implementations) can introduce subtle floating-point non-determinism in matrix multiplications that shifts token ranks.
+> - **Exact Model & Precision**: You must use the **exact same model checkpoint, revision, and weight quantization** (e.g. `fp32`, `fp16`, `q4`, `q8`). Changing models or using differently quantized variants between sender and receiver alters logit outputs and breaks decoding completely.
+> - **Runtime Library & Dependency Versions**: Different versions of `@huggingface/transformers`, `onnxruntime-web`, or `onnxruntime-node` may employ different graph optimization passes, math kernels, or tokenizer implementations.
+> - **Prompt & Algorithm Parameters**: All prompt contexts (`llmPrompt`, `equalLengthKeyPrompt`, `equalLengthPlaintextPrompt`), rank reversal flags (`equalLengthReverseRanks`), and sampling parameters (`llmTemperature`, `llmTopK`, `llmTopP`, `bitsPerToken`) must be identical on encode and decode.
+>
+> Unless you have full control over ensuring that **both parties run the same runtime hardware and model**, **use `"news"` or `"poetry"` styles for reliable and stable production steganography**.
 
 ---
 

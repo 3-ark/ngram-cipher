@@ -28,6 +28,13 @@ export interface FramingConfig {
 }
 export interface EncodingConfig {
     sentenceEndingVariance: boolean;
+    /**
+     * Carrier writing style.
+     *
+     * Warning: LLM steganography styles ("llm", "equal-length", "equal_length") are experimental.
+     * Users must use the same runtime hardware (CPU/SIMD) and exact same model (checkpoint, revision, quantization)
+     * on both encode and decode to ensure decoding is robust.
+     */
     style?: "news" | "poetry" | "llm" | "equal-length" | "equal_length";
     llmModel?: string;
     llmPrompt?: string;
@@ -41,8 +48,20 @@ export interface EncodingConfig {
     llmTopK?: number;
     llmTopP?: number;
     llmLogitPrecision?: number;
+    /**
+     * Equal-length cipher secret key prompt context.
+     * Must match identically on decode using the same runtime hardware and model.
+     */
     equalLengthKeyPrompt?: string;
+    /**
+     * Equal-length cipher plaintext prompt context.
+     * Must match identically on decode using the same runtime hardware and model.
+     */
     equalLengthPlaintextPrompt?: string;
+    /**
+     * Rank reversal flag for Equal-Length Cipher.
+     * Must match identically on decode.
+     */
     equalLengthReverseRanks?: boolean;
 }
 export interface StegoConfig {

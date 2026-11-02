@@ -134,6 +134,7 @@
       <option value="news">News prose (Google N-Gram LM)</option>
       <option value="poetry">Poetry (Dynamic Stanzas)</option>
       <option value="llm">LLM ONNX Mode (Transformers.js)</option>
+      <option value="equal-length">Equal-Length Cipher LLM Mode (Norelli &amp; Bronstein, 2025)</option>
     </select>
 
     <div id="llmPanel" class="llm-panel">
@@ -141,20 +142,31 @@
       <input type="text" id="llmModel" value="onnx-community/Supra-Mini-v2-0.1M-ONNX" placeholder="e.g. onnx-community/Supra-Mini-v2-0.1M-ONNX or onnx-community/Supra-Mini-v2-0.1M-ONNX">
       <small style="color: #64748b;">Accepts model IDs (e.g. <code>onnx-community/Supra-Mini-v2-0.1M-ONNX</code>) or Hugging Face URLs. Model downloads directly from Hugging Face on first run and caches in browser IndexedDB.</small>
 
-      <label for="llmPrompt">Generation Prompt Context</label>
-      <input type="text" id="llmPrompt" value="In recent news," placeholder="Prompt context for model generation">
+      <div id="llmStdFields">
+        <label for="llmPrompt">Generation Prompt Context</label>
+        <input type="text" id="llmPrompt" value="In recent news," placeholder="Prompt context for model generation">
 
-      <label for="bitsPerToken">Bits Embedded Per Token (1-8 bits)</label>
-      <input type="number" id="bitsPerToken" min="1" max="8" value="4">
+        <label for="bitsPerToken">Bits Embedded Per Token (1-8 bits)</label>
+        <input type="number" id="bitsPerToken" min="1" max="8" value="4">
+      </div>
+
+      <div id="llmEqualLengthFields" style="display: none;">
+        <label for="equalLengthKeyPrompt">Secret Key Prompt Context</label>
+        <input type="text" id="equalLengthKeyPrompt" value="Here is an interesting observation:" placeholder="Secret key prompt context for cover text generation">
+
+        <label for="equalLengthPlaintextPrompt">Plaintext Prompt Context</label>
+        <input type="text" id="equalLengthPlaintextPrompt" value="A text:" placeholder="Prompt context for plaintext distribution mapping">
+      </div>
 
       <div class="warning-box">
-        <strong>⚠️ Warning: LLM steganography method is experimental and not reliable yet.</strong>
-        Too many variables can corrupt decoding if extra attention is not paid. For decoding to succeed, the following variables must match identically:
+        <strong>⚠️ CRITICAL WARNING: LLM steganography methods are experimental and not reliable across environments.</strong>
+        <strong>Users must use the same runtime hardware and the exact same model to ensure decoding is robust.</strong>
+        Decoding relies on bit-identical logit ranks. Even micro-deviations ($10^{-7}$) in floating-point math can alter token ranks and corrupt decoding. The following must match identically between encoding and decoding:
         <ul>
-          <li><strong>Library version:</strong> <code>@huggingface/transformers</code> &amp; ONNX Runtime versions.</li>
-          <li><strong>Model weights:</strong> Exact model repository, commit revision, and quantization format (e.g. <code>fp16</code> vs <code>q4</code>).</li>
-          <li><strong>Hardware &amp; platform:</strong> CPU architecture/SIMD instructions, GPU/WebGPU driver precision, or WASM runtime environment.</li>
-          <li><strong>Configuration:</strong> Generation prompt context, bits per token, and sampling settings.</li>
+          <li><strong>Runtime hardware &amp; platform:</strong> You must use the <em>same runtime hardware</em> (CPU architecture, SIMD instructions, or WASM environment) to avoid floating-point non-determinism.</li>
+          <li><strong>Model checkpoint &amp; precision:</strong> Exact model weights, repository, commit revision, and quantization format (e.g. <code>fp16</code> vs <code>q4</code>).</li>
+          <li><strong>Library versions:</strong> Exact <code>@huggingface/transformers</code> &amp; ONNX Runtime versions.</li>
+          <li><strong>Prompts &amp; configuration:</strong> Generation prompt context, key prompt, plaintext prompt, bits per token, and sampling settings.</li>
         </ul>
       </div>
     </div>
@@ -183,6 +195,10 @@
     const llmModelEl = document.getElementById('llmModel');
     const llmPromptEl = document.getElementById('llmPrompt');
     const bitsPerTokenEl = document.getElementById('bitsPerToken');
+    const llmStdFieldsEl = document.getElementById('llmStdFields');
+    const llmEqualLengthFieldsEl = document.getElementById('llmEqualLengthFields');
+    const equalLengthKeyPromptEl = document.getElementById('equalLengthKeyPrompt');
+    const equalLengthPlaintextPromptEl = document.getElementById('equalLengthPlaintextPrompt');
     const encodeBtnEl = document.getElementById('encodeBtn');
     const decodeBtnEl = document.getElementById('decodeBtn');
     const infoStatusEl = document.getElementById('infoStatus');
@@ -192,8 +208,16 @@
       const selectedStyle = styleEl.value;
       if (selectedStyle === 'llm') {
         llmPanelEl.style.display = 'block';
+        llmStdFieldsEl.style.display = 'block';
+        llmEqualLengthFieldsEl.style.display = 'none';
         encodeBtnEl.textContent = '🤖 Encode with ONNX LLM';
         decodeBtnEl.textContent = '🔓 Decode with ONNX LLM';
+      } else if (selectedStyle === 'equal-length') {
+        llmPanelEl.style.display = 'block';
+        llmStdFieldsEl.style.display = 'none';
+        llmEqualLengthFieldsEl.style.display = 'block';
+        encodeBtnEl.textContent = '🤖 Encode with Equal-Length LLM';
+        decodeBtnEl.textContent = '🔓 Decode with Equal-Length LLM';
       } else if (selectedStyle === 'poetry') {
         llmPanelEl.style.display = 'none';
         encodeBtnEl.textContent = '🔒 Encode to Poetry';
@@ -240,6 +264,16 @@
           }
         };
       }
+      if (selectedStyle === 'equal-length') {
+        return {
+          encoding: {
+            style: 'equal-length',
+            llmModel: llmModelEl.value.trim() || 'onnx-community/Supra-Mini-v2-0.1M-ONNX',
+            equalLengthKeyPrompt: equalLengthKeyPromptEl.value.trim() || 'Here is an interesting observation:',
+            equalLengthPlaintextPrompt: equalLengthPlaintextPromptEl.value.trim() || 'A text:'
+          }
+        };
+      }
       return {
         encoding: {
           style: selectedStyle
@@ -255,7 +289,8 @@
         if (!text) return showError('Please enter plaintext to encode.');
         if (!pass) return showError('Please enter a password.');
 
-        if (styleEl.value === 'llm') {
+        const isLlm = styleEl.value === 'llm' || styleEl.value === 'equal-length';
+        if (isLlm) {
           const rawModel = llmModelEl.value.trim() || 'onnx-community/Supra-Mini-v2-0.1M-ONNX';
           const normalized = normalizeModelName(rawModel);
           showStatus(`⏳ Downloading / loading ONNX model '${normalized}' from Hugging Face...`);
@@ -265,7 +300,7 @@
 
         const result = await encode(text, pass, buildOptions());
         ciphertextEl.value = result;
-        showStatus(styleEl.value === 'llm' ? '✅ Encoding complete! ONNX model cached in browser IndexedDB.' : null);
+        showStatus(isLlm ? '✅ Encoding complete! ONNX model cached in browser IndexedDB.' : null);
       } catch (err) {
         showStatus(null);
         showError(err.message || 'Encoding error occurred.');
@@ -280,7 +315,8 @@
         if (!cipher) return showError('Please enter English ciphertext to decode.');
         if (!pass) return showError('Please enter a password.');
 
-        if (styleEl.value === 'llm') {
+        const isLlm = styleEl.value === 'llm' || styleEl.value === 'equal-length';
+        if (isLlm) {
           const rawModel = llmModelEl.value.trim() || 'onnx-community/Supra-Mini-v2-0.1M-ONNX';
           const normalized = normalizeModelName(rawModel);
           showStatus(`⏳ Loading ONNX model '${normalized}' for decoding...`);
@@ -290,7 +326,7 @@
 
         const result = await decode(cipher, pass, buildOptions());
         plaintextEl.value = result;
-        showStatus(styleEl.value === 'llm' ? '✅ Decoding complete!' : null);
+        showStatus(isLlm ? '✅ Decoding complete!' : null);
       } catch (err) {
         showStatus(null);
         showError(err.message || 'Decoding error occurred.');
