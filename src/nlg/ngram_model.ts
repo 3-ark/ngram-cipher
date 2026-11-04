@@ -217,6 +217,7 @@ const SINGULAR_NOUNS_ENDING_IN_S = new Set([
   "means","news","series","species","status"
 ]);
 
+// Fast subject lookback scanning: checks prepositions without array allocations (.slice / .map)
 function findContextSubject(context: string[]): string {
   for (let index = context.length - 1; index >= 0; index--) {
     const word = context[index].toLowerCase();
@@ -228,9 +229,15 @@ function findContextSubject(context: string[]): string {
       SYSTEM_OBJECT_NOUN_SET.has(word) ||
       POETRY_NOUN_SET.has(word)
     ) {
-      const previousWords = context.slice(Math.max(0, index - 4), index)
-        .map(previous => previous.toLowerCase());
-      if (previousWords.some(previous => PREPOSITION_SET.has(previous))) {
+      let hasPrep = false;
+      const start = Math.max(0, index - 4);
+      for (let p = start; p < index; p++) {
+        if (PREPOSITION_SET.has(context[p].toLowerCase())) {
+          hasPrep = true;
+          break;
+        }
+      }
+      if (hasPrep) {
         continue;
       }
       return word;
@@ -590,52 +597,78 @@ const FIVEGRAM_MAP: Record<string, Record<string, number>> = {
   "no intelligence was shared": { ahead: 10, before: 9 }
 };
 
-/**
- * Calculates 1-5 gram language model score for a candidate word given prior context words.
- */
-export function calculateNGramScore(candidate: string, context: string[], topic?: DomainTopic): number {
-  const w = candidate.toLowerCase();
-  let score = 0;
+interface NGramContextState {
+  map5?: Record<string, number>;
+  map4?: Record<string, number>;
+  map3?: Record<string, number>;
+  map2?: Record<string, number>;
+  subjectNoun: string;
+  isPoeticNoun: boolean;
+  subjectCat: NounCategory | "";
+  topicWordSet?: Set<string>;
+  contextLowerSet: Set<string>;
+}
 
+// Pre-resolves invariant context properties (N-gram lookup sub-maps, subject noun,
+// semantic category, topic word sets, and context words set) once per slot evaluation.
+function prepareNGramContext(context: string[], topic?: DomainTopic): NGramContextState {
   const len = context.length;
   const w1 = len >= 1 ? context[len - 1].toLowerCase() : "";
   const w2 = len >= 2 ? context[len - 2].toLowerCase() : "";
   const w3 = len >= 3 ? context[len - 3].toLowerCase() : "";
   const w4 = len >= 4 ? context[len - 4].toLowerCase() : "";
 
+  const map5 = (w1 && w2 && w3 && w4) ? FIVEGRAM_MAP[`${w4} ${w3} ${w2} ${w1}`] : undefined;
+  const map4 = (w1 && w2 && w3) ? FOURGRAM_MAP[`${w3} ${w2} ${w1}`] : undefined;
+  const map3 = (w1 && w2) ? TRIGRAM_MAP[`${w2} ${w1}`] : undefined;
+  const map2 = w1 ? BIGRAM_MAP[w1] : undefined;
+
+  const subjectNoun = findContextSubject(context);
+  const isPoeticNoun = subjectNoun ? POETRY_NOUN_SET.has(subjectNoun) : false;
+  const subjectCat = subjectNoun ? getNounCategory(subjectNoun) : "";
+
+  const topicWordSet = (topic && TOPIC_WORD_SETS[topic]) ? TOPIC_WORD_SETS[topic] : undefined;
+
+  const contextLowerSet = new Set<string>();
+  for (let i = 0; i < len; i++) {
+    contextLowerSet.add(context[i].toLowerCase());
+  }
+
+  return {
+    map5,
+    map4,
+    map3,
+    map2,
+    subjectNoun,
+    isPoeticNoun,
+    subjectCat,
+    topicWordSet,
+    contextLowerSet
+  };
+}
+
+// Fast scoring of a normalized candidate using pre-resolved context lookups
+function scoreCandidateWithContext(w: string, ctx: NGramContextState): number {
+  let score = 0;
+
   // 0. 5-Gram Score (weight = 10000)
-  if (w1 && w2 && w3 && w4) {
-    const key5 = `${w4} ${w3} ${w2} ${w1}`;
-    const map5 = FIVEGRAM_MAP[key5];
-    if (map5 && map5[w]) {
-      score += 10000 * map5[w];
-    }
+  if (ctx.map5 && ctx.map5[w]) {
+    score += 10000 * ctx.map5[w];
   }
 
   // 1. 4-Gram Score (weight = 1000)
-  if (w1 && w2 && w3) {
-    const key4 = `${w3} ${w2} ${w1}`;
-    const map4 = FOURGRAM_MAP[key4];
-    if (map4 && map4[w]) {
-      score += 1000 * map4[w];
-    }
+  if (ctx.map4 && ctx.map4[w]) {
+    score += 1000 * ctx.map4[w];
   }
 
   // 2. 3-Gram Score (weight = 100)
-  if (w1 && w2) {
-    const key3 = `${w2} ${w1}`;
-    const map3 = TRIGRAM_MAP[key3];
-    if (map3 && map3[w]) {
-      score += 100 * map3[w];
-    }
+  if (ctx.map3 && ctx.map3[w]) {
+    score += 100 * ctx.map3[w];
   }
 
   // 3. 2-Gram Score (weight = 10)
-  if (w1) {
-    const map2 = BIGRAM_MAP[w1];
-    if (map2 && map2[w]) {
-      score += 10 * map2[w];
-    }
+  if (ctx.map2 && ctx.map2[w]) {
+    score += 10 * ctx.map2[w];
   }
 
   // 4. Unigram Naturalness Score (weight = 1)
@@ -643,42 +676,37 @@ export function calculateNGramScore(candidate: string, context: string[], topic?
     score += 1;
   }
 
-  // 5. Noun-Verb Semantic Affinity Scoring:
-  // Identify preceding subject noun in context and score verb candidate compatibility
-  const subjectNoun = findContextSubject(context);
-
-  if (subjectNoun) {
-    const isPoeticNoun = POETRY_NOUN_SET.has(subjectNoun);
-    const cat = getNounCategory(subjectNoun);
-    if (isPoeticNoun) {
+  // 5. Noun-Verb Semantic Affinity Scoring
+  if (ctx.subjectNoun) {
+    if (ctx.isPoeticNoun) {
       if (POETIC_EXPRESSIVE_VERBS.has(w)) {
         score += 50;
       } else if (SPEECH_VERBS.has(w)) {
         score -= 200;
       }
-    } else if (cat === "EVENT") {
+    } else if (ctx.subjectCat === "EVENT") {
       if (EVENT_OCCURRENCE_VERBS.has(w) || METRIC_TREND_VERBS.has(w)) {
         score += 50;
       } else if (SPEECH_VERBS.has(w)) {
         score -= 200;
       }
-    } else if (cat === "METRIC") {
+    } else if (ctx.subjectCat === "METRIC") {
       if (METRIC_TREND_VERBS.has(w) || EVENT_OCCURRENCE_VERBS.has(w)) {
         score += 50;
       } else if (SPEECH_VERBS.has(w)) {
         score -= 200;
       }
-    } else if (cat === "DOCUMENT") {
+    } else if (ctx.subjectCat === "DOCUMENT") {
       if (INFORMATIONAL_VERBS.has(w) || SPEECH_VERBS.has(w)) {
         score += 50;
       }
-    } else if (cat === "SYSTEM_OBJECT") {
+    } else if (ctx.subjectCat === "SYSTEM_OBJECT") {
       if (SYSTEM_OPERATIONAL_VERBS.has(w) || METRIC_TREND_VERBS.has(w) || EVENT_OCCURRENCE_VERBS.has(w)) {
         score += 50;
       } else if (SPEECH_VERBS.has(w)) {
         score -= 200;
       }
-    } else if (cat === "AGENT") {
+    } else if (ctx.subjectCat === "AGENT") {
       if (SPEECH_VERBS.has(w) || INFORMATIONAL_VERBS.has(w) || SYSTEM_OPERATIONAL_VERBS.has(w)) {
         score += 30;
       }
@@ -686,12 +714,12 @@ export function calculateNGramScore(candidate: string, context: string[], topic?
   }
 
   // 6. Topic Domain Score Boost
-  if (topic && TOPIC_WORD_SETS[topic] && TOPIC_WORD_SETS[topic].has(w)) {
+  if (ctx.topicWordSet && ctx.topicWordSet.has(w)) {
     score += 100;
   }
 
   // 7. Repetition penalty: penalize repeating non-function words already present in sentence context
-  if (context.some(c => c.toLowerCase() === w) && !FUNCTION_WORDS_SET.has(w)) {
+  if (ctx.contextLowerSet.has(w) && !FUNCTION_WORDS_SET.has(w)) {
     score -= 500;
   }
 
@@ -699,18 +727,30 @@ export function calculateNGramScore(candidate: string, context: string[], topic?
 }
 
 /**
+ * Calculates 1-5 gram language model score for a candidate word given prior context words.
+ */
+export function calculateNGramScore(candidate: string, context: string[], topic?: DomainTopic): number {
+  const ctx = prepareNGramContext(context, topic);
+  return scoreCandidateWithContext(candidate.toLowerCase(), ctx);
+}
+
+/**
  * Deterministically ranks candidate words for a slot using 1-4 gram context scoring.
  * Words with higher N-gram scores appear first. Ties are broken by original index / alphabetical order.
+ *
+ * Performance optimization: Context invariants (N-gram sub-maps, subject noun category, topic set,
+ * and context word set) are resolved once per slot rather than re-computed for all candidates.
  */
 export function rankCandidates(candidates: string[], context: string[], topic?: DomainTopic): string[] {
   if (!candidates || candidates.length <= 1) {
     return candidates ? [...candidates] : [];
   }
 
+  const ctx = prepareNGramContext(context, topic);
   const scored = candidates.map((word, originalIndex) => ({
     word,
     originalIndex,
-    score: calculateNGramScore(word, context, topic)
+    score: scoreCandidateWithContext(word.toLowerCase(), ctx)
   }));
 
   // Sort descending by score; tie-break by originalIndex to guarantee deterministic order
