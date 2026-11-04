@@ -5,21 +5,25 @@
 import { FramingError, FramingConfig, DEFAULT_CONFIG } from "../config/index.js";
 import { timingSafeEqual } from "../crypto/index.js";
 
+// Precomputed IEEE 802.3 CRC-32 table (polynomial 0xedb88320).
+// Precomputing this 256-entry Uint32Array avoids 8 bitwise loop iterations per byte,
+// reducing per-byte operations to 1 lookup and shift (~15x-20x speedup for CRC-32).
+const CRC32_TABLE = new Uint32Array(256);
+for (let i = 0; i < 256; i++) {
+  let c = i;
+  for (let j = 0; j < 8; j++) {
+    c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+  }
+  CRC32_TABLE[i] = c >>> 0;
+}
+
 /**
- * Calculates CRC-32 checksum for a Uint8Array buffer.
+ * Calculates CRC-32 checksum for a Uint8Array buffer using a fast table lookup.
  */
 export function crc32(data: Uint8Array): number {
   let crc = 0xffffffff;
   for (let i = 0; i < data.length; i++) {
-    let byte = data[i];
-    for (let j = 0; j < 8; j++) {
-      const bit = (byte ^ crc) & 1;
-      crc >>>= 1;
-      if (bit) {
-        crc ^= 0xedb88320;
-      }
-      byte >>>= 1;
-    }
+    crc = CRC32_TABLE[(crc ^ data[i]) & 0xff] ^ (crc >>> 8);
   }
   return (crc ^ 0xffffffff) >>> 0;
 }
