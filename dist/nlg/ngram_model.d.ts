@@ -20,6 +20,9 @@ export declare function calculateNGramScore(candidate: string, context: string[]
 /**
  * Deterministically ranks candidate words for a slot using 1-4 gram context scoring.
  * Words with higher N-gram scores appear first. Ties are broken by original index / alphabetical order.
+ *
+ * Performance optimization: Context invariants (N-gram sub-maps, subject noun category, topic set,
+ * and context word set) are resolved once per slot rather than re-computed for all candidates.
  */
 export declare function rankCandidates(candidates: string[], context: string[], topic?: DomainTopic): string[];
 /**
