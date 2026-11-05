@@ -1763,7 +1763,7 @@ var F = (() => {
 	"yet",
 	"but",
 	"or"
-], Z = [
+], kt = [
 	"and",
 	"while",
 	"as",
@@ -1772,7 +1772,7 @@ var F = (() => {
 	"though",
 	"because",
 	"when"
-], kt = /* @__PURE__ */ "quietly.slowly.softly.gently.here.there.alone.away.brightly.faintly.still.deeply.wildly.lightly.calmly.nearby.tenderly.silently.swiftly.sweetly.gracefully.peacefully.smoothly.subtly.radiantly.serenely.anew.forever.afar.solemnly.warmly.purely".split("."), At = [
+], At = /* @__PURE__ */ "quietly.slowly.softly.gently.here.there.alone.away.brightly.faintly.still.deeply.wildly.lightly.calmly.nearby.tenderly.silently.swiftly.sweetly.gracefully.peacefully.smoothly.subtly.radiantly.serenely.anew.forever.afar.solemnly.warmly.purely".split("."), jt = [
 	[
 		T(X, "d"),
 		T(q, "N"),
@@ -1803,7 +1803,7 @@ var F = (() => {
 		T(X, "d"),
 		T(q, "N"),
 		T(J, "VP"),
-		T(Z, "c"),
+		T(kt, "c"),
 		T(X, "d"),
 		T(q, "N"),
 		T(J, "VP")
@@ -1823,31 +1823,31 @@ var F = (() => {
 		T(Y, "A"),
 		T(q, "N"),
 		T(J, "VP"),
-		T(Z, "c"),
+		T(kt, "c"),
 		T(X, "d"),
 		T(Y, "A"),
 		T(q, "N"),
 		T(J, "VP")
 	],
 	[
-		T(kt, "R"),
+		T(At, "R"),
 		T(X, "d"),
 		T(Y, "A"),
 		T(q, "N"),
 		T(J, "VP"),
-		T(Z, "c"),
+		T(kt, "c"),
 		T(X, "d"),
 		T(Y, "A"),
 		T(q, "N"),
 		T(J, "VP")
 	]
 ];
-function jt(e, t = K) {
+function Mt(e, t = K) {
 	let n = e.length, r = t.findIndex((e) => e.length === n);
 	if (r === -1) throw Error(`No template matches sentence length ${n}.`);
 	return r;
 }
-function Mt(e) {
+function Nt(e) {
 	let t = e.split(/[.;?]+/).map((e) => e.trim()).filter((e) => e.length > 0), n = e.toLowerCase().match(/[a-z0-9.%]+/g) || [];
 	if (n.length === 0) return {
 		wordCount: 0,
@@ -1877,7 +1877,7 @@ function Mt(e) {
 	};
 }
 // src/encoding/bitstream.ts
-var Nt = class {
+var Pt = class {
 	bytes;
 	byteIndex = 0;
 	bitIndex = 0;
@@ -1899,7 +1899,7 @@ var Nt = class {
 		}
 		return t >>> 0;
 	}
-}, Pt = class {
+}, Ft = class {
 	bytes = [];
 	currentByte = 0;
 	bitCount = 0;
@@ -1917,17 +1917,17 @@ var Nt = class {
 		}
 		return new Uint8Array(this.bytes);
 	}
-}, Ft = {
+}, It = {
 	".": "0",
 	";": "10",
 	"...": "110",
 	"…": "111"
-}, It = {
+}, Lt = {
 	0: ".",
 	10: ";",
 	110: "...",
 	111: "…"
-}, Lt = {
+}, Rt = {
 	the: "0",
 	a: "10",
 	this: "1100",
@@ -1936,7 +1936,7 @@ var Nt = class {
 	no: "11110",
 	any: "111110",
 	one: "111111"
-}, Rt = {
+}, zt = {
 	0: "the",
 	10: "a",
 	1100: "this",
@@ -1945,7 +1945,7 @@ var Nt = class {
 	11110: "no",
 	111110: "any",
 	111111: "one"
-}, zt = { 7: [
+}, Bt = { 7: [
 	"00",
 	"01",
 	"100",
@@ -1954,9 +1954,9 @@ var Nt = class {
 	"1110",
 	"1111"
 ] };
-for (let e = 8; e <= K.length; e++) zt[e] = ["0", ...zt[e - 1].map((e) => `1${e}`)];
-var Bt = 3;
-function Vt(e) {
+for (let e = 8; e <= K.length; e++) Bt[e] = ["0", ...Bt[e - 1].map((e) => `1${e}`)];
+var Vt = 3;
+function Ht(e) {
 	let t = 0;
 	for (let n = 0; n < e.length; n++) {
 		let r = e[n];
@@ -1964,7 +1964,7 @@ function Vt(e) {
 	}
 	return (t + 4) / e.length;
 }
-function Ht(e, t, n = !0) {
+function Ut(e, t, n = !0) {
 	let i = Array.from({ length: e.length }, (e, t) => t);
 	if (n) for (let e of t) {
 		let t = i.indexOf(e);
@@ -1972,61 +1972,106 @@ function Ht(e, t, n = !0) {
 	}
 	let a = /* @__PURE__ */ new Map();
 	if (!n) return i.forEach((e, t) => a.set(e, t.toString(2).padStart(3, "0"))), a;
-	let o = zt[i.length];
+	let o = Bt[i.length];
 	if (!o) throw new r("Template count does not support the recent-template repetition rule.");
-	let s = [...o].sort((e, t) => e.length - t.length), c = i.includes(Bt) ? s.pop() : void 0;
-	return i.filter((e) => e !== Bt || c === void 0).sort((t, n) => Vt(e[n]) - Vt(e[t]) || t - n).forEach((e, t) => a.set(e, s[t])), c !== void 0 && a.set(Bt, c), a;
+	let s = [...o].sort((e, t) => e.length - t.length), c = i.includes(Vt) ? s.pop() : void 0;
+	return i.filter((e) => e !== Vt || c === void 0).sort((t, n) => Ht(e[n]) - Ht(e[t]) || t - n).forEach((e, t) => a.set(e, s[t])), c !== void 0 && a.set(Vt, c), a;
 }
-function Ut(e, t) {
-	let n = t.length >= 1 ? t[t.length - 1] : void 0, r = e.filter((e) => e.toLowerCase() !== n).map((e, t) => ({
-		word: e,
-		weight: e.toLowerCase() === "the" ? 8 : 1,
-		order: t
-	}));
-	for (; r.length > 1;) {
-		r.sort((e, t) => e.weight - t.weight || e.order - t.order);
-		let e = r.shift(), t = r.shift();
-		r.push({
+var Wt = class {
+	heap = [];
+	get size() {
+		return this.heap.length;
+	}
+	push(e) {
+		this.heap.push(e);
+		let t = this.heap.length - 1;
+		for (; t > 0;) {
+			let e = t - 1 >> 1, n = this.heap[t], r = this.heap[e];
+			if (n.weight < r.weight || n.weight === r.weight && n.order < r.order) this.heap[t] = r, this.heap[e] = n, t = e;
+			else break;
+		}
+	}
+	pop() {
+		let e = this.heap[0], t = this.heap.pop();
+		if (this.heap.length > 0 && t !== void 0) {
+			this.heap[0] = t;
+			let e = 0, n = this.heap.length;
+			for (;;) {
+				let t = (e << 1) + 1, r = t + 1, i = e;
+				if (t < n) {
+					let e = this.heap[t], n = this.heap[i];
+					(e.weight < n.weight || e.weight === n.weight && e.order < n.order) && (i = t);
+				}
+				if (r < n) {
+					let e = this.heap[r], t = this.heap[i];
+					(e.weight < t.weight || e.weight === t.weight && e.order < t.order) && (i = r);
+				}
+				if (i !== e) {
+					let t = this.heap[e];
+					this.heap[e] = this.heap[i], this.heap[i] = t, e = i;
+				} else break;
+			}
+		}
+		return e;
+	}
+};
+function Gt(e, t) {
+	let n = t.length >= 1 ? t[t.length - 1] : void 0, r = e.filter((e) => e.toLowerCase() !== n);
+	if (r.length === 0) return /* @__PURE__ */ new Map();
+	let i = new Wt();
+	for (let e = 0; e < r.length; e++) {
+		let t = r[e];
+		i.push({
+			word: t,
+			weight: t.toLowerCase() === "the" ? 8 : 1,
+			order: e
+		});
+	}
+	for (; i.size > 1;) {
+		let e = i.pop(), t = i.pop();
+		i.push({
 			weight: e.weight + t.weight,
 			order: Math.min(e.order, t.order),
 			left: e,
 			right: t
 		});
 	}
-	let i = /* @__PURE__ */ new Map(), a = (e, t) => {
-		e.word === void 0 ? (e.left && a(e.left, `${t}0`), e.right && a(e.right, `${t}1`)) : i.set(e.word, t || "0");
+	let a = /* @__PURE__ */ new Map(), o = i.pop();
+	if (!o) return a;
+	let s = (e, t) => {
+		e.word === void 0 ? (e.left && s(e.left, `${t}0`), e.right && s(e.right, `${t}1`)) : a.set(e.word, t || "0");
 	};
-	return a(r[0], ""), i;
+	return s(o, ""), a;
 }
-var Wt = [
+var Kt = [
 	".",
 	" —",
 	"...",
 	","
-], Gt = {
+], qt = {
 	".": 0,
 	" —": 1,
 	"...": 2,
 	",": 3,
 	"?": 0
 };
-function Kt(e) {
+function Jt(e) {
 	return e.charAt(0).toUpperCase() + e.slice(1);
 }
-function qt(e) {
+function Yt(e) {
 	let t = e.toLowerCase();
 	return /^(?:ewe|eul|euro|one|once|uni(?:corn|form|fy|on|t|vers|que)|use|usual|user|utility|utopia)/.test(t) ? !1 : /^(?:hour|honest|honor|heir)/.test(t) ? !0 : /^[aeiou]/i.test(e);
 }
-function Jt(e, t = a.encoding) {
+function Z(e, t = a.encoding) {
 	if (!e || e.length === 0) return "";
 	if (t.style === "llm" || t.style === "equal-length" || t.style === "equal_length") throw new r("LLM steganography style requires the full LLM build. Please import from \"ngram-cipher/llm\".");
 	let n = t.style === "poetry", i = e.length, o = /* @__PURE__ */ new Uint8Array(2);
 	new DataView(o.buffer).setUint16(0, i, !1);
 	let s = new Uint8Array(e.length + 2);
 	s.set(e, 0), s.set(o, e.length);
-	let c = new Nt(s), l = [], u = n ? At : K, d = [], f = [], p = 0, m = n ? void 0 : he[s[0] >> 6 & 3];
+	let c = new Pt(s), l = [], u = n ? jt : K, d = [], f = [], p = 0, m = n ? void 0 : he[s[0] >> 6 & 3];
 	for (; c.hasBits;) {
-		let e = Ht(u, f, !n), i = new Map(Array.from(e, ([e, t]) => [t, e])), a = "", o;
+		let e = Ut(u, f, !n), i = new Map(Array.from(e, ([e, t]) => [t, e])), a = "", o;
 		for (let e = 0; e < 16 && (a += c.readBits(1).toString(), o = i.get(a), o === void 0); e++);
 		if (o === void 0) throw new r("Unable to decode sentence template.");
 		let s = u[o], h = [], g = [];
@@ -2039,7 +2084,7 @@ function Jt(e, t = a.encoding) {
 			}
 			let o;
 			if (!n && h.length === 0) {
-				let e = Ut(a, d), t = new Map(Array.from(e, ([e, t]) => [t, e])), n = "", i;
+				let e = Gt(a, d), t = new Map(Array.from(e, ([e, t]) => [t, e])), n = "", i;
 				for (let e = 0; e < 16 && (n += c.readBits(1).toString(), i = t.get(n), !i); e++);
 				if (!i) throw new r("Unable to decode sentence opening word.");
 				o = i;
@@ -2048,7 +2093,7 @@ function Jt(e, t = a.encoding) {
 				o = a[Ye(c.hasBits ? c.readBits(e) : 0, e, a.length) % a.length];
 			} else if (!n && e.label === "d") {
 				let e = "", t;
-				for (let n = 0; n < 6 && (e += c.readBits(1).toString(), t = Rt[e], !t); n++);
+				for (let n = 0; n < 6 && (e += c.readBits(1).toString(), t = zt[e], !t); n++);
 				if (!t) throw new r("Unable to decode determiner prefix code.");
 				o = t;
 			} else {
@@ -2058,17 +2103,17 @@ function Jt(e, t = a.encoding) {
 			h.push(o), g.push(o.toLowerCase());
 		}
 		if (h.length === 0) break;
-		for (let e = 0; e < h.length; e++) h[e].toLowerCase() === "a" && e + 1 < h.length && qt(h[e + 1]) && (h[e] = h[e] === "A" ? "An" : "an");
+		for (let e = 0; e < h.length; e++) h[e].toLowerCase() === "a" && e + 1 < h.length && Yt(h[e + 1]) && (h[e] = h[e] === "A" ? "An" : "an");
 		for (let e = 0; e < h.length; e++) {
 			let t = s[e]?.label, n = h[e];
-			(e === 0 || t === "NP") && (h[e] = Kt(n));
+			(e === 0 || t === "NP") && (h[e] = Jt(n));
 		}
 		let _ = ".";
 		if (t.sentenceEndingVariance) {
-			if (n) _ = Wt[(c.hasBits ? c.readBits(2) : 0) % Wt.length];
+			if (n) _ = Kt[(c.hasBits ? c.readBits(2) : 0) % Kt.length];
 			else {
 				let e = "", t;
-				for (let n = 0; n < 4 && (e += (c.hasBits ? c.readBits(1) : 0).toString(), t = It[e], !t); n++);
+				for (let n = 0; n < 4 && (e += (c.hasBits ? c.readBits(1) : 0).toString(), t = Lt[e], !t); n++);
 				_ = t ?? ".";
 			}
 		}
@@ -2094,7 +2139,7 @@ function Jt(e, t = a.encoding) {
 	}
 	return h.join("\n\n");
 }
-function Yt(e, t = a.encoding) {
+function Xt(e, t = a.encoding) {
 	if (!e || typeof e != "string" || e.trim().length === 0) return /* @__PURE__ */ new Uint8Array();
 	if (t.style === "llm" || t.style === "equal-length" || t.style === "equal_length") throw new r("LLM steganography style requires the full LLM build. Please import from \"ngram-cipher/llm\".");
 	let n = t.style === "poetry", i = e.replace(/[\r\n]+/g, "\n").trim(), o = [];
@@ -2125,11 +2170,11 @@ function Yt(e, t = a.encoding) {
 			});
 		}
 	}
-	let s = new Pt(), c = n ? At : K, l = [], u = [], d;
+	let s = new Ft(), c = n ? jt : K, l = [], u = [], d;
 	for (let e = 0; e < o.length; e++) {
 		let { sentenceStr: i, endingStr: a } = o[e], f = i.split(/\s+/).filter((e) => e.length > 0);
 		if (f.length === 0) continue;
-		let p = jt(f, c), m = Ht(c, u, !n).get(p);
+		let p = Mt(f, c), m = Ut(c, u, !n).get(p);
 		if (!m) throw new r(`Sentence template repeats within the previous two sentences at sentence ${e + 1}.`);
 		for (let e of m) s.writeBits(Number(e), 1);
 		let h = c[p], g = 0, _ = [], v = "";
@@ -2137,7 +2182,7 @@ function Yt(e, t = a.encoding) {
 			if (g >= f.length) break;
 			let i = f[g], a = i.replace(/^[ "'“‘]+/g, "").replace(/[ "'”’.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 			t.type === "data" && a === "an" && t.label === "d" && (a = "a");
-			let o = e === 0 || n ? void 0 : d, c = t.list && t.list.length > 0 ? t.list : at, u = Je(t.type === "data" && !n ? Ie(c, _, t.label, o) : c, _, o), p = !n && g === 0 && t.type === "data" ? Ut(u, l) : void 0, m = u.findIndex((e) => e.toLowerCase() === a);
+			let o = e === 0 || n ? void 0 : d, c = t.list && t.list.length > 0 ? t.list : at, u = Je(t.type === "data" && !n ? Ie(c, _, t.label, o) : c, _, o), p = !n && g === 0 && t.type === "data" ? Gt(u, l) : void 0, m = u.findIndex((e) => e.toLowerCase() === a);
 			if (m === -1) throw new r(`Invalid or unrecognized token in cipher text: "${i}" (not in carrier vocabulary, sentence ${e + 1})`);
 			if (t.type === "data") {
 				if (p) {
@@ -2148,7 +2193,7 @@ function Yt(e, t = a.encoding) {
 					let e = Math.floor(Math.log2(u.length)), t = Xe(m, e, u.length);
 					s.writeBits(t, e);
 				} else if (!n && t.label === "d") {
-					let e = Lt[a];
+					let e = Rt[a];
 					if (!e) throw new r(`No determiner code is defined for "${a}".`);
 					for (let t of e) s.writeBits(Number(t), 1);
 				} else {
@@ -2164,10 +2209,10 @@ function Yt(e, t = a.encoding) {
 		}
 		if (t.sentenceEndingVariance) {
 			if (n) {
-				let e = Gt[a] ?? 0;
+				let e = qt[a] ?? 0;
 				s.writeBits(e, 2);
 			} else {
-				let e = Ft[a] ?? "0";
+				let e = It[a] ?? "0";
 				for (let t of e) s.writeBits(Number(t), 1);
 			}
 		}
@@ -2186,25 +2231,25 @@ function Yt(e, t = a.encoding) {
 	return p === -1 ? /* @__PURE__ */ new Uint8Array() : f.subarray(0, p);
 }
 // src/ngram.ts
-var Q = 10485760, Xt = 16, Zt = /* @__PURE__ */ "the.be.to.of.and.a.in.that.have.i.it.for.not.on.with.he.as.you.do.at.this.but.his.by.from.they.we.say.her.she.or.an.will.my.one.all.would.there.their.what.so.up.out.if.about.who.get.which.go.me.when.make.can.like.time.no.just.him.know.take.people.into.year.your.good.some.could.them.see.other.than.then.now.look.only.come.its.over.think.also.back.after.use.two.how.our.work.first.well.way.even.new.want.because.any.these.give.day.most.us.hello.world.secret.message.encoded.natural.english.text.is.are.was.were.has.had.said.more.very.much.through.before.between.under".split("."), Qt = new Map(Zt.map((e, t) => [e, t])), $ = new TextEncoder();
-function $t(e, t) {
+var Q = 10485760, Zt = 16, Qt = /* @__PURE__ */ "the.be.to.of.and.a.in.that.have.i.it.for.not.on.with.he.as.you.do.at.this.but.his.by.from.they.we.say.her.she.or.an.will.my.one.all.would.there.their.what.so.up.out.if.about.who.get.which.go.me.when.make.can.like.time.no.just.him.know.take.people.into.year.your.good.some.could.them.see.other.than.then.now.look.only.come.its.over.think.also.back.after.use.two.how.our.work.first.well.way.even.new.want.because.any.these.give.day.most.us.hello.world.secret.message.encoded.natural.english.text.is.are.was.were.has.had.said.more.very.much.through.before.between.under".split("."), $t = new Map(Qt.map((e, t) => [e, t])), $ = new TextEncoder();
+function en(e, t) {
 	let n = new Uint8Array(t), r = 0, i = (e) => r + e.length >= t ? !1 : (n.set(e, r), r += e.length, !0), a = 0;
 	for (let t of e.matchAll(/[A-Za-z]+/g)) {
 		let n = t.index, r = t[0];
 		if (!i($.encode(e.slice(a, n)))) return;
-		let o = r.toLowerCase(), s = Qt.get(o), c = r === o, l = r === o[0].toUpperCase() + o.slice(1);
+		let o = r.toLowerCase(), s = $t.get(o), c = r === o, l = r === o[0].toUpperCase() + o.slice(1);
 		if (s !== void 0 && (c || l)) {
 			if (!i(Uint8Array.of(255, s | (l ? 128 : 0)))) return;
 		} else if (!i($.encode(r))) return;
 		a = n + r.length;
 	}
 	if (!i($.encode(e.slice(a))) || r > 65535) return;
-	let o = r + 2, s = Math.ceil(o / Xt) * Xt;
+	let o = r + 2, s = Math.ceil(o / Zt) * Zt;
 	if (s >= t) return;
 	let c = new Uint8Array(s);
 	return new DataView(c.buffer).setUint16(0, r, !1), c.set(n.subarray(0, r), 2), c;
 }
-function en(e) {
+function tn(e) {
 	if (e.length < 2) throw new t("Invalid dictionary-compressed payload.");
 	let n = new DataView(e.buffer, e.byteOffset, e.byteLength).getUint16(0, !1);
 	if (n > e.length - 2 || n > Q) throw new t("Invalid dictionary-compressed payload.");
@@ -2220,14 +2265,14 @@ function en(e) {
 			continue;
 		}
 		if (e + 1 >= r.length) throw new t("Invalid dictionary-compressed payload.");
-		let n = r[++e], i = Zt[n & 127];
+		let n = r[++e], i = Qt[n & 127];
 		if (i === void 0) throw new t("Invalid dictionary-compressed payload.");
 		let a = n & 128 ? i[0].toUpperCase() + i.slice(1) : i;
 		o($.encode(a));
 	}
 	return i.slice(0, a);
 }
-async function tn(e, n) {
+async function nn(e, n) {
 	let r = e.buffer.slice(e.byteOffset, e.byteOffset + e.byteLength), i = new Blob([r]).stream().pipeThrough(n).getReader(), a = [], o = 0;
 	for (;;) {
 		let { done: e, value: n } = await i.read();
@@ -2241,23 +2286,23 @@ async function tn(e, n) {
 	for (let e of a) s.set(e, c), c += e.length;
 	return s;
 }
-async function nn(e, n, r) {
+async function rn(e, n, r) {
 	s(n), c(e);
 	let i = o(r), a = new TextEncoder().encode(e);
 	if (a.length > Q) throw new t(`Plaintext size exceeds maximum allowed limit of ${Q} bytes.`);
 	if (typeof CompressionStream > "u") throw new t("Compression Streams API is required to encode messages.");
-	let l = await tn(a, new CompressionStream("gzip")), u = $t(e, a.length), d = 0, p = a;
+	let l = await nn(a, new CompressionStream("gzip")), u = en(e, a.length), d = 0, p = a;
 	l.length < p.length && (d = 1, p = l), u && u.length < p.length && (d = 2, p = u);
 	let g = new Uint8Array(p.length + 1);
 	g[0] = d, g.set(p, 1);
 	let _ = await f(g, n, i.crypto), v = y(_, i.framing), b = i.crypto.saltByteLength, ee = _.subarray(0, b), te = await h(n, /* @__PURE__ */ new Uint8Array(), b), ne = await h(n, ee, v.length - b), x = new Uint8Array(v.length);
-	return x.set(m(v.subarray(0, b), te), 0), x.set(m(v.subarray(b), ne), b), await Jt(x, i.encoding);
+	return x.set(m(v.subarray(0, b), te), 0), x.set(m(v.subarray(b), ne), b), await Z(x, i.encoding);
 }
-async function rn(e, n, r) {
+async function an(e, n, r) {
 	if (s(n), typeof e != "string" || e.trim().length === 0) throw new t("Carrier text must be a non-empty string.");
 	let i = o(r), a;
 	try {
-		a = await Yt(e, i.encoding);
+		a = await Xt(e, i.encoding);
 	} catch (e) {
 		throw new t(`Invalid ciphertext: ${e instanceof Error ? e.message : String(e)}`);
 	}
@@ -2276,21 +2321,21 @@ async function rn(e, n, r) {
 	let y = v.subarray(1);
 	if (v[0] === 1) {
 		if (typeof DecompressionStream > "u") throw new t("Decompression Streams API is required to decode this message.");
-		y = await tn(y, new DecompressionStream("gzip"));
-	} else v[0] === 2 && (y = en(y));
+		y = await nn(y, new DecompressionStream("gzip"));
+	} else v[0] === 2 && (y = tn(y));
 	return new TextDecoder("utf-8", { fatal: !0 }).decode(y);
 }
 // src/index.ts
-var an = {
-	encode: nn,
-	decode: rn,
+var on = {
+	encode: rn,
+	decode: an,
 	encryptBytes: f,
 	decryptBytes: g,
-	bytesToEnglishText: Jt,
-	englishTextToBytes: Yt,
+	bytesToEnglishText: Z,
+	englishTextToBytes: Xt,
 	VOCABULARY: F,
-	analyzeCarrierText: Mt
+	analyzeCarrierText: Nt
 };
-export { U as ACTION_ADVERBS, R as ACTION_OBJECTS_EXTENDED, L as ACTION_SUBJECTS_EXTENDED, z as ACTION_VERBS_EXTENDED, A as ADJECTIVES, j as ADVERBS, Tt as AFTER_EVENTS, dt as APPOSITIVE_REQUEST_VERBS, Nt as BitStreamReader, Pt as BitStreamWriter, at as CARRIER_WORDS, ct as CAUSE_ADJECTIVES, lt as CAUSE_NOUNS, ut as CAUSE_VERBS, pt as COMPLEMENT_ADJECTIVES, _t as CONDITION_NOUNS, vt as CONDITION_VERBS, $e as CONJUNCTIONS, I as CORE_TREND_NOUNS, ot as CORE_TREND_VERBS, t as CryptoError, T as D, a as DEFAULT_CONFIG, P as DETERMINERS, ht as DISCOURSE_ADVERBS, he as DOMAIN_TOPICS, gt as EFFECT_ADVERBS, Ct as EFFECT_NOUNS, xt as EFFECT_SCOPE_ADJECTIVES, St as EFFECT_TYPE_ADJECTIVES, wt as EFFECT_VERBS, r as EncodingError, E as F, n as FramingError, V as LOCATION_PROPER_NOUNS, st as METRIC_ACTION_VERBS, O as NOUNS, N as PERCENTAGES, At as POETRY_TEMPLATES, nt as POS_LISTS, rt as POS_SETS, it as POS_WORD_TO_INDEX, Qe as PREPOSITIONS, tt as PRONOUNS, M as PROPER_NOUNS, et as RELATIVES, yt as RELATIVE_ANTECEDENTS, W as RELATIVE_SUBJECTS, bt as RELATIVE_VERBS, H as REPORTING_CLAUSE_VERBS, B as REPORTING_SUBJECTS_PROPER, e as StegoError, K as TEMPLATES, ft as UNRESOLVED_COMPLEMENT_VERBS, Ze as VERBS, k as VERBS_PAST, F as VOCABULARY, i as ValidationError, Mt as analyzeCarrierText, Jt as bytesToEnglishText, qe as calculateNGramScore, v as crc32, rn as decode, g as decryptBytes, an as default, d as deriveKey, h as deriveKeystream, nn as encode, f as encryptBytes, Yt as englishTextToBytes, Ie as getCompatibleCandidates, Se as getNounCategory, jt as matchTemplate, o as mergeConfig, y as packFrame, Je as rankCandidates, Xe as rankToVal, p as timingSafeEqual, b as unpackFrame, Ye as valToRank, s as validatePassword, c as validatePlaintext, m as xorBytes };
+export { U as ACTION_ADVERBS, R as ACTION_OBJECTS_EXTENDED, L as ACTION_SUBJECTS_EXTENDED, z as ACTION_VERBS_EXTENDED, A as ADJECTIVES, j as ADVERBS, Tt as AFTER_EVENTS, dt as APPOSITIVE_REQUEST_VERBS, Pt as BitStreamReader, Ft as BitStreamWriter, at as CARRIER_WORDS, ct as CAUSE_ADJECTIVES, lt as CAUSE_NOUNS, ut as CAUSE_VERBS, pt as COMPLEMENT_ADJECTIVES, _t as CONDITION_NOUNS, vt as CONDITION_VERBS, $e as CONJUNCTIONS, I as CORE_TREND_NOUNS, ot as CORE_TREND_VERBS, t as CryptoError, T as D, a as DEFAULT_CONFIG, P as DETERMINERS, ht as DISCOURSE_ADVERBS, he as DOMAIN_TOPICS, gt as EFFECT_ADVERBS, Ct as EFFECT_NOUNS, xt as EFFECT_SCOPE_ADJECTIVES, St as EFFECT_TYPE_ADJECTIVES, wt as EFFECT_VERBS, r as EncodingError, E as F, n as FramingError, V as LOCATION_PROPER_NOUNS, st as METRIC_ACTION_VERBS, O as NOUNS, N as PERCENTAGES, jt as POETRY_TEMPLATES, nt as POS_LISTS, rt as POS_SETS, it as POS_WORD_TO_INDEX, Qe as PREPOSITIONS, tt as PRONOUNS, M as PROPER_NOUNS, et as RELATIVES, yt as RELATIVE_ANTECEDENTS, W as RELATIVE_SUBJECTS, bt as RELATIVE_VERBS, H as REPORTING_CLAUSE_VERBS, B as REPORTING_SUBJECTS_PROPER, e as StegoError, K as TEMPLATES, ft as UNRESOLVED_COMPLEMENT_VERBS, Ze as VERBS, k as VERBS_PAST, F as VOCABULARY, i as ValidationError, Nt as analyzeCarrierText, Z as bytesToEnglishText, qe as calculateNGramScore, v as crc32, an as decode, g as decryptBytes, on as default, d as deriveKey, h as deriveKeystream, rn as encode, f as encryptBytes, Xt as englishTextToBytes, Ie as getCompatibleCandidates, Se as getNounCategory, Mt as matchTemplate, o as mergeConfig, y as packFrame, Je as rankCandidates, Xe as rankToVal, p as timingSafeEqual, b as unpackFrame, Ye as valToRank, s as validatePassword, c as validatePlaintext, m as xorBytes };
 
 //# sourceMappingURL=ngram-cipher.js.map
