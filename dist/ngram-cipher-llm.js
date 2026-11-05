@@ -1978,47 +1978,92 @@ function Jt(e, t, n = !0) {
 	let o = [...a].sort((e, t) => e.length - t.length), c = r.includes(Kt) ? o.pop() : void 0;
 	return r.filter((e) => e !== Kt || c === void 0).sort((t, n) => qt(e[n]) - qt(e[t]) || t - n).forEach((e, t) => i.set(e, o[t])), c !== void 0 && i.set(Kt, c), i;
 }
-function Yt(e, t) {
-	let n = t.length >= 1 ? t[t.length - 1] : void 0, r = e.filter((e) => e.toLowerCase() !== n).map((e, t) => ({
-		word: e,
-		weight: e.toLowerCase() === "the" ? 8 : 1,
-		order: t
-	}));
-	for (; r.length > 1;) {
-		r.sort((e, t) => e.weight - t.weight || e.order - t.order);
-		let e = r.shift(), t = r.shift();
-		r.push({
+var Yt = class {
+	heap = [];
+	get size() {
+		return this.heap.length;
+	}
+	push(e) {
+		this.heap.push(e);
+		let t = this.heap.length - 1;
+		for (; t > 0;) {
+			let e = t - 1 >> 1, n = this.heap[t], r = this.heap[e];
+			if (n.weight < r.weight || n.weight === r.weight && n.order < r.order) this.heap[t] = r, this.heap[e] = n, t = e;
+			else break;
+		}
+	}
+	pop() {
+		let e = this.heap[0], t = this.heap.pop();
+		if (this.heap.length > 0 && t !== void 0) {
+			this.heap[0] = t;
+			let e = 0, n = this.heap.length;
+			for (;;) {
+				let t = (e << 1) + 1, r = t + 1, i = e;
+				if (t < n) {
+					let e = this.heap[t], n = this.heap[i];
+					(e.weight < n.weight || e.weight === n.weight && e.order < n.order) && (i = t);
+				}
+				if (r < n) {
+					let e = this.heap[r], t = this.heap[i];
+					(e.weight < t.weight || e.weight === t.weight && e.order < t.order) && (i = r);
+				}
+				if (i !== e) {
+					let t = this.heap[e];
+					this.heap[e] = this.heap[i], this.heap[i] = t, e = i;
+				} else break;
+			}
+		}
+		return e;
+	}
+};
+function Xt(e, t) {
+	let n = t.length >= 1 ? t[t.length - 1] : void 0, r = e.filter((e) => e.toLowerCase() !== n);
+	if (r.length === 0) return /* @__PURE__ */ new Map();
+	let i = new Yt();
+	for (let e = 0; e < r.length; e++) {
+		let t = r[e];
+		i.push({
+			word: t,
+			weight: t.toLowerCase() === "the" ? 8 : 1,
+			order: e
+		});
+	}
+	for (; i.size > 1;) {
+		let e = i.pop(), t = i.pop();
+		i.push({
 			weight: e.weight + t.weight,
 			order: Math.min(e.order, t.order),
 			left: e,
 			right: t
 		});
 	}
-	let i = /* @__PURE__ */ new Map(), a = (e, t) => {
-		e.word === void 0 ? (e.left && a(e.left, `${t}0`), e.right && a(e.right, `${t}1`)) : i.set(e.word, t || "0");
+	let a = /* @__PURE__ */ new Map(), o = i.pop();
+	if (!o) return a;
+	let s = (e, t) => {
+		e.word === void 0 ? (e.left && s(e.left, `${t}0`), e.right && s(e.right, `${t}1`)) : a.set(e.word, t || "0");
 	};
-	return a(r[0], ""), i;
+	return s(o, ""), a;
 }
-var Xt = [
+var Zt = [
 	".",
 	" —",
 	"...",
 	","
-], Zt = {
+], Qt = {
 	".": 0,
 	" —": 1,
 	"...": 2,
 	",": 3,
 	"?": 0
 };
-function Qt(e) {
+function $t(e) {
 	return e.charAt(0).toUpperCase() + e.slice(1);
 }
-function $t(e) {
+function en(e) {
 	let t = e.toLowerCase();
 	return /^(?:ewe|eul|euro|one|once|uni(?:corn|form|fy|on|t|vers|que)|use|usual|user|utility|utopia)/.test(t) ? !1 : /^(?:hour|honest|honor|heir)/.test(t) ? !0 : /^[aeiou]/i.test(e);
 }
-function en(e, t = l.encoding) {
+function tn(e, t = l.encoding) {
 	if (!e || e.length === 0) return "";
 	if (t.style === "llm" || t.style === "equal-length" || t.style === "equal_length") throw new s("LLM steganography style requires the full LLM build. Please import from \"ngram-cipher/llm\".");
 	let n = t.style === "poetry", r = e.length, i = /* @__PURE__ */ new Uint8Array(2);
@@ -2040,7 +2085,7 @@ function en(e, t = l.encoding) {
 			}
 			let a;
 			if (!n && h.length === 0) {
-				let e = Yt(i, d), t = new Map(Array.from(e, ([e, t]) => [t, e])), n = "", r;
+				let e = Xt(i, d), t = new Map(Array.from(e, ([e, t]) => [t, e])), n = "", r;
 				for (let e = 0; e < 16 && (n += o.readBits(1).toString(), r = t.get(n), !r); e++);
 				if (!r) throw new s("Unable to decode sentence opening word.");
 				a = r;
@@ -2059,14 +2104,14 @@ function en(e, t = l.encoding) {
 			h.push(a), g.push(a.toLowerCase());
 		}
 		if (h.length === 0) break;
-		for (let e = 0; e < h.length; e++) h[e].toLowerCase() === "a" && e + 1 < h.length && $t(h[e + 1]) && (h[e] = h[e] === "A" ? "An" : "an");
+		for (let e = 0; e < h.length; e++) h[e].toLowerCase() === "a" && e + 1 < h.length && en(h[e + 1]) && (h[e] = h[e] === "A" ? "An" : "an");
 		for (let e = 0; e < h.length; e++) {
 			let t = l[e]?.label, n = h[e];
-			(e === 0 || t === "NP") && (h[e] = Qt(n));
+			(e === 0 || t === "NP") && (h[e] = $t(n));
 		}
 		let _ = ".";
 		if (t.sentenceEndingVariance) {
-			if (n) _ = Xt[(o.hasBits ? o.readBits(2) : 0) % Xt.length];
+			if (n) _ = Zt[(o.hasBits ? o.readBits(2) : 0) % Zt.length];
 			else {
 				let e = "", t;
 				for (let n = 0; n < 4 && (e += (o.hasBits ? o.readBits(1) : 0).toString(), t = Ht[e], !t); n++);
@@ -2095,7 +2140,7 @@ function en(e, t = l.encoding) {
 	}
 	return h.join("\n\n");
 }
-function tn(e, t = l.encoding) {
+function nn(e, t = l.encoding) {
 	if (!e || typeof e != "string" || e.trim().length === 0) return /* @__PURE__ */ new Uint8Array();
 	if (t.style === "llm" || t.style === "equal-length" || t.style === "equal_length") throw new s("LLM steganography style requires the full LLM build. Please import from \"ngram-cipher/llm\".");
 	let n = t.style === "poetry", r = e.replace(/[\r\n]+/g, "\n").trim(), i = [];
@@ -2138,7 +2183,7 @@ function tn(e, t = l.encoding) {
 			if (g >= f.length) break;
 			let r = f[g], i = r.replace(/^[ "'“‘]+/g, "").replace(/[ "'”’.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 			t.type === "data" && i === "an" && t.label === "d" && (i = "a");
-			let o = e === 0 || n ? void 0 : d, l = t.list && t.list.length > 0 ? t.list : lt, u = Xe(t.type === "data" && !n ? Re(l, _, t.label, o) : l, _, o), p = !n && g === 0 && t.type === "data" ? Yt(u, c) : void 0, m = u.findIndex((e) => e.toLowerCase() === i);
+			let o = e === 0 || n ? void 0 : d, l = t.list && t.list.length > 0 ? t.list : lt, u = Xe(t.type === "data" && !n ? Re(l, _, t.label, o) : l, _, o), p = !n && g === 0 && t.type === "data" ? Xt(u, c) : void 0, m = u.findIndex((e) => e.toLowerCase() === i);
 			if (m === -1) throw new s(`Invalid or unrecognized token in cipher text: "${r}" (not in carrier vocabulary, sentence ${e + 1})`);
 			if (t.type === "data") {
 				if (p) {
@@ -2165,7 +2210,7 @@ function tn(e, t = l.encoding) {
 		}
 		if (t.sentenceEndingVariance) {
 			if (n) {
-				let e = Zt[l] ?? 0;
+				let e = Qt[l] ?? 0;
 				a.writeBits(e, 2);
 			} else {
 				let e = Vt[l] ?? "0";
@@ -2187,14 +2232,14 @@ function tn(e, t = l.encoding) {
 	return p === -1 ? /* @__PURE__ */ new Uint8Array() : f.subarray(0, p);
 }
 r.allowLocalModels = !1, r.allowRemoteModels = !0;
-var nn = /* @__PURE__ */ new Map();
-function rn(e, t) {
+var rn = /* @__PURE__ */ new Map();
+function an(e, t) {
 	return t ?? (typeof process < "u" && process.versions != null && process.versions.node != null) ? "cpu" : "wasm";
 }
-function an(e) {
+function on(e) {
 	return Math.max(1, e || 20);
 }
-function on(e) {
+function sn(e) {
 	let t = [];
 	if (!e || typeof e != "string" || e.trim().length === 0) return ["onnx-community/Supra-Mini-v2-0.1M-ONNX"];
 	let n = e.trim();
@@ -2207,7 +2252,7 @@ function on(e) {
 	}
 	return Array.from(new Set(t));
 }
-function sn(e) {
+function cn(e) {
 	let t = [];
 	if (!e || typeof e != "string" || e.trim().length === 0) return ["Xenova/gpt2"];
 	let n = e.trim();
@@ -2228,7 +2273,7 @@ function sn(e) {
 	}
 	return t.push("Xenova/gpt2"), Array.from(new Set(t));
 }
-function cn(e) {
+function ln(e) {
 	if (!e || typeof e != "string" || e.trim().length === 0) return {
 		modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
 		quantized: !0
@@ -2254,15 +2299,15 @@ function cn(e) {
 		quantized: !0
 	};
 }
-function ln(e) {
-	return cn(e).modelId;
+function un(e) {
+	return ln(e).modelId;
 }
 async function X(n) {
 	if (n.llmCustomModel && n.llmCustomTokenizer) return {
 		model: n.llmCustomModel,
 		tokenizer: n.llmCustomTokenizer
 	};
-	let i = cn(n.llmModel), a = n.llmDtype || i.dtype || "fp16", o = [
+	let i = ln(n.llmModel), a = n.llmDtype || i.dtype || "fp16", o = [
 		i.modelId,
 		i.revision ?? "main",
 		i.subfolder ?? "root",
@@ -2271,10 +2316,10 @@ async function X(n) {
 		n.llmDevice ?? "cpu",
 		n.llmCacheDir ?? "default"
 	].join("::");
-	if (nn.has(o)) return nn.get(o);
+	if (rn.has(o)) return rn.get(o);
 	n.llmCacheDir && (r.cacheDir = n.llmCacheDir);
 	try {
-		let r = sn(i.modelId), s, c;
+		let r = cn(i.modelId), s, c;
 		for (let e of r) try {
 			if (s = await t.from_pretrained(e, { revision: i.revision ?? "main" }), s) break;
 		} catch (n) {
@@ -2291,8 +2336,8 @@ async function X(n) {
 		}
 		let l, u, d = {};
 		i.subfolder && (d.subfolder = i.subfolder), i.model_file_name && (d.file_name = i.model_file_name);
-		let f = rn(n.llmDevice), p = {
-			intraOpNumThreads: an(typeof navigator < "u" ? navigator.hardwareConcurrency : void 0),
+		let f = an(n.llmDevice), p = {
+			intraOpNumThreads: on(typeof navigator < "u" ? navigator.hardwareConcurrency : void 0),
 			graphOptimizationLevel: "all",
 			...n.llmSessionOptions ?? {}
 		}, m = [];
@@ -2311,7 +2356,7 @@ async function X(n) {
 			dtype: a,
 			session_options: p
 		}), m.push({ session_options: p }), m.push({});
-		let h = on(i.modelId);
+		let h = sn(i.modelId);
 		for (let t of h) {
 			for (let n of m) try {
 				if (l = await e.from_pretrained(t, n), l) break;
@@ -2328,14 +2373,14 @@ async function X(n) {
 			model: l,
 			tokenizer: s
 		};
-		return nn.set(o, g), g;
+		return rn.set(o, g), g;
 	} catch (e) {
 		let t = e instanceof Error ? e.message : String(e);
 		throw new s(`Failed to load ONNX model '${i.modelId}'. Error: ${t}`);
 	}
 }
-function un() {
-	nn.clear();
+function dn() {
+	rn.clear();
 }
 function Z(e) {
 	let t = e.length;
@@ -2344,14 +2389,14 @@ function Z(e) {
 		attention_mask: new n("int64", new BigInt64Array(t).fill(1n), [1, t])
 	};
 }
-var dn = /* @__PURE__ */ new WeakMap();
-function fn(e, t) {
-	let n = typeof t == "object" && t ? dn.get(t) : void 0;
-	if (!n && typeof t == "object" && t && (n = /* @__PURE__ */ new Map(), dn.set(t, n)), n && n.has(e)) return n.get(e);
+var fn = /* @__PURE__ */ new WeakMap();
+function pn(e, t) {
+	let n = typeof t == "object" && t ? fn.get(t) : void 0;
+	if (!n && typeof t == "object" && t && (n = /* @__PURE__ */ new Map(), fn.set(t, n)), n && n.has(e)) return n.get(e);
 	let r = t.decode([e], { skip_special_tokens: !1 }), i = !/[\r\n]/.test(r);
 	return n && n.set(e, i), i;
 }
-function pn(e, t, n) {
+function mn(e, t, n) {
 	function r(n, i, a) {
 		if (n >= i) return;
 		let o = n + i >> 1, s = e[o], c = t[s];
@@ -2365,14 +2410,14 @@ function pn(e, t, n) {
 	}
 	r(0, e.length - 1, n);
 }
-function mn(e, t, n) {
+function hn(e, t, n) {
 	if (t < 0) return !1;
 	let r = [...e, t], i = n(n.decode(r, { skip_special_tokens: !1 }), { add_special_tokens: !1 }), a = i?.input_ids?.data ?? i?.input_ids ?? i, o = Array.from(a ?? []).map(Number);
 	if (o.length !== r.length) return !1;
 	for (let e = 0; e < r.length; e++) if (o[e] !== r[e]) return !1;
 	return !0;
 }
-function hn(e, t, n, r, i) {
+function gn(e, t, n, r, i) {
 	let a = i?.temperature && i.temperature > 0 ? i.temperature : 1, o = e.length, c = new Set(r.all_special_ids ?? []), l = i?.precision ?? 100, u = new Float32Array(o);
 	for (let t = 0; t < o; t++) {
 		let n = Number(e[t]), r = a === 1 ? n : n / a;
@@ -2380,7 +2425,7 @@ function hn(e, t, n, r, i) {
 	}
 	let d = i?.topP && i.topP > 0 && i.topP < 1, f = [];
 	if (d) {
-		for (let e = 0; e < o; e++) c.has(e) || fn(e, r) && f.push({
+		for (let e = 0; e < o; e++) c.has(e) || pn(e, r) && f.push({
 			id: e,
 			score: u[e]
 		});
@@ -2388,12 +2433,12 @@ function hn(e, t, n, r, i) {
 	} else {
 		let e = i?.topK && i.topK > 0 ? Math.max(i.topK, t * 20, 500) : Math.max(t * 20, 500), n = Math.min(o, e), a = new Int32Array(o);
 		for (let e = 0; e < o; e++) a[e] = e;
-		pn(a, u, n);
+		mn(a, u, n);
 		let s = a.subarray(0, n);
 		s.sort((e, t) => u[t] === u[e] ? e - t : u[t] - u[e]);
 		for (let e = 0; e < s.length; e++) {
 			let t = s[e];
-			c.has(t) || fn(t, r) && f.push({
+			c.has(t) || pn(t, r) && f.push({
 				id: t,
 				score: u[t]
 			});
@@ -2416,23 +2461,23 @@ function hn(e, t, n, r, i) {
 		}
 	}
 	let m = [], h = /* @__PURE__ */ new Set();
-	for (let e of p) if (h.add(e.id), mn(n, e.id, r) && (m.push(e.id), m.length === t)) break;
+	for (let e of p) if (h.add(e.id), hn(n, e.id, r) && (m.push(e.id), m.length === t)) break;
 	if (m.length < t) {
-		for (let e of f) if (!h.has(e.id) && (h.add(e.id), mn(n, e.id, r) && (m.push(e.id), m.length === t))) break;
+		for (let e of f) if (!h.has(e.id) && (h.add(e.id), hn(n, e.id, r) && (m.push(e.id), m.length === t))) break;
 	}
 	if (m.length < t && !d) {
 		let e = [];
-		for (let t = 0; t < o; t++) c.has(t) || h.has(t) || fn(t, r) && e.push({
+		for (let t = 0; t < o; t++) c.has(t) || h.has(t) || pn(t, r) && e.push({
 			id: t,
 			score: u[t]
 		});
 		e.sort((e, t) => t.score === e.score ? e.id - t.id : t.score - e.score);
-		for (let i of e) if (!h.has(i.id) && (h.add(i.id), mn(n, i.id, r) && (m.push(i.id), m.length === t))) break;
+		for (let i of e) if (!h.has(i.id) && (h.add(i.id), hn(n, i.id, r) && (m.push(i.id), m.length === t))) break;
 	}
 	if (m.length < t) throw new s(`StepVerify failed: Insufficient reversible tokens (found ${m.length}/${t}) across entire vocabulary pool. Aborting to prevent data corruption.`);
 	return m;
 }
-async function gn(e, t) {
+async function _n(e, t) {
 	let { model: r, tokenizer: i } = await X(t), a = Math.max(1, Math.min(16, t.bitsPerToken ?? 4)), o = 1 << a, s = e.length * 8, c = /* @__PURE__ */ new Uint8Array(4);
 	new DataView(c.buffer).setUint32(0, s, !1);
 	let l = new Uint8Array(4 + e.length);
@@ -2459,7 +2504,7 @@ async function gn(e, t) {
 				let [, t, n] = e.dims, i = (t - 1) * n;
 				s = e.data.subarray(i, i + n);
 			}
-			let c = hn(s, o, h, i, {
+			let c = gn(s, o, h, i, {
 				temperature: t.llmTemperature,
 				topP: t.llmTopP,
 				topK: t.llmTopK,
@@ -2482,7 +2527,7 @@ async function gn(e, t) {
 	let y = h.slice(m.length);
 	return i.decode(y, { skip_special_tokens: !1 });
 }
-async function _n(e, t) {
+async function vn(e, t) {
 	let { model: r, tokenizer: i } = await X(t), a = Math.max(1, Math.min(16, t.bitsPerToken ?? 4)), o = 1 << a, c = t.llmPrompt ?? "In recent news,";
 	!c.endsWith(" ") && !c.endsWith("\n") && (c += " ");
 	let l = i(c, { add_special_tokens: !1 }), u = l?.input_ids?.data ?? l?.input_ids ?? l, d = Array.from(u).map(Number), f = i(e, { add_special_tokens: !1 }), p = f?.input_ids?.data ?? f?.input_ids ?? f, m = Array.from(p).map(Number);
@@ -2509,7 +2554,7 @@ async function _n(e, t) {
 				let [, e, t] = l.dims, n = (e - 1) * t;
 				u = l.data.subarray(n, n + t);
 			}
-			let d = hn(u, o, g, i, {
+			let d = gn(u, o, g, i, {
 				temperature: t.llmTemperature,
 				topP: t.llmTopP,
 				topK: t.llmTopK,
@@ -2548,7 +2593,7 @@ async function _n(e, t) {
 	let C = Math.ceil(_ / 8);
 	return S.subarray(4, 4 + C);
 }
-function vn(e) {
+function yn(e) {
 	let t = e.length, n = new Int32Array(t);
 	for (let e = 0; e < t; e++) n[e] = e;
 	return n.sort((t, n) => {
@@ -2556,7 +2601,7 @@ function vn(e) {
 		return r === 0 ? t - n : r > 0 ? 1 : -1;
 	}), n;
 }
-async function yn(e, t, r, i) {
+async function bn(e, t, r, i) {
 	let a = i(t, { add_special_tokens: !1 }), o = a?.input_ids?.data ?? a?.input_ids ?? a, c = Array.from(o ?? []).map(Number), l = i(e, { add_special_tokens: !1 }), u = l?.input_ids?.data ?? l?.input_ids ?? l, d = Array.from(u ?? []).map(Number);
 	for (let t of d) if (t < 0 || Number.isNaN(t)) throw new s(`Tokenization failed: unknown or unencodable token in text "${e}".`);
 	if (d.length === 0) return [];
@@ -2601,7 +2646,7 @@ async function yn(e, t, r, i) {
 	}
 	return p;
 }
-async function bn(e, t, r, i) {
+async function Q(e, t, r, i) {
 	if (t.length === 0) return "";
 	let a = i(e, { add_special_tokens: !1 }), o = a?.input_ids?.data ?? a?.input_ids ?? a, c = Array.from(o ?? []).map(Number), l = c.slice(), u = [], d = typeof r.forward == "function" && typeof r._update_model_kwargs_for_generation == "function", f = null, p = null;
 	try {
@@ -2623,7 +2668,7 @@ async function bn(e, t, r, i) {
 				let [, e, t] = a.dims, n = (e - 1) * t;
 				o = a.data.subarray(n, n + t);
 			}
-			let c = vn(o);
+			let c = yn(o);
 			if (i >= c.length || i < 0) throw new s(`Desired rank ${i} is out of vocabulary bounds (0..${c.length - 1}).`);
 			let m = c[i];
 			if (u.push(m), l.push(m), d && e + 1 < t.length) try {
@@ -2643,12 +2688,12 @@ async function bn(e, t, r, i) {
 	return i.decode(u, { skip_special_tokens: !1 });
 }
 async function xn(e, t) {
-	let { model: n, tokenizer: r } = await X(t), i = t.equalLengthKeyPrompt ?? t.llmPrompt ?? "Here is an interesting observation:", a = await yn(e, t.equalLengthPlaintextPrompt ?? "A text:", n, r);
-	return t.equalLengthReverseRanks && a.reverse(), await bn(i, a, n, r);
+	let { model: n, tokenizer: r } = await X(t), i = t.equalLengthKeyPrompt ?? t.llmPrompt ?? "Here is an interesting observation:", a = await bn(e, t.equalLengthPlaintextPrompt ?? "A text:", n, r);
+	return t.equalLengthReverseRanks && a.reverse(), await Q(i, a, n, r);
 }
 async function Sn(e, t) {
-	let { model: n, tokenizer: r } = await X(t), i = t.equalLengthKeyPrompt ?? t.llmPrompt ?? "Here is an interesting observation:", a = t.equalLengthPlaintextPrompt ?? "A text:", o = await yn(e, i, n, r);
-	return t.equalLengthReverseRanks && o.reverse(), await bn(a, o, n, r);
+	let { model: n, tokenizer: r } = await X(t), i = t.equalLengthKeyPrompt ?? t.llmPrompt ?? "Here is an interesting observation:", a = t.equalLengthPlaintextPrompt ?? "A text:", o = await bn(e, i, n, r);
+	return t.equalLengthReverseRanks && o.reverse(), await Q(a, o, n, r);
 }
 async function Cn(e, t) {
 	let { tokenizer: n } = await X(t), r = n("b00")?.input_ids?.data !== void 0 && n("b00")?.input_ids?.data?.length > 0 && n("b00")?.input_ids?.data[0] !== void 0 && n.decode([n("b00").input_ids.data[0]]).trim() === "b00", i;
@@ -2672,36 +2717,36 @@ async function wn(e, t) {
 }
 // src/encoding/index.llm.ts
 function Tn(e, t = l.encoding) {
-	return t.style === "llm" ? gn(e, t) : t.style === "equal-length" || t.style === "equal_length" ? Cn(e, t) : en(e, t);
+	return t.style === "llm" ? _n(e, t) : t.style === "equal-length" || t.style === "equal_length" ? Cn(e, t) : tn(e, t);
 }
 function En(e, t = l.encoding) {
-	return t.style === "llm" ? _n(e, t) : t.style === "equal-length" || t.style === "equal_length" ? wn(e, t) : tn(e, t);
+	return t.style === "llm" ? vn(e, t) : t.style === "equal-length" || t.style === "equal_length" ? wn(e, t) : nn(e, t);
 }
 // src/ngram.llm.ts
-var Q = 10485760, Dn = 16, On = /* @__PURE__ */ "the.be.to.of.and.a.in.that.have.i.it.for.not.on.with.he.as.you.do.at.this.but.his.by.from.they.we.say.her.she.or.an.will.my.one.all.would.there.their.what.so.up.out.if.about.who.get.which.go.me.when.make.can.like.time.no.just.him.know.take.people.into.year.your.good.some.could.them.see.other.than.then.now.look.only.come.its.over.think.also.back.after.use.two.how.our.work.first.well.way.even.new.want.because.any.these.give.day.most.us.hello.world.secret.message.encoded.natural.english.text.is.are.was.were.has.had.said.more.very.much.through.before.between.under".split("."), kn = new Map(On.map((e, t) => [e, t])), $ = new TextEncoder();
-function An(e, t) {
+var $ = 10485760, Dn = 16, On = /* @__PURE__ */ "the.be.to.of.and.a.in.that.have.i.it.for.not.on.with.he.as.you.do.at.this.but.his.by.from.they.we.say.her.she.or.an.will.my.one.all.would.there.their.what.so.up.out.if.about.who.get.which.go.me.when.make.can.like.time.no.just.him.know.take.people.into.year.your.good.some.could.them.see.other.than.then.now.look.only.come.its.over.think.also.back.after.use.two.how.our.work.first.well.way.even.new.want.because.any.these.give.day.most.us.hello.world.secret.message.encoded.natural.english.text.is.are.was.were.has.had.said.more.very.much.through.before.between.under".split("."), kn = new Map(On.map((e, t) => [e, t])), An = new TextEncoder();
+function jn(e, t) {
 	let n = new Uint8Array(t), r = 0, i = (e) => r + e.length >= t ? !1 : (n.set(e, r), r += e.length, !0), a = 0;
 	for (let t of e.matchAll(/[A-Za-z]+/g)) {
 		let n = t.index, r = t[0];
-		if (!i($.encode(e.slice(a, n)))) return;
+		if (!i(An.encode(e.slice(a, n)))) return;
 		let o = r.toLowerCase(), s = kn.get(o), c = r === o, l = r === o[0].toUpperCase() + o.slice(1);
 		if (s !== void 0 && (c || l)) {
 			if (!i(Uint8Array.of(255, s | (l ? 128 : 0)))) return;
-		} else if (!i($.encode(r))) return;
+		} else if (!i(An.encode(r))) return;
 		a = n + r.length;
 	}
-	if (!i($.encode(e.slice(a))) || r > 65535) return;
+	if (!i(An.encode(e.slice(a))) || r > 65535) return;
 	let o = r + 2, s = Math.ceil(o / Dn) * Dn;
 	if (s >= t) return;
 	let c = new Uint8Array(s);
 	return new DataView(c.buffer).setUint16(0, r, !1), c.set(n.subarray(0, r), 2), c;
 }
-function jn(e) {
+function Mn(e) {
 	if (e.length < 2) throw new a("Invalid dictionary-compressed payload.");
 	let t = new DataView(e.buffer, e.byteOffset, e.byteLength).getUint16(0, !1);
-	if (t > e.length - 2 || t > Q) throw new a("Invalid dictionary-compressed payload.");
-	let n = e.subarray(2, 2 + t), r = new Uint8Array(Q), i = 0, o = (e) => {
-		if (i + e.length > Q) throw new a(`Decompression limit exceeded (maximum allowed output size is ${Q} bytes).`);
+	if (t > e.length - 2 || t > $) throw new a("Invalid dictionary-compressed payload.");
+	let n = e.subarray(2, 2 + t), r = new Uint8Array($), i = 0, o = (e) => {
+		if (i + e.length > $) throw new a(`Decompression limit exceeded (maximum allowed output size is ${$} bytes).`);
 		r.set(e, i), i += e.length;
 	};
 	for (let e = 0; e < n.length; e++) {
@@ -2715,17 +2760,17 @@ function jn(e) {
 		let t = n[++e], r = On[t & 127];
 		if (r === void 0) throw new a("Invalid dictionary-compressed payload.");
 		let i = t & 128 ? r[0].toUpperCase() + r.slice(1) : r;
-		o($.encode(i));
+		o(An.encode(i));
 	}
 	return r.slice(0, i);
 }
-async function Mn(e, t) {
+async function Nn(e, t) {
 	let n = e.buffer.slice(e.byteOffset, e.byteOffset + e.byteLength), r = new Blob([n]).stream().pipeThrough(t).getReader(), i = [], o = 0;
 	for (;;) {
 		let { done: e, value: t } = await r.read();
 		if (e) break;
 		if (t) {
-			if (o += t.length, o > Q) throw r.cancel(), new a(`Decompression limit exceeded (maximum allowed output size is ${Q} bytes).`);
+			if (o += t.length, o > $) throw r.cancel(), new a(`Decompression limit exceeded (maximum allowed output size is ${$} bytes).`);
 			i.push(t);
 		}
 	}
@@ -2733,19 +2778,19 @@ async function Mn(e, t) {
 	for (let e of i) s.set(e, c), c += e.length;
 	return s;
 }
-async function Nn(e, t, n) {
+async function Pn(e, t, n) {
 	d(t), f(e);
 	let r = u(n), i = new TextEncoder().encode(e);
-	if (i.length > Q) throw new a(`Plaintext size exceeds maximum allowed limit of ${Q} bytes.`);
+	if (i.length > $) throw new a(`Plaintext size exceeds maximum allowed limit of ${$} bytes.`);
 	if (typeof CompressionStream > "u") throw new a("Compression Streams API is required to encode messages.");
-	let o = await Mn(i, new CompressionStream("gzip")), s = An(e, i.length), c = 0, l = i;
+	let o = await Nn(i, new CompressionStream("gzip")), s = jn(e, i.length), c = 0, l = i;
 	o.length < l.length && (c = 1, l = o), s && s.length < l.length && (c = 2, l = s);
 	let p = new Uint8Array(l.length + 1);
 	p[0] = c, p.set(l, 1);
 	let m = await g(p, t, r.crypto), h = ee(m, r.framing), _ = r.crypto.saltByteLength, b = m.subarray(0, _), x = await y(t, /* @__PURE__ */ new Uint8Array(), _), S = await y(t, b, h.length - _), C = new Uint8Array(h.length);
 	return C.set(v(h.subarray(0, _), x), 0), C.set(v(h.subarray(_), S), _), await Tn(C, r.encoding);
 }
-async function Pn(e, t, n) {
+async function Fn(e, t, n) {
 	if (d(t), typeof e != "string" || e.trim().length === 0) throw new a("Carrier text must be a non-empty string.");
 	let r = u(n), i;
 	try {
@@ -2768,32 +2813,32 @@ async function Pn(e, t, n) {
 	let g = h.subarray(1);
 	if (h[0] === 1) {
 		if (typeof DecompressionStream > "u") throw new a("Decompression Streams API is required to decode this message.");
-		g = await Mn(g, new DecompressionStream("gzip"));
-	} else h[0] === 2 && (g = jn(g));
+		g = await Nn(g, new DecompressionStream("gzip"));
+	} else h[0] === 2 && (g = Mn(g));
 	return new TextDecoder("utf-8", { fatal: !0 }).decode(g);
 }
 // src/index.llm.ts
-var Fn = {
-	encode: Nn,
-	decode: Pn,
+var In = {
+	encode: Pn,
+	decode: Fn,
 	encryptBytes: g,
 	decryptBytes: b,
 	bytesToEnglishText: Tn,
 	englishTextToBytes: En,
-	bytesToLlmText: gn,
-	llmTextToBytes: _n,
+	bytesToLlmText: _n,
+	llmTextToBytes: vn,
 	bytesToLlmEqualLengthText: Cn,
 	llmEqualLengthTextToBytes: wn,
 	equalLengthEncode: xn,
 	equalLengthDecode: Sn,
-	getTokenRanks: yn,
-	generateFromRanks: bn,
+	getTokenRanks: bn,
+	generateFromRanks: Q,
 	loadLlmModel: X,
-	clearLlmModelCache: un,
-	normalizeModelName: ln,
+	clearLlmModelCache: dn,
+	normalizeModelName: un,
 	VOCABULARY: ct,
 	analyzeCarrierText: Rt
 };
-export { U as ACTION_ADVERBS, R as ACTION_OBJECTS_EXTENDED, L as ACTION_SUBJECTS_EXTENDED, z as ACTION_VERBS_EXTENDED, M as ADJECTIVES, N as ADVERBS, At as AFTER_EVENTS, ht as APPOSITIVE_REQUEST_VERBS, zt as BitStreamReader, Bt as BitStreamWriter, lt as CARRIER_WORDS, ft as CAUSE_ADJECTIVES, pt as CAUSE_NOUNS, mt as CAUSE_VERBS, _t as COMPLEMENT_ADJECTIVES, xt as CONDITION_NOUNS, St as CONDITION_VERBS, nt as CONJUNCTIONS, I as CORE_TREND_NOUNS, ut as CORE_TREND_VERBS, a as CryptoError, D, l as DEFAULT_CONFIG, F as DETERMINERS, yt as DISCOURSE_ADVERBS, _e as DOMAIN_TOPICS, bt as EFFECT_ADVERBS, Ot as EFFECT_NOUNS, Et as EFFECT_SCOPE_ADJECTIVES, Dt as EFFECT_TYPE_ADJECTIVES, kt as EFFECT_VERBS, s as EncodingError, O as F, o as FramingError, V as LOCATION_PROPER_NOUNS, dt as METRIC_ACTION_VERBS, A as NOUNS, P as PERCENTAGES, It as POETRY_TEMPLATES, at as POS_LISTS, ot as POS_SETS, st as POS_WORD_TO_INDEX, tt as PREPOSITIONS, it as PRONOUNS, et as PROPER_NOUNS, rt as RELATIVES, Ct as RELATIVE_ANTECEDENTS, wt as RELATIVE_SUBJECTS, Tt as RELATIVE_VERBS, H as REPORTING_CLAUSE_VERBS, B as REPORTING_SUBJECTS_PROPER, i as StegoError, G as TEMPLATES, gt as UNRESOLVED_COMPLEMENT_VERBS, $e as VERBS, j as VERBS_PAST, ct as VOCABULARY, c as ValidationError, Rt as analyzeCarrierText, Tn as bytesToEnglishText, Cn as bytesToLlmEqualLengthText, gn as bytesToLlmText, Ye as calculateNGramScore, un as clearLlmModelCache, S as crc32, Pn as decode, b as decryptBytes, Fn as default, h as deriveKey, y as deriveKeystream, Nn as encode, g as encryptBytes, En as englishTextToBytes, Sn as equalLengthDecode, xn as equalLengthEncode, bn as generateFromRanks, Re as getCompatibleCandidates, we as getNounCategory, yn as getTokenRanks, wn as llmEqualLengthTextToBytes, _n as llmTextToBytes, X as loadLlmModel, Lt as matchTemplate, u as mergeConfig, ln as normalizeModelName, ee as packFrame, Xe as rankCandidates, Qe as rankToVal, _ as timingSafeEqual, C as unpackFrame, Ze as valToRank, d as validatePassword, f as validatePlaintext, v as xorBytes };
+export { U as ACTION_ADVERBS, R as ACTION_OBJECTS_EXTENDED, L as ACTION_SUBJECTS_EXTENDED, z as ACTION_VERBS_EXTENDED, M as ADJECTIVES, N as ADVERBS, At as AFTER_EVENTS, ht as APPOSITIVE_REQUEST_VERBS, zt as BitStreamReader, Bt as BitStreamWriter, lt as CARRIER_WORDS, ft as CAUSE_ADJECTIVES, pt as CAUSE_NOUNS, mt as CAUSE_VERBS, _t as COMPLEMENT_ADJECTIVES, xt as CONDITION_NOUNS, St as CONDITION_VERBS, nt as CONJUNCTIONS, I as CORE_TREND_NOUNS, ut as CORE_TREND_VERBS, a as CryptoError, D, l as DEFAULT_CONFIG, F as DETERMINERS, yt as DISCOURSE_ADVERBS, _e as DOMAIN_TOPICS, bt as EFFECT_ADVERBS, Ot as EFFECT_NOUNS, Et as EFFECT_SCOPE_ADJECTIVES, Dt as EFFECT_TYPE_ADJECTIVES, kt as EFFECT_VERBS, s as EncodingError, O as F, o as FramingError, V as LOCATION_PROPER_NOUNS, dt as METRIC_ACTION_VERBS, A as NOUNS, P as PERCENTAGES, It as POETRY_TEMPLATES, at as POS_LISTS, ot as POS_SETS, st as POS_WORD_TO_INDEX, tt as PREPOSITIONS, it as PRONOUNS, et as PROPER_NOUNS, rt as RELATIVES, Ct as RELATIVE_ANTECEDENTS, wt as RELATIVE_SUBJECTS, Tt as RELATIVE_VERBS, H as REPORTING_CLAUSE_VERBS, B as REPORTING_SUBJECTS_PROPER, i as StegoError, G as TEMPLATES, gt as UNRESOLVED_COMPLEMENT_VERBS, $e as VERBS, j as VERBS_PAST, ct as VOCABULARY, c as ValidationError, Rt as analyzeCarrierText, Tn as bytesToEnglishText, Cn as bytesToLlmEqualLengthText, _n as bytesToLlmText, Ye as calculateNGramScore, dn as clearLlmModelCache, S as crc32, Fn as decode, b as decryptBytes, In as default, h as deriveKey, y as deriveKeystream, Pn as encode, g as encryptBytes, En as englishTextToBytes, Sn as equalLengthDecode, xn as equalLengthEncode, Q as generateFromRanks, Re as getCompatibleCandidates, we as getNounCategory, bn as getTokenRanks, wn as llmEqualLengthTextToBytes, vn as llmTextToBytes, X as loadLlmModel, Lt as matchTemplate, u as mergeConfig, un as normalizeModelName, ee as packFrame, Xe as rankCandidates, Qe as rankToVal, _ as timingSafeEqual, C as unpackFrame, Ze as valToRank, d as validatePassword, f as validatePlaintext, v as xorBytes };
 
 //# sourceMappingURL=ngram-cipher-llm.js.map
