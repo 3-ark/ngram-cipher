@@ -3,7 +3,7 @@
  */
 import { FramingConfig } from "../config/index.js";
 /**
- * Calculates CRC-32 checksum for a Uint8Array buffer.
+ * Calculates CRC-32 checksum for a Uint8Array buffer using a fast table lookup.
  */
 export declare function crc32(data: Uint8Array): number;
 /**
