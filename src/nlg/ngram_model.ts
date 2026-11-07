@@ -197,6 +197,27 @@ const METRIC_ONLY_VERBS = new Set([
   "moderated","peaked","bottomed","plateaued"
 ]);
 
+// Precomputed Static Combined Sets for Zero-Allocation Semantic Affinity and Candidate Filtering
+const METRIC_ALLOWED_VERBS = new Set([...METRIC_TREND_VERBS, ...METRIC_ACTION_VERBS]);
+const EVENT_ALLOWED_VERBS = new Set([...EVENT_OCCURRENCE_VERBS, ...METRIC_TREND_VERBS]);
+const DOCUMENT_ALLOWED_VERBS = new Set([
+  ...INFORMATIONAL_VERBS,
+  ...SPEECH_VERBS,
+  ...POLICY_DOCUMENT_VERBS
+]);
+const SYSTEM_OBJECT_ALLOWED_VERBS = new Set([
+  ...SYSTEM_OPERATIONAL_VERBS,
+  ...METRIC_TREND_VERBS,
+  ...EVENT_OCCURRENCE_VERBS
+]);
+
+const INFORMATIONAL_OR_SPEECH_VERBS = new Set([...INFORMATIONAL_VERBS, ...SPEECH_VERBS]);
+const AGENT_AFFINITY_VERBS = new Set([
+  ...SPEECH_VERBS,
+  ...INFORMATIONAL_VERBS,
+  ...SYSTEM_OPERATIONAL_VERBS
+]);
+
 const SINGULAR_DETERMINERS = new Set([
   "a","an","another","each","every","its","one","this"
 ]);
@@ -278,21 +299,13 @@ export function getCompatibleCandidates(
       const category = getNounCategory(subject);
       let allowedVerbs: Set<string> | undefined;
       if (category === "METRIC") {
-        allowedVerbs = new Set([...METRIC_TREND_VERBS, ...METRIC_ACTION_VERBS]);
+        allowedVerbs = METRIC_ALLOWED_VERBS;
       } else if (category === "EVENT") {
-        allowedVerbs = new Set([...EVENT_OCCURRENCE_VERBS, ...METRIC_TREND_VERBS]);
+        allowedVerbs = EVENT_ALLOWED_VERBS;
       } else if (category === "DOCUMENT") {
-        allowedVerbs = new Set([
-          ...INFORMATIONAL_VERBS,
-          ...SPEECH_VERBS,
-          ...POLICY_DOCUMENT_VERBS
-        ]);
+        allowedVerbs = DOCUMENT_ALLOWED_VERBS;
       } else if (category === "SYSTEM_OBJECT") {
-        allowedVerbs = new Set([
-          ...SYSTEM_OPERATIONAL_VERBS,
-          ...METRIC_TREND_VERBS,
-          ...EVENT_OCCURRENCE_VERBS
-        ]);
+        allowedVerbs = SYSTEM_OBJECT_ALLOWED_VERBS;
       } else if (category === "AGENT") {
         compatible = candidates.filter(word => !METRIC_ONLY_VERBS.has(word.toLowerCase()));
       }
@@ -602,15 +615,15 @@ interface NGramContextState {
   map4?: Record<string, number>;
   map3?: Record<string, number>;
   map2?: Record<string, number>;
-  subjectNoun: string;
-  isPoeticNoun: boolean;
-  subjectCat: NounCategory | "";
+  affinityBoostSet?: Set<string>;
+  affinityBoostScore: number;
+  penalizeSpeechVerbs: boolean;
   topicWordSet?: Set<string>;
-  contextLowerSet: Set<string>;
+  nonFunctionContextSet?: Set<string>;
 }
 
-// Pre-resolves invariant context properties (N-gram lookup sub-maps, subject noun,
-// semantic category, topic word sets, and context words set) once per slot evaluation.
+// Pre-resolves invariant context properties (N-gram lookup sub-maps, semantic affinity targets,
+// topic word sets, and non-function context words) once per slot evaluation.
 function prepareNGramContext(context: string[], topic?: DomainTopic): NGramContextState {
   const len = context.length;
   const w1 = len >= 1 ? context[len - 1].toLowerCase() : "";
@@ -624,14 +637,46 @@ function prepareNGramContext(context: string[], topic?: DomainTopic): NGramConte
   const map2 = w1 ? BIGRAM_MAP[w1] : undefined;
 
   const subjectNoun = findContextSubject(context);
-  const isPoeticNoun = subjectNoun ? POETRY_NOUN_SET.has(subjectNoun) : false;
-  const subjectCat = subjectNoun ? getNounCategory(subjectNoun) : "";
+  let affinityBoostSet: Set<string> | undefined;
+  let affinityBoostScore = 0;
+  let penalizeSpeechVerbs = false;
+
+  if (subjectNoun) {
+    if (POETRY_NOUN_SET.has(subjectNoun)) {
+      affinityBoostSet = POETIC_EXPRESSIVE_VERBS;
+      affinityBoostScore = 50;
+      penalizeSpeechVerbs = true;
+    } else {
+      const subjectCat = getNounCategory(subjectNoun);
+      if (subjectCat === "EVENT" || subjectCat === "METRIC") {
+        affinityBoostSet = EVENT_ALLOWED_VERBS;
+        affinityBoostScore = 50;
+        penalizeSpeechVerbs = true;
+      } else if (subjectCat === "DOCUMENT") {
+        affinityBoostSet = INFORMATIONAL_OR_SPEECH_VERBS;
+        affinityBoostScore = 50;
+      } else if (subjectCat === "SYSTEM_OBJECT") {
+        affinityBoostSet = SYSTEM_OBJECT_ALLOWED_VERBS;
+        affinityBoostScore = 50;
+        penalizeSpeechVerbs = true;
+      } else if (subjectCat === "AGENT") {
+        affinityBoostSet = AGENT_AFFINITY_VERBS;
+        affinityBoostScore = 30;
+      }
+    }
+  }
 
   const topicWordSet = (topic && TOPIC_WORD_SETS[topic]) ? TOPIC_WORD_SETS[topic] : undefined;
 
-  const contextLowerSet = new Set<string>();
+  // Filter context for non-function words upfront once per slot rather than running
+  // FUNCTION_WORDS_SET.has lookups across hundreds of candidate words inside the inner loop.
+  let nonFunctionContextSet: Set<string> | undefined;
   for (let i = 0; i < len; i++) {
-    contextLowerSet.add(context[i].toLowerCase());
+    const word = context[i].toLowerCase();
+    if (!FUNCTION_WORDS_SET.has(word)) {
+      if (!nonFunctionContextSet) nonFunctionContextSet = new Set<string>();
+      nonFunctionContextSet.add(word);
+    }
   }
 
   return {
@@ -639,11 +684,11 @@ function prepareNGramContext(context: string[], topic?: DomainTopic): NGramConte
     map4,
     map3,
     map2,
-    subjectNoun,
-    isPoeticNoun,
-    subjectCat,
+    affinityBoostSet,
+    affinityBoostScore,
+    penalizeSpeechVerbs,
     topicWordSet,
-    contextLowerSet
+    nonFunctionContextSet
   };
 }
 
@@ -676,41 +721,12 @@ function scoreCandidateWithContext(w: string, ctx: NGramContextState): number {
     score += 1;
   }
 
-  // 5. Noun-Verb Semantic Affinity Scoring
-  if (ctx.subjectNoun) {
-    if (ctx.isPoeticNoun) {
-      if (POETIC_EXPRESSIVE_VERBS.has(w)) {
-        score += 50;
-      } else if (SPEECH_VERBS.has(w)) {
-        score -= 200;
-      }
-    } else if (ctx.subjectCat === "EVENT") {
-      if (EVENT_OCCURRENCE_VERBS.has(w) || METRIC_TREND_VERBS.has(w)) {
-        score += 50;
-      } else if (SPEECH_VERBS.has(w)) {
-        score -= 200;
-      }
-    } else if (ctx.subjectCat === "METRIC") {
-      if (METRIC_TREND_VERBS.has(w) || EVENT_OCCURRENCE_VERBS.has(w)) {
-        score += 50;
-      } else if (SPEECH_VERBS.has(w)) {
-        score -= 200;
-      }
-    } else if (ctx.subjectCat === "DOCUMENT") {
-      if (INFORMATIONAL_VERBS.has(w) || SPEECH_VERBS.has(w)) {
-        score += 50;
-      }
-    } else if (ctx.subjectCat === "SYSTEM_OBJECT") {
-      if (SYSTEM_OPERATIONAL_VERBS.has(w) || METRIC_TREND_VERBS.has(w) || EVENT_OCCURRENCE_VERBS.has(w)) {
-        score += 50;
-      } else if (SPEECH_VERBS.has(w)) {
-        score -= 200;
-      }
-    } else if (ctx.subjectCat === "AGENT") {
-      if (SPEECH_VERBS.has(w) || INFORMATIONAL_VERBS.has(w) || SYSTEM_OPERATIONAL_VERBS.has(w)) {
-        score += 30;
-      }
-    }
+  // 5. Pre-resolved Noun-Verb Semantic Affinity Scoring
+  // Eliminates 6-branch category cascading and multi-Set testing per candidate.
+  if (ctx.affinityBoostSet && ctx.affinityBoostSet.has(w)) {
+    score += ctx.affinityBoostScore;
+  } else if (ctx.penalizeSpeechVerbs && SPEECH_VERBS.has(w)) {
+    score -= 200;
   }
 
   // 6. Topic Domain Score Boost
@@ -718,8 +734,9 @@ function scoreCandidateWithContext(w: string, ctx: NGramContextState): number {
     score += 100;
   }
 
-  // 7. Repetition penalty: penalize repeating non-function words already present in sentence context
-  if (ctx.contextLowerSet.has(w) && !FUNCTION_WORDS_SET.has(w)) {
+  // 7. Repetition penalty: non-function words are pre-filtered into nonFunctionContextSet,
+  // bypassing secondary FUNCTION_WORDS_SET lookups for all candidates.
+  if (ctx.nonFunctionContextSet && ctx.nonFunctionContextSet.has(w)) {
     score -= 500;
   }
 
