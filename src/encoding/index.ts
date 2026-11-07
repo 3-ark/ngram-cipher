@@ -632,7 +632,13 @@ export function englishTextToBytes(
         ? buildOpeningCodes(ranked, recentOpeners)
         : undefined;
 
-      const rank = ranked.findIndex(w => w.toLowerCase() === cleanWord);
+      // Performance optimization: Fast-path direct indexOf lookup on pre-lowercased candidate lists
+      // before falling back to linear findIndex with toLowerCase(), eliminating closure allocations
+      // and redundant lowercasing on hundreds of thousands of candidate comparisons.
+      let rank = ranked.indexOf(cleanWord);
+      if (rank === -1) {
+        rank = ranked.findIndex(w => w.toLowerCase() === cleanWord);
+      }
 
       if (rank === -1) {
         throw new EncodingError(

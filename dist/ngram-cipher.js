@@ -2182,8 +2182,8 @@ function Xt(e, t = a.encoding) {
 			if (g >= f.length) break;
 			let i = f[g], a = i.replace(/^[ "'“‘]+/g, "").replace(/[ "'”’.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 			t.type === "data" && a === "an" && t.label === "d" && (a = "a");
-			let o = e === 0 || n ? void 0 : d, c = t.list && t.list.length > 0 ? t.list : at, u = Je(t.type === "data" && !n ? Ie(c, _, t.label, o) : c, _, o), p = !n && g === 0 && t.type === "data" ? Gt(u, l) : void 0, m = u.findIndex((e) => e.toLowerCase() === a);
-			if (m === -1) throw new r(`Invalid or unrecognized token in cipher text: "${i}" (not in carrier vocabulary, sentence ${e + 1})`);
+			let o = e === 0 || n ? void 0 : d, c = t.list && t.list.length > 0 ? t.list : at, u = Je(t.type === "data" && !n ? Ie(c, _, t.label, o) : c, _, o), p = !n && g === 0 && t.type === "data" ? Gt(u, l) : void 0, m = u.indexOf(a);
+			if (m === -1 && (m = u.findIndex((e) => e.toLowerCase() === a)), m === -1) throw new r(`Invalid or unrecognized token in cipher text: "${i}" (not in carrier vocabulary, sentence ${e + 1})`);
 			if (t.type === "data") {
 				if (p) {
 					let t = p.get(a);
