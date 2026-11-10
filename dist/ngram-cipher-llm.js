@@ -1928,8 +1928,8 @@ var Gt = class {
 	}
 	toBytes() {
 		if (this.bitCount > 0) {
-			let e = this.currentByte << 8 - this.bitCount & 255;
-			return new Uint8Array([...this.bytes, e]);
+			let e = this.currentByte << 8 - this.bitCount & 255, t = new Uint8Array(this.bytes.length + 1);
+			return t.set(this.bytes, 0), t[this.bytes.length] = e, t;
 		}
 		return new Uint8Array(this.bytes);
 	}
@@ -2038,7 +2038,10 @@ var rn = class {
 };
 function an(e, t) {
 	let n = t.length >= 1 ? t[t.length - 1] : void 0, r = e.filter((e) => e.toLowerCase() !== n);
-	if (r.length === 0) return /* @__PURE__ */ new Map();
+	if (r.length === 0) return {
+		wordToCode: /* @__PURE__ */ new Map(),
+		codeToWord: /* @__PURE__ */ new Map()
+	};
 	let i = new rn();
 	for (let e = 0; e < r.length; e++) {
 		let t = r[e];
@@ -2057,12 +2060,21 @@ function an(e, t) {
 			right: t
 		});
 	}
-	let a = /* @__PURE__ */ new Map(), o = i.pop();
-	if (!o) return a;
-	let s = (e, t) => {
-		e.word === void 0 ? (e.left && s(e.left, `${t}0`), e.right && s(e.right, `${t}1`)) : a.set(e.word, t || "0");
+	let a = /* @__PURE__ */ new Map(), o = /* @__PURE__ */ new Map(), s = i.pop();
+	if (!s) return {
+		wordToCode: a,
+		codeToWord: o
 	};
-	return s(o, ""), a;
+	let c = (e, t) => {
+		if (e.word !== void 0) {
+			let n = t || "0";
+			a.set(e.word, n), o.set(n, e.word);
+		} else e.left && c(e.left, `${t}0`), e.right && c(e.right, `${t}1`);
+	};
+	return c(s, ""), {
+		wordToCode: a,
+		codeToWord: o
+	};
 }
 var on = [
 	".",
@@ -2092,7 +2104,9 @@ function un(e, t = l.encoding) {
 	a.set(e, 0), a.set(i, e.length);
 	let o = new Gt(a), c = [], u = n ? Ht : G, d = [], f = [], p = 0, m = n ? void 0 : _e[a[0] >> 6 & 3];
 	for (; o.hasBits;) {
-		let e = nn(u, f, !n), r = new Map(Array.from(e, ([e, t]) => [t, e])), i = "", a;
+		let e = nn(u, f, !n), r = /* @__PURE__ */ new Map();
+		for (let [t, n] of e) r.set(n, t);
+		let i = "", a;
 		for (let e = 0; e < 16 && (i += o.readBits(1).toString(), a = r.get(i), a === void 0); e++);
 		if (a === void 0) throw new s("Unable to decode sentence template.");
 		let l = u[a], h = [], g = [];
@@ -2105,10 +2119,10 @@ function un(e, t = l.encoding) {
 			}
 			let a;
 			if (!n && h.length === 0) {
-				let e = an(i, d), t = new Map(Array.from(e, ([e, t]) => [t, e])), n = "", r;
-				for (let e = 0; e < 16 && (n += o.readBits(1).toString(), r = t.get(n), !r); e++);
-				if (!r) throw new s("Unable to decode sentence opening word.");
-				a = r;
+				let e = an(i, d).codeToWord, t = "", n;
+				for (let r = 0; r < 16 && (t += o.readBits(1).toString(), n = e.get(t), !n); r++);
+				if (!n) throw new s("Unable to decode sentence opening word.");
+				a = n;
 			} else if (!n && e.label === "d" && t.length < P.length) {
 				let e = Math.floor(Math.log2(i.length));
 				a = i[at(o.hasBits ? o.readBits(e) : 0, e, i.length) % i.length];
@@ -2203,7 +2217,7 @@ function dn(e, t = l.encoding) {
 			if (g >= f.length) break;
 			let r = f[g], i = r.replace(/^[ "'“‘]+/g, "").replace(/[ "'”’.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 			t.type === "data" && i === "an" && t.label === "d" && (i = "a");
-			let o = e === 0 || n ? void 0 : d, l = t.list && t.list.length > 0 ? t.list : ht, u = it(t.type === "data" && !n ? Ke(l, _, t.label, o) : l, _, o), p = !n && g === 0 && t.type === "data" ? an(u, c) : void 0, m = u.indexOf(i);
+			let o = e === 0 || n ? void 0 : d, l = t.list && t.list.length > 0 ? t.list : ht, u = it(t.type === "data" && !n ? Ke(l, _, t.label, o) : l, _, o), p = !n && g === 0 && t.type === "data" ? an(u, c).wordToCode : void 0, m = u.indexOf(i);
 			if (m === -1 && (m = u.findIndex((e) => e.toLowerCase() === i)), m === -1) throw new s(`Invalid or unrecognized token in cipher text: "${r}" (not in carrier vocabulary, sentence ${e + 1})`);
 			if (t.type === "data") {
 				if (p) {

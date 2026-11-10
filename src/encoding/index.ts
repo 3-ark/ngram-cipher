@@ -218,13 +218,27 @@ class PrefixCodeMinHeap {
   }
 }
 
-function buildOpeningCodes(candidates: string[], recentOpeners: string[]): Map<string, string> {
+interface OpeningCodesResult {
+  wordToCode: Map<string, string>;
+  codeToWord: Map<string, string>;
+}
+
+// Performance optimization: Construct both wordToCode and codeToWord in a single pass during tree
+// traversal. Previously, bytesToEnglishText executed `new Map(Array.from(openingCodes, ([w, c]) => [c, w]))`
+// on every sentence opener, creating hundreds of temporary 2-element tuples and an outer array per sentence.
+function buildOpeningCodes(
+  candidates: string[],
+  recentOpeners: string[]
+): OpeningCodesResult {
   const excludedWord = recentOpeners.length >= 1
     ? recentOpeners[recentOpeners.length - 1]
     : undefined;
   const eligible = candidates.filter(word => word.toLowerCase() !== excludedWord);
   if (eligible.length === 0) {
-    return new Map<string, string>();
+    return {
+      wordToCode: new Map<string, string>(),
+      codeToWord: new Map<string, string>()
+    };
   }
 
   const heap = new PrefixCodeMinHeap();
@@ -248,22 +262,25 @@ function buildOpeningCodes(candidates: string[], recentOpeners: string[]): Map<s
     });
   }
 
-  const codes = new Map<string, string>();
+  const wordToCode = new Map<string, string>();
+  const codeToWord = new Map<string, string>();
   const root = heap.pop();
   if (!root) {
-    return codes;
+    return { wordToCode, codeToWord };
   }
 
   const visit = (node: PrefixCodeNode, prefix: string): void => {
     if (node.word !== undefined) {
-      codes.set(node.word, prefix || "0");
+      const code = prefix || "0";
+      wordToCode.set(node.word, code);
+      codeToWord.set(code, node.word);
       return;
     }
     if (node.left) visit(node.left, `${prefix}0`);
     if (node.right) visit(node.right, `${prefix}1`);
   };
   visit(root, "");
-  return codes;
+  return { wordToCode, codeToWord };
 }
 
 const POETRY_ENDINGS = [".", " —", "...", ","];
@@ -335,9 +352,12 @@ export function bytesToEnglishText(
       recentTemplateIndices,
       !isPoetry
     );
-    const codeToTemplate = new Map(
-      Array.from(templateCodes, ([index, code]) => [code, index] as const)
-    );
+    // Performance optimization: Invert templateCodes into codeToTemplate using a direct loop
+    // instead of Array.from(templateCodes, ...), avoiding temporary 2-element tuple allocations.
+    const codeToTemplate = new Map<string, number>();
+    for (const [index, code] of templateCodes) {
+      codeToTemplate.set(code, index);
+    }
     let templateCode = "";
     let templateIdx: number | undefined;
     for (let bitIndex = 0; bitIndex < 16; bitIndex++) {
@@ -371,9 +391,7 @@ export function bytesToEnglishText(
       let chosenWord: string;
       if (!isPoetry && words.length === 0) {
         const openingCodes = buildOpeningCodes(ranked, recentOpeners);
-        const codeToWord = new Map(
-          Array.from(openingCodes, ([word, code]) => [code, word] as const)
-        );
+        const codeToWord = openingCodes.codeToWord;
         let code = "";
         let decodedWord: string | undefined;
         for (let i = 0; i < 16; i++) {
@@ -646,7 +664,7 @@ export function englishTextToBytes(
         : list;
       const ranked = rankCandidates(candidates, context, slotTopic);
       const openingCodes = !isPoetry && tokenIdx === 0 && slot.type === "data"
-        ? buildOpeningCodes(ranked, recentOpeners)
+        ? buildOpeningCodes(ranked, recentOpeners).wordToCode
         : undefined;
 
       // Performance optimization: Fast-path direct indexOf lookup on pre-lowercased candidate lists

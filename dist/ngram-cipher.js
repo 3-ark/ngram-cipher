@@ -1927,8 +1927,8 @@ var zt = class {
 	}
 	toBytes() {
 		if (this.bitCount > 0) {
-			let e = this.currentByte << 8 - this.bitCount & 255;
-			return new Uint8Array([...this.bytes, e]);
+			let e = this.currentByte << 8 - this.bitCount & 255, t = new Uint8Array(this.bytes.length + 1);
+			return t.set(this.bytes, 0), t[this.bytes.length] = e, t;
 		}
 		return new Uint8Array(this.bytes);
 	}
@@ -2037,7 +2037,10 @@ var Zt = class {
 };
 function Qt(e, t) {
 	let n = t.length >= 1 ? t[t.length - 1] : void 0, r = e.filter((e) => e.toLowerCase() !== n);
-	if (r.length === 0) return /* @__PURE__ */ new Map();
+	if (r.length === 0) return {
+		wordToCode: /* @__PURE__ */ new Map(),
+		codeToWord: /* @__PURE__ */ new Map()
+	};
 	let i = new Zt();
 	for (let e = 0; e < r.length; e++) {
 		let t = r[e];
@@ -2056,12 +2059,21 @@ function Qt(e, t) {
 			right: t
 		});
 	}
-	let a = /* @__PURE__ */ new Map(), o = i.pop();
-	if (!o) return a;
-	let s = (e, t) => {
-		e.word === void 0 ? (e.left && s(e.left, `${t}0`), e.right && s(e.right, `${t}1`)) : a.set(e.word, t || "0");
+	let a = /* @__PURE__ */ new Map(), o = /* @__PURE__ */ new Map(), s = i.pop();
+	if (!s) return {
+		wordToCode: a,
+		codeToWord: o
 	};
-	return s(o, ""), a;
+	let c = (e, t) => {
+		if (e.word !== void 0) {
+			let n = t || "0";
+			a.set(e.word, n), o.set(n, e.word);
+		} else e.left && c(e.left, `${t}0`), e.right && c(e.right, `${t}1`);
+	};
+	return c(s, ""), {
+		wordToCode: a,
+		codeToWord: o
+	};
 }
 var $t = [
 	".",
@@ -2091,7 +2103,9 @@ function rn(e, t = a.encoding) {
 	s.set(e, 0), s.set(o, e.length);
 	let c = new zt(s), l = [], u = n ? It : q, d = [], f = [], p = 0, m = n ? void 0 : he[s[0] >> 6 & 3];
 	for (; c.hasBits;) {
-		let e = Xt(u, f, !n), i = new Map(Array.from(e, ([e, t]) => [t, e])), a = "", o;
+		let e = Xt(u, f, !n), i = /* @__PURE__ */ new Map();
+		for (let [t, n] of e) i.set(n, t);
+		let a = "", o;
 		for (let e = 0; e < 16 && (a += c.readBits(1).toString(), o = i.get(a), o === void 0); e++);
 		if (o === void 0) throw new r("Unable to decode sentence template.");
 		let s = u[o], h = [], g = [];
@@ -2104,10 +2118,10 @@ function rn(e, t = a.encoding) {
 			}
 			let o;
 			if (!n && h.length === 0) {
-				let e = Qt(a, d), t = new Map(Array.from(e, ([e, t]) => [t, e])), n = "", i;
-				for (let e = 0; e < 16 && (n += c.readBits(1).toString(), i = t.get(n), !i); e++);
-				if (!i) throw new r("Unable to decode sentence opening word.");
-				o = i;
+				let e = Qt(a, d).codeToWord, t = "", n;
+				for (let r = 0; r < 16 && (t += c.readBits(1).toString(), n = e.get(t), !n); r++);
+				if (!n) throw new r("Unable to decode sentence opening word.");
+				o = n;
 			} else if (!n && e.label === "d" && t.length < F.length) {
 				let e = Math.floor(Math.log2(a.length));
 				o = a[tt(c.hasBits ? c.readBits(e) : 0, e, a.length) % a.length];
@@ -2202,7 +2216,7 @@ function an(e, t = a.encoding) {
 			if (g >= f.length) break;
 			let i = f[g], a = i.replace(/^[ "'“‘]+/g, "").replace(/[ "'”’.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 			t.type === "data" && a === "an" && t.label === "d" && (a = "a");
-			let o = e === 0 || n ? void 0 : d, c = t.list && t.list.length > 0 ? t.list : ut, u = et(t.type === "data" && !n ? He(c, _, t.label, o) : c, _, o), p = !n && g === 0 && t.type === "data" ? Qt(u, l) : void 0, m = u.indexOf(a);
+			let o = e === 0 || n ? void 0 : d, c = t.list && t.list.length > 0 ? t.list : ut, u = et(t.type === "data" && !n ? He(c, _, t.label, o) : c, _, o), p = !n && g === 0 && t.type === "data" ? Qt(u, l).wordToCode : void 0, m = u.indexOf(a);
 			if (m === -1 && (m = u.findIndex((e) => e.toLowerCase() === a)), m === -1) throw new r(`Invalid or unrecognized token in cipher text: "${i}" (not in carrier vocabulary, sentence ${e + 1})`);
 			if (t.type === "data") {
 				if (p) {
