@@ -59,9 +59,15 @@ export class BitStreamWriter {
   }
 
   toBytes(): Uint8Array {
+    // Performance optimization: Avoid spreading [...this.bytes, paddedByte] into a temporary
+    // intermediate Array, directly pre-allocating the destination Uint8Array to eliminate
+    // redundant array allocations on multi-sentence carrier decoding.
     if (this.bitCount > 0) {
       const paddedByte = (this.currentByte << (8 - this.bitCount)) & 0xff;
-      return new Uint8Array([...this.bytes, paddedByte]);
+      const result = new Uint8Array(this.bytes.length + 1);
+      result.set(this.bytes, 0);
+      result[this.bytes.length] = paddedByte;
+      return result;
     }
     return new Uint8Array(this.bytes);
   }
