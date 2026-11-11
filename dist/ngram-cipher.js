@@ -1465,17 +1465,18 @@ function $e(e, t, n) {
 }
 function et(e, t, n) {
 	if (!e || e.length <= 1) return e ? [...e] : [];
-	let r = Ze(t, n), i = e.length, a = new Int32Array(i);
-	for (let t = 0; t < i; t++) a[t] = Qe(e[t].toLowerCase(), r);
-	let o = new Int32Array(i);
-	for (let e = 0; e < i; e++) o[e] = e;
-	o.sort((e, t) => {
-		let n = a[t] - a[e];
-		return n === 0 ? e - t : n;
-	});
-	let s = Array(i);
-	for (let t = 0; t < i; t++) s[t] = e[o[t]];
-	return s;
+	let r = Ze(t, n), i = e.length, a = new Float64Array(i);
+	for (let t = 0; t < i; t++) {
+		let n = Qe(e[t].toLowerCase(), r);
+		a[t] = -n * 65536 + t;
+	}
+	a.sort();
+	let o = Array(i);
+	for (let t = 0; t < i; t++) {
+		let n = (a[t] % 65536 + 65536) % 65536;
+		o[t] = e[n];
+	}
+	return o;
 }
 function tt(e, t, n) {
 	if (t <= 0) return 0;
