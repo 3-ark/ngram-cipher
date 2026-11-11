@@ -275,7 +275,10 @@ function isPluralNoun(noun: string): boolean {
 }
 
 function largestPowerOfTwoSubset(candidates: string[]): string[] {
-  const length = 2 ** Math.floor(Math.log2(candidates.length));
+  const len = candidates.length;
+  // If already a power of two (e.g. 256), avoid redundant array slicing.
+  if ((len & (len - 1)) === 0) return candidates;
+  const length = 1 << (31 - Math.clz32(len));
   return candidates.slice(0, length);
 }
 
@@ -289,7 +292,7 @@ export function getCompatibleCandidates(
   slotLabel: string,
   topic?: DomainTopic
 ): string[] {
-  if (candidates.length < 2) return [...candidates];
+  if (candidates.length < 2) return candidates;
 
   let compatible: string[] | undefined;
 
@@ -315,9 +318,16 @@ export function getCompatibleCandidates(
       }
     }
   } else if (slotLabel === "N") {
-    const recentDeterminer = context.slice(-3).reverse()
-      .find(word => SINGULAR_DETERMINERS.has(word.toLowerCase()));
-    if (recentDeterminer) {
+    // Scan backward across the last 3 context words without slice(), reverse(), or closure allocations
+    let hasSingularDeterminer = false;
+    const start = Math.max(0, context.length - 3);
+    for (let i = context.length - 1; i >= start; i--) {
+      if (SINGULAR_DETERMINERS.has(context[i].toLowerCase())) {
+        hasSingularDeterminer = true;
+        break;
+      }
+    }
+    if (hasSingularDeterminer) {
       compatible = candidates.filter(word =>
         !isPluralNoun(word) && !UNCOUNTABLE_NOUNS.has(word.toLowerCase())
       );
@@ -329,11 +339,13 @@ export function getCompatibleCandidates(
     compatible = candidates.filter(word => EFFECT_RATE_ADVERBS.has(word.toLowerCase()));
   }
 
+  // Performance optimization: When no grammar filtering applies, return candidates directly
+  // if already a power of two, completely bypassing array spreads and slice allocations.
   if (!compatible) {
-    compatible = [...candidates];
+    return largestPowerOfTwoSubset(candidates);
   }
 
-  if (compatible.length < 2) return [...candidates];
+  if (compatible.length < 2) return largestPowerOfTwoSubset(candidates);
   return largestPowerOfTwoSubset(compatible);
 }
 
@@ -764,21 +776,34 @@ export function rankCandidates(candidates: string[], context: string[], topic?: 
   }
 
   const ctx = prepareNGramContext(context, topic);
-  const scored = candidates.map((word, originalIndex) => ({
-    word,
-    originalIndex,
-    score: scoreCandidateWithContext(word.toLowerCase(), ctx)
-  }));
+  const len = candidates.length;
 
-  // Sort descending by score; tie-break by originalIndex to guarantee deterministic order
-  scored.sort((a, b) => {
-    if (b.score !== a.score) {
-      return b.score - a.score;
-    }
-    return a.originalIndex - b.originalIndex;
+  // Performance optimization: Pre-calculate candidate scores into a contiguous Int32Array and sort
+  // indices rather than allocating per-slot wrapper objects ({ word, originalIndex, score }).
+  // For 256 candidates per slot across 10+ slots per sentence, this eliminates thousands of short-lived
+  // heap objects and removes property lookups from TimSort comparisons.
+  const scores = new Int32Array(len);
+  for (let i = 0; i < len; i++) {
+    scores[i] = scoreCandidateWithContext(candidates[i].toLowerCase(), ctx);
+  }
+
+  const indices = new Int32Array(len);
+  for (let i = 0; i < len; i++) {
+    indices[i] = i;
+  }
+
+  // Sort descending by score; tie-break by originalIndex (a - b) to guarantee deterministic order
+  indices.sort((a, b) => {
+    const diff = scores[b] - scores[a];
+    return diff !== 0 ? diff : a - b;
   });
 
-  return scored.map(item => item.word);
+  const result = new Array<string>(len);
+  for (let i = 0; i < len; i++) {
+    result[i] = candidates[indices[i]];
+  }
+
+  return result;
 }
 
 /**
