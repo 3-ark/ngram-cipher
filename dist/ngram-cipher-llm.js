@@ -366,11 +366,13 @@ function We(e) {
 	return Ve.has(t) ? !0 : !He.has(t) && /(?:s|ies|ves)$/.test(t) && !/(?:ss|us|is)$/.test(t);
 }
 function Ge(e) {
-	let t = 2 ** Math.floor(Math.log2(e.length));
-	return e.slice(0, t);
+	let t = e.length;
+	if (!(t & t - 1)) return e;
+	let n = 1 << 31 - Math.clz32(t);
+	return e.slice(0, n);
 }
 function Ke(e, t, n, r) {
-	if (e.length < 2) return [...e];
+	if (e.length < 2) return e;
 	let i;
 	if (n === "VP") {
 		let n = Ue(t);
@@ -378,8 +380,15 @@ function Ke(e, t, n, r) {
 			let t = we(n), r;
 			t === "METRIC" ? r = Ne : t === "EVENT" ? r = Pe : t === "DOCUMENT" ? r = Fe : t === "SYSTEM_OBJECT" ? r = Ie : t === "AGENT" && (i = e.filter((e) => !Me.has(e.toLowerCase()))), r && (i = e.filter((e) => r.has(e.toLowerCase())));
 		}
-	} else n === "N" ? t.slice(-3).reverse().find((e) => ze.has(e.toLowerCase())) && (i = e.filter((e) => !We(e) && !Be.has(e.toLowerCase()))) : n === "R" && w.has(t[t.length - 1]?.toLowerCase()) && (i = e.filter((e) => je.has(e.toLowerCase())));
-	return i ||= [...e], i.length < 2 ? [...e] : Ge(i);
+	} else if (n === "N") {
+		let n = !1, r = Math.max(0, t.length - 3);
+		for (let e = t.length - 1; e >= r; e--) if (ze.has(t[e].toLowerCase())) {
+			n = !0;
+			break;
+		}
+		n && (i = e.filter((e) => !We(e) && !Be.has(e.toLowerCase())));
+	} else n === "R" && w.has(t[t.length - 1]?.toLowerCase()) && (i = e.filter((e) => je.has(e.toLowerCase())));
+	return !i || i.length < 2 ? Ge(e) : Ge(i);
 }
 var qe = /* @__PURE__ */ new Set(/* @__PURE__ */ "about.above.across.after.against.along.among.around.at.before.behind.below.beneath.beside.between.beyond.by.despite.during.for.from.in.into.near.of.off.on.onto.over.past.since.through.throughout.to.toward.towards.under.until.upon.with.within.without".split(".")), Je = /* @__PURE__ */ new Set(/* @__PURE__ */ "moon.river.forest.ocean.wind.rain.snow.cloud.sky.sea.tree.branch.leaf.flower.bird.stone.mountain.valley.meadow.shore.lake.stream.shadow.dawn.dusk.night.star.flame.garden.field.silence.season.frost.ember.mist.sunlight.starlight.comet.desert.island.pathway.horizon.reflection.echo.whisper.breeze.storm.twilight.harbor.cavern.glade.summit.pine.willow.feather.shell.tide.wave.spark.light.haven.clearing.canopy.solitude.time.memory.dream.music.solace.wonder.heart.spirit.sorrow.promise.presence.distance.passage.rhythm.secret.lullaby".split(".")), Ye = /* @__PURE__ */ new Set([
 	"whispered",
@@ -1457,12 +1466,17 @@ function rt(e, t, n) {
 }
 function it(e, t, n) {
 	if (!e || e.length <= 1) return e ? [...e] : [];
-	let r = tt(t, n), i = e.map((e, t) => ({
-		word: e,
-		originalIndex: t,
-		score: nt(e.toLowerCase(), r)
-	}));
-	return i.sort((e, t) => t.score === e.score ? e.originalIndex - t.originalIndex : t.score - e.score), i.map((e) => e.word);
+	let r = tt(t, n), i = e.length, a = new Int32Array(i);
+	for (let t = 0; t < i; t++) a[t] = nt(e[t].toLowerCase(), r);
+	let o = new Int32Array(i);
+	for (let e = 0; e < i; e++) o[e] = e;
+	o.sort((e, t) => {
+		let n = a[t] - a[e];
+		return n === 0 ? e - t : n;
+	});
+	let s = Array(i);
+	for (let t = 0; t < i; t++) s[t] = e[o[t]];
+	return s;
 }
 function at(e, t, n) {
 	if (t <= 0) return 0;
