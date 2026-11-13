@@ -218,6 +218,24 @@ const AGENT_AFFINITY_VERBS = new Set([
   ...SYSTEM_OPERATIONAL_VERBS
 ]);
 
+// Triggers that indicate the "R" slot is in a discourse-connector position (not a degree/rate position).
+// When the preceding token is one of these, only genuine discourse markers are permitted.
+const DISCOURSE_CONNECTOR_TRIGGERS = new Set([
+  "after", "before", "during", "since", "while", "once", "until",
+  "talks,", "negotiations,", "meetings,", "hearings,", "elections,", "discussions,"
+]);
+
+// Genuine discourse connectors — words that sensibly follow a subordinate clause comma.
+const DISCOURSE_CONNECTOR_SET = new Set([
+  "however", "meanwhile", "nevertheless", "nonetheless", "still", "instead",
+  "also", "indeed", "similarly", "furthermore", "additionally", "otherwise",
+  "rather", "likewise", "conversely", "ultimately", "consequently", "accordingly",
+  "thus", "therefore", "hence", "besides", "moreover", "then", "further",
+  "finally", "initially", "subsequently", "thereafter", "afterward",
+  "alternatively", "eventually", "undoubtedly", "certainly", "decisively",
+  "firstly", "secondly", "thirdly", "lastly", "incidentally", "admittedly"
+]);
+
 const SINGULAR_DETERMINERS = new Set([
   "a","an","another","each","every","its","one","this"
 ]);
@@ -239,8 +257,10 @@ const SINGULAR_NOUNS_ENDING_IN_S = new Set([
 ]);
 
 // Fast subject lookback scanning: checks prepositions without array allocations (.slice / .map)
+// Capped at 10 tokens to avoid cross-clause contamination in long sentences.
 function findContextSubject(context: string[]): string {
-  for (let index = context.length - 1; index >= 0; index--) {
+  const lookbackStart = Math.max(0, context.length - 10);
+  for (let index = context.length - 1; index >= lookbackStart; index--) {
     const word = context[index].toLowerCase();
     if (
       AGENT_NOUN_SET.has(word) ||
@@ -327,6 +347,18 @@ export function getCompatibleCandidates(
     METRIC_TREND_VERBS.has(context[context.length - 1]?.toLowerCase())
   ) {
     compatible = candidates.filter(word => EFFECT_RATE_ADVERBS.has(word.toLowerCase()));
+  } else if (slotLabel === "R") {
+    // When the immediately preceding token is a temporal/introductory preposition (after, before,
+    // during, since) or a comma following such a clause, steer toward genuine discourse connectors
+    // only. This prevents degree/location adverbs ("very", "here", "abroad") from appearing in the
+    // discourse-marker position of Template 3: "After talks, [adv], the official...".
+    const prevWord = context[context.length - 1]?.toLowerCase();
+    if (DISCOURSE_CONNECTOR_TRIGGERS.has(prevWord)) {
+      const discourseFiltered = candidates.filter(word => DISCOURSE_CONNECTOR_SET.has(word.toLowerCase()));
+      if (discourseFiltered.length >= 2) {
+        compatible = discourseFiltered;
+      }
+    }
   }
 
   if (!compatible) {
@@ -383,19 +415,33 @@ const BIGRAM_MAP: Record<string, Record<string, number>> = {
   market: { rose: 10, fell: 10, grew: 10, declined: 10, expanded: 9, dropped: 9, surged: 9, recovered: 9 },
   economy: { grew: 10, expanded: 10, slowed: 9, recovered: 9, shrank: 8, declined: 8 },
   growth: { slowed: 10, accelerated: 10, continued: 9, remained: 8, dropped: 8 },
-  president: { announced: 10, stated: 10, signed: 9, visited: 9, urged: 9, met: 8, warned: 8 },
-  government: { announced: 10, approved: 10, confirmed: 9, proposed: 9, launched: 9, passed: 8 },
-  police: { arrested: 10, investigated: 10, searched: 9, detained: 9, confirmed: 8, reported: 8 },
-  court: { ruled: 10, decided: 10, rejected: 9, confirmed: 9, dismissed: 8, upheld: 8 },
-  minister: { stated: 10, confirmed: 10, urged: 9, emphasized: 9, promised: 8, announced: 8 },
-  company: { announced: 10, reported: 10, launched: 9, expanded: 9, acquired: 8, released: 8 },
-  council: { approved: 10, adopted: 9, passed: 9, met: 8, reviewed: 8 },
+  // Agent nouns — each has a distinct primary verb set reflecting their real-world role
+  president: { announced: 10, signed: 10, stated: 9, visited: 9, urged: 9, met: 8, warned: 8, addressed: 8 },
+  government: { announced: 10, approved: 10, proposed: 9, launched: 9, confirmed: 8, passed: 8, adopted: 8 },
+  police: { arrested: 10, detained: 10, investigated: 9, searched: 9, charged: 9, confirmed: 8, deployed: 8 },
+  court: { ruled: 10, decided: 10, upheld: 9, dismissed: 9, rejected: 9, sentenced: 8, ordered: 8 },
+  minister: { stated: 10, urged: 10, emphasized: 9, pledged: 9, confirmed: 8, promised: 8, defended: 8 },
+  company: { launched: 10, acquired: 10, expanded: 9, reported: 9, announced: 9, released: 8, restructured: 8 },
+  council: { approved: 10, adopted: 10, voted: 9, passed: 9, rejected: 9, met: 8, reviewed: 8 },
+  parliament: { passed: 10, debated: 10, approved: 9, rejected: 9, voted: 9, convened: 8, adjourned: 8 },
+  agency: { approved: 10, rejected: 10, issued: 9, investigated: 9, announced: 8, reported: 8, suspended: 8 },
+  coalition: { backed: 10, supported: 10, approved: 9, criticized: 9, formed: 8, collapsed: 8, withdrew: 8 },
+  ambassador: { met: 10, discussed: 10, confirmed: 9, stated: 9, departed: 8, presented: 8 },
+  governor: { signed: 10, announced: 10, ordered: 9, proposed: 9, vetoed: 8, declared: 8 },
+  senator: { proposed: 10, voted: 10, backed: 9, opposed: 9, introduced: 8, criticized: 8 },
+  official: { confirmed: 10, stated: 10, announced: 9, denied: 9, revealed: 8, warned: 8 },
+  leader: { met: 10, announced: 10, pledged: 9, urged: 9, confirmed: 8, signed: 8 },
   disease: { spread: 10, struck: 9, worsened: 9, affected: 8, persisted: 8 },
   storm: { struck: 10, approached: 9, caused: 9, damaged: 8, passed: 8 },
+  drought: { worsened: 10, persisted: 10, spread: 9, affected: 9, intensified: 8 },
+  conflict: { escalated: 10, intensified: 9, continued: 9, spread: 8, erupted: 8 },
   crisis: { worsened: 10, deepened: 10, escalated: 9, continued: 9, began: 8 },
+  shortage: { persisted: 10, worsened: 9, continued: 9, eased: 8, deepened: 8 },
+  election: { concluded: 10, took: 9, resulted: 9, began: 8, remained: 8 },
+  trial: { concluded: 10, began: 10, resumed: 9, continued: 9, ended: 8 },
   survey: { showed: 10, revealed: 10, indicated: 9, found: 9, suggested: 8 },
-  investigation: { revealed: 10, found: 10, continued: 9, focused: 8, concluded: 8 },
-  policy: { changed: 10, required: 9, improved: 9, failed: 8 },
+  investigation: { revealed: 10, found: 10, concluded: 9, continued: 9, focused: 8 },
+  policy: { changed: 10, required: 9, improved: 9, failed: 8, addressed: 8 },
   system: { failed: 10, operated: 9, improved: 9, expanded: 8, changed: 8 },
   database: { expanded: 10, updated: 9, stored: 8, grew: 8 },
   user: { created: 10, updated: 10, saved: 9, shared: 9, deleted: 8 },
@@ -415,13 +461,14 @@ const BIGRAM_MAP: Record<string, Record<string, number>> = {
   central: { bank: 10, government: 8 },
   trade: { deficit: 10, surplus: 10, agreement: 9, policy: 9, volume: 8 },
   severe: { shortage: 10, drought: 10, crisis: 9, storm: 9, impact: 8 },
-  shortage: { persisted: 10, worsened: 9, continued: 9, eased: 8 },
-  talks: { remained: 10, continued: 9, resumed: 8, ended: 8 },
+  talks: { stalled: 10, collapsed: 10, resumed: 9, continued: 9, remained: 9, ended: 8, concluded: 8 },
+  negotiations: { stalled: 10, collapsed: 10, resumed: 9, continued: 9, broke: 8, concluded: 8 },
   proposal: { passed: 9, rejected: 10, approved: 10, accepted: 9 },
   reform: { backed: 10, approved: 9, passed: 9, proposed: 8 },
   rates: { rose: 10, fell: 10, increased: 9, dropped: 9 },
-  agency: { approved: 10, rejected: 10, announced: 9, reported: 9 },
-  coalition: { backed: 10, approved: 9, criticized: 8, formed: 8 },
+  hearings: { concluded: 10, began: 9, resumed: 9, continued: 8, ended: 8 },
+  discussions: { stalled: 10, resumed: 9, continued: 9, concluded: 8 },
+  meetings: { concluded: 10, began: 9, continued: 9, resumed: 8 },
   the: {
     major: 10, global: 10, national: 10, public: 10, new: 10, economic: 9,
     government: 10, president: 10, market: 10, company: 9, report: 9,
@@ -438,6 +485,15 @@ const BIGRAM_MAP: Record<string, Record<string, number>> = {
     gentle: 10, quiet: 10, luminous: 9, soft: 9, fragile: 9, silent: 9,
     solitary: 9, distant: 9, radiant: 9, serene: 9
   },
+  // Filler-word bigrams: guide the first scored slot that follows fixed template words
+  after: { talks: 10, negotiations: 10, meetings: 9, elections: 9, hearings: 9, the: 8, discussions: 8 },
+  if: { the: 10, a: 9, some: 8, no: 8 },
+  including: { some: 10, several: 9, a: 8, the: 8 },
+  because: { the: 10, a: 9, some: 8, no: 8 },
+  but: { the: 10, a: 9, some: 8, no: 8 },
+  since: { the: 10, a: 9, talks: 8, negotiations: 8 },
+  while: { the: 10, a: 9, some: 8, talks: 8 },
+  as: { the: 10, a: 9, talks: 8, tensions: 8, prices: 8 },
   above: { the: 10, a: 9, each: 8, every: 8, her: 8, my: 8, our: 8, his: 8 },
   beside: { the: 10, a: 9, each: 8, every: 8, her: 8, my: 8, our: 8, his: 8 },
   beyond: { the: 10, a: 9, each: 8, every: 8, her: 8, my: 8, our: 8, his: 8 },
@@ -503,6 +559,13 @@ const BIGRAM_MAP: Record<string, Record<string, number>> = {
     supported: 10, defended: 9, stated: 9, criticized: 8,
     endorsed: 9, backed: 9, called: 8
   },
+  // Action adverbs preceding verbs in template 3 and 4
+  strongly: { backed: 10, supported: 9, opposed: 9, criticized: 8, condemned: 8 },
+  formally: { announced: 10, confirmed: 10, submitted: 9, approved: 9, adopted: 8 },
+  quietly: { backed: 10, supported: 9, dropped: 9, shelved: 8, revised: 8 },
+  openly: { criticized: 10, backed: 9, supported: 9, opposed: 8, condemned: 8 },
+  eventually: { backed: 10, approved: 9, confirmed: 9, agreed: 8, withdrew: 8 },
+  unanimously: { approved: 10, adopted: 10, backed: 9, rejected: 9, voted: 8 },
   major: {
     report: 10, policy: 10, summit: 10, agreement: 10, market: 9,
     reform: 9, crisis: 9, breakthrough: 9, project: 9, investment: 9
@@ -543,23 +606,75 @@ const BIGRAM_MAP: Record<string, Record<string, number>> = {
 
 // Common English Trigram Transitions ("w1 w2" -> Record<w3, weight>)
 const TRIGRAM_MAP: Record<string, Record<string, number>> = {
+  // --- Institutional subject + verb ---
   "the government": { announced: 10, approved: 10, confirmed: 9, proposed: 9, launched: 8 },
-  "the president": { announced: 10, stated: 9, visited: 8, met: 8, signed: 8 },
-  "the court": { ruled: 10, decided: 9, rejected: 8, confirmed: 8, dismissed: 8 },
-  "the minister": { stated: 10, confirmed: 9, urged: 8, emphasized: 8, promised: 8 },
-  "the company": { announced: 10, reported: 10, launched: 9, expanded: 8, acquired: 8 },
-  "the council": { approved: 10, adopted: 9, passed: 9, met: 8, reviewed: 8 },
-  "the agency": { approved: 10, rejected: 10, announced: 9, reported: 9 },
-  "the coalition": { backed: 10, approved: 9, criticized: 8, formed: 8 },
+  "the president": { announced: 10, stated: 9, signed: 9, visited: 8, met: 8 },
+  "the court": { ruled: 10, decided: 10, upheld: 9, dismissed: 9, rejected: 8 },
+  "the minister": { stated: 10, urged: 10, pledged: 9, confirmed: 9, emphasized: 8 },
+  "the company": { launched: 10, acquired: 10, reported: 9, expanded: 9, announced: 8 },
+  "the council": { approved: 10, adopted: 10, voted: 9, passed: 9, rejected: 8 },
+  "the parliament": { passed: 10, debated: 10, approved: 9, rejected: 9, voted: 8 },
+  "the agency": { approved: 10, rejected: 10, issued: 9, investigated: 9, announced: 8 },
+  "the coalition": { backed: 10, supported: 10, approved: 9, criticized: 8, collapsed: 8 },
+  "the police": { arrested: 10, detained: 10, investigated: 9, confirmed: 8, deployed: 8 },
+  "the governor": { signed: 10, announced: 10, ordered: 9, proposed: 9, vetoed: 8 },
+  "the senator": { proposed: 10, voted: 10, backed: 9, opposed: 9, introduced: 8 },
+  "the official": { confirmed: 10, stated: 10, denied: 9, revealed: 9, warned: 8 },
+  "the leader": { met: 10, announced: 10, pledged: 9, urged: 9, confirmed: 8 },
+  "the ambassador": { met: 10, discussed: 10, confirmed: 9, presented: 8, departed: 8 },
   "the central": { bank: 10 },
   "central bank": { raised: 10, lowered: 10, kept: 9, cut: 9 },
+  // --- Economic/metric subjects ---
   "interest rates": { rose: 10, fell: 10, increased: 9, dropped: 9 },
   "energy output": { rose: 10, fell: 10, increased: 9, dropped: 9 },
   "food prices": { rose: 10, fell: 10, increased: 9, dropped: 9 },
   "consumer prices": { rose: 10, fell: 10, increased: 9, dropped: 9 },
+  "trade deficit": { widened: 10, narrowed: 10, grew: 9, shrank: 8 },
+  "trade surplus": { narrowed: 10, widened: 9, grew: 9, shrank: 8 },
+  // --- Crisis / event subjects ---
   "severe shortage": { persisted: 10, worsened: 9, continued: 9 },
-  "the talks": { remained: 10, continued: 9, ended: 8 },
+  "the drought": { worsened: 10, persisted: 9, spread: 9, intensified: 8, affected: 8 },
+  "the conflict": { escalated: 10, intensified: 10, continued: 9, spread: 8, erupted: 8 },
+  "the crisis": { worsened: 10, deepened: 10, escalated: 9, continued: 8 },
+  "a disease": { spread: 10, struck: 10, worsened: 9, affected: 9 },
+  "the disease": { spread: 10, struck: 10, worsened: 9, affected: 9 },
+  "a storm": { struck: 10, damaged: 9, passed: 8, caused: 8 },
+  "the storm": { struck: 10, damaged: 9, passed: 8, caused: 8 },
+  "the election": { concluded: 10, resulted: 9, began: 8, remained: 8 },
+  "the trial": { concluded: 10, began: 10, resumed: 9, ended: 8 },
+  // --- Talks / negotiation subjects (template 3, 9) ---
+  "the talks": { stalled: 10, collapsed: 10, resumed: 9, continued: 9, remained: 9, ended: 8 },
+  "after talks": { however: 10, nevertheless: 9, still: 8, meanwhile: 8 },
+  "after negotiations": { however: 10, nevertheless: 9, still: 8, meanwhile: 8 },
+  "after meetings": { however: 10, the: 9, officials: 8, leaders: 8 },
+  "after hearings": { however: 10, the: 9, officials: 8, lawmakers: 8 },
+  "after elections": { however: 10, the: 9, officials: 8, the: 8 },
+  "talks remained": { unresolved: 10, deadlocked: 10, stalled: 9, tense: 8, inconclusive: 8 },
+  "negotiations remained": { unresolved: 10, deadlocked: 10, stalled: 9, tense: 8 },
+  "discussions remained": { unresolved: 10, deadlocked: 9, stalled: 9, ongoing: 8 },
+  // --- Complement adjective trigrams (template 9: "X remained [adj]") ---
+  "crisis remained": { unresolved: 10, acute: 9, severe: 9, critical: 8, ongoing: 8 },
+  "conflict remained": { unresolved: 10, deadlocked: 9, ongoing: 9, severe: 8 },
+  "situation remained": { unresolved: 10, tense: 10, uncertain: 9, critical: 8, fragile: 8 },
+  "election remained": { contested: 10, undecided: 9, disputed: 8, uncertain: 8 },
   "remained unresolved": { as: 8, because: 8, while: 8 },
+  // --- Document / report subjects ---
+  "a survey": { showed: 10, revealed: 10, indicated: 9, suggested: 8 },
+  "the survey": { showed: 10, revealed: 10, indicated: 9, suggested: 8 },
+  "the report": { showed: 10, indicated: 10, revealed: 9, confirmed: 9 },
+  "the policy": { changed: 10, improved: 9, required: 9, failed: 8, addressed: 8 },
+  "the database": { expanded: 10, grew: 9, stored: 8 },
+  "the article": { reported: 10, stated: 10, described: 9, highlighted: 9 },
+  "the user": { saved: 10, created: 10, updated: 9, shared: 9 },
+  "the note": { stated: 10, detailed: 10, showed: 9, explained: 9 },
+  // --- Relative clause patterns (template 4: "which officials [adv] [verb]") ---
+  "which officials": { publicly: 10, strongly: 9, openly: 9, recently: 8, formally: 8 },
+  "which lawmakers": { publicly: 10, strongly: 9, recently: 9, formally: 8 },
+  "which regulators": { formally: 10, publicly: 9, recently: 9, strongly: 8 },
+  // --- Discourse adverb after introductory clause (template 3: "after X, [adv],") ---
+  "talks however": { the: 10, officials: 9, both: 8, analysts: 8 },
+  "negotiations however": { the: 10, officials: 9, both: 8, analysts: 8 },
+  // --- Common prep + determiner patterns ---
   "in a": { recent: 10, major: 9, statement: 8, report: 8, meeting: 8 },
   "according to": { reports: 10, officials: 9, sources: 9, experts: 8, data: 8 },
   "a new": { policy: 10, report: 9, study: 9, project: 9, initiative: 8, system: 8 },
@@ -568,24 +683,12 @@ const TRIGRAM_MAP: Record<string, Record<string, number>> = {
   "confirmed the": { news: 10, report: 10, decision: 9, appointment: 8, agreement: 8 },
   "led to": { a: 10, widespread: 8, significant: 8, major: 8, increased: 7 },
   "focused on": { the: 10, economic: 8, national: 8, future: 8, building: 7 },
+  // --- Poetry subjects ---
   "the moon": { slept: 10, glowed: 10, rose: 9, shone: 9, drifted: 8 },
   "the river": { flowed: 10, danced: 9, shimmered: 9, lingered: 8 },
   "a gentle": { breeze: 10, river: 10, rain: 9, whisper: 9 },
   "a quiet": { flame: 10, silence: 10, river: 9, night: 9 },
-  "a disease": { spread: 10, struck: 10, worsened: 9, affected: 9 },
-  "the disease": { spread: 10, struck: 10, worsened: 9, affected: 9 },
-  "a storm": { struck: 10, damaged: 9, passed: 8, caused: 8 },
-  "the storm": { struck: 10, damaged: 9, passed: 8, caused: 8 },
-  "the crisis": { worsened: 10, deepened: 10, escalated: 9, continued: 8 },
-  "a survey": { showed: 10, revealed: 10, indicated: 9, suggested: 8 },
-  "the survey": { showed: 10, revealed: 10, indicated: 9, suggested: 8 },
-  "the report": { showed: 10, indicated: 10, revealed: 9, confirmed: 9 },
-  "the policy": { changed: 10, improved: 9, required: 9, failed: 8 },
-  "the database": { expanded: 10, grew: 9, stored: 8 },
-  "the article": { reported: 10, stated: 10, described: 9, highlighted: 9 },
-  "the user": { saved: 10, created: 10, updated: 9, shared: 9 },
-  "the note": { stated: 10, detailed: 10, showed: 9, explained: 9 },
-  "the wind": { whispered: 10, blew: 10, rose: 9, howled: 8 }
+  "the wind": { whispered: 10, blew: 10, rose: 9, howled: 8 },
 };
 
 // Common English 4-Gram Transitions ("w1 w2 w3" -> Record<w4, weight>)
@@ -597,7 +700,34 @@ const FOURGRAM_MAP: Record<string, Record<string, number>> = {
   "in a recent": { report: 10, statement: 10, interview: 9, speech: 8 },
   "the united states": { announced: 10, signed: 9, warned: 8, supported: 8 },
   "in a public": { statement: 10, report: 10, interview: 9, speech: 9 },
-  "an overnight military": { operation: 10, assault: 10, action: 9, strike: 9 }
+  "an overnight military": { operation: 10, assault: 10, action: 9, strike: 9 },
+  // Template 3: "after [event], [adv], the [subject] ..."
+  "after talks however": { the: 10, officials: 9, analysts: 8, both: 8 },
+  "after negotiations however": { the: 10, officials: 9, analysts: 8 },
+  "after meetings however": { the: 10, officials: 9, leaders: 8 },
+  // Template 4: "the [antecedent], which [subjects] [adv] [verb], ..."
+  "which officials publicly": { criticized: 10, supported: 9, backed: 9, endorsed: 8 },
+  "which officials strongly": { backed: 10, opposed: 9, criticized: 9, supported: 8 },
+  "which officials formally": { approved: 10, rejected: 9, endorsed: 9, submitted: 8 },
+  "which lawmakers publicly": { criticized: 10, backed: 9, supported: 9, opposed: 8 },
+  "which regulators formally": { approved: 10, rejected: 9, endorsed: 8, adopted: 8 },
+  // Template 7: "Johnson said that the [adj] [subject] ..."
+  "said that the": { central: 10, major: 9, national: 9, new: 8, economic: 8 },
+  "confirmed that the": { central: 10, major: 9, national: 9, new: 8, economic: 8 },
+  // Template 9: "the [subjects], including some [subjects], ..."
+  "including some delegates": { requested: 10, proposed: 9, submitted: 9, demanded: 8 },
+  "including some officials": { requested: 10, proposed: 9, confirmed: 8, submitted: 8 },
+  "including some lawmakers": { backed: 10, opposed: 9, proposed: 9, voted: 8 },
+  // Complement adjective in "... because the [event] remained [adj]"
+  "because the talks": { remained: 10, stalled: 9, collapsed: 8, broke: 8 },
+  "because the crisis": { worsened: 10, deepened: 9, persisted: 9, escalated: 8 },
+  "because the conflict": { escalated: 10, intensified: 9, persisted: 8, continued: 8 },
+  "because the election": { remained: 10, concluded: 8, resulted: 8 },
+  "the talks remained": { unresolved: 10, deadlocked: 10, stalled: 9, tense: 8 },
+  "the crisis remained": { unresolved: 10, acute: 9, severe: 9, critical: 8 },
+  "the conflict remained": { unresolved: 10, deadlocked: 9, ongoing: 9, severe: 8 },
+  "the election remained": { contested: 10, undecided: 9, disputed: 9, uncertain: 8 },
+  "the situation remained": { uncertain: 10, tense: 10, fragile: 9, unresolved: 9 },
 };
 
 // Common English 5-Gram Transitions ("w1 w2 w3 w4" -> Record<w5, weight>)
@@ -736,8 +866,11 @@ function scoreCandidateWithContext(w: string, ctx: NGramContextState): number {
 
   // 7. Repetition penalty: non-function words are pre-filtered into nonFunctionContextSet,
   // bypassing secondary FUNCTION_WORDS_SET lookups for all candidates.
+  // Topic-relevant words receive a softer penalty (-150) since they are contextually appropriate
+  // even when they recur; non-topic repeated content words take the full penalty (-500).
   if (ctx.nonFunctionContextSet && ctx.nonFunctionContextSet.has(w)) {
-    score -= 500;
+    const isTopicWord = ctx.topicWordSet && ctx.topicWordSet.has(w);
+    score -= isTopicWord ? 150 : 500;
   }
 
   return score;
