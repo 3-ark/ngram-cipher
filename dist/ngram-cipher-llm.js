@@ -366,11 +366,13 @@ function We(e) {
 	return Ve.has(t) ? !0 : !He.has(t) && /(?:s|ies|ves)$/.test(t) && !/(?:ss|us|is)$/.test(t);
 }
 function Ge(e) {
-	let t = 2 ** Math.floor(Math.log2(e.length));
-	return e.slice(0, t);
+	let t = e.length;
+	if (!(t & t - 1)) return e;
+	let n = 1 << 31 - Math.clz32(t);
+	return e.slice(0, n);
 }
 function Ke(e, t, n, r) {
-	if (e.length < 2) return [...e];
+	if (e.length < 2) return e;
 	let i;
 	if (n === "VP") {
 		let n = Ue(t);
@@ -378,8 +380,15 @@ function Ke(e, t, n, r) {
 			let t = we(n), r;
 			t === "METRIC" ? r = Ne : t === "EVENT" ? r = Pe : t === "DOCUMENT" ? r = Fe : t === "SYSTEM_OBJECT" ? r = Ie : t === "AGENT" && (i = e.filter((e) => !Me.has(e.toLowerCase()))), r && (i = e.filter((e) => r.has(e.toLowerCase())));
 		}
-	} else n === "N" ? t.slice(-3).reverse().find((e) => ze.has(e.toLowerCase())) && (i = e.filter((e) => !We(e) && !Be.has(e.toLowerCase()))) : n === "R" && w.has(t[t.length - 1]?.toLowerCase()) && (i = e.filter((e) => je.has(e.toLowerCase())));
-	return i ||= [...e], i.length < 2 ? [...e] : Ge(i);
+	} else if (n === "N") {
+		let n = !1, r = Math.max(0, t.length - 3);
+		for (let e = t.length - 1; e >= r; e--) if (ze.has(t[e].toLowerCase())) {
+			n = !0;
+			break;
+		}
+		n && (i = e.filter((e) => !We(e) && !Be.has(e.toLowerCase())));
+	} else n === "R" && w.has(t[t.length - 1]?.toLowerCase()) && (i = e.filter((e) => je.has(e.toLowerCase())));
+	return !i || i.length < 2 ? Ge(e) : Ge(i);
 }
 var qe = /* @__PURE__ */ new Set(/* @__PURE__ */ "about.above.across.after.against.along.among.around.at.before.behind.below.beneath.beside.between.beyond.by.despite.during.for.from.in.into.near.of.off.on.onto.over.past.since.through.throughout.to.toward.towards.under.until.upon.with.within.without".split(".")), Je = /* @__PURE__ */ new Set(/* @__PURE__ */ "moon.river.forest.ocean.wind.rain.snow.cloud.sky.sea.tree.branch.leaf.flower.bird.stone.mountain.valley.meadow.shore.lake.stream.shadow.dawn.dusk.night.star.flame.garden.field.silence.season.frost.ember.mist.sunlight.starlight.comet.desert.island.pathway.horizon.reflection.echo.whisper.breeze.storm.twilight.harbor.cavern.glade.summit.pine.willow.feather.shell.tide.wave.spark.light.haven.clearing.canopy.solitude.time.memory.dream.music.solace.wonder.heart.spirit.sorrow.promise.presence.distance.passage.rhythm.secret.lullaby".split(".")), Ye = /* @__PURE__ */ new Set([
 	"whispered",
@@ -1457,12 +1466,18 @@ function rt(e, t, n) {
 }
 function it(e, t, n) {
 	if (!e || e.length <= 1) return e ? [...e] : [];
-	let r = tt(t, n), i = e.map((e, t) => ({
-		word: e,
-		originalIndex: t,
-		score: nt(e.toLowerCase(), r)
-	}));
-	return i.sort((e, t) => t.score === e.score ? e.originalIndex - t.originalIndex : t.score - e.score), i.map((e) => e.word);
+	let r = tt(t, n), i = e.length, a = new Float64Array(i);
+	for (let t = 0; t < i; t++) {
+		let n = nt(e[t].toLowerCase(), r);
+		a[t] = -n * 65536 + t;
+	}
+	a.sort();
+	let o = Array(i);
+	for (let t = 0; t < i; t++) {
+		let n = (a[t] % 65536 + 65536) % 65536;
+		o[t] = e[n];
+	}
+	return o;
 }
 function at(e, t, n) {
 	if (t <= 0) return 0;
@@ -1928,8 +1943,8 @@ var Gt = class {
 	}
 	toBytes() {
 		if (this.bitCount > 0) {
-			let e = this.currentByte << 8 - this.bitCount & 255;
-			return new Uint8Array([...this.bytes, e]);
+			let e = this.currentByte << 8 - this.bitCount & 255, t = new Uint8Array(this.bytes.length + 1);
+			return t.set(this.bytes, 0), t[this.bytes.length] = e, t;
 		}
 		return new Uint8Array(this.bytes);
 	}
@@ -2038,7 +2053,10 @@ var rn = class {
 };
 function an(e, t) {
 	let n = t.length >= 1 ? t[t.length - 1] : void 0, r = e.filter((e) => e.toLowerCase() !== n);
-	if (r.length === 0) return /* @__PURE__ */ new Map();
+	if (r.length === 0) return {
+		wordToCode: /* @__PURE__ */ new Map(),
+		codeToWord: /* @__PURE__ */ new Map()
+	};
 	let i = new rn();
 	for (let e = 0; e < r.length; e++) {
 		let t = r[e];
@@ -2057,12 +2075,21 @@ function an(e, t) {
 			right: t
 		});
 	}
-	let a = /* @__PURE__ */ new Map(), o = i.pop();
-	if (!o) return a;
-	let s = (e, t) => {
-		e.word === void 0 ? (e.left && s(e.left, `${t}0`), e.right && s(e.right, `${t}1`)) : a.set(e.word, t || "0");
+	let a = /* @__PURE__ */ new Map(), o = /* @__PURE__ */ new Map(), s = i.pop();
+	if (!s) return {
+		wordToCode: a,
+		codeToWord: o
 	};
-	return s(o, ""), a;
+	let c = (e, t) => {
+		if (e.word !== void 0) {
+			let n = t || "0";
+			a.set(e.word, n), o.set(n, e.word);
+		} else e.left && c(e.left, `${t}0`), e.right && c(e.right, `${t}1`);
+	};
+	return c(s, ""), {
+		wordToCode: a,
+		codeToWord: o
+	};
 }
 var on = [
 	".",
@@ -2092,7 +2119,9 @@ function un(e, t = l.encoding) {
 	a.set(e, 0), a.set(i, e.length);
 	let o = new Gt(a), c = [], u = n ? Ht : G, d = [], f = [], p = 0, m = n ? void 0 : _e[a[0] >> 6 & 3];
 	for (; o.hasBits;) {
-		let e = nn(u, f, !n), r = new Map(Array.from(e, ([e, t]) => [t, e])), i = "", a;
+		let e = nn(u, f, !n), r = /* @__PURE__ */ new Map();
+		for (let [t, n] of e) r.set(n, t);
+		let i = "", a;
 		for (let e = 0; e < 16 && (i += o.readBits(1).toString(), a = r.get(i), a === void 0); e++);
 		if (a === void 0) throw new s("Unable to decode sentence template.");
 		let l = u[a], h = [], g = [];
@@ -2105,10 +2134,10 @@ function un(e, t = l.encoding) {
 			}
 			let a;
 			if (!n && h.length === 0) {
-				let e = an(i, d), t = new Map(Array.from(e, ([e, t]) => [t, e])), n = "", r;
-				for (let e = 0; e < 16 && (n += o.readBits(1).toString(), r = t.get(n), !r); e++);
-				if (!r) throw new s("Unable to decode sentence opening word.");
-				a = r;
+				let e = an(i, d).codeToWord, t = "", n;
+				for (let r = 0; r < 16 && (t += o.readBits(1).toString(), n = e.get(t), !n); r++);
+				if (!n) throw new s("Unable to decode sentence opening word.");
+				a = n;
 			} else if (!n && e.label === "d" && t.length < P.length) {
 				let e = Math.floor(Math.log2(i.length));
 				a = i[at(o.hasBits ? o.readBits(e) : 0, e, i.length) % i.length];
@@ -2203,7 +2232,7 @@ function dn(e, t = l.encoding) {
 			if (g >= f.length) break;
 			let r = f[g], i = r.replace(/^[ "'“‘]+/g, "").replace(/[ "'”’.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 			t.type === "data" && i === "an" && t.label === "d" && (i = "a");
-			let o = e === 0 || n ? void 0 : d, l = t.list && t.list.length > 0 ? t.list : ht, u = it(t.type === "data" && !n ? Ke(l, _, t.label, o) : l, _, o), p = !n && g === 0 && t.type === "data" ? an(u, c) : void 0, m = u.indexOf(i);
+			let o = e === 0 || n ? void 0 : d, l = t.list && t.list.length > 0 ? t.list : ht, u = it(t.type === "data" && !n ? Ke(l, _, t.label, o) : l, _, o), p = !n && g === 0 && t.type === "data" ? an(u, c).wordToCode : void 0, m = u.indexOf(i);
 			if (m === -1 && (m = u.findIndex((e) => e.toLowerCase() === i)), m === -1) throw new s(`Invalid or unrecognized token in cipher text: "${r}" (not in carrier vocabulary, sentence ${e + 1})`);
 			if (t.type === "data") {
 				if (p) {
