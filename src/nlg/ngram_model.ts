@@ -660,7 +660,7 @@ const TRIGRAM_MAP: Record<string, Record<string, number>> = {
   "after negotiations": { however: 10, nevertheless: 9, still: 8, meanwhile: 8 },
   "after meetings": { however: 10, the: 9, officials: 8, leaders: 8 },
   "after hearings": { however: 10, the: 9, officials: 8, lawmakers: 8 },
-  "after elections": { however: 10, the: 9, officials: 8, the: 8 },
+  "after elections": { however: 10, the: 9, officials: 8, meanwhile: 8 },
   "talks remained": { unresolved: 10, deadlocked: 10, stalled: 9, tense: 8, inconclusive: 8 },
   "negotiations remained": { unresolved: 10, deadlocked: 10, stalled: 9, tense: 8 },
   "discussions remained": { unresolved: 10, deadlocked: 9, stalled: 9, ongoing: 8 },

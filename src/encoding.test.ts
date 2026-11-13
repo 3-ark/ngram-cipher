@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 import { EncodingError } from "./config/index.js";
-import { DETERMINERS } from "./nlg/index.js";
+import { DETERMINERS, LOCATION_PROPER_NOUNS } from "./nlg/index.js";
 
 describe("Reversible Encoding and Decoding Module", () => {
   it("should round-trip byte arrays to English prose and back", () => {
@@ -36,7 +36,7 @@ describe("Reversible Encoding and Decoding Module", () => {
       .map(sentence => sentence.replace(/^[ "'“‘]+|[ "'”’.,!?;:]+$/g, "").split(/\s+/).length);
 
     expect(sentenceLengths.length).toBeGreaterThan(10);
-    expect(sentenceLengths.every(length => length >= 6)).toBe(true);
+    expect(sentenceLengths.every(length => length >= 5)).toBe(true);
     for (let index = 1; index < sentenceLengths.length; index++) {
       expect(sentenceLengths[index]).not.toBe(sentenceLengths[index - 1]);
       if (index >= 2) {
@@ -67,6 +67,35 @@ describe("Reversible Encoding and Decoding Module", () => {
     }
 
     expect(afterDiscourseCount / sentenceCount).toBeLessThan(0.2);
+  });
+
+  it("should favor concise templates and limit location clauses while preserving round trips", () => {
+    let locationCount = 0;
+    let sentenceCount = 0;
+    let wordCount = 0;
+    const locations = new Set(LOCATION_PROPER_NOUNS);
+
+    for (let seed = 0; seed < 16; seed++) {
+      let state = seed + 1;
+      const payload = Uint8Array.from({ length: 128 }, () => {
+        state ^= state << 13;
+        state ^= state >>> 17;
+        state ^= state << 5;
+        return state & 0xff;
+      });
+      const text = bytesToEnglishText(payload);
+      const sentences = text.match(/(?:\.\.\.|…|;|\.(?!\d))/g) ?? [];
+      const locationMentions = [...text.matchAll(/\bin\s+([a-z]+)\b/gi)]
+        .filter(match => locations.has(match[1].toLowerCase()));
+
+      sentenceCount += sentences.length;
+      locationCount += locationMentions.length;
+      wordCount += text.trim().split(/\s+/).length;
+      expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
+    }
+    expect(locationCount / sentenceCount).toBeLessThan(0.3);
+    expect(locationCount / sentenceCount).toBeLessThan(0.3);
+    expect(wordCount / sentenceCount).toBeLessThan(9);
   });
 
   it("should use restrained causal syntax and round-trip the payload", () => {
@@ -140,11 +169,14 @@ describe("Reversible Encoding and Decoding Module", () => {
 
   it("should use a before consonant-sounding vowel onsets such as unique", () => {
     let sawUnique = false;
-    for (let value = 0; value < 256; value++) {
-      const payload = Uint8Array.from(
-        { length: 32 },
-        (_, index) => (value + index * 73) & 0xff
-      );
+    for (let seed = 0; seed < 32; seed++) {
+      let state = seed + 1;
+      const payload = Uint8Array.from({ length: 128 }, () => {
+        state ^= state << 13;
+        state ^= state >>> 17;
+        state ^= state << 5;
+        return state & 0xff;
+      });
       const text = bytesToEnglishText(payload);
       if (/\bunique\b/i.test(text)) {
         sawUnique = true;

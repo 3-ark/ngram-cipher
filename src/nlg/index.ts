@@ -517,8 +517,8 @@ const OBJECT_DETERMINERS = ["the","some","no","any"];
 
 // Distinct sentence word counts allow deterministic template identification.
 export const TEMPLATES: Slot[][] = [
-  // 0 / 6 words: The major market rose in London.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
+  // 0 / 6 words: The major market rose sharply 5.1%.
+  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), D(PERCENTAGES, "PCT")],
 
   // 1 / 8 words: The major market rose sharply 5.1% in London.
   [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), D(PERCENTAGES, "PCT"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
@@ -545,7 +545,10 @@ export const TEMPLATES: Slot[][] = [
   [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", ","), D(CAUSE_LINKERS, "c", undefined, '"'), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", '"')],
 
   // 9 / 18 words: "The officials, including some delegates, requested a formal statement because the talks remained unresolved," Reuters reported on Friday.
-  [D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), F(["including"], "c"), D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), D(APPOSITIVE_REQUEST_VERBS, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["because"], "c"), D(OBJECT_DETERMINERS, "d"), D(AFTER_EVENTS, "N"), D(UNRESOLVED_COMPLEMENT_VERBS, "VP"), D(COMPLEMENT_ADJECTIVES, "A", ","), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["on"], "p"), F(["Friday"], "NP")]
+  [D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), F(["including"], "c"), D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), D(APPOSITIVE_REQUEST_VERBS, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["because"], "c"), D(OBJECT_DETERMINERS, "d"), D(AFTER_EVENTS, "N"), D(UNRESOLVED_COMPLEMENT_VERBS, "VP"), D(COMPLEMENT_ADJECTIVES, "A", ","), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["on"], "p"), F(["Friday"], "NP")],
+
+  // 10 / 5 words: The market rose sharply 5.1%.
+  [D(DETERMINERS, "d"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), D(PERCENTAGES, "PCT")]
 ];
 
 const POETRY_NOUNS = [

@@ -57,7 +57,8 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(TEMPLATES[0][3].list).toContain("grew");
     expect(PRONOUNS).toContain("it");
     expect(PRONOUNS).toContain("they");
-    expect(TEMPLATES[0][4]).toEqual({ type: "filler", list: ["in"], label: "p" });
+    expect(TEMPLATES[0][4].label).toBe("R");
+    expect(TEMPLATES[0][5].label).toBe("PCT");
     expect(TEMPLATES[1][0]).toEqual({ type: "data", list: DETERMINERS, label: "d" });
     expect(TEMPLATES[1][1].list).toHaveLength(256);
     expect(TEMPLATES[1][2].list).toHaveLength(256);
@@ -111,7 +112,7 @@ describe("Natural Language Generation & Analysis Module", () => {
   it("should contain valid templates with 100% data slots carrying bits", () => {
     expect(TEMPLATES.length).toBeGreaterThan(0);
     expect(new Set(TEMPLATES.map(template => template.length)).size).toBe(TEMPLATES.length);
-    expect(TEMPLATES.map(template => template.length)).toEqual([6, 8, 7, 9, 10, 12, 14, 15, 17, 18]);
+    expect(TEMPLATES.map(template => template.length)).toEqual([6, 8, 7, 9, 10, 12, 14, 15, 17, 18, 5]);
     for (const template of TEMPLATES) {
       expect(template.length).toBeGreaterThan(0);
       for (const slot of template) {

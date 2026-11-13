@@ -6,6 +6,7 @@ import { EncodingError, EncodingConfig, DEFAULT_CONFIG } from "../config/index.j
 import {
   CARRIER_WORDS,
   DETERMINERS,
+  LOCATION_PROPER_NOUNS,
   TEMPLATES,
   POETRY_TEMPLATES,
   DOMAIN_TOPICS,
@@ -65,6 +66,8 @@ for (let count = 8; count <= TEMPLATES.length; count++) {
   ];
 }
 const LESS_COMMON_TEMPLATE_INDEX = 3;
+const TEMPLATE_LOCATION_PENALTY = 1.5;
+const TEMPLATE_WORD_COUNT_PENALTY = 0.25;
 
 function estimateTemplateBitDensity(template: Slot[]): number {
   let bits = 0;
@@ -84,20 +87,25 @@ function estimateTemplateBitDensity(template: Slot[]): number {
   return (bits + 4) / template.length;
 }
 
-// Performance optimization: Precompute and memoize template bit densities per template array using
-// a WeakMap. In getTemplateCodes, candidate sorting repeatedly compares template densities
-// (estimateTemplateBitDensity(templates[b]) - estimateTemplateBitDensity(templates[a])), which
-// previously triggered dozens of slot loops, Math.log2 calls, and property lookups per sentence.
-// Precomputing densities reduces density lookup during sorting to O(1) array indexing (~3.4x faster getTemplateCodes).
-const TEMPLATE_DENSITY_CACHE = new WeakMap<Slot[][], number[]>();
+function estimateTemplateSelectionScore(template: Slot[]): number {
+  const locationSlots = template.filter(
+    slot => slot.type === "data" && slot.list === LOCATION_PROPER_NOUNS
+  ).length;
+  return estimateTemplateBitDensity(template)
+    - template.length * TEMPLATE_WORD_COUNT_PENALTY
+    - locationSlots * TEMPLATE_LOCATION_PENALTY;
+}
 
-function getTemplateDensities(templates: Slot[][]): number[] {
-  let densities = TEMPLATE_DENSITY_CACHE.get(templates);
-  if (!densities) {
-    densities = templates.map(t => estimateTemplateBitDensity(t));
-    TEMPLATE_DENSITY_CACHE.set(templates, densities);
+// Cache static template scores so the candidate ranking sort does not recompute them per sentence.
+const TEMPLATE_SCORE_CACHE = new WeakMap<Slot[][], number[]>();
+
+function getTemplateScores(templates: Slot[][]): number[] {
+  let scores = TEMPLATE_SCORE_CACHE.get(templates);
+  if (!scores) {
+    scores = templates.map(estimateTemplateSelectionScore);
+    TEMPLATE_SCORE_CACHE.set(templates, scores);
   }
-  return densities;
+  return scores;
 }
 
 function getTemplateCodes(
@@ -126,11 +134,11 @@ function getTemplateCodes(
   const lessCommonCode = candidates.includes(LESS_COMMON_TEMPLATE_INDEX)
     ? codesByLength.pop()
     : undefined;
-  const templateDensities = getTemplateDensities(templates);
+  const templateScores = getTemplateScores(templates);
   const rankedCandidates = candidates
     .filter(index => index !== LESS_COMMON_TEMPLATE_INDEX || lessCommonCode === undefined)
     .sort((a, b) =>
-      templateDensities[b] - templateDensities[a] || a - b
+      templateScores[b] - templateScores[a] || a - b
     );
   rankedCandidates.forEach((index, rank) => codes.set(index, codesByLength[rank]));
   if (lessCommonCode !== undefined) {

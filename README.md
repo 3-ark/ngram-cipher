@@ -13,7 +13,7 @@ Unlike classic steganography that hides bits in image pixels or audio noise, `ng
 ## Features
 
 - **🔐 Robust Security**: PBKDF2 (100,000 iterations) key derivation, AES-256-GCM encryption, CRC32 binary framing, and payload whitening.
-- **💬 Natural English Carrier Text**: Generates flowing prose following dynamic N-gram statistical models with subject-verb semantic matching and dynamic punctuation. News sentences contain at least six words, vary their structure, and avoid repeating a structure within the previous two sentences. Patterns include appositive details, causal explanations, and source attributions.
+- **💬 Natural English Carrier Text**: Generates flowing prose following dynamic N-gram statistical models with subject-verb semantic matching and dynamic punctuation. News sentences contain at least five words, vary their structure, and avoid repeating a structure within the previous two sentences. Patterns include concise trend reports, appositive details, causal explanations, and source attributions.
 - **🎨 Multiple Carrier Styles**:
   - `news` (default): Realistic journalistic prose with attributions, clause variations, and natural sentence flows.
   - `poetry`: Stanza-formatted poetic verse with haiku-inspired rhythm, expressive vocabulary, and rich steganographic capacity.
