@@ -1,5 +1,7 @@
 # ngram-cipher 🔏💬
 
+**Still working in progress, not usable!!!**
+
 > Natural English N-Gram Steganographic Cipher Encoder and Decoder for JavaScript & TypeScript.
 
 `ngram-cipher` encrypts secret data using **AES-256-GCM** and hides the resulting ciphertext inside losslessly reversible, natural-sounding English prose (news reports or poetry).
