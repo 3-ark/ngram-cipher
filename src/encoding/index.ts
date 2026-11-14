@@ -6,7 +6,7 @@ import { EncodingError, EncodingConfig, DEFAULT_CONFIG } from "../config/index.j
 import {
   CARRIER_WORDS,
   DETERMINERS,
-  LOCATION_PROPER_NOUNS,
+  NEWS_LOCATIONS,
   TEMPLATES,
   POETRY_TEMPLATES,
   DOMAIN_TOPICS,
@@ -25,13 +25,13 @@ export { BitStreamReader, BitStreamWriter };
 const NEWS_ENDING_CODES: Record<string, string> = {
   ".": "0",
   ";": "10",
-  "...": "110",
+  "~": "110",
   "…": "111",
 };
 const NEWS_ENDING_CODE_TO_SYMBOL: Record<string, string> = {
   "0": ".",
   "10": ";",
-  "110": "...",
+  "110": "~",
   "111": "…",
 };
 
@@ -90,7 +90,7 @@ function estimateTemplateBitDensity(template: Slot[]): number {
 
 function estimateTemplateSelectionScore(template: Slot[]): number {
   const locationSlots = template.filter(
-    slot => slot.type === "data" && slot.list === LOCATION_PROPER_NOUNS
+    slot => slot.type === "data" && slot.list === NEWS_LOCATIONS
   ).length;
   const hasCausalClause = template.some(
     slot => slot.type === "data" && slot.label === "c" && slot.list.length === 4
@@ -293,7 +293,7 @@ const POETRY_ENDINGS = [".", " —", "...", ","];
 const POETRY_ENDING_TO_CODE: Record<string, number> = {
   ".": 0,
   " —": 1,
-  "...": 2,
+  "~": 2,
   ",": 3,
   "?": 0,
 };
@@ -597,8 +597,8 @@ export function englishTextToBytes(
       let endingStr = ".";
       let sentenceStr = trimmed;
 
-      if (trimmed.endsWith('..."') || trimmed.endsWith("...")) {
-        endingStr = "...";
+      if (trimmed.endsWith('~"') || trimmed.endsWith("...")) {
+        endingStr = "~";
         sentenceStr = trimmed.replace(/\.\.\.["'”’]*$/, "").trim();
       } else if (trimmed.endsWith('…"') || trimmed.endsWith("…")) {
         endingStr = "…";

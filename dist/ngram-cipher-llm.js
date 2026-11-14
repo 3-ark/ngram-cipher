@@ -199,7 +199,7 @@ var te = /* @__PURE__ */ "market.economy.growth.profit.revenue.stock.climate.ene
 	governance: /* @__PURE__ */ new Set(/* @__PURE__ */ "government.president.council.agency.coalition.commission.authority.parliament.court.police.official.leader.minister.governor.senator.policy.program.reform.strategy.verdict.sentence.evidence.contract.statement.proposal.amendment.regulation.standard.guideline.framework.protocol.bill.act.measure.accord.resolution.mandate.decree.directive.statute.law.code.announced.approved.passed.signed.adopted.ratified.enacted.rejected.vetoed.repealed".split(".")),
 	diplomacy: /* @__PURE__ */ new Set(/* @__PURE__ */ "summit.treaty.alliance.foundation.ambassador.diplomat.delegate.envoy.representatives.dignitary.emissary.talks.negotiations.discussions.debates.meetings.sessions.conferences.briefings.dialogues.proceedings.agreements.settlements.reconciliations.compromises.pacts.charters.covenants.washington.london.beijing.moscow.berlin.paris.tokyo.brussels.geneva.vienna.madrid.rome.seoul.cairo.warsaw.prague.stockholm.helsinki.reuters.bloomberg.guardian.stated.reported.confirmed.noted.argued.explained.revealed.declared.reaffirmed".split(".")),
 	crisis: /* @__PURE__ */ new Set(/* @__PURE__ */ "drought.storm.flood.conflict.crisis.shortage.strike.blockade.recession.disruption.protest.fire.outbreak.failure.collapse.delay.dispute.war.epidemic.unrest.violence.wildfire.instability.pressure.tension.friction.embargo.sanction.disaster.snowfall.heat.cyclone.hurricane.earthquake.damage.threat.hazard.danger.downturn.hardship.struggle.calamity.upheaval.escalated.deepened.intensified.spread.persisted.worsened.erupted.struck.hit".split("."))
-}, ye = /* @__PURE__ */ new Set(/* @__PURE__ */ "government.president.council.agency.coalition.alliance.foundation.commission.authority.parliament.court.police.school.student.teacher.university.hospital.patient.doctor.team.player.coach.athlete.league.crowd.rival.family.children.mother.father.neighbor.household.generation.worker.union.media.journalist.press.artist.director.actor.audience.author.publisher.soldier.battalion.commander.regiment.astronaut.citizen.resident.volunteer.activist.leader.minister.ambassador.diplomat.delegate.governor.senator.official.researcher.scholar.graduate.professor.faculty.company.industry.community.prosecution.defense.witness.movement".split(".")), be = /* @__PURE__ */ new Set(/* @__PURE__ */ "report.policy.program.treaty.reform.strategy.verdict.sentence.evidence.contract.broadcast.headline.coverage.statement.interview.film.production.scene.screenplay.novel.chapter.story.edition.volume.archive.legend.memorial.forecast.petition.agreement.proposal.amendment.regulation.standard.guideline.framework.protocol.lecture.seminar.debate.opinion.analysis.survey.finding.conclusion.outcome.assessment.concept.theory.principle".split(".")), xe = /* @__PURE__ */ new Set(/* @__PURE__ */ "market.economy.budget.finance.trade.export.investment.growth.profit.revenue.stock.salary.benefit.temperature.rainfall.supply.demand.shortage.surplus.score.penalty.value.cost.price.rate.climate.energy.pollution.resource.production.outcome.shipment.cargo.delivery.forecast.employment.inflation.output.sales.debt.income.spending.volume.level.activity.traffic.attendance.capacity.earnings.imports.exports.operations.services.costs.prices.profits.performance.record.weather.harvest.crops.transport.coverage.yield.stocks.access.resources.deliveries.shortages.shipments.supplies.assets.liabilities.dividends.shares.equities.bonds.funds.capital.wealth.wages.payroll.rates.returns.losses.gains.balances.reserves.deposits.loans.credit.expenditure.consumption.manufacturing.orders.receipts.turnover.margin.margins.yields.productivity.efficiency.unemployment.housing.rent.mortgages.construction.index.indices.exchange.currency.dollar.euro.pound.oil.gas.coal.electricity.power.water.food.wheat.grain.steel.copper.gold.silver.cotton.timber.freight.shipping.passengers.inventory.inventories.stockpile".split(".")), Se = /* @__PURE__ */ new Set(/* @__PURE__ */ "election.campaign.crisis.summit.border.conflict.trial.crime.investigation.arrest.charge.prison.justice.education.research.science.technology.treatment.vaccine.medicine.surgery.disease.season.match.victory.championship.tournament.protest.movement.demonstration.operation.deployment.mission.weather.storm.drought.flood.disaster.history.tradition.heritage.ceremony.performance.concert.festival.unrest.violence.wildfire.instability.epidemic.strike.blockade.recession.disruption.fire.outbreak.failure.decline.collapse.delay.accident.attack.heat.snowfall.wind.earthquake.eruption.avalanche".split(".")), Ce = /* @__PURE__ */ new Set(/* @__PURE__ */ "system.country.district.network.stadium.climate.energy.environment.pollution.forest.ocean.wildlife.resource.bridge.highway.airport.railway.station.tunnel.harbor.terminal.office.building.project.museum.gallery.theater.culture.studio.library.monument.planet.orbit.rocket.spacecraft.telescope.weapon.missile.infrastructure.platform.software.database.server.algorithm.device.processor.signal.channel.frequency.spectrum.antenna.receiver.transmitter.module.campus.warehouse.shipment.cargo.delivery.language.symbol.pattern.structure.method".split("."));
+}, ye = /* @__PURE__ */ new Set(/* @__PURE__ */ "government.president.council.agency.coalition.alliance.foundation.commission.authority.parliament.court.police.school.student.teacher.university.hospital.patient.doctor.team.player.coach.athlete.league.crowd.rival.family.children.mother.father.neighbor.household.generation.worker.union.media.journalist.press.artist.director.actor.audience.author.publisher.soldier.battalion.commander.regiment.astronaut.citizen.resident.volunteer.activist.leader.minister.ambassador.diplomat.delegate.governor.senator.official.researcher.scholar.graduate.professor.faculty.company.industry.community.prosecution.defense.witness.movement".split(".")), be = /* @__PURE__ */ new Set(/* @__PURE__ */ "report.policy.program.treaty.reform.strategy.verdict.sentence.evidence.contract.broadcast.headline.coverage.statement.interview.film.production.scene.screenplay.novel.chapter.story.edition.volume.archive.legend.memorial.forecast.petition.agreement.proposal.amendment.regulation.standard.guideline.framework.protocol.lecture.seminar.debate.opinion.analysis.survey.finding.conclusion.outcome.assessment.concept.theory.principle".split(".")), xe = /* @__PURE__ */ new Set(/* @__PURE__ */ "market.economy.budget.finance.trade.export.investment.growth.profit.revenue.stock.salary.benefit.temperature.rainfall.supply.demand.shortage.surplus.score.penalty.value.cost.price.rate.climate.energy.pollution.resource.production.outcome.shipment.cargo.delivery.forecast.employment.inflation.output.sales.debt.income.spending.volume.level.activity.traffic.attendance.capacity.earnings.imports.exports.operations.services.costs.prices.profits.performance.record.weather.harvest.crops.transport.coverage.yield.stocks.access.resources.deliveries.shortages.shipments.supplies.assets.liabilities.dividends.shares.equities.bonds.funds.capital.wealth.wages.payroll.rates.returns.losses.gains.balances.sector.industry.asset.reserves.deposits.loans.credit.expenditure.consumption.manufacturing.orders.receipts.turnover.margin.margins.yields.productivity.efficiency.unemployment.housing.rent.mortgages.construction.index.indices.exchange.currency.dollar.euro.pound.oil.gas.coal.electricity.power.water.food.wheat.grain.steel.copper.gold.silver.cotton.timber.freight.shipping.passengers.inventory.inventories.stockpile".split(".")), Se = /* @__PURE__ */ new Set(/* @__PURE__ */ "election.campaign.crisis.summit.border.conflict.trial.crime.investigation.arrest.charge.prison.justice.education.research.science.technology.treatment.vaccine.medicine.surgery.disease.season.match.victory.championship.tournament.protest.movement.demonstration.operation.deployment.mission.weather.storm.dispute.drought.flood.disaster.history.tradition.heritage.ceremony.performance.concert.festival.unrest.violence.wildfire.instability.epidemic.strike.blockade.recession.disruption.fire.outbreak.failure.decline.collapse.delay.accident.attack.heat.snowfall.wind.earthquake.eruption.avalanche".split(".")), Ce = /* @__PURE__ */ new Set(/* @__PURE__ */ "system.country.district.network.stadium.climate.energy.environment.pollution.forest.ocean.wildlife.resource.bridge.highway.airport.railway.station.tunnel.harbor.terminal.office.building.project.museum.gallery.theater.culture.studio.library.monument.planet.orbit.rocket.spacecraft.telescope.weapon.missile.infrastructure.platform.software.database.server.algorithm.device.processor.signal.channel.frequency.spectrum.antenna.receiver.transmitter.module.campus.warehouse.shipment.cargo.delivery.language.symbol.pattern.structure.method".split("."));
 function we(e) {
 	let t = e.toLowerCase();
 	return ye.has(t) ? "AGENT" : xe.has(t) ? "METRIC" : be.has(t) ? "DOCUMENT" : Se.has(t) ? "EVENT" : Ce.has(t) ? "SYSTEM_OBJECT" : "AGENT";
@@ -226,7 +226,7 @@ var w = /* @__PURE__ */ new Set(/* @__PURE__ */ "said.stated.reported.claimed.ar
 	"announced",
 	"approved",
 	"suggested"
-]), Ee = /* @__PURE__ */ new Set(/* @__PURE__ */ "grew.rose.fell.declined.expanded.shrank.dropped.increased.reduced.surged.recovered.stabilized.fluctuated.boosted.lowered.cut.gained.lost.changed.varied.remained.continued.plunged.climbed.slipped.rebounded.soared.dwindled.weakened.strengthened.accelerated.moderated.peaked.bottomed.plateaued".split(".")), De = /* @__PURE__ */ new Set([
+]), T = /* @__PURE__ */ new Set(/* @__PURE__ */ "grew.rose.fell.declined.expanded.shrank.dropped.increased.reduced.surged.recovered.stabilized.fluctuated.boosted.lowered.cut.gained.lost.changed.varied.remained.continued.plunged.climbed.slipped.rebounded.soared.dwindled.weakened.strengthened.accelerated.moderated.peaked.bottomed.plateaued.advanced.improved.worsened.persisted.deepened.escalated.eased.intensified.spread".split(".")), Ee = /* @__PURE__ */ new Set([
 	"began",
 	"started",
 	"ended",
@@ -248,8 +248,9 @@ var w = /* @__PURE__ */ new Set(/* @__PURE__ */ "said.stated.reported.claimed.ar
 	"triggered",
 	"followed",
 	"threatened",
-	"caused"
-]), Oe = /* @__PURE__ */ new Set([
+	"caused",
+	"eased"
+]), De = /* @__PURE__ */ new Set([
 	"operated",
 	"functioned",
 	"performed",
@@ -264,7 +265,7 @@ var w = /* @__PURE__ */ new Set(/* @__PURE__ */ "said.stated.reported.claimed.ar
 	"transmitted",
 	"generated",
 	"changed"
-]), ke = /* @__PURE__ */ new Set(/* @__PURE__ */ "raised.lowered.increased.decreased.reduced.expanded.boosted.cut.gained.lost.adjusted.amplified.curbed.curtailed.slashed.trimmed.augmented.capped.doubled.elevated.enhanced.extended.halved.heightened.lifted.limited.maximized.minimized.moderated.modified.multiplied.narrowed.optimized.restrained.scaled.shortened.stabilized.stimulated.surpassed.tightened.tripled.widened.yielded.balanced.eased.slowed.stalled.bounced.leveled.fluctuated.shifted.plummeted.spiked.soared.slumped.tumbled.appreciated.broadened.collapsed.contracted.corrected.depreciated.diminished.dipped.drifted.flattened.floated.lessened.normalized.outpaced.rallied.receded.regressed.reset.resumed.reversed.revived.settled.softened.stagnated.steepened.subsided.swelled.tapered.accumulated.bounded.consolidated.dampened.faltered.lagged.lengthened.mounted.overtook.paced.pivoted.poised.prospered.quickened.regained.relapsed.renewed.retrenched.spurred.stiffened.swung.thrived.topped.trailed.trended.wavered.faced.weathered.confronted.endured.experienced.sustained".split(".")), Ae = /* @__PURE__ */ new Set([
+]), Oe = /* @__PURE__ */ new Set(/* @__PURE__ */ "raised.lowered.increased.decreased.reduced.expanded.boosted.cut.gained.lost.adjusted.amplified.curbed.curtailed.slashed.trimmed.augmented.capped.doubled.elevated.enhanced.extended.halved.heightened.lifted.limited.maximized.minimized.moderated.modified.multiplied.narrowed.optimized.restrained.scaled.shortened.stabilized.stimulated.surpassed.tightened.tripled.widened.yielded.balanced.eased.slowed.stalled.bounced.leveled.fluctuated.shifted.plummeted.spiked.soared.slumped.tumbled.appreciated.broadened.collapsed.contracted.corrected.depreciated.diminished.dipped.drifted.flattened.floated.lessened.normalized.outpaced.rallied.receded.regressed.reset.resumed.reversed.revived.settled.softened.stagnated.steepened.subsided.swelled.tapered.accumulated.bounded.consolidated.dampened.faltered.lagged.lengthened.mounted.overtook.paced.pivoted.poised.prospered.quickened.regained.relapsed.renewed.retrenched.spurred.stiffened.swung.thrived.topped.trailed.trended.wavered.faced.weathered.confronted.endured.experienced.sustained".split(".")), ke = /* @__PURE__ */ new Set([
 	"adopted",
 	"approved",
 	"amended",
@@ -281,8 +282,8 @@ var w = /* @__PURE__ */ new Set(/* @__PURE__ */ "said.stated.reported.claimed.ar
 	"upheld",
 	"remained",
 	"required"
-]), je = /* @__PURE__ */ new Set(/* @__PURE__ */ "sharply.steadily.rapidly.gradually.significantly.modestly.slightly.dramatically.quickly.slowly.noticeably.substantially.marginally.suddenly.steeply.precipitously.markedly.considerably.tremendously.immensely.drastically.severely.acutely.intensely.profoundly.deeply.greatly.hugely.massively.enormously.vastly.appreciably.perceptibly.visibly.moderately.progressively.continuously.extensively.alarmingly".split(".")), Me = /* @__PURE__ */ new Set([
-	...ke,
+]), Ae = /* @__PURE__ */ new Set(/* @__PURE__ */ "sharply.steadily.rapidly.gradually.significantly.modestly.slightly.dramatically.quickly.slowly.noticeably.substantially.marginally.suddenly.steeply.precipitously.markedly.considerably.tremendously.immensely.drastically.severely.acutely.intensely.profoundly.deeply.greatly.hugely.massively.enormously.vastly.appreciably.perceptibly.visibly.moderately.progressively.continuously.extensively.alarmingly".split(".")), je = /* @__PURE__ */ new Set([
+	...Oe,
 	"fell",
 	"grew",
 	"rose",
@@ -305,19 +306,19 @@ var w = /* @__PURE__ */ new Set(/* @__PURE__ */ "said.stated.reported.claimed.ar
 	"peaked",
 	"bottomed",
 	"plateaued"
-]), Ne = /* @__PURE__ */ new Set([...Ee, ...ke]), Pe = /* @__PURE__ */ new Set([...De, ...Ee]), Fe = /* @__PURE__ */ new Set([
+]), Me = /* @__PURE__ */ new Set([...T, ...Oe]), Ne = /* @__PURE__ */ new Set([...Ee, ...T]), Pe = /* @__PURE__ */ new Set([
 	...Te,
 	...w,
-	...Ae
-]), Ie = /* @__PURE__ */ new Set([
-	...Oe,
-	...Ee,
+	...ke
+]), Fe = /* @__PURE__ */ new Set([
+	...De,
+	...T,
+	...Ee
+]), Ie = /* @__PURE__ */ new Set([...Te, ...w]), Le = /* @__PURE__ */ new Set([
+	...w,
+	...Te,
 	...De
-]), Le = /* @__PURE__ */ new Set([...Te, ...w]), Re = /* @__PURE__ */ new Set([
-	...w,
-	...Te,
-	...Oe
-]), ze = /* @__PURE__ */ new Set([
+]), Re = /* @__PURE__ */ new Set([
 	"after",
 	"before",
 	"during",
@@ -331,7 +332,7 @@ var w = /* @__PURE__ */ new Set(/* @__PURE__ */ "said.stated.reported.claimed.ar
 	"hearings,",
 	"elections,",
 	"discussions,"
-]), Be = /* @__PURE__ */ new Set(/* @__PURE__ */ "however.meanwhile.nevertheless.nonetheless.still.instead.also.indeed.similarly.furthermore.additionally.otherwise.rather.likewise.conversely.ultimately.consequently.accordingly.thus.therefore.hence.besides.moreover.then.further.finally.initially.subsequently.thereafter.afterward.alternatively.eventually.undoubtedly.certainly.decisively.firstly.secondly.thirdly.lastly.incidentally.admittedly".split(".")), Ve = /* @__PURE__ */ new Set([
+]), ze = /* @__PURE__ */ new Set(/* @__PURE__ */ "however.meanwhile.nevertheless.nonetheless.still.instead.also.indeed.similarly.furthermore.additionally.otherwise.rather.likewise.conversely.ultimately.consequently.accordingly.thus.therefore.hence.besides.moreover.then.further.finally.initially.subsequently.thereafter.afterward.alternatively.eventually.undoubtedly.certainly.decisively.firstly.secondly.thirdly.lastly.incidentally.admittedly".split(".")), Be = /* @__PURE__ */ new Set([
 	"a",
 	"an",
 	"another",
@@ -340,13 +341,13 @@ var w = /* @__PURE__ */ new Set(/* @__PURE__ */ "said.stated.reported.claimed.ar
 	"its",
 	"one",
 	"this"
-]), He = /* @__PURE__ */ new Set(/* @__PURE__ */ "access.advice.assistance.baggage.behavior.clothing.damage.education.evidence.equipment.finance.furniture.growth.hardware.homework.information.justice.knowledge.laughter.machinery.music.news.pollution.rainfall.research.software.traffic.transport.weather.work".split(".")), Ue = /* @__PURE__ */ new Set([
+]), Ve = /* @__PURE__ */ new Set(/* @__PURE__ */ "access.advice.assistance.baggage.behavior.clothing.damage.education.evidence.equipment.finance.furniture.growth.hardware.homework.information.justice.knowledge.laughter.machinery.music.news.pollution.rainfall.research.software.traffic.transport.weather.work".split(".")), He = /* @__PURE__ */ new Set([
 	"children",
 	"men",
 	"people",
 	"police",
 	"women"
-]), We = /* @__PURE__ */ new Set([
+]), Ue = /* @__PURE__ */ new Set([
 	"analysis",
 	"basis",
 	"business",
@@ -362,13 +363,13 @@ var w = /* @__PURE__ */ new Set(/* @__PURE__ */ "said.stated.reported.claimed.ar
 	"species",
 	"status"
 ]);
-function Ge(e) {
+function We(e) {
 	let t = Math.max(0, e.length - 10);
 	for (let n = e.length - 1; n >= t; n--) {
 		let t = e[n].toLowerCase();
-		if (ye.has(t) || be.has(t) || xe.has(t) || Se.has(t) || Ce.has(t) || Xe.has(t)) {
+		if (ye.has(t) || be.has(t) || xe.has(t) || Se.has(t) || Ce.has(t) || Ye.has(t)) {
 			let r = !1, i = Math.max(0, n - 4);
-			for (let t = i; t < n; t++) if (Ye.has(e[t].toLowerCase())) {
+			for (let t = i; t < n; t++) if (Je.has(e[t].toLowerCase())) {
 				r = !0;
 				break;
 			}
@@ -378,43 +379,43 @@ function Ge(e) {
 	}
 	return "";
 }
-function Ke(e) {
+function Ge(e) {
 	let t = e.toLowerCase();
-	return Ue.has(t) ? !0 : !We.has(t) && /(?:s|ies|ves)$/.test(t) && !/(?:ss|us|is)$/.test(t);
+	return He.has(t) ? !0 : !Ue.has(t) && /(?:s|ies|ves)$/.test(t) && !/(?:ss|us|is)$/.test(t);
 }
-function qe(e) {
+function Ke(e) {
 	let t = e.length;
 	if (!(t & t - 1)) return e;
 	let n = 1 << 31 - Math.clz32(t);
 	return e.slice(0, n);
 }
-function Je(e, t, n, r) {
+function qe(e, t, n, r) {
 	if (e.length < 2) return e;
 	let i;
 	if (n === "VP") {
-		let n = Ge(t);
+		let n = We(t);
 		if (n) {
 			let t = we(n), r;
-			t === "METRIC" ? r = Ne : t === "EVENT" ? r = Pe : t === "DOCUMENT" ? r = Fe : t === "SYSTEM_OBJECT" ? r = Ie : t === "AGENT" && (i = e.filter((e) => !Me.has(e.toLowerCase()))), r && (i = e.filter((e) => r.has(e.toLowerCase())));
+			t === "METRIC" ? r = Me : t === "EVENT" ? r = Ne : t === "DOCUMENT" ? r = Pe : t === "SYSTEM_OBJECT" ? r = Fe : t === "AGENT" && (i = e.filter((e) => !je.has(e.toLowerCase()))), r && (i = e.filter((e) => r.has(e.toLowerCase())));
 		}
 	} else if (n === "N") {
 		let n = !1, r = Math.max(0, t.length - 3);
-		for (let e = t.length - 1; e >= r; e--) if (Ve.has(t[e].toLowerCase())) {
+		for (let e = t.length - 1; e >= r; e--) if (Be.has(t[e].toLowerCase())) {
 			n = !0;
 			break;
 		}
-		n && (i = e.filter((e) => !Ke(e) && !He.has(e.toLowerCase())));
-	} else if (n === "R" && Ee.has(t[t.length - 1]?.toLowerCase())) i = e.filter((e) => je.has(e.toLowerCase()));
+		n && (i = e.filter((e) => !Ge(e) && !Ve.has(e.toLowerCase())));
+	} else if (n === "R" && T.has(t[t.length - 1]?.toLowerCase())) i = e.filter((e) => Ae.has(e.toLowerCase()));
 	else if (n === "R") {
 		let n = t[t.length - 1]?.toLowerCase();
-		if (ze.has(n)) {
-			let t = e.filter((e) => Be.has(e.toLowerCase()));
+		if (Re.has(n)) {
+			let t = e.filter((e) => ze.has(e.toLowerCase()));
 			t.length >= 2 && (i = t);
 		}
 	}
-	return !i || i.length < 2 ? qe(e) : qe(i);
+	return !i || i.length < 2 ? Ke(e) : Ke(i);
 }
-var Ye = /* @__PURE__ */ new Set(/* @__PURE__ */ "about.above.across.after.against.along.among.around.at.before.behind.below.beneath.beside.between.beyond.by.despite.during.for.from.in.into.near.of.off.on.onto.over.past.since.through.throughout.to.toward.towards.under.until.upon.with.within.without".split(".")), Xe = /* @__PURE__ */ new Set(/* @__PURE__ */ "moon.river.forest.ocean.wind.rain.snow.cloud.sky.sea.tree.branch.leaf.flower.bird.stone.mountain.valley.meadow.shore.lake.stream.shadow.dawn.dusk.night.star.flame.garden.field.silence.season.frost.ember.mist.sunlight.starlight.comet.desert.island.pathway.horizon.reflection.echo.whisper.breeze.storm.twilight.harbor.cavern.glade.summit.pine.willow.feather.shell.tide.wave.spark.light.haven.clearing.canopy.solitude.time.memory.dream.music.solace.wonder.heart.spirit.sorrow.promise.presence.distance.passage.rhythm.secret.lullaby".split(".")), Ze = /* @__PURE__ */ new Set([
+var Je = /* @__PURE__ */ new Set(/* @__PURE__ */ "about.above.across.after.against.along.among.around.at.before.behind.below.beneath.beside.between.beyond.by.despite.during.for.from.in.into.near.of.off.on.onto.over.past.since.through.throughout.to.toward.towards.under.until.upon.with.within.without".split(".")), Ye = /* @__PURE__ */ new Set(/* @__PURE__ */ "moon.river.forest.ocean.wind.rain.snow.cloud.sky.sea.tree.branch.leaf.flower.bird.stone.mountain.valley.meadow.shore.lake.stream.shadow.dawn.dusk.night.star.flame.garden.field.silence.season.frost.ember.mist.sunlight.starlight.comet.desert.island.pathway.horizon.reflection.echo.whisper.breeze.storm.twilight.harbor.cavern.glade.summit.pine.willow.feather.shell.tide.wave.spark.light.haven.clearing.canopy.solitude.time.memory.dream.music.solace.wonder.heart.spirit.sorrow.promise.presence.distance.passage.rhythm.secret.lullaby".split(".")), Xe = /* @__PURE__ */ new Set([
 	"whispered",
 	"murmured",
 	"spoke",
@@ -439,7 +440,7 @@ var Ye = /* @__PURE__ */ new Set(/* @__PURE__ */ "about.above.across.after.again
 	"slept",
 	"rested",
 	"bloomed"
-]), Qe = /* @__PURE__ */ new Set(/* @__PURE__ */ "the.a.an.this.that.these.those.some.any.no.one.its.each.every.another.my.our.his.her.your.their.in.of.to.for.on.with.at.by.from.into.about.after.during.between.through.across.over.under.before.since.against.around.among.within.toward.towards.upon.along.beyond.without.despite.until.throughout.above.below.beside.beneath.near.and.or.but.while.as.yet.although.because.though.whereas.unless.whether.when.where.if.it.they.them.we.us.he.him.she.i.me.you.which.who.whom.whose.is.was.are.were.be.been.being.has.have.had.do.does.did.can.could.will.would.shall.should.may.might.must.became.seemed.appeared".split(".")), $e = {
+]), Ze = /* @__PURE__ */ new Set(/* @__PURE__ */ "the.a.an.this.that.these.those.some.any.no.one.its.each.every.another.my.our.his.her.your.their.in.of.to.for.on.with.at.by.from.into.about.after.during.between.through.across.over.under.before.since.against.around.among.within.toward.towards.upon.along.beyond.without.despite.until.throughout.above.below.beside.beneath.near.and.or.but.while.as.yet.although.because.though.whereas.unless.whether.when.where.if.it.they.them.we.us.he.him.she.i.me.you.which.who.whom.whose.is.was.are.were.be.been.being.has.have.had.do.does.did.can.could.will.would.shall.should.may.might.must.became.seemed.appeared".split(".")), Qe = {
 	report: {
 		showed: 10,
 		indicated: 10,
@@ -468,14 +469,20 @@ var Ye = /* @__PURE__ */ new Set(/* @__PURE__ */ "about.above.across.after.again
 		twofold: 10,
 		threefold: 9,
 		fourfold: 8,
-		tenfold: 8
+		tenfold: 8,
+		"0.5%": 9,
+		"1.0%": 10,
+		"2.0%": 9,
+		"5.0%": 8
 	},
 	almost: {
 		double: 10,
 		triple: 9,
 		twofold: 9,
 		threefold: 8,
-		half: 8
+		"0.5%": 9,
+		"1.0%": 9,
+		"2.0%": 8
 	},
 	rates: {
 		rose: 10,
@@ -1396,7 +1403,7 @@ var Ye = /* @__PURE__ */ new Set(/* @__PURE__ */ "about.above.across.after.again
 		held: 8,
 		modified: 7
 	}
-}, et = {
+}, $e = {
 	"the government": {
 		announced: 10,
 		approved: 10,
@@ -1861,7 +1868,7 @@ var Ye = /* @__PURE__ */ new Set(/* @__PURE__ */ "about.above.across.after.again
 		rose: 9,
 		howled: 8
 	}
-}, tt = {
+}, et = {
 	"the prime minister": {
 		announced: 10,
 		confirmed: 10,
@@ -2041,7 +2048,7 @@ var Ye = /* @__PURE__ */ new Set(/* @__PURE__ */ "about.above.across.after.again
 		fragile: 9,
 		unresolved: 9
 	}
-}, nt = {
+}, tt = {
 	"stated tuesday in a": {
 		public: 10,
 		recent: 10,
@@ -2064,19 +2071,19 @@ var Ye = /* @__PURE__ */ new Set(/* @__PURE__ */ "about.above.across.after.again
 		before: 9
 	}
 };
-function rt(e, t) {
-	let n = e.length, r = n >= 1 ? e[n - 1].toLowerCase() : "", i = n >= 2 ? e[n - 2].toLowerCase() : "", a = n >= 3 ? e[n - 3].toLowerCase() : "", o = n >= 4 ? e[n - 4].toLowerCase() : "", s = r && i && a && o ? nt[`${o} ${a} ${i} ${r}`] : void 0, c = r && i && a ? tt[`${a} ${i} ${r}`] : void 0, l = r && i ? et[`${i} ${r}`] : void 0, u = r ? $e[r] : void 0, d = Ge(e), f, p = 0, m = !1;
+function nt(e, t) {
+	let n = e.length, r = n >= 1 ? e[n - 1].toLowerCase() : "", i = n >= 2 ? e[n - 2].toLowerCase() : "", a = n >= 3 ? e[n - 3].toLowerCase() : "", o = n >= 4 ? e[n - 4].toLowerCase() : "", s = r && i && a && o ? tt[`${o} ${a} ${i} ${r}`] : void 0, c = r && i && a ? et[`${a} ${i} ${r}`] : void 0, l = r && i ? $e[`${i} ${r}`] : void 0, u = r ? Qe[r] : void 0, d = We(e), f, p = 0, m = !1;
 	if (d) {
-		if (Xe.has(d)) f = Ze, p = 50, m = !0;
+		if (Ye.has(d)) f = Xe, p = 50, m = !0;
 		else {
 			let e = we(d);
-			e === "EVENT" || e === "METRIC" ? (f = Pe, p = 50, m = !0) : e === "DOCUMENT" ? (f = Le, p = 50) : e === "SYSTEM_OBJECT" ? (f = Ie, p = 50, m = !0) : e === "AGENT" && (f = Re, p = 30);
+			e === "EVENT" || e === "METRIC" ? (f = Ne, p = 50, m = !0) : e === "DOCUMENT" ? (f = Ie, p = 50) : e === "SYSTEM_OBJECT" ? (f = Fe, p = 50, m = !0) : e === "AGENT" && (f = Le, p = 30);
 		}
 	}
 	let h = t && ve[t] ? ve[t] : void 0, g;
 	for (let t = 0; t < n; t++) {
 		let n = e[t].toLowerCase();
-		Qe.has(n) || (g ||= /* @__PURE__ */ new Set(), g.add(n));
+		Ze.has(n) || (g ||= /* @__PURE__ */ new Set(), g.add(n));
 	}
 	return {
 		map5: s,
@@ -2090,7 +2097,7 @@ function rt(e, t) {
 		nonFunctionContextSet: g
 	};
 }
-function it(e, t) {
+function rt(e, t) {
 	let n = 0;
 	if (t.map5 && t.map5[e] && (n += 1e4 * t.map5[e]), t.map4 && t.map4[e] && (n += 1e3 * t.map4[e]), t.map3 && t.map3[e] && (n += 100 * t.map3[e]), t.map2 && t.map2[e] && (n += 10 * t.map2[e]), e.length >= 2 && e.length <= 12 && (n += 1), t.affinityBoostSet && t.affinityBoostSet.has(e) ? n += t.affinityBoostScore : t.penalizeSpeechVerbs && w.has(e) && (n -= 200), t.topicWordSet && t.topicWordSet.has(e) && (n += 100), t.nonFunctionContextSet && t.nonFunctionContextSet.has(e)) {
 		let r = t.topicWordSet && t.topicWordSet.has(e);
@@ -2098,15 +2105,15 @@ function it(e, t) {
 	}
 	return n;
 }
-function at(e, t, n) {
-	let r = rt(t, n);
-	return it(e.toLowerCase(), r);
+function it(e, t, n) {
+	let r = nt(t, n);
+	return rt(e.toLowerCase(), r);
 }
-function ot(e, t, n) {
+function at(e, t, n) {
 	if (!e || e.length <= 1) return e ? [...e] : [];
-	let r = rt(t, n), i = e.length, a = new Float64Array(i);
+	let r = nt(t, n), i = e.length, a = new Float64Array(i);
 	for (let t = 0; t < i; t++) {
-		let n = it(e[t].toLowerCase(), r);
+		let n = rt(e[t].toLowerCase(), r);
 		a[t] = -n * 65536 + t;
 	}
 	a.sort();
@@ -2117,14 +2124,14 @@ function ot(e, t, n) {
 	}
 	return o;
 }
-function st(e, t, n) {
+function ot(e, t, n) {
 	if (t <= 0) return 0;
 	let r = 1 << t;
 	if (n < r) throw Error(`Candidate count N (${n}) is less than bit capacity 2^bitCount (${r}).`);
 	if (e < 0 || e >= r) throw Error(`Value ${e} out of bounds for bitCount ${t} (valid range: 0..${r - 1}).`);
 	return e;
 }
-function ct(e, t, n) {
+function st(e, t, n) {
 	if (t <= 0) return 0;
 	let r = 1 << t;
 	if (n < r) throw Error(`Candidate count N (${n}) is less than bit capacity 2^bitCount (${r}).`);
@@ -2132,7 +2139,7 @@ function ct(e, t, n) {
 	return e;
 }
 // src/nlg/index.ts
-function T(e, t, n, r) {
+function E(e, t, n, r) {
 	let i = {
 		type: "data",
 		list: e,
@@ -2140,7 +2147,7 @@ function T(e, t, n, r) {
 	};
 	return n && (i.punctuationAfter = n), r && (i.punctuationBefore = r), i;
 }
-function E(e, t, n, r) {
+function D(e, t, n, r) {
 	let i = {
 		type: "filler",
 		list: e,
@@ -2148,7 +2155,7 @@ function E(e, t, n, r) {
 	};
 	return n && (i.punctuationAfter = n), r && (i.punctuationBefore = r), i;
 }
-function D(e, t = []) {
+function O(e, t = []) {
 	let n = /* @__PURE__ */ new Set();
 	for (let t of e) {
 		let e = t.trim().toLowerCase();
@@ -2163,7 +2170,7 @@ function D(e, t = []) {
 	if (r.length < 256) throw Error(`List size ${r.length} is less than required 256.`);
 	return r.slice(0, 256);
 }
-var O = D(/* @__PURE__ */ "report.market.policy.program.system.country.government.president.election.campaign.economy.industry.community.company.security.council.budget.crisis.summit.treaty.border.conflict.reform.strategy.network.agency.coalition.alliance.foundation.commission.authority.parliament.court.trial.verdict.sentence.witness.evidence.justice.crime.police.investigation.arrest.charge.prison.penalty.defense.prosecution.school.student.teacher.education.research.university.science.technology.hospital.patient.doctor.treatment.vaccine.medicine.surgery.disease.team.player.coach.season.match.victory.championship.tournament.stadium.record.athlete.league.crowd.rival.title.score.family.children.mother.father.district.neighbor.household.generation.finance.trade.export.investment.growth.profit.revenue.stock.climate.energy.environment.pollution.forest.ocean.wildlife.resource.bridge.highway.airport.railway.station.tunnel.harbor.terminal.office.building.project.contract.worker.union.salary.benefit.media.journalist.broadcast.headline.coverage.statement.interview.press.artist.museum.gallery.festival.performance.concert.theater.culture.film.director.actor.audience.production.studio.scene.screenplay.author.novel.chapter.story.library.publisher.edition.volume.history.tradition.heritage.ceremony.monument.archive.legend.memorial.weather.storm.forecast.temperature.rainfall.drought.flood.disaster.mission.satellite.rocket.spacecraft.planet.orbit.astronaut.telescope.soldier.battalion.commander.regiment.weapon.missile.operation.deployment.citizen.resident.volunteer.activist.protest.petition.movement.demonstration.leader.minister.ambassador.diplomat.delegate.governor.senator.official.agreement.proposal.amendment.regulation.standard.guideline.framework.protocol.infrastructure.platform.software.database.server.algorithm.device.processor.signal.channel.frequency.spectrum.antenna.receiver.transmitter.module.researcher.scholar.graduate.professor.faculty.campus.lecture.seminar.debate.opinion.analysis.survey.finding.conclusion.outcome.assessment.supply.demand.shortage.surplus.warehouse.shipment.cargo.delivery.language.symbol.pattern.structure.method.concept.theory.principle".split(".")), lt = D(/* @__PURE__ */ "says.reports.claims.argues.suggests.reveals.confirms.announces.shows.indicates.warns.notes.adds.explains.states.describes.plans.expects.seeks.calls.demands.urges.proposes.requests.supports.backs.endorses.promotes.defends.protects.maintains.upholds.leads.drives.guides.directs.manages.oversees.controls.monitors.creates.builds.develops.designs.launches.introduces.establishes.forms.increases.grows.expands.rises.improves.advances.strengthens.boosts.reduces.cuts.lowers.drops.declines.falls.shrinks.limits.faces.encounters.confronts.addresses.tackles.handles.regulates.resolves.joins.enters.participates.attends.gathers.assembles.meets.connects.opens.begins.starts.initiates.commences.triggers.activates.enables.closes.ends.stops.concludes.finishes.halts.terminates.suspends.moves.shifts.transfers.relocates.travels.crosses.reaches.approaches.remains.stays.continues.persists.endures.lasts.survives.holds.provides.offers.delivers.supplies.gives.grants.allocates.distributes.receives.gets.obtains.gains.earns.collects.accepts.acquires.requires.needs.compels.involves.includes.contains.covers.encompasses.allows.permits.empowers.lets.awards.authorizes.approves.sanctions.prevents.blocks.prohibits.restricts.bans.forbids.rejects.denies.changes.transforms.modifies.adjusts.adapts.alters.revises.updates.studies.examines.investigates.reviews.analyzes.evaluates.assesses.measures.produces.generates.manufactures.yields.outputs.furnishes.fabricates.constructs.tests.checks.inspects.verifies.validates.certifies.ratifies.audits.publishes.releases.issues.circulates.relays.broadcasts.airs.transmits.threatens.endangers.risks.challenges.undermines.destabilizes.disrupts.weakens.believes.considers.thinks.assumes.estimates.predicts.anticipates.speculates.works.operates.functions.performs.serves.contributes.assists.cooperates.raises.lifts.elevates.heightens.amplifies.escalates.intensifies.magnifies.wins.captures.secures.achieves.attains.retains.conquers.prevails.loses.misses.fails.forfeits.surrenders.concedes.withdraws.abandons.helps.aids.bolsters.facilitates.sustains.benefits.reinforces.rallies.teaches.trains.educates.instructs.mentors.coaches.steers.prepares".split(".")), k = D(/* @__PURE__ */ "said.reported.claimed.argued.suggested.revealed.confirmed.announced.showed.indicated.warned.noted.added.explained.stated.described.planned.expected.sought.called.demanded.urged.proposed.requested.supported.backed.endorsed.promoted.defended.protected.maintained.upheld.led.drove.guided.directed.managed.oversaw.controlled.monitored.created.built.developed.designed.launched.introduced.established.formed.increased.grew.expanded.rose.improved.advanced.strengthened.boosted.reduced.cut.lowered.dropped.declined.fell.shrank.limited.faced.encountered.confronted.addressed.tackled.handled.regulated.resolved.joined.entered.participated.attended.gathered.assembled.met.connected.opened.began.started.initiated.commenced.triggered.activated.enabled.closed.ended.stopped.concluded.finished.halted.terminated.suspended.moved.shifted.transferred.relocated.traveled.crossed.reached.approached.remained.stayed.continued.persisted.endured.lasted.survived.held.provided.offered.delivered.supplied.gave.granted.allocated.distributed.received.got.obtained.gained.earned.collected.accepted.acquired.required.needed.compelled.involved.included.contained.covered.encompassed.allowed.permitted.empowered.awarded.authorized.approved.sanctioned.prevented.blocked.prohibited.restricted.banned.forbade.rejected.denied.changed.transformed.modified.adjusted.adapted.altered.revised.updated.studied.examined.investigated.reviewed.analyzed.evaluated.assessed.measured.produced.generated.manufactured.yielded.extracted.furnished.fabricated.constructed.tested.checked.inspected.verified.validated.certified.ratified.audited.published.released.issued.circulated.relayed.broadcast.aired.transmitted.threatened.endangered.risked.challenged.undermined.destabilized.disrupted.weakened.believed.considered.thought.assumed.estimated.predicted.anticipated.speculated.worked.operated.functioned.performed.served.contributed.assisted.cooperated.raised.lifted.elevated.heightened.amplified.escalated.intensified.magnified.won.captured.secured.achieved.attained.retained.conquered.prevailed.lost.missed.failed.forfeited.surrendered.conceded.withdrew.abandoned.helped.aided.bolstered.facilitated.sustained.benefited.reinforced.rallied.taught.trained.educated.instructed.mentored.coached.steered.prepared.inspired".split(".")), A = D(/* @__PURE__ */ "new.major.local.national.public.political.economic.social.international.global.federal.regional.military.financial.legal.official.recent.current.former.senior.key.top.leading.primary.significant.critical.important.essential.serious.severe.growing.increasing.long.short.large.small.high.low.big.little.strong.weak.hard.soft.fast.slow.deep.broad.young.old.early.late.next.last.first.final.foreign.domestic.urban.rural.northern.southern.eastern.western.annual.daily.weekly.monthly.quarterly.ongoing.temporary.permanent.available.possible.likely.potential.expected.proposed.planned.scheduled.additional.further.continued.remaining.existing.established.traditional.conventional.independent.separate.distinct.unique.specific.particular.special.exclusive.medical.clinical.scientific.technical.digital.electronic.nuclear.chemical.environmental.sustainable.renewable.clean.green.natural.organic.raw.commercial.industrial.corporate.private.central.direct.strategic.operational.successful.effective.efficient.productive.competitive.innovative.creative.advanced.democratic.conservative.liberal.progressive.radical.moderate.popular.mainstream.violent.armed.dangerous.hostile.defensive.protective.secure.safe.ancient.historic.modern.contemporary.classic.fundamental.original.authentic.basic.standard.normal.regular.common.typical.ordinary.general.complex.difficult.challenging.controversial.sensitive.urgent.dramatic.unprecedented.positive.negative.neutral.mixed.balanced.fair.equal.diverse.open.closed.active.passive.busy.quiet.rapid.steady.rich.poor.expensive.cheap.free.joint.mutual.collective.clear.obvious.apparent.visible.transparent.known.familiar.recognized.fresh.warm.cold.dry.wet.bright.dark.sharp.deadly.massive.enormous.vast.widespread.comprehensive.extensive.sweeping.strict.tough.rigid.firm.flexible.loose.mild.gentle.rustic.coastal.inland.remote.focal.prime.capital.provincial.brief.lengthy.detailed.preliminary.initial.intermediate.secondary.alternate.concerned.worried.cautious.skeptical.optimistic.confident.determined.committed.capable.skilled.qualified.experienced.professional.expert.veteran.trained".split(".")), j = D(/* @__PURE__ */ "also.now.already.still.just.even.only.recently.currently.previously.initially.originally.finally.ultimately.immediately.promptly.often.usually.always.never.sometimes.rarely.frequently.occasionally.here.there.anywhere.everywhere.abroad.overseas.locally.nationally.very.quite.rather.fairly.extremely.highly.deeply.significantly.well.badly.carefully.quickly.slowly.steadily.rapidly.gradually.soon.early.late.again.once.twice.daily.annually.together.alone.apart.aside.ahead.behind.forward.backward.likely.possibly.probably.certainly.definitely.clearly.obviously.apparently.officially.formally.publicly.privately.openly.secretly.directly.indirectly.strongly.firmly.sharply.broadly.widely.largely.mostly.primarily.simply.merely.barely.hardly.nearly.almost.approximately.roughly.particularly.especially.specifically.notably.remarkably.increasingly.dramatically.substantially.successfully.effectively.efficiently.actively.consistently.continuously.repeatedly.persistently.separately.independently.collectively.jointly.mutually.simultaneously.respectively.accordingly.meanwhile.however.nevertheless.furthermore.moreover.consequently.fortunately.unfortunately.surprisingly.interestingly.reportedly.allegedly.supposedly.presumably.typically.normally.generally.commonly.traditionally.historically.conventionally.routinely.relatively.comparatively.proportionally.marginally.slightly.moderately.considerably.tremendously.exactly.precisely.accurately.correctly.properly.appropriately.adequately.sufficiently.surely.absolutely.entirely.completely.totally.fully.wholly.thoroughly.partly.partially.somewhat.modestly.mildly.minimally.nominally.technically.naturally.automatically.systematically.strategically.deliberately.intentionally.voluntarily.willingly.temporarily.permanently.indefinitely.briefly.momentarily.periodically.intermittently.sporadically.safely.securely.peacefully.calmly.quietly.silently.gently.smoothly.urgently.desperately.critically.seriously.severely.gravely.acutely.intensely.enthusiastically.eagerly.passionately.vigorously.energetically.aggressively.boldly.bravely.cautiously.reluctantly.hesitantly.nervously.anxiously.wearily.skeptically.warily.freely.generously.graciously.warmly.kindly.favorably.positively.constructively.strictly.tightly.rigidly.harshly.sternly.bluntly.candidly.plainly.equally.similarly.likewise.correspondingly.identically.uniformly.evenly.symmetrically.outward.worldwide.globally.regionally.domestically.internally.externally.laterally.swiftly.decisively.steadfastly.fiercely.vastly.hugely.massively.profoundly.immeasurably.immensely.boundlessly.infinitely.markedly.noticeably.visibly.conspicuously.prominently.strikingly.spectacularly.dazzlingly.brilliantly.splendidly.superbly.excellently.wonderfully.marvelously.admirably.flawlessly.impeccably.perfectly.seamlessly.effortlessly.easily.readily.uninterruptedly.tirelessly.relentlessly.unwaveringly.resolutely.determinedly.robustly.soundly.solidly.sturdily.stiffly.stringently.rigorously.meticulously.exhaustively.comprehensively.extensively.sweepingly.pervasively.ubiquitously.nationwide.statewide.citywide.outwardly.inwardly.upwardly.downwardly.sideways.centrally.focally.predominantly.essentially.fundamentally.basically.inherently.intrinsically.spontaneously.instinctively.intuitively.brightly.darkly.faintly.dimly.harshly.softly.loudly.quietly.calmly.wildly.fiercely.gently.kindly.cruelly.boldly.meekly.proudly.humbly.eagerly.keenly.fondly.warmly.coldly.coolly.hotly.neatly.loosely.tightly.firmly.slackly.sharply.bluntly.dully.keenly.briskly.swiftly.slowly.rapidly.promptly.tardily.early.late.before.after.instead.besides.otherwise.indeed.likewise.moreover".split(".")), ut = /* @__PURE__ */ "washington.london.beijing.moscow.berlin.paris.tokyo.ottawa.brussels.geneva.vienna.madrid.rome.seoul.ankara.cairo.dublin.warsaw.prague.stockholm.oslo.helsinki.lisbon.athens.sydney.melbourne.toronto.vancouver.montreal.auckland.mumbai.delhi.shanghai.taipei.singapore.bangkok.jakarta.manila.hanoi.riyadh.tehran.baghdad.kabul.nairobi.lagos.pretoria.accra.addis.congress.parliament.pentagon.kremlin.downing.westminster.capitol.senate.bloomberg.reuters.guardian.chronicle.tribune.herald.observer.gazette.johnson.williams.thompson.anderson.mitchell.campbell.robinson.stewart.harrison.jackson.kennedy.morrison.sullivan.patterson.henderson.crawford.marshall.spencer.tucker.wallace.andrews.douglas.fleming.gardner.hamilton.lambert.maxwell.pearson.richards.sanders.warren.webster.stanford.harvard.oxford.cambridge.princeton.columbia.cornell.berkeley.amazon.microsoft.google.tesla.apple.samsung.intel.oracle.goldman.morgan.barclays.deutsche.citibank.nomura.fidelity.schwab.boeing.airbus.lockheed.raytheon.northrop.siemens.philips.hitachi.ferrari.porsche.honda.toyota.nissan.volvo.hyundai.renault.pfizer.moderna.novartis.merck.abbott.bristol.roche.sanofi.atlantic.pacific.arctic.mediterranean.caribbean.baltic.adriatic.caspian.sahara.congo.danube.thames.rhine.nile.ganges.yangtze.clinton.carter.nixon.reagan.lincoln.churchill.macron.trudeau.merkel.erdogan.netanyahu.kishida.albanese.starmer.scholz.sunak.africa.europe.america.australia.canada.mexico.brazil.argentina.colombia.chile.peru.ecuador.bolivia.uruguay.paraguay.venezuela.china.india.japan.korea.taiwan.thailand.vietnam.malaysia.indonesia.philippines.myanmar.pakistan.bangladesh.nepal.lanka.cambodia.germany.france.britain.spain.italy.poland.ukraine.romania.sweden.norway.denmark.finland.ireland.scotland.belgium.austria.egypt.turkey.iran.iraq.syria.jordan.lebanon.israel.nigeria.kenya.ghana.ethiopia.tanzania.uganda.rwanda.senegal.russia.georgia.belarus.armenia.serbia.croatia.bulgaria.hungary.nato.asean.opec.unesco.unicef.brics.interpol.europol".split("."), dt = Array.from(/* @__PURE__ */ new Set(/* @__PURE__ */ "0.1%,0.2%,0.25%,0.3%,0.4%,0.5%,0.6%,0.7%,0.75%,0.8%,0.9%,1.0%,1.1%,1.2%,1.25%,1.3%,1.4%,1.5%,1.6%,1.7%,1.75%,1.8%,1.9%,2.0%,2.1%,2.2%,2.25%,2.3%,2.4%,2.5%,2.6%,2.7%,2.75%,2.8%,2.9%,3.0%,3.1%,3.2%,3.25%,3.3%,3.4%,3.5%,3.6%,3.7%,3.75%,3.8%,3.9%,4.0%,4.1%,4.2%,4.25%,4.3%,4.4%,4.5%,4.6%,4.7%,4.75%,4.8%,4.9%,5.0%,5.1%,5.2%,5.25%,5.3%,5.4%,5.5%,5.6%,5.7%,5.75%,5.8%,5.9%,6.0%,6.1%,6.2%,6.25%,6.3%,6.4%,6.5%,6.6%,6.7%,6.75%,6.8%,6.9%,7.0%,7.1%,7.2%,7.25%,7.3%,7.4%,7.5%,7.6%,7.7%,7.75%,7.8%,7.9%,8.0%,8.1%,8.2%,8.25%,8.3%,8.4%,8.5%,8.6%,8.7%,8.75%,8.8%,8.9%,9.0%,9.1%,9.2%,9.25%,9.3%,9.4%,9.5%,9.6%,9.7%,9.75%,9.8%,9.9%,10.0%,10.1%,10.2%,10.25%,10.5%,10.8%,11.0%,11.2%,11.25%,11.5%,11.8%,12.0%,12.1%,12.25%,12.5%,12.8%,13.0%,13.25%,13.5%,13.8%,14.0%,14.25%,14.5%,14.8%,15.0%,15.2%,15.23%,15.25%,15.5%,15.8%,16.0%,16.25%,16.5%,16.8%,17.0%,17.25%,17.5%,18.0%,18.25%,18.5%,19.0%,19.25%,19.5%,20.0%,20.25%,20.5%,21.0%,21.5%,22.0%,22.5%,23.0%,23.5%,24.0%,24.5%,25.0%,25.5%,26.0%,26.5%,27.0%,27.5%,28.0%,28.5%,29.0%,29.5%,30.0%,30.5%,31.0%,31.5%,32.0%,32.5%,33.0%,33.5%,34.0%,34.5%,35.0%,35.5%,36.0%,36.5%,37.0%,37.5%,38.0%,38.5%,39.0%,39.5%,40.0%,40.5%,41.0%,41.5%,42.0%,42.5%,43.0%,43.5%,44.0%,44.5%,45.0%,45.5%,46.0%,46.5%,47.0%,47.5%,48.0%,48.5%,49.0%,49.5%,50.0%,51.0%,52.0%,53.0%,54.0%,55.0%,56.0%,57.0%,58.0%,59.0%,60.0%,62.0%,64.0%,65.0%,66.0%,68.0%,70.0%,72.0%,75.0%,78.0%,80.0%,82.0%,85.0%,88.0%,90.0%,92.0%,95.0%,98.0%,100.0%,101.0%,102.0%,105.0%,110.0%".split(","))).slice(0, 256), ft = D([
+var k = O(/* @__PURE__ */ "report.market.policy.program.system.country.government.president.election.campaign.economy.industry.community.company.security.council.budget.crisis.summit.treaty.border.conflict.reform.strategy.network.agency.coalition.alliance.foundation.commission.authority.parliament.court.trial.verdict.sentence.witness.evidence.justice.crime.police.investigation.arrest.charge.prison.penalty.defense.prosecution.school.student.teacher.education.research.university.science.technology.hospital.patient.doctor.treatment.vaccine.medicine.surgery.disease.team.player.coach.season.match.victory.championship.tournament.stadium.record.athlete.league.crowd.rival.title.score.family.children.mother.father.district.neighbor.household.generation.finance.trade.export.investment.growth.profit.revenue.stock.climate.energy.environment.pollution.forest.ocean.wildlife.resource.bridge.highway.airport.railway.station.tunnel.harbor.terminal.office.building.project.contract.worker.union.salary.benefit.media.journalist.broadcast.headline.coverage.statement.interview.press.artist.museum.gallery.festival.performance.concert.theater.culture.film.director.actor.audience.production.studio.scene.screenplay.author.novel.chapter.story.library.publisher.edition.volume.history.tradition.heritage.ceremony.monument.archive.legend.memorial.weather.storm.forecast.temperature.rainfall.drought.flood.disaster.mission.satellite.rocket.spacecraft.planet.orbit.astronaut.telescope.soldier.battalion.commander.regiment.weapon.missile.operation.deployment.citizen.resident.volunteer.activist.protest.petition.movement.demonstration.leader.minister.ambassador.diplomat.delegate.governor.senator.official.agreement.proposal.amendment.regulation.standard.guideline.framework.protocol.infrastructure.platform.software.database.server.algorithm.device.processor.signal.channel.frequency.spectrum.antenna.receiver.transmitter.module.researcher.scholar.graduate.professor.faculty.campus.lecture.seminar.debate.opinion.analysis.survey.finding.conclusion.outcome.assessment.supply.demand.shortage.surplus.warehouse.shipment.cargo.delivery.language.symbol.pattern.structure.method.concept.theory.principle".split(".")), ct = O(/* @__PURE__ */ "says.reports.claims.argues.suggests.reveals.confirms.announces.shows.indicates.warns.notes.adds.explains.states.describes.plans.expects.seeks.calls.demands.urges.proposes.requests.supports.backs.endorses.promotes.defends.protects.maintains.upholds.leads.drives.guides.directs.manages.oversees.controls.monitors.creates.builds.develops.designs.launches.introduces.establishes.forms.increases.grows.expands.rises.improves.advances.strengthens.boosts.reduces.cuts.lowers.drops.declines.falls.shrinks.limits.faces.encounters.confronts.addresses.tackles.handles.regulates.resolves.joins.enters.participates.attends.gathers.assembles.meets.connects.opens.begins.starts.initiates.commences.triggers.activates.enables.closes.ends.stops.concludes.finishes.halts.terminates.suspends.moves.shifts.transfers.relocates.travels.crosses.reaches.approaches.remains.stays.continues.persists.endures.lasts.survives.holds.provides.offers.delivers.supplies.gives.grants.allocates.distributes.receives.gets.obtains.gains.earns.collects.accepts.acquires.requires.needs.compels.involves.includes.contains.covers.encompasses.allows.permits.empowers.lets.awards.authorizes.approves.sanctions.prevents.blocks.prohibits.restricts.bans.forbids.rejects.denies.changes.transforms.modifies.adjusts.adapts.alters.revises.updates.studies.examines.investigates.reviews.analyzes.evaluates.assesses.measures.produces.generates.manufactures.yields.outputs.furnishes.fabricates.constructs.tests.checks.inspects.verifies.validates.certifies.ratifies.audits.publishes.releases.issues.circulates.relays.broadcasts.airs.transmits.threatens.endangers.risks.challenges.undermines.destabilizes.disrupts.weakens.believes.considers.thinks.assumes.estimates.predicts.anticipates.speculates.works.operates.functions.performs.serves.contributes.assists.cooperates.raises.lifts.elevates.heightens.amplifies.escalates.intensifies.magnifies.wins.captures.secures.achieves.attains.retains.conquers.prevails.loses.misses.fails.forfeits.surrenders.concedes.withdraws.abandons.helps.aids.bolsters.facilitates.sustains.benefits.reinforces.rallies.teaches.trains.educates.instructs.mentors.coaches.steers.prepares".split(".")), A = O(/* @__PURE__ */ "said.reported.claimed.argued.suggested.revealed.confirmed.announced.showed.indicated.warned.noted.added.explained.stated.described.planned.expected.sought.called.demanded.urged.proposed.requested.supported.backed.endorsed.promoted.defended.protected.maintained.upheld.led.drove.guided.directed.managed.oversaw.controlled.monitored.created.built.developed.designed.launched.introduced.established.formed.increased.grew.expanded.rose.improved.advanced.strengthened.boosted.reduced.cut.lowered.dropped.declined.fell.shrank.limited.faced.encountered.confronted.addressed.tackled.handled.regulated.resolved.joined.entered.participated.attended.gathered.assembled.met.connected.opened.began.started.initiated.commenced.triggered.activated.enabled.closed.ended.stopped.concluded.finished.halted.terminated.suspended.moved.shifted.transferred.relocated.traveled.crossed.reached.approached.remained.stayed.continued.persisted.endured.lasted.survived.held.provided.offered.delivered.supplied.gave.granted.allocated.distributed.received.got.obtained.gained.earned.collected.accepted.acquired.required.needed.compelled.involved.included.contained.covered.encompassed.allowed.permitted.empowered.awarded.authorized.approved.sanctioned.prevented.blocked.prohibited.restricted.banned.forbade.rejected.denied.changed.transformed.modified.adjusted.adapted.altered.revised.updated.studied.examined.investigated.reviewed.analyzed.evaluated.assessed.measured.produced.generated.manufactured.yielded.extracted.furnished.fabricated.constructed.tested.checked.inspected.verified.validated.certified.ratified.audited.published.released.issued.circulated.relayed.broadcast.aired.transmitted.threatened.endangered.risked.challenged.undermined.destabilized.disrupted.weakened.believed.considered.thought.assumed.estimated.predicted.anticipated.speculated.worked.operated.functioned.performed.served.contributed.assisted.cooperated.raised.lifted.elevated.heightened.amplified.escalated.intensified.magnified.won.captured.secured.achieved.attained.retained.conquered.prevailed.lost.missed.failed.forfeited.surrendered.conceded.withdrew.abandoned.helped.aided.bolstered.facilitated.sustained.benefited.reinforced.rallied.taught.trained.educated.instructed.mentored.coached.steered.prepared.inspired".split(".")), j = O(/* @__PURE__ */ "new.major.local.national.public.political.economic.social.international.global.federal.regional.military.financial.legal.official.recent.current.former.senior.key.top.leading.primary.significant.critical.important.essential.serious.severe.growing.increasing.long.short.large.small.high.low.big.little.strong.weak.hard.soft.fast.slow.deep.broad.young.old.early.late.next.last.first.final.foreign.domestic.urban.rural.northern.southern.eastern.western.annual.daily.weekly.monthly.quarterly.ongoing.temporary.permanent.available.possible.likely.potential.expected.proposed.planned.scheduled.additional.further.continued.remaining.existing.established.traditional.conventional.independent.separate.distinct.unique.specific.particular.special.exclusive.medical.clinical.scientific.technical.digital.electronic.nuclear.chemical.environmental.sustainable.renewable.clean.green.natural.organic.raw.commercial.industrial.corporate.private.central.direct.strategic.operational.successful.effective.efficient.productive.competitive.innovative.creative.advanced.democratic.conservative.liberal.progressive.radical.moderate.popular.mainstream.violent.armed.dangerous.hostile.defensive.protective.secure.safe.ancient.historic.modern.contemporary.classic.fundamental.original.authentic.basic.standard.normal.regular.common.typical.ordinary.general.complex.difficult.challenging.controversial.sensitive.urgent.dramatic.unprecedented.positive.negative.neutral.mixed.balanced.fair.equal.diverse.open.closed.active.passive.busy.quiet.rapid.steady.rich.poor.expensive.cheap.free.joint.mutual.collective.clear.obvious.apparent.visible.transparent.known.familiar.recognized.fresh.warm.cold.dry.wet.bright.dark.sharp.deadly.massive.enormous.vast.widespread.comprehensive.extensive.sweeping.strict.tough.rigid.firm.flexible.loose.mild.gentle.rustic.coastal.inland.remote.focal.prime.capital.provincial.brief.lengthy.detailed.preliminary.initial.intermediate.secondary.alternate.concerned.worried.cautious.skeptical.optimistic.confident.determined.committed.capable.skilled.qualified.experienced.professional.expert.veteran.trained".split(".")), M = O(/* @__PURE__ */ "also.now.already.still.just.even.only.recently.currently.previously.initially.originally.finally.ultimately.immediately.promptly.often.usually.always.never.sometimes.rarely.frequently.occasionally.here.there.anywhere.everywhere.abroad.overseas.locally.nationally.very.quite.rather.fairly.extremely.highly.deeply.significantly.well.badly.carefully.quickly.slowly.steadily.rapidly.gradually.soon.early.late.again.once.twice.daily.annually.together.alone.apart.aside.ahead.behind.forward.backward.likely.possibly.probably.certainly.definitely.clearly.obviously.apparently.officially.formally.publicly.privately.openly.secretly.directly.indirectly.strongly.firmly.sharply.broadly.widely.largely.mostly.primarily.simply.merely.barely.hardly.nearly.almost.approximately.roughly.particularly.especially.specifically.notably.remarkably.increasingly.dramatically.substantially.successfully.effectively.efficiently.actively.consistently.continuously.repeatedly.persistently.separately.independently.collectively.jointly.mutually.simultaneously.respectively.accordingly.meanwhile.however.nevertheless.furthermore.moreover.consequently.fortunately.unfortunately.surprisingly.interestingly.reportedly.allegedly.supposedly.presumably.typically.normally.generally.commonly.traditionally.historically.conventionally.routinely.relatively.comparatively.proportionally.marginally.slightly.moderately.considerably.tremendously.exactly.precisely.accurately.correctly.properly.appropriately.adequately.sufficiently.surely.absolutely.entirely.completely.totally.fully.wholly.thoroughly.partly.partially.somewhat.modestly.mildly.minimally.nominally.technically.naturally.automatically.systematically.strategically.deliberately.intentionally.voluntarily.willingly.temporarily.permanently.indefinitely.briefly.momentarily.periodically.intermittently.sporadically.safely.securely.peacefully.calmly.quietly.silently.gently.smoothly.urgently.desperately.critically.seriously.severely.gravely.acutely.intensely.enthusiastically.eagerly.passionately.vigorously.energetically.aggressively.boldly.bravely.cautiously.reluctantly.hesitantly.nervously.anxiously.wearily.skeptically.warily.freely.generously.graciously.warmly.kindly.favorably.positively.constructively.strictly.tightly.rigidly.harshly.sternly.bluntly.candidly.plainly.equally.similarly.likewise.correspondingly.identically.uniformly.evenly.symmetrically.outward.worldwide.globally.regionally.domestically.internally.externally.laterally.swiftly.decisively.steadfastly.fiercely.vastly.hugely.massively.profoundly.immeasurably.immensely.boundlessly.infinitely.markedly.noticeably.visibly.conspicuously.prominently.strikingly.spectacularly.dazzlingly.brilliantly.splendidly.superbly.excellently.wonderfully.marvelously.admirably.flawlessly.impeccably.perfectly.seamlessly.effortlessly.easily.readily.uninterruptedly.tirelessly.relentlessly.unwaveringly.resolutely.determinedly.robustly.soundly.solidly.sturdily.stiffly.stringently.rigorously.meticulously.exhaustively.comprehensively.extensively.sweepingly.pervasively.ubiquitously.nationwide.statewide.citywide.outwardly.inwardly.upwardly.downwardly.sideways.centrally.focally.predominantly.essentially.fundamentally.basically.inherently.intrinsically.spontaneously.instinctively.intuitively.brightly.darkly.faintly.dimly.harshly.softly.loudly.quietly.calmly.wildly.fiercely.gently.kindly.cruelly.boldly.meekly.proudly.humbly.eagerly.keenly.fondly.warmly.coldly.coolly.hotly.neatly.loosely.tightly.firmly.slackly.sharply.bluntly.dully.keenly.briskly.swiftly.slowly.rapidly.promptly.tardily.early.late.before.after.instead.besides.otherwise.indeed.likewise.moreover".split(".")), N = /* @__PURE__ */ "washington.london.beijing.moscow.berlin.paris.tokyo.ottawa.brussels.geneva.vienna.madrid.rome.seoul.ankara.cairo.dublin.warsaw.prague.stockholm.oslo.helsinki.lisbon.athens.sydney.melbourne.toronto.vancouver.montreal.auckland.mumbai.delhi.shanghai.taipei.singapore.bangkok.jakarta.manila.hanoi.riyadh.tehran.baghdad.kabul.nairobi.lagos.pretoria.accra.addis.congress.parliament.pentagon.kremlin.downing.westminster.capitol.senate.bloomberg.reuters.guardian.chronicle.tribune.herald.observer.gazette.johnson.williams.thompson.anderson.mitchell.campbell.robinson.stewart.harrison.jackson.kennedy.morrison.sullivan.patterson.henderson.crawford.marshall.spencer.tucker.wallace.andrews.douglas.fleming.gardner.hamilton.lambert.maxwell.pearson.richards.sanders.warren.webster.stanford.harvard.oxford.cambridge.princeton.columbia.cornell.berkeley.amazon.microsoft.google.tesla.apple.samsung.intel.oracle.goldman.morgan.barclays.deutsche.citibank.nomura.fidelity.schwab.boeing.airbus.lockheed.raytheon.northrop.siemens.philips.hitachi.ferrari.porsche.honda.toyota.nissan.volvo.hyundai.renault.pfizer.moderna.novartis.merck.abbott.bristol.roche.sanofi.atlantic.pacific.arctic.mediterranean.caribbean.baltic.adriatic.caspian.sahara.congo.danube.thames.rhine.nile.ganges.yangtze.clinton.carter.nixon.reagan.lincoln.churchill.macron.trudeau.merkel.erdogan.netanyahu.kishida.albanese.starmer.scholz.sunak.africa.europe.america.australia.canada.mexico.brazil.argentina.colombia.chile.peru.ecuador.bolivia.uruguay.paraguay.venezuela.china.india.japan.korea.taiwan.thailand.vietnam.malaysia.indonesia.philippines.myanmar.pakistan.bangladesh.nepal.lanka.cambodia.germany.france.britain.spain.italy.poland.ukraine.romania.sweden.norway.denmark.finland.ireland.scotland.belgium.austria.egypt.turkey.iran.iraq.syria.jordan.lebanon.israel.nigeria.kenya.ghana.ethiopia.tanzania.uganda.rwanda.senegal.russia.georgia.belarus.armenia.serbia.croatia.bulgaria.hungary.nato.asean.opec.unesco.unicef.brics.interpol.europol".split("."), lt = /* @__PURE__ */ "0.5%,0.75%,1.0%,1.25%,1.5%,1.75%,2.0%,2.25%,2.5%,2.75%,3.0%,3.25%,3.5%,4.0%,4.5%,5.0%,5.5%,6.0%,6.5%,7.0%,7.5%,8.0%,9.0%,10.0%,12.0%,15.0%,20.0%,25.0%,30.0%,50.0%,75.0%,100.0%".split(","), ut = [
 	"double",
 	"triple",
 	"twofold",
@@ -2171,22 +2178,25 @@ var O = D(/* @__PURE__ */ "report.market.policy.program.system.country.governmen
 	"fourfold",
 	"fivefold",
 	"sixfold",
-	"sevenfold",
-	"eightfold",
-	"ninefold",
-	"tenfold",
-	"hundredfold",
-	"half",
-	"quarter",
-	"twice",
-	"thrice",
-	"multiples",
-	"double-digit",
-	"triple-digit",
-	"multi-fold",
-	"manyfold",
-	"manifold"
-], Array.from({ length: 256 }, (e, t) => `${t + 1}x`)), pt = D(/* @__PURE__ */ "fivefold(fifty-points(fifteen-percent(twenty-percent(hundreds(thousands(billions(50bps(100bps(500m(10x(2x(1,000(250(50(100(500(1,000m(1bn(25bps(75bps(200bps(500bps(1,000bps(1.5%(2.5%(5%(10%(15%(20%(25%(50%".split("("), Array.from({ length: 256 }, (e, t) => String(t + 1))), M = [
+	"tenfold"
+], dt = [
+	"0.5%",
+	"1.0%",
+	"1.5%",
+	"2.0%",
+	"2.5%",
+	"5.0%",
+	"10.0%",
+	"20.0%",
+	"25bps",
+	"50bps",
+	"75bps",
+	"100bps",
+	"150bps",
+	"200bps",
+	"250",
+	"1,000"
+], P = [
 	"the",
 	"a",
 	"this",
@@ -2195,7 +2205,7 @@ var O = D(/* @__PURE__ */ "report.market.policy.program.system.country.governmen
 	"no",
 	"one",
 	"its"
-], mt = /* @__PURE__ */ "in.of.for.on.with.at.by.from.to.into.about.after.during.between.through.across.over.under.before.since.against.around.among.within.toward.upon.along.beyond.without.despite.until.throughout".split("."), ht = [
+], ft = /* @__PURE__ */ "in.of.for.on.with.at.by.from.to.into.about.after.during.between.through.across.over.under.before.since.against.around.among.within.toward.upon.along.beyond.without.despite.until.throughout".split("."), pt = [
 	"and",
 	"but",
 	"while",
@@ -2212,7 +2222,7 @@ var O = D(/* @__PURE__ */ "report.market.policy.program.system.country.governmen
 	"when",
 	"where",
 	"if"
-], gt = [
+], mt = [
 	"that",
 	"which",
 	"who",
@@ -2229,7 +2239,7 @@ var O = D(/* @__PURE__ */ "report.market.policy.program.system.country.governmen
 	"wherever",
 	"whenever",
 	"however"
-], _t = [
+], ht = [
 	"they",
 	"we",
 	"he",
@@ -2238,259 +2248,569 @@ var O = D(/* @__PURE__ */ "report.market.policy.program.system.country.governmen
 	"I",
 	"you",
 	"one"
-], vt = {
-	N: O,
-	V: lt,
-	VP: k,
-	A,
-	R: j,
-	NP: ut,
-	PCT: dt,
-	RATIO: ft,
-	NUM: pt,
-	d: M,
-	p: mt,
-	c: ht,
-	r: gt,
-	pronoun: _t
-}, yt = {}, bt = {};
-for (let [e, t] of Object.entries(vt)) {
+], gt = {
+	N: k,
+	V: ct,
+	VP: A,
+	A: j,
+	R: M,
+	NP: N,
+	PCT: lt,
+	RATIO: ut,
+	NUM: dt,
+	d: P,
+	p: ft,
+	c: pt,
+	r: mt,
+	pronoun: ht
+}, _t = {}, vt = {};
+for (let [e, t] of Object.entries(gt)) {
 	let n = /* @__PURE__ */ new Map(), r = /* @__PURE__ */ new Set();
 	for (let e = 0; e < t.length; e++) {
 		let i = t[e].toLowerCase();
 		r.add(i), n.has(i) || n.set(i, e);
 	}
-	bt[e] = n, yt[e] = r;
+	vt[e] = n, _t[e] = r;
 }
-var xt = (() => {
+var yt = (() => {
 	let e = /* @__PURE__ */ new Set();
-	for (let t of Object.values(vt)) for (let n of t) e.add(n.toLowerCase());
+	for (let t of Object.values(gt)) for (let n of t) e.add(n.toLowerCase());
 	return Array.from(e);
-})(), St = xt.slice(0, 2048), N = D(te, O), Ct = D(ne, k), wt = D(/* @__PURE__ */ "raised.lowered.increased.decreased.reduced.expanded.boosted.cut.gained.lost.adjusted.amplified.curbed.curtailed.slashed.trimmed.augmented.capped.doubled.elevated.enhanced.extended.halved.heightened.lifted.limited.maximized.minimized.moderated.modified.multiplied.narrowed.optimized.pushed.restrained.scaled.shortened.stabilized.stimulated.surpassed.sustained.tightened.tripled.upgraded.widened.yielded.balanced.checked.altered.varied.eased.slowed.stalled.bounced.retreated.leveled.fluctuated.shifted.plummeted.spiked.soared.slumped.tumbled.aligned.appreciated.broadened.collapsed.contracted.corrected.depreciated.diminished.dipped.diverged.drifted.escalated.flattened.floated.lessened.normalized.outpaced.rallied.receded.regressed.reset.resumed.reversed.revived.settled.softened.solidified.stagnated.steepened.subsided.swelled.tapered.unraveled.upticked.accumulated.bounded.consolidated.dampened.eclipsed.faltered.folded.hinged.lagged.lengthened.mounted.overtook.paced.paused.pivoted.poised.pressed.prospered.quickened.redefined.regained.relapsed.renewed.restabilized.restructured.retrenched.spurred.stiffened.swung.thrived.topped.trailed.transformed.transitioned.trended.turned.unfolded.unsettled.wavered.controlled.monitored.managed.regulated.directed.oversaw.administered.channeled.guided.steered.piloted.spearheaded.initiated.commenced.targeted.projected.estimated.calculated.budgeted.allocated.appropriated.assigned.designated.specified.secured.negotiated.finalized.approved.ratified.sanctioned.authorized.endorsed.supported.backed.promoted.championed.defended.protected.maintained.bolstered.reinforced.strengthened.upheld.preserved.retained.safeguarded.sheltered.shielded.fortified.anchored.tracked.recorded.registered.assessed.evaluated.audited.reviewed.analyzed.inspected.measured.quantified.valued.appraised.benchmarked.computed.determined.gauged.indexed.overhauled.recalculated.revaluated.scrutinized.surveyed.tallied.tested.weighted.abated.absorbed.accelerated.acclimated.accommodated.accrued.achieved.acquired.adapted.advanced.affected.aggregated.allotted.amended.annexed.anticipated.apportioned.approximated.arranged.assembled.assimilated.assumed.averaged.built.calibrated.canceled.captured.cataloged.classified.cleared.codified.collected.combined.commanded.commercialized.commissioned.committed.compacted.compared.compensated.compiled.completed.complicated.composed".split("."), k), P = D(re, O), F = D(ie, O), I = D(/* @__PURE__ */ "faced.weathered.confronted.endured.experienced.sustained.grew.rose.fell.declined.announced.supported.proposed.rejected.approved.launched.created.developed.introduced.published.released.signed.adopted.defended.backed.changed.submitted.issued.authorized.sanctioned.passed.ratified.endorsed.promoted.reviewed.revised.updated.modified.expanded.drafted.enacted.implemented.accepted.considered.presented.delayed.withdrew.suspended.challenged.examined.evaluated.assessed.directed.managed.led.organized.established.formed.structured.secured.negotiated.finalized.requested.demanded.ordered.urged.favored.opposed.condemned.praised.welcomed.criticized.discussed.debated.surveyed.investigated.audited.inspected.verified.validated.certified.unveiled.revealed.disclosed.outlined.detailed.summarized.clarified.explained.reaffirmed.emphasized.highlighted.underlined.stressed.voiced.expressed.stated.declared.proclaimed.asserted.claimed.confirmed.acknowledged.admitted.conceded.denied.refused.dismissed.overruled.vetoed.repealed.rescinded.revoked.cancelled.postponed.deferred.rescheduled.extended.renewed.restructured.reorganized.transformed.reformed.overhauled.modernized.upgraded.strengthened.reinforced.bolstered.boosted.enhanced.improved.broadened.scaled.increased.reduced.cut.lowered.curbed.restricted.limited.capped.constrained.regulated.controlled.monitored.supervised.guided.steered.piloted.spearheaded.initiated.commenced.triggered.instigated.pioneered.founded.built.constructed.designed.engineered.crafted.framed.formulated.devised.conceived.planned.projected.estimated.calculated.budgeted.allocated.appropriated.assigned.designated.appointed.nominated.selected.chose.named.elected.installed.stationed.deployed.positioned.dispatched.sent.transferred.relocated.moved.shifted.redirected.channeled.diverted.routed.delivered.supplied.provided.furnished.offered.granted.awarded.conferred.bestowed.pledged.guaranteed.promised.committed.dedicated.devoted.applied.utilized.employed.executed.enforced.administered.handled.conducted.chaired.hosted.sponsored.coordinated.facilitated.assisted.aided.helped.championed.shielded.safeguarded.protected.upheld.maintained.preserved.retained.commissioned.promulgated.decreed.instituted.orchestrated.oversaw.governed.standardized.formalized.advocated.articulated.assembled.authored.balanced.benchmarked.briefed.cataloged.chartered.circulated.classified.communicated.compiled.composed.conceptualized.consolidated.consulted.said.reported.argued.suggested.showed.indicated".split("."), k), L = D(ae, ut), R = D(/* @__PURE__ */ "washington.london.beijing.moscow.berlin.paris.tokyo.ottawa.brussels.geneva.vienna.madrid.rome.seoul.ankara.cairo.dublin.warsaw.prague.stockholm.oslo.helsinki.lisbon.athens.sydney.melbourne.toronto.vancouver.montreal.auckland.mumbai.delhi.shanghai.taipei.singapore.bangkok.jakarta.manila.hanoi.riyadh.tehran.baghdad.kabul.nairobi.lagos.pretoria.accra.addis.chicago.houston.phoenix.dallas.boston.atlanta.miami.seattle.denver.detroit.minneapolis.amsterdam.budapest.bucharest.kiev.zurich.frankfurt.munich.milan.naples.barcelona.valencia.porto.edinburgh.belfast.lyon.marseille.copenhagen.riga.vilnius.tallinn.zagreb.belgrade.sofia.bratislava.ljubljana.sarajevo.skopje.tirana.yerevan.tbilisi.baku.tashkent.almaty.astana.doha.dubai.muscat.amman.beirut.damascus.jerusalem.jeddah.alexandria.tunis.algiers.rabat.casablanca.khartoum.kampala.kigali.lusaka.harare.maputo.luanda.kinshasa.dakar.abidjan.johannesburg.canberra.perth.brisbane.adelaide.hobart.christchurch.wellington.osaka.kyoto.nagoya.fukuoka.sapporo.busan.incheon.guangzhou.shenzhen.chengdu.wuhan.xian.tianjin.chongqing.kolkata.chennai.bengaluru.hyderabad.ahmedabad.pune.karachi.lahore.islamabad.dhaka.colombo.kathmandu.male.vientiane.yangon.florence.venice.seville.nice.antwerp.rotterdam.africa.europe.america.australia.asia.canada.mexico.brazil.argentina.colombia.chile.peru.ecuador.bolivia.uruguay.paraguay.venezuela.china.india.japan.korea.taiwan.thailand.vietnam.malaysia.indonesia.philippines.myanmar.pakistan.bangladesh.nepal.lanka.cambodia.germany.france.britain.spain.italy.poland.ukraine.romania.sweden.norway.denmark.finland.ireland.scotland.belgium.austria.egypt.turkey.iran.iraq.syria.jordan.lebanon.israel.nigeria.kenya.ghana.ethiopia.tanzania.uganda.rwanda.senegal.russia.georgia.belarus.armenia.serbia.croatia.bulgaria.hungary.greece.portugal.netherlands.switzerland.morocco.algeria.tunisia.sudan.zambia.zimbabwe.angola.congo.qatar.oman.yemen.kuwait.bahrain.fiji.samoa.iceland.malta.cyprus.california.texas".split("."), ut), z = D(/* @__PURE__ */ "said.stated.reported.announced.confirmed.noted.argued.warned.explained.claimed.suggested.indicated.detailed.revealed.declared.acknowledged.disclosed.added.described.emphasized.highlighted.underlined.stressed.asserted.reaffirmed.insisted.recounted.maintained.observed.commented.remarked.pointed.specified.clarified.outlined.summarized.reiterated.contended.pledged.vowed.promised.guaranteed.voiced.expressed.conceded.admitted.denied.refused.dismissed.rejected.countered.responded.replied.retorted.testified.swore.affirmed.certified.verified.validated.attested.endorsed.backed.supported.defended.urged.called.demanded.requested.proposed.recommended.advised.cautioned.admonished.appealed.pleaded.floated.mooted.tabled.presented.submitted.filed.issued.released.published.broadcast.aired.transmitted.circulated.distributed.disseminated.publicized.promoted.heralded.proclaimed.decreed.ordered.directed.commanded.instructed.charged.tasked.assigned.authorized.sanctioned.approved.ratified.signed.enacted.passed.adopted.championed.spearheaded.introduced.launched.unveiled.averred.vouched.corroborated.substantiated.seconded.echoed.concurred.agreed.acquiesced.assented.consented.subscribed.favored.advocated.pushed.pressed.lobbied.campaigned.strove.labored.worked.bound.committed.dedicated.devoted.warranted.assured.reassured.satisfied.convinced.persuaded.swayed.influenced.moved.prompted.inspired.motivated.driven.led.guided.steered.piloted.channeled.conducted.managed.administered.handled.signaled.professed.elaborated.postulated.conjectured.adjudged.appraised.estimated.calculated.projected.surmised.hypothesized.communicated.relayed.notified.informed.briefed.apprised.manifested.insinuated.intimated.promulgated.enunciated.articulated.formulated.framed.ventilated.asseverated.adjudicated.alleged.amplified.analysed.annotated.appended.applauded.approbated.authenticated.avouched.chided.chronicled.cited.classified.commentated.showed.planned.expected.sought.protected.upheld.drove.oversaw.controlled.monitored.created.built.developed.designed.established.formed.tackled.regulated.resolved.exhorted.enjoined.implored.stipulated.reasserted.reminded.explicated.predicated.proffered.clamored.deliberated.disclaimed.exclaimed.interjected.interrupted.invoked.lamented.objected.opined.petitioned.protested.reckoned.rejoined.remonstrated.repudiated.solicited.interrogated".split("."), k), Tt = D(oe, A), B = D(se, O), V = D(ce, k), Et = D(/* @__PURE__ */ "requested.demanded.proposed.approved.issued.submitted.offered.provided.released.published.adopted.presented.confirmed.announced.disclosed.rejected.sought.urged.called.drafted.authored.prepared.delivered.signed.passed.backed.supported.endorsed.promoted.tabled.floated.mooted.advanced.introduced.sponsored.recommended.advised.suggested.cautioned.appealed.pleaded.petitioned.solicited.requisitioned.ordered.directed.commanded.instructed.charged.tasked.assigned.authorized.sanctioned.ratified.enacted.promulgated.decreed.proclaimed.declared.stated.asserted.affirmed.maintained.contended.argued.insisted.emphasized.highlighted.underlined.stressed.accentuated.voiced.expressed.articulated.formulated.framed.devised.conceived.crafted.designed.engineered.constructed.built.established.founded.instituted.initiated.commenced.launched.spearheaded.piloted.pioneered.championed.pushed.advocated.lobbied.campaigned.strove.exerted.labored.worked.tried.endeavored.attempted.aimed.targeted.intended.planned.projected.estimated.calculated.budgeted.allocated.appropriated.designated.specified.secured.negotiated.finalized.arranged.coordinated.facilitated.assisted.aided.helped.shielded.safeguarded.protected.upheld.tendered.proffered.forwarded.transmitted.relayed.dispatched.communicated.implored.entreated.besought.importuned.prompted.adjudicated.alleged.allotted.amended.applied.said.reported.claimed.revealed.showed.indicated.warned.noted.added.explained.described.expected.defended.led.drove.guided.managed.oversaw.controlled.monitored.created.developed.formed.increased.improved.strengthened.boosted.reduced.cut.lowered.limited.faced.encountered.confronted.addressed.tackled.handled.regulated.resolved.joined.entered.attended.gathered.assembled.met.connected.opened.began.started.triggered.activated.enabled.closed.ended.stopped.concluded.finished.halted.terminated.suspended.moved.shifted.transferred.relocated.traveled.crossed.reached.approached.remained.stayed.continued.supplied.gave.granted.distributed.received.got.obtained.gained.earned.collected.accepted.acquired.required.needed.compelled.involved.included.contained.covered.encompassed.allowed.permitted.empowered.awarded.prevented.mandated.commissioned.authenticated.standardized.formalized.orchestrated.admonished.appealed.asked.begged.bade.claimed.implored.importuned.invited.motioned.petitioned.pledged.pleaded.pressed.prompted.proposed.requisitioned.solicited.sought.summoned".split("."), k), Dt = D(/* @__PURE__ */ "remained.stayed.seemed.appeared.proved.became.ended.continued.felt.grew.turned.sounded.looked.stood.persisted.lingered.kept.ran.held.lay.sat.rested.evolved.showed.emerged.started.began.commenced.unfolded.transpired.happened.occurred.prevailed.existed.loomed.survived.endured.lasted.flourished.prospered.thrived.stagnated.stalled.halted.stopped.paused.wavered.hesitated.faltered.lagged.trailed.led.guided.soared.plummeted.slumped.rebounded.recovered.surged.slipped.dipped.dropped.rose.fell.declined.expanded.contracted.shrank.subsided.abated.moderated.eased.cooled.warmed.spiked.peaked.bottomed.bounced.advanced.gained.lost.eroded.decayed.depreciated.appreciated.escalated.leveled.flattened.accelerated.slowed.stiffened.softened.tightened.loosened.narrowed.broadened.deepened.heightened.intensified.weakened.strengthened.lengthened.shortened.stabilized.normalized.reset.resumed.reversed.revived.settled.solidified.swelled.tapered.unraveled.yielded.accumulated.balanced.consolidated.dampened.eclipsed.extended.folded.hinged.mounted.multiplied.paced.pivoted.poised.pressed.quickened.redefined.regained.relapsed.renewed.restabilized.restructured.retrenched.spurred.swung.topped.transformed.transitioned.trended.unsettled.widened.converged.diverged.drifted.floated.regressed.receded.rallied.upticked.diminished.corrected.amplified.altered.aligned.adjusted.tumbled.halved.tripled.doubled.shifted.fluctuated.varied.deteriorated.debased.degraded.devalued.dwindled.abided.acclimated.said.reported.claimed.argued.suggested.revealed.confirmed.announced.indicated.warned.noted.added.explained.stated.described.planned.expected.sought.called.demanded.urged.proposed.requested.supported.backed.endorsed.promoted.defended.protected.maintained.upheld.drove.directed.managed.oversaw.controlled.monitored.created.built.developed.designed.launched.introduced.established.formed.increased.improved.boosted.reduced.cut.lowered.limited.faced.encountered.confronted.addressed.tackled.handled.regulated.resolved.joined.entered.attended.gathered.assembled.met.connected.resulted.ebbed.waned.faded.dissipated.vanished.materialized.surfaced.arose.culminated.subsided.slackened.mellowed.rested.reposed.slept.settled".split("."), k), Ot = D(le, A), kt = [
+})(), bt = yt.slice(0, 2048), xt = O(te, k), St = O(ne, A), Ct = O(/* @__PURE__ */ "raised.lowered.increased.decreased.reduced.expanded.boosted.cut.gained.lost.adjusted.amplified.curbed.curtailed.slashed.trimmed.augmented.capped.doubled.elevated.enhanced.extended.halved.heightened.lifted.limited.maximized.minimized.moderated.modified.multiplied.narrowed.optimized.pushed.restrained.scaled.shortened.stabilized.stimulated.surpassed.sustained.tightened.tripled.upgraded.widened.yielded.balanced.checked.altered.varied.eased.slowed.stalled.bounced.retreated.leveled.fluctuated.shifted.plummeted.spiked.soared.slumped.tumbled.aligned.appreciated.broadened.collapsed.contracted.corrected.depreciated.diminished.dipped.diverged.drifted.escalated.flattened.floated.lessened.normalized.outpaced.rallied.receded.regressed.reset.resumed.reversed.revived.settled.softened.solidified.stagnated.steepened.subsided.swelled.tapered.unraveled.upticked.accumulated.bounded.consolidated.dampened.eclipsed.faltered.folded.hinged.lagged.lengthened.mounted.overtook.paced.paused.pivoted.poised.pressed.prospered.quickened.redefined.regained.relapsed.renewed.restabilized.restructured.retrenched.spurred.stiffened.swung.thrived.topped.trailed.transformed.transitioned.trended.turned.unfolded.unsettled.wavered.controlled.monitored.managed.regulated.directed.oversaw.administered.channeled.guided.steered.piloted.spearheaded.initiated.commenced.targeted.projected.estimated.calculated.budgeted.allocated.appropriated.assigned.designated.specified.secured.negotiated.finalized.approved.ratified.sanctioned.authorized.endorsed.supported.backed.promoted.championed.defended.protected.maintained.bolstered.reinforced.strengthened.upheld.preserved.retained.safeguarded.sheltered.shielded.fortified.anchored.tracked.recorded.registered.assessed.evaluated.audited.reviewed.analyzed.inspected.measured.quantified.valued.appraised.benchmarked.computed.determined.gauged.indexed.overhauled.recalculated.revaluated.scrutinized.surveyed.tallied.tested.weighted.abated.absorbed.accelerated.acclimated.accommodated.accrued.achieved.acquired.adapted.advanced.affected.aggregated.allotted.amended.annexed.anticipated.apportioned.approximated.arranged.assembled.assimilated.assumed.averaged.built.calibrated.canceled.captured.cataloged.classified.cleared.codified.collected.combined.commanded.commercialized.commissioned.committed.compacted.compared.compensated.compiled.completed.complicated.composed".split("."), A), wt = O(re, k), Tt = O(ie, k), Et = O(/* @__PURE__ */ "faced.weathered.confronted.endured.experienced.sustained.grew.rose.fell.declined.announced.supported.proposed.rejected.approved.launched.created.developed.introduced.published.released.signed.adopted.defended.backed.changed.submitted.issued.authorized.sanctioned.passed.ratified.endorsed.promoted.reviewed.revised.updated.modified.expanded.drafted.enacted.implemented.accepted.considered.presented.delayed.withdrew.suspended.challenged.examined.evaluated.assessed.directed.managed.led.organized.established.formed.structured.secured.negotiated.finalized.requested.demanded.ordered.urged.favored.opposed.condemned.praised.welcomed.criticized.discussed.debated.surveyed.investigated.audited.inspected.verified.validated.certified.unveiled.revealed.disclosed.outlined.detailed.summarized.clarified.explained.reaffirmed.emphasized.highlighted.underlined.stressed.voiced.expressed.stated.declared.proclaimed.asserted.claimed.confirmed.acknowledged.admitted.conceded.denied.refused.dismissed.overruled.vetoed.repealed.rescinded.revoked.cancelled.postponed.deferred.rescheduled.extended.renewed.restructured.reorganized.transformed.reformed.overhauled.modernized.upgraded.strengthened.reinforced.bolstered.boosted.enhanced.improved.broadened.scaled.increased.reduced.cut.lowered.curbed.restricted.limited.capped.constrained.regulated.controlled.monitored.supervised.guided.steered.piloted.spearheaded.initiated.commenced.triggered.instigated.pioneered.founded.built.constructed.designed.engineered.crafted.framed.formulated.devised.conceived.planned.projected.estimated.calculated.budgeted.allocated.appropriated.assigned.designated.appointed.nominated.selected.chose.named.elected.installed.stationed.deployed.positioned.dispatched.sent.transferred.relocated.moved.shifted.redirected.channeled.diverted.routed.delivered.supplied.provided.furnished.offered.granted.awarded.conferred.bestowed.pledged.guaranteed.promised.committed.dedicated.devoted.applied.utilized.employed.executed.enforced.administered.handled.conducted.chaired.hosted.sponsored.coordinated.facilitated.assisted.aided.helped.championed.shielded.safeguarded.protected.upheld.maintained.preserved.retained.commissioned.promulgated.decreed.instituted.orchestrated.oversaw.governed.standardized.formalized.advocated.articulated.assembled.authored.balanced.benchmarked.briefed.cataloged.chartered.circulated.classified.communicated.compiled.composed.conceptualized.consolidated.consulted.said.reported.argued.suggested.showed.indicated".split("."), A), Dt = O(ae, N), Ot = O(/* @__PURE__ */ "washington.london.beijing.moscow.berlin.paris.tokyo.ottawa.brussels.geneva.vienna.madrid.rome.seoul.ankara.cairo.dublin.warsaw.prague.stockholm.oslo.helsinki.lisbon.athens.sydney.melbourne.toronto.vancouver.montreal.auckland.mumbai.delhi.shanghai.taipei.singapore.bangkok.jakarta.manila.hanoi.riyadh.tehran.baghdad.kabul.nairobi.lagos.pretoria.accra.addis.chicago.houston.phoenix.dallas.boston.atlanta.miami.seattle.denver.detroit.minneapolis.amsterdam.budapest.bucharest.kiev.zurich.frankfurt.munich.milan.naples.barcelona.valencia.porto.edinburgh.belfast.lyon.marseille.copenhagen.riga.vilnius.tallinn.zagreb.belgrade.sofia.bratislava.ljubljana.sarajevo.skopje.tirana.yerevan.tbilisi.baku.tashkent.almaty.astana.doha.dubai.muscat.amman.beirut.damascus.jerusalem.jeddah.alexandria.tunis.algiers.rabat.casablanca.khartoum.kampala.kigali.lusaka.harare.maputo.luanda.kinshasa.dakar.abidjan.johannesburg.canberra.perth.brisbane.adelaide.hobart.christchurch.wellington.osaka.kyoto.nagoya.fukuoka.sapporo.busan.incheon.guangzhou.shenzhen.chengdu.wuhan.xian.tianjin.chongqing.kolkata.chennai.bengaluru.hyderabad.ahmedabad.pune.karachi.lahore.islamabad.dhaka.colombo.kathmandu.male.vientiane.yangon.florence.venice.seville.nice.antwerp.rotterdam.africa.europe.america.australia.asia.canada.mexico.brazil.argentina.colombia.chile.peru.ecuador.bolivia.uruguay.paraguay.venezuela.china.india.japan.korea.taiwan.thailand.vietnam.malaysia.indonesia.philippines.myanmar.pakistan.bangladesh.nepal.lanka.cambodia.germany.france.britain.spain.italy.poland.ukraine.romania.sweden.norway.denmark.finland.ireland.scotland.belgium.austria.egypt.turkey.iran.iraq.syria.jordan.lebanon.israel.nigeria.kenya.ghana.ethiopia.tanzania.uganda.rwanda.senegal.russia.georgia.belarus.armenia.serbia.croatia.bulgaria.hungary.greece.portugal.netherlands.switzerland.morocco.algeria.tunisia.sudan.zambia.zimbabwe.angola.congo.qatar.oman.yemen.kuwait.bahrain.fiji.samoa.iceland.malta.cyprus.california.texas".split("."), N), kt = O(/* @__PURE__ */ "said.stated.reported.announced.confirmed.noted.argued.warned.explained.claimed.suggested.indicated.detailed.revealed.declared.acknowledged.disclosed.added.described.emphasized.highlighted.underlined.stressed.asserted.reaffirmed.insisted.recounted.maintained.observed.commented.remarked.pointed.specified.clarified.outlined.summarized.reiterated.contended.pledged.vowed.promised.guaranteed.voiced.expressed.conceded.admitted.denied.refused.dismissed.rejected.countered.responded.replied.retorted.testified.swore.affirmed.certified.verified.validated.attested.endorsed.backed.supported.defended.urged.called.demanded.requested.proposed.recommended.advised.cautioned.admonished.appealed.pleaded.floated.mooted.tabled.presented.submitted.filed.issued.released.published.broadcast.aired.transmitted.circulated.distributed.disseminated.publicized.promoted.heralded.proclaimed.decreed.ordered.directed.commanded.instructed.charged.tasked.assigned.authorized.sanctioned.approved.ratified.signed.enacted.passed.adopted.championed.spearheaded.introduced.launched.unveiled.averred.vouched.corroborated.substantiated.seconded.echoed.concurred.agreed.acquiesced.assented.consented.subscribed.favored.advocated.pushed.pressed.lobbied.campaigned.strove.labored.worked.bound.committed.dedicated.devoted.warranted.assured.reassured.satisfied.convinced.persuaded.swayed.influenced.moved.prompted.inspired.motivated.driven.led.guided.steered.piloted.channeled.conducted.managed.administered.handled.signaled.professed.elaborated.postulated.conjectured.adjudged.appraised.estimated.calculated.projected.surmised.hypothesized.communicated.relayed.notified.informed.briefed.apprised.manifested.insinuated.intimated.promulgated.enunciated.articulated.formulated.framed.ventilated.asseverated.adjudicated.alleged.amplified.analysed.annotated.appended.applauded.approbated.authenticated.avouched.chided.chronicled.cited.classified.commentated.showed.planned.expected.sought.protected.upheld.drove.oversaw.controlled.monitored.created.built.developed.designed.established.formed.tackled.regulated.resolved.exhorted.enjoined.implored.stipulated.reasserted.reminded.explicated.predicated.proffered.clamored.deliberated.disclaimed.exclaimed.interjected.interrupted.invoked.lamented.objected.opined.petitioned.protested.reckoned.rejoined.remonstrated.repudiated.solicited.interrogated".split("."), A), At = O(oe, j), jt = O(se, k), Mt = O(ce, A), Nt = O(/* @__PURE__ */ "requested.demanded.proposed.approved.issued.submitted.offered.provided.released.published.adopted.presented.confirmed.announced.disclosed.rejected.sought.urged.called.drafted.authored.prepared.delivered.signed.passed.backed.supported.endorsed.promoted.tabled.floated.mooted.advanced.introduced.sponsored.recommended.advised.suggested.cautioned.appealed.pleaded.petitioned.solicited.requisitioned.ordered.directed.commanded.instructed.charged.tasked.assigned.authorized.sanctioned.ratified.enacted.promulgated.decreed.proclaimed.declared.stated.asserted.affirmed.maintained.contended.argued.insisted.emphasized.highlighted.underlined.stressed.accentuated.voiced.expressed.articulated.formulated.framed.devised.conceived.crafted.designed.engineered.constructed.built.established.founded.instituted.initiated.commenced.launched.spearheaded.piloted.pioneered.championed.pushed.advocated.lobbied.campaigned.strove.exerted.labored.worked.tried.endeavored.attempted.aimed.targeted.intended.planned.projected.estimated.calculated.budgeted.allocated.appropriated.designated.specified.secured.negotiated.finalized.arranged.coordinated.facilitated.assisted.aided.helped.shielded.safeguarded.protected.upheld.tendered.proffered.forwarded.transmitted.relayed.dispatched.communicated.implored.entreated.besought.importuned.prompted.adjudicated.alleged.allotted.amended.applied.said.reported.claimed.revealed.showed.indicated.warned.noted.added.explained.described.expected.defended.led.drove.guided.managed.oversaw.controlled.monitored.created.developed.formed.increased.improved.strengthened.boosted.reduced.cut.lowered.limited.faced.encountered.confronted.addressed.tackled.handled.regulated.resolved.joined.entered.attended.gathered.assembled.met.connected.opened.began.started.triggered.activated.enabled.closed.ended.stopped.concluded.finished.halted.terminated.suspended.moved.shifted.transferred.relocated.traveled.crossed.reached.approached.remained.stayed.continued.supplied.gave.granted.distributed.received.got.obtained.gained.earned.collected.accepted.acquired.required.needed.compelled.involved.included.contained.covered.encompassed.allowed.permitted.empowered.awarded.prevented.mandated.commissioned.authenticated.standardized.formalized.orchestrated.admonished.appealed.asked.begged.bade.claimed.implored.importuned.invited.motioned.petitioned.pledged.pleaded.pressed.prompted.proposed.requisitioned.solicited.sought.summoned".split("."), A), Pt = O(/* @__PURE__ */ "remained.stayed.seemed.appeared.proved.became.ended.continued.felt.grew.turned.sounded.looked.stood.persisted.lingered.kept.ran.held.lay.sat.rested.evolved.showed.emerged.started.began.commenced.unfolded.transpired.happened.occurred.prevailed.existed.loomed.survived.endured.lasted.flourished.prospered.thrived.stagnated.stalled.halted.stopped.paused.wavered.hesitated.faltered.lagged.trailed.led.guided.soared.plummeted.slumped.rebounded.recovered.surged.slipped.dipped.dropped.rose.fell.declined.expanded.contracted.shrank.subsided.abated.moderated.eased.cooled.warmed.spiked.peaked.bottomed.bounced.advanced.gained.lost.eroded.decayed.depreciated.appreciated.escalated.leveled.flattened.accelerated.slowed.stiffened.softened.tightened.loosened.narrowed.broadened.deepened.heightened.intensified.weakened.strengthened.lengthened.shortened.stabilized.normalized.reset.resumed.reversed.revived.settled.solidified.swelled.tapered.unraveled.yielded.accumulated.balanced.consolidated.dampened.eclipsed.extended.folded.hinged.mounted.multiplied.paced.pivoted.poised.pressed.quickened.redefined.regained.relapsed.renewed.restabilized.restructured.retrenched.spurred.swung.topped.transformed.transitioned.trended.unsettled.widened.converged.diverged.drifted.floated.regressed.receded.rallied.upticked.diminished.corrected.amplified.altered.aligned.adjusted.tumbled.halved.tripled.doubled.shifted.fluctuated.varied.deteriorated.debased.degraded.devalued.dwindled.abided.acclimated.said.reported.claimed.argued.suggested.revealed.confirmed.announced.indicated.warned.noted.added.explained.stated.described.planned.expected.sought.called.demanded.urged.proposed.requested.supported.backed.endorsed.promoted.defended.protected.maintained.upheld.drove.directed.managed.oversaw.controlled.monitored.created.built.developed.designed.launched.introduced.established.formed.increased.improved.boosted.reduced.cut.lowered.limited.faced.encountered.confronted.addressed.tackled.handled.regulated.resolved.joined.entered.attended.gathered.assembled.met.connected.resulted.ebbed.waned.faded.dissipated.vanished.materialized.surfaced.arose.culminated.subsided.slackened.mellowed.rested.reposed.slept.settled".split("."), A), Ft = O(le, j), It = [
 	"because",
 	"as",
 	"since",
 	"while"
-], H = D(/* @__PURE__ */ "recently.publicly.strongly.formally.widely.closely.openly.repeatedly.quietly.quickly.carefully.directly.officially.successfully.privately.eventually.promptly.immediately.eagerly.boldly.bravely.cautiously.hesitantly.nervously.wearily.skeptically.warily.freely.generously.graciously.warmly.kindly.favorably.positively.constructively.strictly.tightly.rigidly.harshly.sternly.bluntly.candidly.plainly.equally.similarly.likewise.correspondingly.identically.uniformly.evenly.symmetrically.outward.worldwide.globally.regionally.domestically.internally.externally.laterally.swiftly.decisively.enthusiastically.passionately.vigorously.energetically.aggressively.actively.consistently.continuously.persistently.separately.independently.collectively.jointly.mutually.simultaneously.respectively.accordingly.meanwhile.however.nevertheless.furthermore.moreover.consequently.fortunately.unfortunately.surprisingly.interestingly.reportedly.allegedly.supposedly.presumably.typically.normally.generally.commonly.traditionally.historically.conventionally.routinely.relatively.comparatively.proportionally.intently.earnestly.resolutely.steadfastly.unflinchingly.strenuously.zealously.adequately.admirably.agilely.alertly.ambitiously.analytically.ardently.artfully.also.now.already.still.just.even.only.currently.previously.initially.originally.finally.ultimately.often.usually.always.never.sometimes.rarely.frequently.occasionally.here.there.anywhere.everywhere.abroad.overseas.locally.nationally.very.quite.rather.fairly.extremely.highly.deeply.significantly.well.badly.slowly.steadily.rapidly.gradually.soon.early.late.again.once.twice.daily.annually.together.alone.apart.aside.ahead.behind.forward.backward.likely.possibly.probably.certainly.definitely.clearly.obviously.apparently.secretly.indirectly.firmly.sharply.broadly.largely.mostly.primarily.simply.merely.barely.hardly.nearly.almost.approximately.roughly.particularly.especially.specifically.notably.remarkably.increasingly.dramatically.substantially.effectively.efficiently.marginally.slightly.moderately.considerably.tremendously.exactly.precisely.accurately.correctly.properly.appropriately.sufficiently.surely.absolutely.entirely.completely.totally.fully.wholly.thoroughly.partly.partially.somewhat.modestly.mildly.minimally.nominally.technically.naturally.automatically.systematically.strategically.deliberately.intentionally.voluntarily.willingly.temporarily.permanently.indefinitely.briefly.momentarily.periodically.intermittently.sporadically.safely".split("."), j), At = D(/* @__PURE__ */ "however.meanwhile.nevertheless.nonetheless.instead.also.indeed.similarly.furthermore.additionally.still.otherwise.rather.likewise.conversely.ultimately.consequently.accordingly.besides.moreover.then.further.finally.initially.originally.subsequently.thereafter.afterward.alternatively.notwithstanding.anyway.anyhow.equally.correspondingly.identically.uniformly.consistently.compatibly.harmoniously.eventually.undoubtedly.assuredly.certainly.definitely.plainly.clearly.evidently.manifestly.patently.unmistakably.decisively.conclusively.emphatically.resolutely.firmly.steadfastly.unwaveringly.firstly.secondly.thirdly.lastly.incidentally.parenthetically.tangentially.coincidentally.admittedly.concededly.doubtless.indubitably.indisputably.unquestionably.now.already.just.even.only.recently.currently.previously.immediately.promptly.often.usually.always.never.sometimes.rarely.frequently.occasionally.here.there.anywhere.everywhere.abroad.overseas.locally.nationally.very.quite.fairly.extremely.highly.deeply.significantly.well.badly.carefully.quickly.slowly.steadily.rapidly.gradually.soon.early.late.again.once.twice.daily.annually.together.alone.apart.aside.ahead.behind.forward.backward.likely.possibly.probably.obviously.apparently.officially.formally.publicly.privately.openly.secretly.directly.indirectly.strongly.sharply.broadly.widely.largely.mostly.primarily.simply.merely.barely.hardly.nearly.almost.approximately.roughly.particularly.especially.specifically.notably.remarkably.increasingly.dramatically.substantially.successfully.effectively.efficiently.actively.continuously.repeatedly.persistently.separately.independently.collectively.jointly.mutually.simultaneously.respectively.fortunately.unfortunately.surprisingly.interestingly.reportedly.allegedly.supposedly.presumably.typically.normally.generally.commonly.traditionally.historically.conventionally.routinely.relatively.comparatively.proportionally.marginally.slightly.moderately.considerably.tremendously.exactly.precisely.accurately.correctly.properly.appropriately.adequately.sufficiently.surely.absolutely.entirely.completely.totally.fully.wholly.thoroughly.partly.partially.somewhat.modestly.mildly.minimally.nominally.technically.naturally.automatically.systematically.strategically.deliberately.intentionally.voluntarily.willingly.temporarily.permanently.indefinitely.briefly.momentarily.periodically.intermittently.sporadically.safely.securely.peacefully.calmly.quietly.silently.gently.smoothly.urgently".split("."), j), jt = D(/* @__PURE__ */ "sharply.steadily.rapidly.gradually.significantly.modestly.slightly.dramatically.quickly.slowly.noticeably.substantially.marginally.consistently.suddenly.further.steeply.precipitously.markedly.considerably.tremendously.immensely.drastically.severely.acutely.intensely.profoundly.deeply.greatly.hugely.massively.enormously.vastly.broadly.widely.largely.mostly.primarily.principally.chiefly.mainly.appreciably.perceptibly.visibly.clearly.manifestly.evidently.obviously.undoubtedly.certainly.definitely.decisively.conclusively.moderately.progressively.continuously.measureably.noticably.extensively.sweepingly.adaptively.adequately.aggressively.alarmingly.amplifiedly.astoundingly.also.now.already.still.just.even.only.recently.currently.previously.initially.originally.finally.ultimately.immediately.promptly.often.usually.always.never.sometimes.rarely.frequently.occasionally.here.there.anywhere.everywhere.abroad.overseas.locally.nationally.very.quite.rather.fairly.extremely.highly.well.badly.carefully.soon.early.late.again.once.twice.daily.annually.together.alone.apart.aside.ahead.behind.forward.backward.likely.possibly.probably.apparently.officially.formally.publicly.privately.openly.secretly.directly.indirectly.strongly.firmly.simply.merely.barely.hardly.nearly.almost.approximately.roughly.particularly.especially.specifically.notably.remarkably.increasingly.successfully.effectively.efficiently.actively.repeatedly.persistently.separately.independently.collectively.jointly.mutually.simultaneously.respectively.accordingly.meanwhile.however.nevertheless.furthermore.moreover.consequently.fortunately.unfortunately.surprisingly.interestingly.reportedly.allegedly.supposedly.presumably.typically.normally.generally.commonly.traditionally.historically.conventionally.routinely.relatively.comparatively.proportionally.exactly.precisely.accurately.correctly.properly.appropriately.sufficiently.surely.absolutely.entirely.completely.totally.fully.wholly.thoroughly.partly.partially.somewhat.mildly.minimally.nominally.technically.naturally.automatically.systematically.strategically.deliberately.intentionally.voluntarily.willingly.temporarily.permanently.indefinitely.briefly.momentarily.periodically.intermittently.sporadically.safely.securely.peacefully.calmly.quietly.silently.gently.smoothly.urgently.desperately.critically.seriously.gravely.enthusiastically.eagerly.passionately.vigorously.energetically.boldly.bravely.cautiously.reluctantly.hesitantly.nervously.anxiously.wearily.skeptically.warily".split("."), j), Mt = D(ue, O), Nt = D(de, k), Pt = D(fe, O), U = D(/* @__PURE__ */ "officials.lawmakers.regulators.voters.ministers.leaders.researchers.judges.members.delegates.senators.residents.workers.analysts.witnesses.representatives.officers.detectives.investigators.inspectors.auditors.examiners.specialists.experts.advisors.consultants.strategists.economists.scientists.biologists.chemists.physicists.engineers.technicians.developers.programmers.designers.architects.planners.coordinators.managers.supervisors.administrators.directors.founders.trustees.investors.shareholders.traders.brokers.financiers.bankers.lenders.creditors.borrowers.merchants.vendors.suppliers.contractors.operators.employers.employees.laborers.staff.crew.participants.attendees.cadres.ranks.troops.personnel.veterans.pioneers.donors.sponsors.supporters.advocates.critics.opponents.allies.partners.rivals.competitors.candidates.contenders.entrants.nominees.appointees.successors.predecessors.deputies.assistants.aides.associates.colleagues.peers.fellows.observers.spectators.bystanders.victims.survivors.inhabitants.dwellers.locals.natives.foreigners.immigrants.refugees.migrants.travelers.visitors.guests.hosts.organizers.creators.writers.reporters.editors.broadcasters.columnists.correspondents.producers.filmmakers.musicians.singers.performers.legislators.attorneys.lawyers.prosecutors.jurors.magistrates.chancellors.premiers.mayors.governors.ambassadors.diplomats.envoys.dignitaries.spokesmen.spokespersons.spokeswomen.chairpersons.chairmen.chairwomen.stewards.guardians.custodians.monitors.agents.emissaries.commissioners.chiefs.heads.commanders.captains.marshals.constables.wardens.sheriffs.operatives.scholars.professors.academics.authors.journalists.reviewers.evaluators.assessors.arbitrators.mediators.negotiators.statesmen.politicians.campaigners.activists.lobbyists.patrons.benefactors.accountants.bureaucrats.ombudsmen.provosts.deans.rectors.cashiers.actuaries.statisticians.chairholders.parliamentarians.councillors.aldermen.delegations.ministries.associations.federations.syndicates.conglomerates.corporations.enterprises.agencies.authorities.boards.cabinets.chambers.commissions.committees.councils.courts.directorates.divisions.institutes.institutions.legislatures.panels.parties.societies.tribunals.trusts.unions.assemblies.consortiums.foundations.guilds.leagues.missions.organizations.alumni.artisans.bakers.biographers.businessmen.clerks.coaches.composers.counselors.curators.educators.historians.instructors.jurists.lecturers.mathematicians.notaries.physicians.pilots.practitioners.principals.sociologists.superintendents.surveyors.teachers".split("."), O), Ft = D(/* @__PURE__ */ "criticized.backed.rejected.approved.supported.opposed.questioned.challenged.examined.endorsed.investigated.defended.reviewed.signed.blocked.adopted.praised.welcomed.condemned.disputed.debated.discussed.evaluated.audited.inspected.verified.validated.scrutinized.analyzed.assessed.surveyed.monitored.supervised.controlled.regulated.modified.revised.updated.amended.expanded.restricted.limited.sanctioned.authorized.passed.ratified.drafted.enacted.implemented.executed.administered.managed.directed.guided.steered.spearheaded.initiated.launched.created.developed.established.formed.structured.secured.negotiated.finalized.requested.demanded.ordered.urged.favored.proposed.submitted.presented.delayed.suspended.postponed.cancelled.revoked.repealed.rescinded.vetoed.overruled.dismissed.refused.denied.conceded.admitted.acknowledged.confirmed.asserted.claimed.proclaimed.declared.stated.expressed.voiced.stressed.underlined.highlighted.emphasized.reaffirmed.clarified.explained.summarized.detailed.outlined.disclosed.revealed.unveiled.certified.corroborated.substantiated.seconded.echoed.concurred.agreed.acquiesced.assented.consented.subscribed.advocated.pushed.pressed.lobbied.campaigned.strove.labored.worked.bound.committed.dedicated.devoted.guaranteed.warranted.assured.reassured.satisfied.convinced.persuaded.swayed.influenced.moved.prompted.inspired.motivated.driven.piloted.channeled.conducted.handled.operated.ran.governed.ruled.headed.chaired.hosted.sponsored.coordinated.organized.arranged.instructed.charged.tasked.assigned.designated.appointed.nominated.selected.chose.named.installed.stationed.deployed.positioned.dispatched.sent.transferred.relocated.shifted.redirected.diverted.routed.delivered.supplied.provided.furnished.offered.granted.awarded.conferred.bestowed.pledged.shielded.safeguarded.protected.upheld.maintained.preserved.accentuated.acclaimed.accommodated.accredited.acquired.actuated.said.reported.argued.suggested.announced.showed.indicated.warned.noted.added.described.planned.expected.sought.called.promoted.led.drove.oversaw.built.designed.introduced.increased.grew.rose.improved.advanced.strengthened.boosted.reduced.cut.lowered.dropped.declined.fell.shrank.faced.encountered.confronted.addressed.tackled.resolved.joined.entered.applauded.authenticated.championed.codified.formulated.framed.instituted.modernized.orchestrated.overhauled".split("."), k), It = D(pe, A), Lt = D(me, A), Rt = D(he, O), zt = D(ge, k), W = D(/* @__PURE__ */ "talks.negotiations.elections.hearings.discussions.debates.demonstrations.meetings.raids.clashes.investigations.consultations.interviews.strikes.trials.sessions.conferences.summits.audits.reviews.forums.panels.assemblies.polls.proceedings.deliberations.briefings.encounters.confrontations.conflicts.rallies.votes.ballots.referendums.primaries.conventions.symposia.caucuses.gatherings.summitry.dialogues.parleys.protests.walkouts.boycotts.stoppages.pickets.marches.processions.campaigns.drives.initiatives.operations.missions.maneuvers.exercises.drills.inspections.surveys.assessments.evaluations.inquiries.probes.inquests.examinations.screenings.tests.experiments.studies.workshops.keynotes.lectures.seminars.presentations.broadcasts.telecasts.podcasts.statements.addresses.speeches.discourses.exchanges.bargaining.arbitrations.mediations.conciliations.settlements.adjudications.rulings.verdicts.judgments.sentences.appeals.lawsuits.litigations.prosecutions.arraignments.indictments.depositions.affidavits.subpoenas.injunctions.decrees.directives.mandates.orders.resolutions.motions.petitions.amendments.reforms.revisions.overhauls.restructurings.reorganizations.transformations.transitions.shifts.developments.episodes.incidents.occurrences.events.affairs.scandals.crises.emergencies.disasters.tragedies.calamities.mishaps.accidents.collisions.skirmishes.battles.engagements.offensives.assaults.attacks.agreements.allegations.allocations.altercations.analyses.colloquia.conclaves.consults.dispatches.expositions.outbreaks.proclamations.pronouncements.receptions.roundtables.showdowns.standoffs.stipulations.testimonies.transcripts.treaties.undertakings.unfoldings.visitations.warranties.arguments.barters.commotions.disturbances.fights.combats.hostilities.wars.sorties.incursions.invasions.ambushes.barrages.bombardments.sieges.blockades.embargoes.sanctions.penalties.uprisings.riots.rebellions.insurgencies.mutinies.coups.disagreements.quarrels.wrangles.feuds.contentions.controversies.brawls.breakthroughs.impasses.deadlocks.gridlocks.bottlenecks.stalemates.reconciliations.compromises.concessions.fallouts.outbursts.upheavals.agitations.tumults.strifes.frictions.tensions.pressures.turmoils.clamors.manifestos.charters.protocols.compacts.pacts.debriefings.symposiums.colloquiums.parades.reconcilements.pleas.submissions.filings.declarations.announcements.pressers.briefs.dockets.minutes.records.logs.dossiers.registries.catalogs.directories.compendiums.whitepapers.bulletins.memos.memorandums.monographs.theses.manuscripts.treatises.addendums.appendices.atlases.circulars.clippings.digests.handbooks.leaflets.logbooks.manuals.pamphlets.periodicals.prospectuses.publications.summaries.tracts.paperbacks.hardcovers".split("."), O), Bt = [
+], Lt = O(/* @__PURE__ */ "recently.publicly.strongly.formally.widely.closely.openly.repeatedly.quietly.quickly.carefully.directly.officially.successfully.privately.eventually.promptly.immediately.eagerly.boldly.bravely.cautiously.hesitantly.nervously.wearily.skeptically.warily.freely.generously.graciously.warmly.kindly.favorably.positively.constructively.strictly.tightly.rigidly.harshly.sternly.bluntly.candidly.plainly.equally.similarly.likewise.correspondingly.identically.uniformly.evenly.symmetrically.outward.worldwide.globally.regionally.domestically.internally.externally.laterally.swiftly.decisively.enthusiastically.passionately.vigorously.energetically.aggressively.actively.consistently.continuously.persistently.separately.independently.collectively.jointly.mutually.simultaneously.respectively.accordingly.meanwhile.however.nevertheless.furthermore.moreover.consequently.fortunately.unfortunately.surprisingly.interestingly.reportedly.allegedly.supposedly.presumably.typically.normally.generally.commonly.traditionally.historically.conventionally.routinely.relatively.comparatively.proportionally.intently.earnestly.resolutely.steadfastly.unflinchingly.strenuously.zealously.adequately.admirably.agilely.alertly.ambitiously.analytically.ardently.artfully.also.now.already.still.just.even.only.currently.previously.initially.originally.finally.ultimately.often.usually.always.never.sometimes.rarely.frequently.occasionally.here.there.anywhere.everywhere.abroad.overseas.locally.nationally.very.quite.rather.fairly.extremely.highly.deeply.significantly.well.badly.slowly.steadily.rapidly.gradually.soon.early.late.again.once.twice.daily.annually.together.alone.apart.aside.ahead.behind.forward.backward.likely.possibly.probably.certainly.definitely.clearly.obviously.apparently.secretly.indirectly.firmly.sharply.broadly.largely.mostly.primarily.simply.merely.barely.hardly.nearly.almost.approximately.roughly.particularly.especially.specifically.notably.remarkably.increasingly.dramatically.substantially.effectively.efficiently.marginally.slightly.moderately.considerably.tremendously.exactly.precisely.accurately.correctly.properly.appropriately.sufficiently.surely.absolutely.entirely.completely.totally.fully.wholly.thoroughly.partly.partially.somewhat.modestly.mildly.minimally.nominally.technically.naturally.automatically.systematically.strategically.deliberately.intentionally.voluntarily.willingly.temporarily.permanently.indefinitely.briefly.momentarily.periodically.intermittently.sporadically.safely".split("."), M), Rt = O(/* @__PURE__ */ "however.meanwhile.nevertheless.nonetheless.instead.also.indeed.similarly.furthermore.additionally.still.otherwise.rather.likewise.conversely.ultimately.consequently.accordingly.besides.moreover.then.further.finally.initially.originally.subsequently.thereafter.afterward.alternatively.notwithstanding.anyway.anyhow.equally.correspondingly.identically.uniformly.consistently.compatibly.harmoniously.eventually.undoubtedly.assuredly.certainly.definitely.plainly.clearly.evidently.manifestly.patently.unmistakably.decisively.conclusively.emphatically.resolutely.firmly.steadfastly.unwaveringly.firstly.secondly.thirdly.lastly.incidentally.parenthetically.tangentially.coincidentally.admittedly.concededly.doubtless.indubitably.indisputably.unquestionably.now.already.just.even.only.recently.currently.previously.immediately.promptly.often.usually.always.never.sometimes.rarely.frequently.occasionally.here.there.anywhere.everywhere.abroad.overseas.locally.nationally.very.quite.fairly.extremely.highly.deeply.significantly.well.badly.carefully.quickly.slowly.steadily.rapidly.gradually.soon.early.late.again.once.twice.daily.annually.together.alone.apart.aside.ahead.behind.forward.backward.likely.possibly.probably.obviously.apparently.officially.formally.publicly.privately.openly.secretly.directly.indirectly.strongly.sharply.broadly.widely.largely.mostly.primarily.simply.merely.barely.hardly.nearly.almost.approximately.roughly.particularly.especially.specifically.notably.remarkably.increasingly.dramatically.substantially.successfully.effectively.efficiently.actively.continuously.repeatedly.persistently.separately.independently.collectively.jointly.mutually.simultaneously.respectively.fortunately.unfortunately.surprisingly.interestingly.reportedly.allegedly.supposedly.presumably.typically.normally.generally.commonly.traditionally.historically.conventionally.routinely.relatively.comparatively.proportionally.marginally.slightly.moderately.considerably.tremendously.exactly.precisely.accurately.correctly.properly.appropriately.adequately.sufficiently.surely.absolutely.entirely.completely.totally.fully.wholly.thoroughly.partly.partially.somewhat.modestly.mildly.minimally.nominally.technically.naturally.automatically.systematically.strategically.deliberately.intentionally.voluntarily.willingly.temporarily.permanently.indefinitely.briefly.momentarily.periodically.intermittently.sporadically.safely.securely.peacefully.calmly.quietly.silently.gently.smoothly.urgently".split("."), M), zt = O(/* @__PURE__ */ "sharply.steadily.rapidly.gradually.significantly.modestly.slightly.dramatically.quickly.slowly.noticeably.substantially.marginally.consistently.suddenly.further.steeply.precipitously.markedly.considerably.tremendously.immensely.drastically.severely.acutely.intensely.profoundly.deeply.greatly.hugely.massively.enormously.vastly.broadly.widely.largely.mostly.primarily.principally.chiefly.mainly.appreciably.perceptibly.visibly.clearly.manifestly.evidently.obviously.undoubtedly.certainly.definitely.decisively.conclusively.moderately.progressively.continuously.measureably.noticably.extensively.sweepingly.adaptively.adequately.aggressively.alarmingly.amplifiedly.astoundingly.also.now.already.still.just.even.only.recently.currently.previously.initially.originally.finally.ultimately.immediately.promptly.often.usually.always.never.sometimes.rarely.frequently.occasionally.here.there.anywhere.everywhere.abroad.overseas.locally.nationally.very.quite.rather.fairly.extremely.highly.well.badly.carefully.soon.early.late.again.once.twice.daily.annually.together.alone.apart.aside.ahead.behind.forward.backward.likely.possibly.probably.apparently.officially.formally.publicly.privately.openly.secretly.directly.indirectly.strongly.firmly.simply.merely.barely.hardly.nearly.almost.approximately.roughly.particularly.especially.specifically.notably.remarkably.increasingly.successfully.effectively.efficiently.actively.repeatedly.persistently.separately.independently.collectively.jointly.mutually.simultaneously.respectively.accordingly.meanwhile.however.nevertheless.furthermore.moreover.consequently.fortunately.unfortunately.surprisingly.interestingly.reportedly.allegedly.supposedly.presumably.typically.normally.generally.commonly.traditionally.historically.conventionally.routinely.relatively.comparatively.proportionally.exactly.precisely.accurately.correctly.properly.appropriately.sufficiently.surely.absolutely.entirely.completely.totally.fully.wholly.thoroughly.partly.partially.somewhat.mildly.minimally.nominally.technically.naturally.automatically.systematically.strategically.deliberately.intentionally.voluntarily.willingly.temporarily.permanently.indefinitely.briefly.momentarily.periodically.intermittently.sporadically.safely.securely.peacefully.calmly.quietly.silently.gently.smoothly.urgently.desperately.critically.seriously.gravely.enthusiastically.eagerly.passionately.vigorously.energetically.boldly.bravely.cautiously.reluctantly.hesitantly.nervously.anxiously.wearily.skeptically.warily".split("."), M), Bt = O(ue, k), Vt = O(de, A), Ht = O(fe, k), Ut = O(/* @__PURE__ */ "officials.lawmakers.regulators.voters.ministers.leaders.researchers.judges.members.delegates.senators.residents.workers.analysts.witnesses.representatives.officers.detectives.investigators.inspectors.auditors.examiners.specialists.experts.advisors.consultants.strategists.economists.scientists.biologists.chemists.physicists.engineers.technicians.developers.programmers.designers.architects.planners.coordinators.managers.supervisors.administrators.directors.founders.trustees.investors.shareholders.traders.brokers.financiers.bankers.lenders.creditors.borrowers.merchants.vendors.suppliers.contractors.operators.employers.employees.laborers.staff.crew.participants.attendees.cadres.ranks.troops.personnel.veterans.pioneers.donors.sponsors.supporters.advocates.critics.opponents.allies.partners.rivals.competitors.candidates.contenders.entrants.nominees.appointees.successors.predecessors.deputies.assistants.aides.associates.colleagues.peers.fellows.observers.spectators.bystanders.victims.survivors.inhabitants.dwellers.locals.natives.foreigners.immigrants.refugees.migrants.travelers.visitors.guests.hosts.organizers.creators.writers.reporters.editors.broadcasters.columnists.correspondents.producers.filmmakers.musicians.singers.performers.legislators.attorneys.lawyers.prosecutors.jurors.magistrates.chancellors.premiers.mayors.governors.ambassadors.diplomats.envoys.dignitaries.spokesmen.spokespersons.spokeswomen.chairpersons.chairmen.chairwomen.stewards.guardians.custodians.monitors.agents.emissaries.commissioners.chiefs.heads.commanders.captains.marshals.constables.wardens.sheriffs.operatives.scholars.professors.academics.authors.journalists.reviewers.evaluators.assessors.arbitrators.mediators.negotiators.statesmen.politicians.campaigners.activists.lobbyists.patrons.benefactors.accountants.bureaucrats.ombudsmen.provosts.deans.rectors.cashiers.actuaries.statisticians.chairholders.parliamentarians.councillors.aldermen.delegations.ministries.associations.federations.syndicates.conglomerates.corporations.enterprises.agencies.authorities.boards.cabinets.chambers.commissions.committees.councils.courts.directorates.divisions.institutes.institutions.legislatures.panels.parties.societies.tribunals.trusts.unions.assemblies.consortiums.foundations.guilds.leagues.missions.organizations.alumni.artisans.bakers.biographers.businessmen.clerks.coaches.composers.counselors.curators.educators.historians.instructors.jurists.lecturers.mathematicians.notaries.physicians.pilots.practitioners.principals.sociologists.superintendents.surveyors.teachers".split("."), k), Wt = O(/* @__PURE__ */ "criticized.backed.rejected.approved.supported.opposed.questioned.challenged.examined.endorsed.investigated.defended.reviewed.signed.blocked.adopted.praised.welcomed.condemned.disputed.debated.discussed.evaluated.audited.inspected.verified.validated.scrutinized.analyzed.assessed.surveyed.monitored.supervised.controlled.regulated.modified.revised.updated.amended.expanded.restricted.limited.sanctioned.authorized.passed.ratified.drafted.enacted.implemented.executed.administered.managed.directed.guided.steered.spearheaded.initiated.launched.created.developed.established.formed.structured.secured.negotiated.finalized.requested.demanded.ordered.urged.favored.proposed.submitted.presented.delayed.suspended.postponed.cancelled.revoked.repealed.rescinded.vetoed.overruled.dismissed.refused.denied.conceded.admitted.acknowledged.confirmed.asserted.claimed.proclaimed.declared.stated.expressed.voiced.stressed.underlined.highlighted.emphasized.reaffirmed.clarified.explained.summarized.detailed.outlined.disclosed.revealed.unveiled.certified.corroborated.substantiated.seconded.echoed.concurred.agreed.acquiesced.assented.consented.subscribed.advocated.pushed.pressed.lobbied.campaigned.strove.labored.worked.bound.committed.dedicated.devoted.guaranteed.warranted.assured.reassured.satisfied.convinced.persuaded.swayed.influenced.moved.prompted.inspired.motivated.driven.piloted.channeled.conducted.handled.operated.ran.governed.ruled.headed.chaired.hosted.sponsored.coordinated.organized.arranged.instructed.charged.tasked.assigned.designated.appointed.nominated.selected.chose.named.installed.stationed.deployed.positioned.dispatched.sent.transferred.relocated.shifted.redirected.diverted.routed.delivered.supplied.provided.furnished.offered.granted.awarded.conferred.bestowed.pledged.shielded.safeguarded.protected.upheld.maintained.preserved.accentuated.acclaimed.accommodated.accredited.acquired.actuated.said.reported.argued.suggested.announced.showed.indicated.warned.noted.added.described.planned.expected.sought.called.promoted.led.drove.oversaw.built.designed.introduced.increased.grew.rose.improved.advanced.strengthened.boosted.reduced.cut.lowered.dropped.declined.fell.shrank.faced.encountered.confronted.addressed.tackled.resolved.joined.entered.applauded.authenticated.championed.codified.formulated.framed.instituted.modernized.orchestrated.overhauled".split("."), A), Gt = O(pe, j), Kt = O(me, j), qt = O(he, k), Jt = O(ge, A), Yt = O(/* @__PURE__ */ "talks.negotiations.elections.hearings.discussions.debates.demonstrations.meetings.raids.clashes.investigations.consultations.interviews.strikes.trials.sessions.conferences.summits.audits.reviews.forums.panels.assemblies.polls.proceedings.deliberations.briefings.encounters.confrontations.conflicts.rallies.votes.ballots.referendums.primaries.conventions.symposia.caucuses.gatherings.summitry.dialogues.parleys.protests.walkouts.boycotts.stoppages.pickets.marches.processions.campaigns.drives.initiatives.operations.missions.maneuvers.exercises.drills.inspections.surveys.assessments.evaluations.inquiries.probes.inquests.examinations.screenings.tests.experiments.studies.workshops.keynotes.lectures.seminars.presentations.broadcasts.telecasts.podcasts.statements.addresses.speeches.discourses.exchanges.bargaining.arbitrations.mediations.conciliations.settlements.adjudications.rulings.verdicts.judgments.sentences.appeals.lawsuits.litigations.prosecutions.arraignments.indictments.depositions.affidavits.subpoenas.injunctions.decrees.directives.mandates.orders.resolutions.motions.petitions.amendments.reforms.revisions.overhauls.restructurings.reorganizations.transformations.transitions.shifts.developments.episodes.incidents.occurrences.events.affairs.scandals.crises.emergencies.disasters.tragedies.calamities.mishaps.accidents.collisions.skirmishes.battles.engagements.offensives.assaults.attacks.agreements.allegations.allocations.altercations.analyses.colloquia.conclaves.consults.dispatches.expositions.outbreaks.proclamations.pronouncements.receptions.roundtables.showdowns.standoffs.stipulations.testimonies.transcripts.treaties.undertakings.unfoldings.visitations.warranties.arguments.barters.commotions.disturbances.fights.combats.hostilities.wars.sorties.incursions.invasions.ambushes.barrages.bombardments.sieges.blockades.embargoes.sanctions.penalties.uprisings.riots.rebellions.insurgencies.mutinies.coups.disagreements.quarrels.wrangles.feuds.contentions.controversies.brawls.breakthroughs.impasses.deadlocks.gridlocks.bottlenecks.stalemates.reconciliations.compromises.concessions.fallouts.outbursts.upheavals.agitations.tumults.strifes.frictions.tensions.pressures.turmoils.clamors.manifestos.charters.protocols.compacts.pacts.debriefings.symposiums.colloquiums.parades.reconcilements.pleas.submissions.filings.declarations.announcements.pressers.briefs.dockets.minutes.records.logs.dossiers.registries.catalogs.directories.compendiums.whitepapers.bulletins.memos.memorandums.monographs.theses.manuscripts.treatises.addendums.appendices.atlases.circulars.clippings.digests.handbooks.leaflets.logbooks.manuals.pamphlets.periodicals.prospectuses.publications.summaries.tracts.paperbacks.hardcovers".split("."), k), Xt = [
 	"the",
 	"some",
 	"no",
 	"any"
+], Zt = [
+	"domestic",
+	"national",
+	"regional",
+	"global",
+	"local",
+	"financial",
+	"industrial",
+	"foreign"
+], Qt = [
+	"market",
+	"economy",
+	"industry",
+	"sector",
+	"company",
+	"agency",
+	"coalition",
+	"committee"
+], $t = [
+	"pressure",
+	"uncertainty",
+	"volatility",
+	"disruption",
+	"weakness",
+	"strain",
+	"turbulence",
+	"instability"
+], en = [
+	"market",
+	"economy",
+	"price",
+	"rate",
+	"sector",
+	"industry",
+	"investment",
+	"stock"
+], tn = [
+	"prices",
+	"rates",
+	"output",
+	"sales",
+	"supply",
+	"demand",
+	"profits",
+	"production"
+], nn = [
+	"rose",
+	"fell",
+	"grew",
+	"declined",
+	"increased",
+	"dropped",
+	"surged",
+	"recovered"
+], rn = [
+	"grew",
+	"rose",
+	"increased",
+	"expanded",
+	"climbed",
+	"surged",
+	"recovered",
+	"advanced"
+], an = [
+	"sharply",
+	"steadily",
+	"rapidly",
+	"gradually",
+	"modestly",
+	"slightly",
+	"dramatically",
+	"substantially"
+], F = [
+	"london",
+	"washington",
+	"beijing",
+	"paris",
+	"berlin",
+	"tokyo",
+	"brussels",
+	"geneva"
+], on = [
+	"severe",
+	"prolonged",
+	"ongoing",
+	"growing",
+	"renewed",
+	"acute",
+	"persistent",
+	"widespread"
+], I = [
+	"shortage",
+	"crisis",
+	"drought",
+	"conflict",
+	"storm",
+	"dispute",
+	"recession",
+	"disruption"
+], L = [
+	"worsened",
+	"persisted",
+	"deepened",
+	"continued",
+	"escalated",
+	"eased",
+	"intensified",
+	"spread"
+], R = [
+	"government",
+	"council",
+	"agency",
+	"committee",
+	"commission",
+	"parliament",
+	"company",
+	"coalition"
+], z = [
+	"officials",
+	"lawmakers",
+	"regulators",
+	"ministers",
+	"delegates",
+	"analysts",
+	"agencies",
+	"authorities"
+], sn = [
+	"representatives",
+	"advisers",
+	"observers",
+	"negotiators",
+	"envoys",
+	"diplomats",
+	"experts",
+	"specialists"
+], B = [
+	"recently",
+	"publicly",
+	"formally",
+	"promptly",
+	"unanimously",
+	"officially",
+	"earlier",
+	"ultimately"
+], V = [
+	"approved",
+	"rejected",
+	"adopted",
+	"proposed",
+	"revised",
+	"delayed",
+	"backed",
+	"issued"
+], H = [
+	"policy",
+	"plan",
+	"proposal",
+	"measure",
+	"reform",
+	"treaty",
+	"framework",
+	"agreement"
+], cn = [
+	"guidelines",
+	"measures",
+	"reforms",
+	"restrictions",
+	"proposals",
+	"amendments",
+	"plans",
+	"regulations"
+], U = [
+	"new",
+	"formal",
+	"regional",
+	"national",
+	"joint",
+	"revised",
+	"broader",
+	"unique"
+], ln = [
+	"national",
+	"regional",
+	"federal",
+	"local",
+	"central",
+	"joint",
+	"opposition",
+	"state"
+], un = [
+	"senior",
+	"regional",
+	"national",
+	"local",
+	"government",
+	"opposition",
+	"foreign",
+	"independent"
+], dn = [
+	"talks",
+	"negotiations",
+	"hearings",
+	"meetings",
+	"discussions",
+	"consultations",
+	"elections",
+	"investigations"
+], fn = [
+	"criticized",
+	"backed",
+	"rejected",
+	"approved",
+	"supported",
+	"challenged",
+	"welcomed",
+	"opposed"
+], pn = [
+	"requested",
+	"sought",
+	"demanded",
+	"proposed",
+	"submitted",
+	"prepared",
+	"drafted",
+	"issued"
+], mn = [
+	"statement",
+	"agreement",
+	"proposal",
+	"plan",
+	"report",
+	"response",
+	"framework",
+	"briefing"
+], W = [
+	"reuters",
+	"bloomberg",
+	"johnson",
+	"williams",
+	"thompson",
+	"anderson",
+	"campbell",
+	"robinson"
 ], G = [
-	"the",
-	"some",
-	"no",
-	"any"
+	"said",
+	"reported",
+	"noted",
+	"added",
+	"explained",
+	"confirmed",
+	"stated",
+	"announced"
+], hn = [
+	"unresolved",
+	"ongoing",
+	"inconclusive",
+	"uncertain",
+	"unsettled",
+	"contentious",
+	"unfinished",
+	"unproductive"
 ], K = [
 	[
-		T(M, "d"),
-		T(It, "A"),
-		T(N, "N"),
-		T(I, "VP"),
-		T(Tt, "A"),
-		T(B, "N")
+		E(P, "d"),
+		E(Zt, "A"),
+		E(Qt, "N"),
+		D(["faced"], "VP"),
+		D(["persistent"], "A"),
+		E($t, "N")
 	],
 	[
-		T(M, "d"),
-		T(A, "A"),
-		T(N, "N"),
-		T(Ct, "VP"),
-		T(jt, "R"),
-		T(dt, "PCT"),
-		E(["in"], "p"),
-		T(R, "NP")
+		E(P, "d"),
+		E(Zt, "A"),
+		E(en, "N"),
+		E(nn, "VP"),
+		E(an, "R"),
+		E(lt, "PCT"),
+		D(["this"], "d"),
+		D(["quarter"], "N")
 	],
 	[
-		E(["if"], "c"),
-		T(Bt, "d"),
-		T(Mt, "N"),
-		T(Nt, "VP", ","),
-		T(P, "N"),
-		T(I, "VP"),
-		T(F, "N")
+		D(["if"], "c"),
+		D(["the"], "d"),
+		E(I, "N"),
+		E(L, "VP", ","),
+		E(z, "NPL"),
+		D(["issued"], "VP"),
+		E(cn, "NPL")
 	],
 	[
-		E(["after"], "p"),
-		T(W, "N", ","),
-		T(At, "R", ","),
-		T(M, "d"),
-		T(P, "N"),
-		T(H, "R"),
-		T(I, "VP"),
-		T(G, "d"),
-		T(F, "N")
+		D(["after"], "p"),
+		E(dn, "NPL", ","),
+		E(un, "A"),
+		E(z, "NPL"),
+		E(B, "R"),
+		E(V, "VP"),
+		D(["the"], "d"),
+		E(U, "A"),
+		E(H, "N")
 	],
 	[
-		T(M, "d"),
-		T(Pt, "N", ","),
-		E(["which"], "c"),
-		T(U, "N"),
-		T(H, "R"),
-		T(Ft, "VP", ","),
-		T(H, "R"),
-		T(I, "VP"),
-		T(G, "d"),
-		T(F, "N")
+		E(P, "d"),
+		E(R, "N", ","),
+		D(["which"], "c"),
+		E(z, "NPL"),
+		E(B, "R"),
+		E(fn, "VP", ","),
+		E(B, "R"),
+		E(V, "VP"),
+		D(["the"], "d"),
+		E(H, "N")
 	],
 	[
-		T(It, "A"),
-		T(Lt, "A"),
-		T(Rt, "N"),
-		T(zt, "VP"),
-		T(jt, "R"),
-		E(["in"], "p"),
-		T(R, "NP"),
-		T(kt, "c"),
-		T(M, "d"),
-		T(Tt, "A"),
-		T(B, "N"),
-		T(V, "VP")
+		E(Zt, "A"),
+		E([
+			"food",
+			"energy",
+			"consumer",
+			"fuel",
+			"housing",
+			"labor",
+			"industrial",
+			"export"
+		], "A"),
+		E(tn, "NPL"),
+		E([
+			"rose",
+			"fell",
+			"increased",
+			"declined",
+			"stabilized",
+			"recovered",
+			"improved",
+			"weakened"
+		], "VP"),
+		E(an, "R"),
+		D(["in"], "p"),
+		E(F, "NP"),
+		E(It, "c"),
+		D(["the"], "d"),
+		E(on, "A"),
+		E(I, "N"),
+		E(L, "VPR")
 	],
 	[
-		T(M, "d", void 0, "\""),
-		T(A, "A"),
-		T(P, "N"),
-		T(wt, "VP"),
-		T(N, "N"),
-		T(pt, "NUM", "\","),
-		T(L, "NP"),
-		T(z, "VPR"),
-		T(H, "R"),
-		E(["in"], "p"),
-		E(["an"], "d"),
-		E(["interview"], "N"),
-		E(["in"], "p"),
-		T(R, "NP")
+		E(P, "d"),
+		E([
+			"report",
+			"survey",
+			"study",
+			"analysis",
+			"index",
+			"forecast",
+			"poll",
+			"review"
+		], "N"),
+		E([
+			"reported",
+			"recorded",
+			"estimated",
+			"projected",
+			"measured",
+			"showed",
+			"indicated",
+			"produced"
+		], "VPR"),
+		D(["a"], "d"),
+		D(["figure"], "N"),
+		D(["of"], "p"),
+		E(dt, "NUM", ","),
+		E(W, "NP"),
+		E(G, "VPR"),
+		D(["during"], "p"),
+		D(["an"], "d"),
+		D(["interview"], "N"),
+		D(["in"], "p"),
+		E(F, "NP")
 	],
 	[
-		T(L, "NP"),
-		T(z, "VPR"),
-		E(["that"], "c"),
-		T(M, "d"),
-		T(A, "A"),
-		T(P, "N"),
-		T(I, "VP"),
-		T(A, "A"),
-		T(F, "N", ","),
-		E(["but"], "c"),
-		T(M, "d"),
-		T(P, "N"),
-		T(I, "VP"),
-		T(G, "d"),
-		T(F, "N")
+		E(W, "NP"),
+		E(G, "VPR"),
+		D(["that"], "c"),
+		D(["the"], "d"),
+		E(ln, "A"),
+		E(R, "N"),
+		E(V, "VP"),
+		E(U, "A"),
+		E(cn, "NPL", ","),
+		D(["but"], "c"),
+		D(["the"], "d"),
+		E(R, "N"),
+		E(V, "VP"),
+		D(["the"], "d"),
+		E(H, "N")
 	],
 	[
-		T(M, "d", void 0, "\""),
-		T(A, "A"),
-		T(P, "N"),
-		T(I, "VP"),
-		T(G, "d"),
-		T(F, "N", "\","),
-		T(L, "NP"),
-		T(z, "VPR"),
-		E(["in"], "p"),
-		T(R, "NP", ","),
-		T(kt, "c", void 0, "\""),
-		T(M, "d"),
-		T(Tt, "A"),
-		T(B, "N"),
-		T(V, "VP"),
-		E(["in"], "p"),
-		T(R, "NP", "\"")
+		E(P, "d", void 0, "\""),
+		E(ln, "A"),
+		E(R, "N"),
+		E(V, "VP"),
+		D(["the"], "d"),
+		E(H, "N", "\","),
+		E(W, "NP"),
+		E(G, "VPR"),
+		D(["in"], "p"),
+		E(F, "NP", ","),
+		E(It, "c", void 0, "\""),
+		D(["the"], "d"),
+		E(on, "A"),
+		E(I, "N"),
+		E(L, "VPR"),
+		D(["through"], "p"),
+		D(["winter"], "N", "\"")
 	],
 	[
-		T(G, "d"),
-		T(U, "N", ","),
-		E(["including"], "c"),
-		T(G, "d"),
-		T(U, "N", ","),
-		T(Et, "VP"),
-		T(M, "d"),
-		T(A, "A"),
-		T(F, "N"),
-		E(["because"], "c"),
-		T(G, "d"),
-		T(W, "N"),
-		T(Dt, "VP"),
-		T(Ot, "A", ","),
-		T(L, "NP"),
-		T(z, "VPR"),
-		E(["on"], "p"),
-		E(["Friday"], "NP")
+		E(Xt, "d"),
+		E(z, "NPL", ","),
+		D(["including"], "c"),
+		D(["some"], "d"),
+		E(sn, "NPL", ","),
+		E(pn, "VPR"),
+		D(["a"], "d"),
+		E(U, "A"),
+		E(mn, "N"),
+		D(["because"], "c"),
+		D(["the"], "d"),
+		D(["talks"], "NPL"),
+		D(["remained"], "VP"),
+		E(hn, "A", ","),
+		E(W, "NP"),
+		E(G, "VPR"),
+		D(["on"], "p"),
+		D(["Friday"], "NP")
 	],
 	[
-		T(M, "d"),
-		T(N, "N"),
-		T(Ct, "VP"),
-		E(["nearly"], "R"),
-		T(ft, "RATIO")
+		E(P, "d"),
+		E(en, "N"),
+		E(rn, "VP"),
+		D(["nearly"], "R"),
+		E(ut, "RATIO")
 	],
 	[
-		T(U, "N"),
-		T(H, "R"),
-		T(z, "VPR"),
-		T(M, "d"),
-		T(F, "N"),
-		T(k, "VP"),
-		T(Ot, "A"),
-		E(["after"], "p"),
-		T(G, "d"),
-		T(W, "N"),
-		T(V, "VP")
+		E(z, "NPL"),
+		E(G, "VPR"),
+		D(["the"], "d"),
+		E(H, "N"),
+		D(["remained"], "VP"),
+		D(["unresolved"], "A"),
+		D(["after"], "p"),
+		D(["the"], "d"),
+		D(["regional"], "A"),
+		E(dn, "NPL"),
+		D(["ended"], "VP")
 	],
 	[
-		T(M, "d"),
-		T(P, "N"),
-		T(H, "R"),
-		T(I, "VP"),
-		T(M, "d"),
-		T(A, "A"),
-		T(F, "N"),
-		E(["after"], "p"),
-		T(G, "d"),
-		T(B, "N"),
-		T(V, "VP"),
-		T(A, "A"),
-		T(Rt, "N")
+		E(P, "d"),
+		E(R, "N"),
+		E(B, "R"),
+		E(V, "VP"),
+		D(["its"], "d"),
+		E(U, "A"),
+		E(H, "N"),
+		D(["after"], "p"),
+		D(["the"], "d"),
+		E(I, "N"),
+		E(L, "VPR"),
+		E(Zt, "A"),
+		E([
+			"prices",
+			"output",
+			"supply",
+			"demand",
+			"wages",
+			"costs",
+			"profits",
+			"production"
+		], "NPL")
 	],
 	[
-		T(U, "N"),
-		T(z, "VPR"),
-		T(M, "d"),
-		T(F, "N"),
-		T(k, "VP"),
-		T(A, "A"),
-		T(F, "N"),
-		E(["while"], "c"),
-		T(M, "d"),
-		T(P, "N"),
-		T(I, "VP"),
-		T(A, "A"),
-		T(F, "N"),
-		E(["for"], "p"),
-		T(A, "A"),
-		T(P, "N")
+		E(z, "NPL"),
+		E(G, "VPR"),
+		D(["the"], "d"),
+		E(H, "N"),
+		D(["required"], "VP"),
+		D(["further"], "A"),
+		E([
+			"review",
+			"scrutiny",
+			"assessment",
+			"examination",
+			"oversight",
+			"consultation",
+			"evaluation",
+			"investigation"
+		], "N"),
+		D(["while"], "c"),
+		D(["the"], "d"),
+		E(R, "N"),
+		E(V, "VP"),
+		E(U, "A"),
+		E(cn, "NPL"),
+		D(["for"], "p"),
+		E(un, "A"),
+		E(z, "NPL")
 	],
 	[
-		T(G, "d"),
-		T(U, "N", ","),
-		E(["including"], "c"),
-		T(G, "d"),
-		T(A, "A"),
-		T(U, "N", ","),
-		T(Et, "VP"),
-		T(M, "d"),
-		T(A, "A"),
-		T(F, "N"),
-		E(["because"], "c"),
-		T(G, "d"),
-		T(W, "N"),
-		T(Dt, "VP"),
-		T(Ot, "A", ","),
-		T(L, "NP"),
-		T(z, "VPR"),
-		E(["on"], "p"),
-		E(["Friday"], "NP")
+		E(Xt, "d"),
+		E(z, "NPL", ","),
+		D(["including"], "c"),
+		D(["some"], "d"),
+		E(un, "A"),
+		E(sn, "NPL", ","),
+		E(pn, "VPR"),
+		D(["a"], "d"),
+		E(U, "A"),
+		E(mn, "N"),
+		D(["because"], "c"),
+		D(["the"], "d"),
+		D(["talks"], "NPL"),
+		D(["remained"], "VP"),
+		E(hn, "A", ","),
+		E(W, "NP"),
+		E(G, "VPR"),
+		D(["on"], "p"),
+		D(["Friday"], "NP")
 	]
 ], q = /* @__PURE__ */ "moon.river.forest.ocean.wind.rain.snow.cloud.sky.sea.tree.branch.leaf.flower.bird.stone.mountain.valley.meadow.shore.lake.stream.shadow.dawn.dusk.night.star.flame.garden.field.silence.season.frost.ember.mist.sunlight.starlight.comet.desert.island.pathway.horizon.reflection.echo.whisper.breeze.storm.twilight.harbor.cavern.glade.summit.pine.willow.feather.shell.tide.wave.spark.light.haven.clearing.canopy.solitude.time.memory.dream.music.solace.wonder.heart.spirit.sorrow.promise.presence.distance.passage.rhythm.secret.lullaby.lantern.mirror.realm.temple.melody.reverie.slumber.breath.pulse.aura.cradle.shelter.embrace.vision.phantom.chime.veil.radiance.cascade.glen.threshold.hymn.murmur.trance.eternity.moment.sanctuary.sigh.desire.warmth.grace.repose.compass.oasis.thought.glance.yearning.citadel.fountain.brook.throne.chalice.voyage.recompense.beacon.shroud.serenade.harmony".split("."), J = /* @__PURE__ */ "slept.glowed.drifted.shimmered.rested.wandered.whispered.faded.gathered.danced.fell.rose.flowed.bloomed.called.waited.lingered.trembled.moved.turned.passed.appeared.vanished.echoed.breathed.stirred.broke.shone.swayed.sang.dreamed.opened.soared.glided.awakened.softened.ignited.settled.floated.glimmered.folded.kindled.surged.cleared.descended.ascended.parted.guided.traveled.weaved.bounded.listened.welcomed.cherished.embraced.dissolved.sparkled.flashed.calmed.haunted.realigned.illuminated.subsided.thawed.recalled.treasured.sought.found.comforted.restored.soothed.rekindled.beckoned.entwined.murmured.transcended.resounded.flowered.surrendered.hushed.unfolded.enfolded.manifested.remained.perished.retreated.yielded.conveyed.anchored.adorned.crowned.dazzled.delayed.departed.distilled.enveloped.expanded.mourned.obscured.overspread.paused.persisted.pervaded.quieted.quickened.reawakened.reconnected.reflected.released.remembered.resonated.returned.revered.revived.rippled.scattered.slumbered.smoothed.traversed.vibrated.slid.glanced.sojourned.transformed.encircled.sanctified.charmed.entranced".split("."), Y = /* @__PURE__ */ "quiet.silver.pale.gentle.soft.wild.distant.dark.bright.still.golden.autumn.winter.cold.warm.blue.green.red.white.faint.hollow.lonely.misty.silent.shallow.deep.sleeping.fallen.hidden.ancient.new.morning.velvet.tender.amber.shadowy.serene.peaceful.endless.boundless.radiant.crystal.luminous.subtle.sacred.tranquil.solitary.timeless.fragile.graceful.mellow.vibrant.ethereal.pristine.dusky.snowy.goldenrod.azure.emerald.crimson.calm.dormant.halcyon.fleeting.hallowed.ephemeral.veiled.melodic.pensive.wistful.reverent.mystic.hushed.blessed.lofty.sublime.haunting.glowing.spacious.immense.infinite.unspoken.unbroken.crystalline.starry.verdant.celestial.unseen.restless.everlasting.immortal.translucent.arcane.seraphic.resonant.reposeful.quietistic.pure.pastoral.nocturnal.monumental.limpid.iridescent.incandescent.immemorial.illusive.harmonious.flawless.festive.enchanted.elusive.divine.cloudless.charmed.breezy.benign.astral.ageless.placid.stilly.vernal.sylvan.solemn.wondrous.winsome.untamed.untold.peerless".split("."), X = [
 	"the",
@@ -2509,7 +2829,7 @@ var xt = (() => {
 	"every",
 	"another",
 	"any"
-], Vt = [
+], gn = [
 	"above",
 	"below",
 	"beside",
@@ -2526,12 +2846,12 @@ var xt = (() => {
 	"behind",
 	"against",
 	"toward"
-], Ht = [
+], _n = [
 	"and",
 	"yet",
 	"but",
 	"or"
-], Ut = [
+], vn = [
 	"and",
 	"while",
 	"as",
@@ -2540,82 +2860,82 @@ var xt = (() => {
 	"though",
 	"because",
 	"when"
-], Wt = /* @__PURE__ */ "quietly.slowly.softly.gently.here.there.alone.away.brightly.faintly.still.deeply.wildly.lightly.calmly.nearby.tenderly.silently.swiftly.sweetly.gracefully.peacefully.smoothly.subtly.radiantly.serenely.anew.forever.afar.solemnly.warmly.purely".split("."), Gt = [
+], yn = /* @__PURE__ */ "quietly.slowly.softly.gently.here.there.alone.away.brightly.faintly.still.deeply.wildly.lightly.calmly.nearby.tenderly.silently.swiftly.sweetly.gracefully.peacefully.smoothly.subtly.radiantly.serenely.anew.forever.afar.solemnly.warmly.purely".split("."), bn = [
 	[
-		T(X, "d"),
-		T(q, "N"),
-		T(J, "VP")
+		E(X, "d"),
+		E(q, "N"),
+		E(J, "VP")
 	],
 	[
-		T(X, "d"),
-		T(Y, "A"),
-		T(q, "N"),
-		T(J, "VP")
+		E(X, "d"),
+		E(Y, "A"),
+		E(q, "N"),
+		E(J, "VP")
 	],
 	[
-		T(X, "d"),
-		T(q, "N"),
-		T(J, "VP"),
-		T(Ht, "c"),
-		T(J, "VP")
+		E(X, "d"),
+		E(q, "N"),
+		E(J, "VP"),
+		E(_n, "c"),
+		E(J, "VP")
 	],
 	[
-		T(X, "d"),
-		T(q, "N"),
-		T(J, "VP"),
-		T(Vt, "p"),
-		T(X, "d"),
-		T(q, "N")
+		E(X, "d"),
+		E(q, "N"),
+		E(J, "VP"),
+		E(gn, "p"),
+		E(X, "d"),
+		E(q, "N")
 	],
 	[
-		T(X, "d"),
-		T(q, "N"),
-		T(J, "VP"),
-		T(Ut, "c"),
-		T(X, "d"),
-		T(q, "N"),
-		T(J, "VP")
+		E(X, "d"),
+		E(q, "N"),
+		E(J, "VP"),
+		E(vn, "c"),
+		E(X, "d"),
+		E(q, "N"),
+		E(J, "VP")
 	],
 	[
-		T(X, "d"),
-		T(Y, "A"),
-		T(q, "N"),
-		T(J, "VP"),
-		T(Vt, "p"),
-		T(X, "d"),
-		T(Y, "A"),
-		T(q, "N")
+		E(X, "d"),
+		E(Y, "A"),
+		E(q, "N"),
+		E(J, "VP"),
+		E(gn, "p"),
+		E(X, "d"),
+		E(Y, "A"),
+		E(q, "N")
 	],
 	[
-		T(X, "d"),
-		T(Y, "A"),
-		T(q, "N"),
-		T(J, "VP"),
-		T(Ut, "c"),
-		T(X, "d"),
-		T(Y, "A"),
-		T(q, "N"),
-		T(J, "VP")
+		E(X, "d"),
+		E(Y, "A"),
+		E(q, "N"),
+		E(J, "VP"),
+		E(vn, "c"),
+		E(X, "d"),
+		E(Y, "A"),
+		E(q, "N"),
+		E(J, "VP")
 	],
 	[
-		T(Wt, "R"),
-		T(X, "d"),
-		T(Y, "A"),
-		T(q, "N"),
-		T(J, "VP"),
-		T(Ut, "c"),
-		T(X, "d"),
-		T(Y, "A"),
-		T(q, "N"),
-		T(J, "VP")
+		E(yn, "R"),
+		E(X, "d"),
+		E(Y, "A"),
+		E(q, "N"),
+		E(J, "VP"),
+		E(vn, "c"),
+		E(X, "d"),
+		E(Y, "A"),
+		E(q, "N"),
+		E(J, "VP")
 	]
 ];
-function Kt(e, t = K) {
+function xn(e, t = K) {
 	let n = e.length, r = t.findIndex((e) => e.length === n);
 	if (r === -1) throw Error(`No template matches sentence length ${n}.`);
 	return r;
 }
-function qt(e) {
+function Sn(e) {
 	let t = e.split(/[.;?]+/).map((e) => e.trim()).filter((e) => e.length > 0), n = e.toLowerCase().match(/[a-z0-9.%]+/g) || [];
 	if (n.length === 0) return {
 		wordCount: 0,
@@ -2625,7 +2945,7 @@ function qt(e) {
 		bigramUniqueness: 0,
 		perplexityEstimate: Infinity
 	};
-	let r = new Set(xt), i = 0;
+	let r = new Set(yt), i = 0;
 	for (let e of n) r.has(e) && i++;
 	let a = [];
 	for (let e = 0; e < n.length - 1; e++) a.push(`${n[e]} ${n[e + 1]}`);
@@ -2645,7 +2965,7 @@ function qt(e) {
 	};
 }
 // src/encoding/bitstream.ts
-var Jt = class {
+var Cn = class {
 	bytes;
 	byteIndex = 0;
 	bitIndex = 0;
@@ -2667,7 +2987,7 @@ var Jt = class {
 		}
 		return t >>> 0;
 	}
-}, Yt = class {
+}, wn = class {
 	bytes = [];
 	currentByte = 0;
 	bitCount = 0;
@@ -2685,17 +3005,17 @@ var Jt = class {
 		}
 		return new Uint8Array(this.bytes);
 	}
-}, Xt = {
+}, Tn = {
 	".": "0",
 	";": "10",
 	"...": "110",
 	"…": "111"
-}, Zt = {
+}, En = {
 	0: ".",
 	10: ";",
 	110: "...",
 	111: "…"
-}, Qt = {
+}, Dn = {
 	the: "0",
 	a: "10",
 	this: "1100",
@@ -2704,7 +3024,7 @@ var Jt = class {
 	no: "11110",
 	any: "111110",
 	one: "111111"
-}, $t = {
+}, On = {
 	0: "the",
 	10: "a",
 	1100: "this",
@@ -2713,7 +3033,7 @@ var Jt = class {
 	11110: "no",
 	111110: "any",
 	111111: "one"
-}, en = { 7: [
+}, kn = { 7: [
 	"00",
 	"01",
 	"100",
@@ -2722,26 +3042,26 @@ var Jt = class {
 	"1110",
 	"1111"
 ] };
-for (let e = 8; e <= K.length; e++) en[e] = ["0", ...en[e - 1].map((e) => `1${e}`)];
-var tn = 1.5, nn = .25, rn = 1.5, an = 1.5;
-function on(e) {
+for (let e = 8; e <= K.length; e++) kn[e] = ["0", ...kn[e - 1].map((e) => `1${e}`)];
+var An = 1.5, jn = .25, Mn = 1.5, Nn = 1.5;
+function Pn(e) {
 	let t = 0;
 	for (let n = 0; n < e.length; n++) {
 		let r = e[n];
-		r.type === "data" && (n === 0 ? t += r.label === "d" ? 2.5 : Math.log2(r.list.length) : r.label === "d" ? t += r.list.length < M.length ? Math.log2(r.list.length) : 2.5 : t += Math.log2(r.list.length));
+		r.type === "data" && (n === 0 ? t += r.label === "d" ? 2.5 : Math.log2(r.list.length) : r.label === "d" ? t += r.list.length < P.length ? Math.log2(r.list.length) : 2.5 : t += Math.log2(r.list.length));
 	}
 	return (t + 4) / e.length;
 }
-function sn(e) {
-	let t = e.filter((e) => e.type === "data" && e.list === R).length, n = e.some((e) => e.type === "data" && e.label === "c" && e.list.length === 4);
-	return on(e) - e.length * nn - t * tn + (n ? rn : 0) + (e.length >= 14 ? an : 0);
+function Fn(e) {
+	let t = e.filter((e) => e.type === "data" && e.list === F).length, n = e.some((e) => e.type === "data" && e.label === "c" && e.list.length === 4);
+	return Pn(e) - e.length * jn - t * An + (n ? Mn : 0) + (e.length >= 14 ? Nn : 0);
 }
-var cn = /* @__PURE__ */ new WeakMap();
-function ln(e) {
-	let t = cn.get(e);
-	return t || (t = e.map(sn), cn.set(e, t)), t;
+var In = /* @__PURE__ */ new WeakMap();
+function Ln(e) {
+	let t = In.get(e);
+	return t || (t = e.map(Fn), In.set(e, t)), t;
 }
-function un(e, t, n = !0) {
+function Rn(e, t, n = !0) {
 	let r = Array.from({ length: e.length }, (e, t) => t);
 	if (n) for (let e of t) {
 		let t = r.indexOf(e);
@@ -2749,12 +3069,12 @@ function un(e, t, n = !0) {
 	}
 	let i = /* @__PURE__ */ new Map();
 	if (!n) return r.forEach((e, t) => i.set(e, t.toString(2).padStart(3, "0"))), i;
-	let a = en[r.length];
+	let a = kn[r.length];
 	if (!a) throw new s("Template count does not support the recent-template repetition rule.");
-	let o = [...a].sort((e, t) => e.length - t.length), c = ln(e);
+	let o = [...a].sort((e, t) => e.length - t.length), c = Ln(e);
 	return r.sort((e, t) => c[t] - c[e] || e - t).forEach((e, t) => i.set(e, o[t])), i;
 }
-var dn = class {
+var zn = class {
 	heap = [];
 	get size() {
 		return this.heap.length;
@@ -2792,13 +3112,13 @@ var dn = class {
 		return e;
 	}
 };
-function fn(e, t) {
+function Bn(e, t) {
 	let n = t.length >= 1 ? t[t.length - 1] : void 0, r = e.filter((e) => e.toLowerCase() !== n);
 	if (r.length === 0) return {
 		wordToCode: /* @__PURE__ */ new Map(),
 		codeToWord: /* @__PURE__ */ new Map()
 	};
-	let i = new dn();
+	let i = new zn();
 	for (let e = 0; e < r.length; e++) {
 		let t = r[e];
 		i.push({
@@ -2832,42 +3152,42 @@ function fn(e, t) {
 		codeToWord: o
 	};
 }
-var pn = [
+var Vn = [
 	".",
 	" —",
 	"...",
 	","
-], mn = {
+], Hn = {
 	".": 0,
 	" —": 1,
 	"...": 2,
 	",": 3,
 	"?": 0
 };
-function hn(e) {
+function Un(e) {
 	return e.charAt(0).toUpperCase() + e.slice(1);
 }
-function gn(e) {
+function Wn(e) {
 	let t = e.toLowerCase();
 	return /^(?:ewe|eul|euro|one|once|uni(?:corn|form|fy|on|t|vers|que)|use|usual|user|utility|utopia)/.test(t) ? !1 : /^(?:hour|honest|honor|heir)/.test(t) ? !0 : /^[aeiou]/i.test(e);
 }
-function _n(e, t = l.encoding) {
+function Gn(e, t = l.encoding) {
 	if (!e || e.length === 0) return "";
 	if (t.style === "llm" || t.style === "equal-length" || t.style === "equal_length") throw new s("LLM steganography style requires the full LLM build. Please import from \"ngram-cipher/llm\".");
 	let n = t.style === "poetry", r = e.length, i = /* @__PURE__ */ new Uint8Array(2);
 	new DataView(i.buffer).setUint16(0, r, !1);
 	let a = new Uint8Array(e.length + 2);
 	a.set(e, 0), a.set(i, e.length);
-	let o = new Jt(a), c = [], u = n ? Gt : K, d = [], f = [], p = 0, m = n ? void 0 : _e[a[0] >> 6 & 3];
+	let o = new Cn(a), c = [], u = n ? bn : K, d = [], f = [], p = 0, m = n ? void 0 : _e[a[0] >> 6 & 3];
 	for (; o.hasBits;) {
-		let e = un(u, f, !n), r = /* @__PURE__ */ new Map();
+		let e = Rn(u, f, !n), r = /* @__PURE__ */ new Map();
 		for (let [t, n] of e) r.set(n, t);
 		let i = "", a;
 		for (let e = 0; e < 16 && (i += o.readBits(1).toString(), a = r.get(i), a === void 0); e++);
 		if (a === void 0) throw new s("Unable to decode sentence template.");
 		let l = u[a], h = [], g = [];
 		for (let e of l) {
-			let t = e.list && e.list.length > 0 ? e.list : St, r = p === 0 || n ? void 0 : m, i = ot(e.type === "data" && !n ? Je(t, g, e.label, r) : t, g, r);
+			let t = e.list && e.list.length > 0 ? e.list : bt, r = p === 0 || n ? void 0 : m, i = at(e.type === "data" && !n ? qe(t, g, e.label, r) : t, g, r);
 			if (e.type === "filler") {
 				let e = i[0];
 				h.push(e), g.push(e.toLowerCase());
@@ -2875,36 +3195,36 @@ function _n(e, t = l.encoding) {
 			}
 			let a;
 			if (!n && h.length === 0) {
-				let e = fn(i, d).codeToWord, t = "", n;
+				let e = Bn(i, d).codeToWord, t = "", n;
 				for (let r = 0; r < 16 && (t += o.readBits(1).toString(), n = e.get(t), !n); r++);
 				if (!n) throw new s("Unable to decode sentence opening word.");
 				a = n;
-			} else if (!n && e.label === "d" && t.length < M.length) {
+			} else if (!n && e.label === "d" && t.length < P.length) {
 				let e = Math.floor(Math.log2(i.length));
-				a = i[st(o.hasBits ? o.readBits(e) : 0, e, i.length) % i.length];
+				a = i[ot(o.hasBits ? o.readBits(e) : 0, e, i.length) % i.length];
 			} else if (!n && e.label === "d") {
 				let e = "", t;
-				for (let n = 0; n < 6 && (e += o.readBits(1).toString(), t = $t[e], !t); n++);
+				for (let n = 0; n < 6 && (e += o.readBits(1).toString(), t = On[e], !t); n++);
 				if (!t) throw new s("Unable to decode determiner prefix code.");
 				a = t;
 			} else {
 				let e = Math.floor(Math.log2(i.length)) || 8;
-				a = i[st(o.hasBits ? o.readBits(e) : 0, e, i.length) % i.length];
+				a = i[ot(o.hasBits ? o.readBits(e) : 0, e, i.length) % i.length];
 			}
 			h.push(a), g.push(a.toLowerCase());
 		}
 		if (h.length === 0) break;
-		for (let e = 0; e < h.length; e++) h[e].toLowerCase() === "a" && e + 1 < h.length && gn(h[e + 1]) && (h[e] = h[e] === "A" ? "An" : "an");
+		for (let e = 0; e < h.length; e++) h[e].toLowerCase() === "a" && e + 1 < h.length && Wn(h[e + 1]) && (h[e] = h[e] === "A" ? "An" : "an");
 		for (let e = 0; e < h.length; e++) {
 			let t = l[e]?.label, n = h[e];
-			(e === 0 || t === "NP") && (h[e] = hn(n));
+			(e === 0 || t === "NP") && (h[e] = Un(n));
 		}
 		let _ = ".";
 		if (t.sentenceEndingVariance) {
-			if (n) _ = pn[(o.hasBits ? o.readBits(2) : 0) % pn.length];
+			if (n) _ = Vn[(o.hasBits ? o.readBits(2) : 0) % Vn.length];
 			else {
 				let e = "", t;
-				for (let n = 0; n < 4 && (e += (o.hasBits ? o.readBits(1) : 0).toString(), t = Zt[e], !t); n++);
+				for (let n = 0; n < 4 && (e += (o.hasBits ? o.readBits(1) : 0).toString(), t = En[e], !t); n++);
 				_ = t ?? ".";
 			}
 		}
@@ -2930,7 +3250,7 @@ function _n(e, t = l.encoding) {
 	}
 	return h.join("\n\n");
 }
-function vn(e, t = l.encoding) {
+function Kn(e, t = l.encoding) {
 	if (!e || typeof e != "string" || e.trim().length === 0) return /* @__PURE__ */ new Uint8Array();
 	if (t.style === "llm" || t.style === "equal-length" || t.style === "equal_length") throw new s("LLM steganography style requires the full LLM build. Please import from \"ngram-cipher/llm\".");
 	let n = t.style === "poetry", r = e.replace(/[\r\n]+/g, "\n").trim(), i = [];
@@ -2961,11 +3281,11 @@ function vn(e, t = l.encoding) {
 			});
 		}
 	}
-	let a = new Yt(), o = n ? Gt : K, c = [], u = [], d;
+	let a = new wn(), o = n ? bn : K, c = [], u = [], d;
 	for (let e = 0; e < i.length; e++) {
 		let { sentenceStr: r, endingStr: l } = i[e], f = r.split(/\s+/).filter((e) => e.length > 0);
 		if (f.length === 0) continue;
-		let p = Kt(f, o), m = un(o, u, !n).get(p);
+		let p = xn(f, o), m = Rn(o, u, !n).get(p);
 		if (!m) throw new s(`Sentence template repeats within the previous two sentences at sentence ${e + 1}.`);
 		for (let e of m) a.writeBits(Number(e), 1);
 		let h = o[p], g = 0, _ = [], v = "";
@@ -2973,22 +3293,22 @@ function vn(e, t = l.encoding) {
 			if (g >= f.length) break;
 			let r = f[g], i = r.replace(/^[ "'“‘]+/g, "").replace(/[ "'”’.,!?;:]+$/g, "").replace(/[\u2013\u2014]/g, "").toLowerCase();
 			t.type === "data" && i === "an" && t.label === "d" && (i = "a");
-			let o = e === 0 || n ? void 0 : d, l = t.list && t.list.length > 0 ? t.list : St, u = ot(t.type === "data" && !n ? Je(l, _, t.label, o) : l, _, o), p = !n && g === 0 && t.type === "data" ? fn(u, c).wordToCode : void 0, m = u.indexOf(i);
+			let o = e === 0 || n ? void 0 : d, l = t.list && t.list.length > 0 ? t.list : bt, u = at(t.type === "data" && !n ? qe(l, _, t.label, o) : l, _, o), p = !n && g === 0 && t.type === "data" ? Bn(u, c).wordToCode : void 0, m = u.indexOf(i);
 			if (m === -1 && (m = u.findIndex((e) => e.toLowerCase() === i)), m === -1) throw new s(`Invalid or unrecognized token in cipher text: "${r}" (not in carrier vocabulary, sentence ${e + 1})`);
 			if (t.type === "data") {
 				if (p) {
 					let t = p.get(i);
 					if (!t) throw new s(`Invalid repeated sentence opening word: "${r}" (sentence ${e + 1}, previous openers: ${c.join(", ")})`);
 					for (let e of t) a.writeBits(Number(e), 1);
-				} else if (!n && t.label === "d" && l.length < M.length) {
-					let e = Math.floor(Math.log2(u.length)), t = ct(m, e, u.length);
+				} else if (!n && t.label === "d" && l.length < P.length) {
+					let e = Math.floor(Math.log2(u.length)), t = st(m, e, u.length);
 					a.writeBits(t, e);
 				} else if (!n && t.label === "d") {
-					let e = Qt[i];
+					let e = Dn[i];
 					if (!e) throw new s(`No determiner code is defined for "${i}".`);
 					for (let t of e) a.writeBits(Number(t), 1);
 				} else {
-					let e = Math.floor(Math.log2(u.length)) || 8, t = ct(m, e, u.length);
+					let e = Math.floor(Math.log2(u.length)) || 8, t = st(m, e, u.length);
 					a.writeBits(t, e);
 				}
 			}
@@ -3000,10 +3320,10 @@ function vn(e, t = l.encoding) {
 		}
 		if (t.sentenceEndingVariance) {
 			if (n) {
-				let e = mn[l] ?? 0;
+				let e = Hn[l] ?? 0;
 				a.writeBits(e, 2);
 			} else {
-				let e = Xt[l] ?? "0";
+				let e = Tn[l] ?? "0";
 				for (let t of e) a.writeBits(Number(t), 1);
 			}
 		}
@@ -3022,14 +3342,14 @@ function vn(e, t = l.encoding) {
 	return p === -1 ? /* @__PURE__ */ new Uint8Array() : f.subarray(0, p);
 }
 r.allowLocalModels = !1, r.allowRemoteModels = !0;
-var yn = /* @__PURE__ */ new Map();
-function bn(e, t) {
+var qn = /* @__PURE__ */ new Map();
+function Jn(e, t) {
 	return t ?? (typeof process < "u" && process.versions != null && process.versions.node != null) ? "cpu" : "wasm";
 }
-function xn(e) {
+function Yn(e) {
 	return Math.max(1, e || 20);
 }
-function Sn(e) {
+function Xn(e) {
 	let t = [];
 	if (!e || typeof e != "string" || e.trim().length === 0) return ["onnx-community/Supra-Mini-v2-0.1M-ONNX"];
 	let n = e.trim();
@@ -3042,7 +3362,7 @@ function Sn(e) {
 	}
 	return Array.from(new Set(t));
 }
-function Cn(e) {
+function Zn(e) {
 	let t = [];
 	if (!e || typeof e != "string" || e.trim().length === 0) return ["Xenova/gpt2"];
 	let n = e.trim();
@@ -3063,7 +3383,7 @@ function Cn(e) {
 	}
 	return t.push("Xenova/gpt2"), Array.from(new Set(t));
 }
-function wn(e) {
+function Qn(e) {
 	if (!e || typeof e != "string" || e.trim().length === 0) return {
 		modelId: "onnx-community/Supra-Mini-v2-0.1M-ONNX",
 		quantized: !0
@@ -3089,15 +3409,15 @@ function wn(e) {
 		quantized: !0
 	};
 }
-function Tn(e) {
-	return wn(e).modelId;
+function $n(e) {
+	return Qn(e).modelId;
 }
 async function Z(n) {
 	if (n.llmCustomModel && n.llmCustomTokenizer) return {
 		model: n.llmCustomModel,
 		tokenizer: n.llmCustomTokenizer
 	};
-	let i = wn(n.llmModel), a = n.llmDtype || i.dtype || "fp16", o = [
+	let i = Qn(n.llmModel), a = n.llmDtype || i.dtype || "fp16", o = [
 		i.modelId,
 		i.revision ?? "main",
 		i.subfolder ?? "root",
@@ -3106,10 +3426,10 @@ async function Z(n) {
 		n.llmDevice ?? "cpu",
 		n.llmCacheDir ?? "default"
 	].join("::");
-	if (yn.has(o)) return yn.get(o);
+	if (qn.has(o)) return qn.get(o);
 	n.llmCacheDir && (r.cacheDir = n.llmCacheDir);
 	try {
-		let r = Cn(i.modelId), s, c;
+		let r = Zn(i.modelId), s, c;
 		for (let e of r) try {
 			if (s = await t.from_pretrained(e, { revision: i.revision ?? "main" }), s) break;
 		} catch (n) {
@@ -3126,8 +3446,8 @@ async function Z(n) {
 		}
 		let l, u, d = {};
 		i.subfolder && (d.subfolder = i.subfolder), i.model_file_name && (d.file_name = i.model_file_name);
-		let f = bn(n.llmDevice), p = {
-			intraOpNumThreads: xn(typeof navigator < "u" ? navigator.hardwareConcurrency : void 0),
+		let f = Jn(n.llmDevice), p = {
+			intraOpNumThreads: Yn(typeof navigator < "u" ? navigator.hardwareConcurrency : void 0),
 			graphOptimizationLevel: "all",
 			...n.llmSessionOptions ?? {}
 		}, m = [];
@@ -3146,7 +3466,7 @@ async function Z(n) {
 			dtype: a,
 			session_options: p
 		}), m.push({ session_options: p }), m.push({});
-		let h = Sn(i.modelId);
+		let h = Xn(i.modelId);
 		for (let t of h) {
 			for (let n of m) try {
 				if (l = await e.from_pretrained(t, n), l) break;
@@ -3163,14 +3483,14 @@ async function Z(n) {
 			model: l,
 			tokenizer: s
 		};
-		return yn.set(o, g), g;
+		return qn.set(o, g), g;
 	} catch (e) {
 		let t = e instanceof Error ? e.message : String(e);
 		throw new s(`Failed to load ONNX model '${i.modelId}'. Error: ${t}`);
 	}
 }
-function En() {
-	yn.clear();
+function er() {
+	qn.clear();
 }
 function Q(e) {
 	let t = e.length;
@@ -3179,14 +3499,14 @@ function Q(e) {
 		attention_mask: new n("int64", new BigInt64Array(t).fill(1n), [1, t])
 	};
 }
-var Dn = /* @__PURE__ */ new WeakMap();
-function On(e, t) {
-	let n = typeof t == "object" && t ? Dn.get(t) : void 0;
-	if (!n && typeof t == "object" && t && (n = /* @__PURE__ */ new Map(), Dn.set(t, n)), n && n.has(e)) return n.get(e);
+var tr = /* @__PURE__ */ new WeakMap();
+function nr(e, t) {
+	let n = typeof t == "object" && t ? tr.get(t) : void 0;
+	if (!n && typeof t == "object" && t && (n = /* @__PURE__ */ new Map(), tr.set(t, n)), n && n.has(e)) return n.get(e);
 	let r = t.decode([e], { skip_special_tokens: !1 }), i = !/[\r\n]/.test(r);
 	return n && n.set(e, i), i;
 }
-function kn(e, t, n) {
+function rr(e, t, n) {
 	function r(n, i, a) {
 		if (n >= i) return;
 		let o = n + i >> 1, s = e[o], c = t[s];
@@ -3200,14 +3520,14 @@ function kn(e, t, n) {
 	}
 	r(0, e.length - 1, n);
 }
-function An(e, t, n) {
+function ir(e, t, n) {
 	if (t < 0) return !1;
 	let r = [...e, t], i = n(n.decode(r, { skip_special_tokens: !1 }), { add_special_tokens: !1 }), a = i?.input_ids?.data ?? i?.input_ids ?? i, o = Array.from(a ?? []).map(Number);
 	if (o.length !== r.length) return !1;
 	for (let e = 0; e < r.length; e++) if (o[e] !== r[e]) return !1;
 	return !0;
 }
-function jn(e, t, n, r, i) {
+function ar(e, t, n, r, i) {
 	let a = i?.temperature && i.temperature > 0 ? i.temperature : 1, o = e.length, c = new Set(r.all_special_ids ?? []), l = i?.precision ?? 100, u = new Float32Array(o);
 	for (let t = 0; t < o; t++) {
 		let n = Number(e[t]), r = a === 1 ? n : n / a;
@@ -3215,7 +3535,7 @@ function jn(e, t, n, r, i) {
 	}
 	let d = i?.topP && i.topP > 0 && i.topP < 1, f = [];
 	if (d) {
-		for (let e = 0; e < o; e++) c.has(e) || On(e, r) && f.push({
+		for (let e = 0; e < o; e++) c.has(e) || nr(e, r) && f.push({
 			id: e,
 			score: u[e]
 		});
@@ -3223,12 +3543,12 @@ function jn(e, t, n, r, i) {
 	} else {
 		let e = i?.topK && i.topK > 0 ? Math.max(i.topK, t * 20, 500) : Math.max(t * 20, 500), n = Math.min(o, e), a = new Int32Array(o);
 		for (let e = 0; e < o; e++) a[e] = e;
-		kn(a, u, n);
+		rr(a, u, n);
 		let s = a.subarray(0, n);
 		s.sort((e, t) => u[t] === u[e] ? e - t : u[t] - u[e]);
 		for (let e = 0; e < s.length; e++) {
 			let t = s[e];
-			c.has(t) || On(t, r) && f.push({
+			c.has(t) || nr(t, r) && f.push({
 				id: t,
 				score: u[t]
 			});
@@ -3251,28 +3571,28 @@ function jn(e, t, n, r, i) {
 		}
 	}
 	let m = [], h = /* @__PURE__ */ new Set();
-	for (let e of p) if (h.add(e.id), An(n, e.id, r) && (m.push(e.id), m.length === t)) break;
+	for (let e of p) if (h.add(e.id), ir(n, e.id, r) && (m.push(e.id), m.length === t)) break;
 	if (m.length < t) {
-		for (let e of f) if (!h.has(e.id) && (h.add(e.id), An(n, e.id, r) && (m.push(e.id), m.length === t))) break;
+		for (let e of f) if (!h.has(e.id) && (h.add(e.id), ir(n, e.id, r) && (m.push(e.id), m.length === t))) break;
 	}
 	if (m.length < t && !d) {
 		let e = [];
-		for (let t = 0; t < o; t++) c.has(t) || h.has(t) || On(t, r) && e.push({
+		for (let t = 0; t < o; t++) c.has(t) || h.has(t) || nr(t, r) && e.push({
 			id: t,
 			score: u[t]
 		});
 		e.sort((e, t) => t.score === e.score ? e.id - t.id : t.score - e.score);
-		for (let i of e) if (!h.has(i.id) && (h.add(i.id), An(n, i.id, r) && (m.push(i.id), m.length === t))) break;
+		for (let i of e) if (!h.has(i.id) && (h.add(i.id), ir(n, i.id, r) && (m.push(i.id), m.length === t))) break;
 	}
 	if (m.length < t) throw new s(`StepVerify failed: Insufficient reversible tokens (found ${m.length}/${t}) across entire vocabulary pool. Aborting to prevent data corruption.`);
 	return m;
 }
-async function Mn(e, t) {
+async function or(e, t) {
 	let { model: r, tokenizer: i } = await Z(t), a = Math.max(1, Math.min(16, t.bitsPerToken ?? 4)), o = 1 << a, s = e.length * 8, c = /* @__PURE__ */ new Uint8Array(4);
 	new DataView(c.buffer).setUint32(0, s, !1);
 	let l = new Uint8Array(4 + e.length);
 	l.set(c, 0), l.set(e, 4);
-	let u = new Jt(l), d = t.llmPrompt ?? "In recent news,";
+	let u = new Cn(l), d = t.llmPrompt ?? "In recent news,";
 	!d.endsWith(" ") && !d.endsWith("\n") && (d += " ");
 	let f = i(d, { add_special_tokens: !1 }), p = f?.input_ids?.data ?? f?.input_ids ?? f, m = Array.from(p).map(Number), h = m.slice(), g = typeof r.forward == "function" && typeof r._update_model_kwargs_for_generation == "function", _ = null, v = null;
 	try {
@@ -3294,7 +3614,7 @@ async function Mn(e, t) {
 				let [, t, n] = e.dims, i = (t - 1) * n;
 				s = e.data.subarray(i, i + n);
 			}
-			let c = jn(s, o, h, i, {
+			let c = ar(s, o, h, i, {
 				temperature: t.llmTemperature,
 				topP: t.llmTopP,
 				topK: t.llmTopK,
@@ -3317,12 +3637,12 @@ async function Mn(e, t) {
 	let y = h.slice(m.length);
 	return i.decode(y, { skip_special_tokens: !1 });
 }
-async function Nn(e, t) {
+async function sr(e, t) {
 	let { model: r, tokenizer: i } = await Z(t), a = Math.max(1, Math.min(16, t.bitsPerToken ?? 4)), o = 1 << a, c = t.llmPrompt ?? "In recent news,";
 	!c.endsWith(" ") && !c.endsWith("\n") && (c += " ");
 	let l = i(c, { add_special_tokens: !1 }), u = l?.input_ids?.data ?? l?.input_ids ?? l, d = Array.from(u).map(Number), f = i(e, { add_special_tokens: !1 }), p = f?.input_ids?.data ?? f?.input_ids ?? f, m = Array.from(p).map(Number);
 	if (m.length === 0) throw new s("Carrier text does not contain any generated LLM payload tokens.");
-	let h = new Yt(), g = d.slice(), _ = null, v = 0, y = typeof r.forward == "function" && typeof r._update_model_kwargs_for_generation == "function", b = null, x = null;
+	let h = new wn(), g = d.slice(), _ = null, v = 0, y = typeof r.forward == "function" && typeof r._update_model_kwargs_for_generation == "function", b = null, x = null;
 	try {
 		if (y) {
 			let e = Q(d);
@@ -3344,7 +3664,7 @@ async function Nn(e, t) {
 				let [, e, t] = l.dims, n = (e - 1) * t;
 				u = l.data.subarray(n, n + t);
 			}
-			let d = jn(u, o, g, i, {
+			let d = ar(u, o, g, i, {
 				temperature: t.llmTemperature,
 				topP: t.llmTopP,
 				topK: t.llmTopK,
@@ -3383,7 +3703,7 @@ async function Nn(e, t) {
 	let C = Math.ceil(_ / 8);
 	return S.subarray(4, 4 + C);
 }
-function Pn(e) {
+function cr(e) {
 	let t = e.length, n = new Int32Array(t);
 	for (let e = 0; e < t; e++) n[e] = e;
 	return n.sort((t, n) => {
@@ -3391,7 +3711,7 @@ function Pn(e) {
 		return r === 0 ? t - n : r > 0 ? 1 : -1;
 	}), n;
 }
-async function Fn(e, t, r, i) {
+async function lr(e, t, r, i) {
 	let a = i(t, { add_special_tokens: !1 }), o = a?.input_ids?.data ?? a?.input_ids ?? a, c = Array.from(o ?? []).map(Number), l = i(e, { add_special_tokens: !1 }), u = l?.input_ids?.data ?? l?.input_ids ?? l, d = Array.from(u ?? []).map(Number);
 	for (let t of d) if (t < 0 || Number.isNaN(t)) throw new s(`Tokenization failed: unknown or unencodable token in text "${e}".`);
 	if (d.length === 0) return [];
@@ -3436,7 +3756,7 @@ async function Fn(e, t, r, i) {
 	}
 	return p;
 }
-async function In(e, t, r, i) {
+async function ur(e, t, r, i) {
 	if (t.length === 0) return "";
 	let a = i(e, { add_special_tokens: !1 }), o = a?.input_ids?.data ?? a?.input_ids ?? a, c = Array.from(o ?? []).map(Number), l = c.slice(), u = [], d = typeof r.forward == "function" && typeof r._update_model_kwargs_for_generation == "function", f = null, p = null;
 	try {
@@ -3458,7 +3778,7 @@ async function In(e, t, r, i) {
 				let [, e, t] = a.dims, n = (e - 1) * t;
 				o = a.data.subarray(n, n + t);
 			}
-			let c = Pn(o);
+			let c = cr(o);
 			if (i >= c.length || i < 0) throw new s(`Desired rank ${i} is out of vocabulary bounds (0..${c.length - 1}).`);
 			let m = c[i];
 			if (u.push(m), l.push(m), d && e + 1 < t.length) try {
@@ -3477,20 +3797,20 @@ async function In(e, t, r, i) {
 	}
 	return i.decode(u, { skip_special_tokens: !1 });
 }
-async function Ln(e, t) {
-	let { model: n, tokenizer: r } = await Z(t), i = t.equalLengthKeyPrompt ?? t.llmPrompt ?? "Here is an interesting observation:", a = await Fn(e, t.equalLengthPlaintextPrompt ?? "A text:", n, r);
-	return t.equalLengthReverseRanks && a.reverse(), await In(i, a, n, r);
+async function dr(e, t) {
+	let { model: n, tokenizer: r } = await Z(t), i = t.equalLengthKeyPrompt ?? t.llmPrompt ?? "Here is an interesting observation:", a = await lr(e, t.equalLengthPlaintextPrompt ?? "A text:", n, r);
+	return t.equalLengthReverseRanks && a.reverse(), await ur(i, a, n, r);
 }
-async function Rn(e, t) {
-	let { model: n, tokenizer: r } = await Z(t), i = t.equalLengthKeyPrompt ?? t.llmPrompt ?? "Here is an interesting observation:", a = t.equalLengthPlaintextPrompt ?? "A text:", o = await Fn(e, i, n, r);
-	return t.equalLengthReverseRanks && o.reverse(), await In(a, o, n, r);
+async function fr(e, t) {
+	let { model: n, tokenizer: r } = await Z(t), i = t.equalLengthKeyPrompt ?? t.llmPrompt ?? "Here is an interesting observation:", a = t.equalLengthPlaintextPrompt ?? "A text:", o = await lr(e, i, n, r);
+	return t.equalLengthReverseRanks && o.reverse(), await ur(a, o, n, r);
 }
-async function zn(e, t) {
+async function pr(e, t) {
 	let { tokenizer: n } = await Z(t), r = n("b00")?.input_ids?.data !== void 0 && n("b00")?.input_ids?.data?.length > 0 && n("b00")?.input_ids?.data[0] !== void 0 && n.decode([n("b00").input_ids.data[0]]).trim() === "b00", i;
-	return i = r ? Array.from(e).map((e) => `b${e.toString(16).padStart(2, "0")}`).join(" ") : Array.from(e).map((e) => e.toString(16).padStart(2, "0")).join(" "), await Ln(i, t);
+	return i = r ? Array.from(e).map((e) => `b${e.toString(16).padStart(2, "0")}`).join(" ") : Array.from(e).map((e) => e.toString(16).padStart(2, "0")).join(" "), await dr(i, t);
 }
-async function Bn(e, t) {
-	let { tokenizer: n } = await Z(t), r = await Rn(e, t);
+async function mr(e, t) {
+	let { tokenizer: n } = await Z(t), r = await fr(e, t);
 	if (n("b00")?.input_ids?.data !== void 0 && n("b00")?.input_ids?.data?.length > 0 && n("b00")?.input_ids?.data[0] !== void 0 && n.decode([n("b00").input_ids.data[0]]).trim() === "b00") {
 		let e = r.trim().split(/\s+/).filter(Boolean), t = [];
 		for (let n of e) /^b[0-9a-fA-F]{2}$/.test(n) && t.push(n);
@@ -3506,32 +3826,32 @@ async function Bn(e, t) {
 	return a;
 }
 // src/encoding/index.llm.ts
-function Vn(e, t = l.encoding) {
-	return t.style === "llm" ? Mn(e, t) : t.style === "equal-length" || t.style === "equal_length" ? zn(e, t) : _n(e, t);
+function hr(e, t = l.encoding) {
+	return t.style === "llm" ? or(e, t) : t.style === "equal-length" || t.style === "equal_length" ? pr(e, t) : Gn(e, t);
 }
-function Hn(e, t = l.encoding) {
-	return t.style === "llm" ? Nn(e, t) : t.style === "equal-length" || t.style === "equal_length" ? Bn(e, t) : vn(e, t);
+function gr(e, t = l.encoding) {
+	return t.style === "llm" ? sr(e, t) : t.style === "equal-length" || t.style === "equal_length" ? mr(e, t) : Kn(e, t);
 }
 // src/ngram.llm.ts
-var $ = 10485760, Un = 16, Wn = /* @__PURE__ */ "the.be.to.of.and.a.in.that.have.i.it.for.not.on.with.he.as.you.do.at.this.but.his.by.from.they.we.say.her.she.or.an.will.my.one.all.would.there.their.what.so.up.out.if.about.who.get.which.go.me.when.make.can.like.time.no.just.him.know.take.people.into.year.your.good.some.could.them.see.other.than.then.now.look.only.come.its.over.think.also.back.after.use.two.how.our.work.first.well.way.even.new.want.because.any.these.give.day.most.us.hello.world.secret.message.encoded.natural.english.text.is.are.was.were.has.had.said.more.very.much.through.before.between.under".split("."), Gn = new Map(Wn.map((e, t) => [e, t])), Kn = new TextEncoder();
-function qn(e, t) {
+var $ = 10485760, _r = 16, vr = /* @__PURE__ */ "the.be.to.of.and.a.in.that.have.i.it.for.not.on.with.he.as.you.do.at.this.but.his.by.from.they.we.say.her.she.or.an.will.my.one.all.would.there.their.what.so.up.out.if.about.who.get.which.go.me.when.make.can.like.time.no.just.him.know.take.people.into.year.your.good.some.could.them.see.other.than.then.now.look.only.come.its.over.think.also.back.after.use.two.how.our.work.first.well.way.even.new.want.because.any.these.give.day.most.us.hello.world.secret.message.encoded.natural.english.text.is.are.was.were.has.had.said.more.very.much.through.before.between.under".split("."), yr = new Map(vr.map((e, t) => [e, t])), br = new TextEncoder();
+function xr(e, t) {
 	let n = new Uint8Array(t), r = 0, i = (e) => r + e.length >= t ? !1 : (n.set(e, r), r += e.length, !0), a = 0;
 	for (let t of e.matchAll(/[A-Za-z]+/g)) {
 		let n = t.index, r = t[0];
-		if (!i(Kn.encode(e.slice(a, n)))) return;
-		let o = r.toLowerCase(), s = Gn.get(o), c = r === o, l = r === o[0].toUpperCase() + o.slice(1);
+		if (!i(br.encode(e.slice(a, n)))) return;
+		let o = r.toLowerCase(), s = yr.get(o), c = r === o, l = r === o[0].toUpperCase() + o.slice(1);
 		if (s !== void 0 && (c || l)) {
 			if (!i(Uint8Array.of(255, s | (l ? 128 : 0)))) return;
-		} else if (!i(Kn.encode(r))) return;
+		} else if (!i(br.encode(r))) return;
 		a = n + r.length;
 	}
-	if (!i(Kn.encode(e.slice(a))) || r > 65535) return;
-	let o = r + 2, s = Math.ceil(o / Un) * Un;
+	if (!i(br.encode(e.slice(a))) || r > 65535) return;
+	let o = r + 2, s = Math.ceil(o / _r) * _r;
 	if (s >= t) return;
 	let c = new Uint8Array(s);
 	return new DataView(c.buffer).setUint16(0, r, !1), c.set(n.subarray(0, r), 2), c;
 }
-function Jn(e) {
+function Sr(e) {
 	if (e.length < 2) throw new a("Invalid dictionary-compressed payload.");
 	let t = new DataView(e.buffer, e.byteOffset, e.byteLength).getUint16(0, !1);
 	if (t > e.length - 2 || t > $) throw new a("Invalid dictionary-compressed payload.");
@@ -3547,14 +3867,14 @@ function Jn(e) {
 			continue;
 		}
 		if (e + 1 >= n.length) throw new a("Invalid dictionary-compressed payload.");
-		let t = n[++e], r = Wn[t & 127];
+		let t = n[++e], r = vr[t & 127];
 		if (r === void 0) throw new a("Invalid dictionary-compressed payload.");
 		let i = t & 128 ? r[0].toUpperCase() + r.slice(1) : r;
-		o(Kn.encode(i));
+		o(br.encode(i));
 	}
 	return r.slice(0, i);
 }
-async function Yn(e, t) {
+async function Cr(e, t) {
 	let n = e.buffer.slice(e.byteOffset, e.byteOffset + e.byteLength), r = new Blob([n]).stream().pipeThrough(t).getReader(), i = [], o = 0;
 	for (;;) {
 		let { done: e, value: t } = await r.read();
@@ -3568,23 +3888,23 @@ async function Yn(e, t) {
 	for (let e of i) s.set(e, c), c += e.length;
 	return s;
 }
-async function Xn(e, t, n) {
+async function wr(e, t, n) {
 	d(t), f(e);
 	let r = u(n), i = new TextEncoder().encode(e);
 	if (i.length > $) throw new a(`Plaintext size exceeds maximum allowed limit of ${$} bytes.`);
 	if (typeof CompressionStream > "u") throw new a("Compression Streams API is required to encode messages.");
-	let o = await Yn(i, new CompressionStream("gzip")), s = qn(e, i.length), c = 0, l = i;
+	let o = await Cr(i, new CompressionStream("gzip")), s = xr(e, i.length), c = 0, l = i;
 	o.length < l.length && (c = 1, l = o), s && s.length < l.length && (c = 2, l = s);
 	let p = new Uint8Array(l.length + 1);
 	p[0] = c, p.set(l, 1);
 	let m = await g(p, t, r.crypto), h = ee(m, r.framing), _ = r.crypto.saltByteLength, b = m.subarray(0, _), x = await y(t, /* @__PURE__ */ new Uint8Array(), _), S = await y(t, b, h.length - _), C = new Uint8Array(h.length);
-	return C.set(v(h.subarray(0, _), x), 0), C.set(v(h.subarray(_), S), _), await Vn(C, r.encoding);
+	return C.set(v(h.subarray(0, _), x), 0), C.set(v(h.subarray(_), S), _), await hr(C, r.encoding);
 }
-async function Zn(e, t, n) {
+async function Tr(e, t, n) {
 	if (d(t), typeof e != "string" || e.trim().length === 0) throw new a("Carrier text must be a non-empty string.");
 	let r = u(n), i;
 	try {
-		i = await Hn(e, r.encoding);
+		i = await gr(e, r.encoding);
 	} catch (e) {
 		throw new a(`Invalid ciphertext: ${e instanceof Error ? e.message : String(e)}`);
 	}
@@ -3603,32 +3923,32 @@ async function Zn(e, t, n) {
 	let g = h.subarray(1);
 	if (h[0] === 1) {
 		if (typeof DecompressionStream > "u") throw new a("Decompression Streams API is required to decode this message.");
-		g = await Yn(g, new DecompressionStream("gzip"));
-	} else h[0] === 2 && (g = Jn(g));
+		g = await Cr(g, new DecompressionStream("gzip"));
+	} else h[0] === 2 && (g = Sr(g));
 	return new TextDecoder("utf-8", { fatal: !0 }).decode(g);
 }
 // src/index.llm.ts
-var Qn = {
-	encode: Xn,
-	decode: Zn,
+var Er = {
+	encode: wr,
+	decode: Tr,
 	encryptBytes: g,
 	decryptBytes: b,
-	bytesToEnglishText: Vn,
-	englishTextToBytes: Hn,
-	bytesToLlmText: Mn,
-	llmTextToBytes: Nn,
-	bytesToLlmEqualLengthText: zn,
-	llmEqualLengthTextToBytes: Bn,
-	equalLengthEncode: Ln,
-	equalLengthDecode: Rn,
-	getTokenRanks: Fn,
-	generateFromRanks: In,
+	bytesToEnglishText: hr,
+	englishTextToBytes: gr,
+	bytesToLlmText: or,
+	llmTextToBytes: sr,
+	bytesToLlmEqualLengthText: pr,
+	llmEqualLengthTextToBytes: mr,
+	equalLengthEncode: dr,
+	equalLengthDecode: fr,
+	getTokenRanks: lr,
+	generateFromRanks: ur,
 	loadLlmModel: Z,
-	clearLlmModelCache: En,
-	normalizeModelName: Tn,
-	VOCABULARY: xt,
-	analyzeCarrierText: qt
+	clearLlmModelCache: er,
+	normalizeModelName: $n,
+	VOCABULARY: yt,
+	analyzeCarrierText: Sn
 };
-export { H as ACTION_ADVERBS, F as ACTION_OBJECTS_EXTENDED, P as ACTION_SUBJECTS_EXTENDED, I as ACTION_VERBS_EXTENDED, A as ADJECTIVES, j as ADVERBS, W as AFTER_EVENTS, Et as APPOSITIVE_REQUEST_VERBS, Jt as BitStreamReader, Yt as BitStreamWriter, St as CARRIER_WORDS, Tt as CAUSE_ADJECTIVES, B as CAUSE_NOUNS, V as CAUSE_VERBS, Ot as COMPLEMENT_ADJECTIVES, Mt as CONDITION_NOUNS, Nt as CONDITION_VERBS, ht as CONJUNCTIONS, N as CORE_TREND_NOUNS, Ct as CORE_TREND_VERBS, a as CryptoError, T as D, l as DEFAULT_CONFIG, M as DETERMINERS, At as DISCOURSE_ADVERBS, _e as DOMAIN_TOPICS, jt as EFFECT_ADVERBS, Rt as EFFECT_NOUNS, It as EFFECT_SCOPE_ADJECTIVES, Lt as EFFECT_TYPE_ADJECTIVES, zt as EFFECT_VERBS, s as EncodingError, E as F, o as FramingError, R as LOCATION_PROPER_NOUNS, wt as METRIC_ACTION_VERBS, pt as NATURAL_NUMBERS_AND_METRICS, O as NOUNS, dt as PERCENTAGES, Gt as POETRY_TEMPLATES, vt as POS_LISTS, yt as POS_SETS, bt as POS_WORD_TO_INDEX, mt as PREPOSITIONS, _t as PRONOUNS, ut as PROPER_NOUNS, ft as RATIOS_AND_MULTIPLIERS, gt as RELATIVES, Pt as RELATIVE_ANTECEDENTS, U as RELATIVE_SUBJECTS, Ft as RELATIVE_VERBS, z as REPORTING_CLAUSE_VERBS, L as REPORTING_SUBJECTS_PROPER, i as StegoError, K as TEMPLATES, Dt as UNRESOLVED_COMPLEMENT_VERBS, lt as VERBS, k as VERBS_PAST, xt as VOCABULARY, c as ValidationError, qt as analyzeCarrierText, Vn as bytesToEnglishText, zn as bytesToLlmEqualLengthText, Mn as bytesToLlmText, at as calculateNGramScore, En as clearLlmModelCache, S as crc32, Zn as decode, b as decryptBytes, Qn as default, h as deriveKey, y as deriveKeystream, Xn as encode, g as encryptBytes, Hn as englishTextToBytes, Rn as equalLengthDecode, Ln as equalLengthEncode, In as generateFromRanks, Je as getCompatibleCandidates, we as getNounCategory, Fn as getTokenRanks, Bn as llmEqualLengthTextToBytes, Nn as llmTextToBytes, Z as loadLlmModel, Kt as matchTemplate, u as mergeConfig, Tn as normalizeModelName, ee as packFrame, ot as rankCandidates, ct as rankToVal, _ as timingSafeEqual, C as unpackFrame, st as valToRank, d as validatePassword, f as validatePlaintext, v as xorBytes };
+export { Lt as ACTION_ADVERBS, Tt as ACTION_OBJECTS_EXTENDED, wt as ACTION_SUBJECTS_EXTENDED, Et as ACTION_VERBS_EXTENDED, j as ADJECTIVES, M as ADVERBS, Yt as AFTER_EVENTS, Nt as APPOSITIVE_REQUEST_VERBS, Cn as BitStreamReader, wn as BitStreamWriter, bt as CARRIER_WORDS, At as CAUSE_ADJECTIVES, jt as CAUSE_NOUNS, Mt as CAUSE_VERBS, Ft as COMPLEMENT_ADJECTIVES, Bt as CONDITION_NOUNS, Vt as CONDITION_VERBS, pt as CONJUNCTIONS, xt as CORE_TREND_NOUNS, St as CORE_TREND_VERBS, a as CryptoError, E as D, l as DEFAULT_CONFIG, P as DETERMINERS, Rt as DISCOURSE_ADVERBS, _e as DOMAIN_TOPICS, zt as EFFECT_ADVERBS, qt as EFFECT_NOUNS, Gt as EFFECT_SCOPE_ADJECTIVES, Kt as EFFECT_TYPE_ADJECTIVES, Jt as EFFECT_VERBS, s as EncodingError, D as F, o as FramingError, Ot as LOCATION_PROPER_NOUNS, Ct as METRIC_ACTION_VERBS, dt as NATURAL_NUMBERS_AND_METRICS, F as NEWS_LOCATIONS, k as NOUNS, lt as PERCENTAGES, bn as POETRY_TEMPLATES, gt as POS_LISTS, _t as POS_SETS, vt as POS_WORD_TO_INDEX, ft as PREPOSITIONS, ht as PRONOUNS, N as PROPER_NOUNS, ut as RATIOS_AND_MULTIPLIERS, mt as RELATIVES, Ht as RELATIVE_ANTECEDENTS, Ut as RELATIVE_SUBJECTS, Wt as RELATIVE_VERBS, kt as REPORTING_CLAUSE_VERBS, Dt as REPORTING_SUBJECTS_PROPER, i as StegoError, K as TEMPLATES, Pt as UNRESOLVED_COMPLEMENT_VERBS, ct as VERBS, A as VERBS_PAST, yt as VOCABULARY, c as ValidationError, Sn as analyzeCarrierText, hr as bytesToEnglishText, pr as bytesToLlmEqualLengthText, or as bytesToLlmText, it as calculateNGramScore, er as clearLlmModelCache, S as crc32, Tr as decode, b as decryptBytes, Er as default, h as deriveKey, y as deriveKeystream, wr as encode, g as encryptBytes, gr as englishTextToBytes, fr as equalLengthDecode, dr as equalLengthEncode, ur as generateFromRanks, qe as getCompatibleCandidates, we as getNounCategory, lr as getTokenRanks, mr as llmEqualLengthTextToBytes, sr as llmTextToBytes, Z as loadLlmModel, xn as matchTemplate, u as mergeConfig, $n as normalizeModelName, ee as packFrame, at as rankCandidates, st as rankToVal, _ as timingSafeEqual, C as unpackFrame, ot as valToRank, d as validatePassword, f as validatePlaintext, v as xorBytes };
 
 //# sourceMappingURL=ngram-cipher-llm.js.map

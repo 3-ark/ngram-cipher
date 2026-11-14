@@ -83,7 +83,7 @@ const METRIC_NOUN_SET = new Set([
   "profits","performance","record","weather","harvest","crops","transport","coverage","yield",
   "stocks","access","resources","deliveries","shortages","shipments","supplies",
   "assets","liabilities","dividends","shares","equities","bonds","funds","capital",
-  "wealth","wages","payroll","rates","returns","losses","gains","balances",
+  "wealth","wages","payroll","rates","returns","losses","gains","balances","sector","industry","asset",
   "reserves","deposits","loans","credit","expenditure","consumption","manufacturing","orders",
   "receipts","turnover","margin","margins","yields","productivity","efficiency","unemployment",
   "housing","rent","mortgages","construction","index","indices","exchange","currency",
@@ -96,7 +96,7 @@ const EVENT_NOUN_SET = new Set([
   "election","campaign","crisis","summit","border","conflict","trial","crime","investigation",
   "arrest","charge","prison","justice","education","research","science","technology","treatment",
   "vaccine","medicine","surgery","disease","season","match","victory","championship","tournament",
-  "protest","movement","demonstration","operation","deployment","mission","weather","storm",
+  "protest","movement","demonstration","operation","deployment","mission","weather","storm","dispute",
   "drought","flood","disaster","history","tradition","heritage","ceremony","performance","concert",
   "festival","unrest","violence","wildfire","instability","epidemic","strike","blockade",
   "recession","disruption","fire","outbreak","failure","decline","collapse","delay","accident",
@@ -147,13 +147,14 @@ const METRIC_TREND_VERBS = new Set([
   "grew","rose","fell","declined","expanded","shrank","dropped","increased","reduced",
   "surged","recovered","stabilized","fluctuated","boosted","lowered","cut","gained","lost",
   "changed","varied","remained","continued","plunged","climbed","slipped","rebounded","soared",
-  "dwindled","weakened","strengthened","accelerated","moderated","peaked","bottomed","plateaued"
+  "dwindled","weakened","strengthened","accelerated","moderated","peaked","bottomed","plateaued",
+  "advanced","improved","worsened","persisted","deepened","escalated","eased","intensified","spread"
 ]);
 
 const EVENT_OCCURRENCE_VERBS = new Set([
   "began","started","ended","concluded","continued","persisted","escalated","unfolded",
   "occurred","loomed","spread","intensified","worsened","disrupted","affected","struck",
-  "hit","halted","triggered","followed","threatened","caused"
+  "hit","halted","triggered","followed","threatened","caused","eased"
 ]);
 
 const SYSTEM_OPERATIONAL_VERBS = new Set([
@@ -426,8 +427,8 @@ const FUNCTION_WORDS_SET = new Set([
 const BIGRAM_MAP: Record<string, Record<string, number>> = {
   report: { showed: 10, indicated: 10, revealed: 10, confirmed: 10, suggested: 9, detailed: 9, published: 8, released: 8 },
   market: { rose: 10, fell: 10, grew: 10, declined: 10, expanded: 9, dropped: 9, surged: 9, recovered: 9, faced: 8, weathered: 8 },
-  nearly: { double: 10, triple: 10, twofold: 10, threefold: 9, fourfold: 8, tenfold: 8 },
-  almost: { double: 10, triple: 9, twofold: 9, threefold: 8, half: 8 },
+  nearly: { double: 10, triple: 10, twofold: 10, threefold: 9, fourfold: 8, tenfold: 8, "0.5%": 9, "1.0%": 10, "2.0%": 9, "5.0%": 8 },
+  almost: { double: 10, triple: 9, twofold: 9, threefold: 8, "0.5%": 9, "1.0%": 9, "2.0%": 8 },
   rates: { rose: 10, fell: 10, increased: 9, dropped: 9, "50bps": 10, "100bps": 10, "25bps": 9, "75bps": 9, "200bps": 9, "500bps": 8, "250": 8, "500": 8 },
   faced: { pressure: 10, shortages: 9, opposition: 8, challenges: 8 },
   persistent: { pressure: 10, shortages: 9, concerns: 8, weakness: 8 },

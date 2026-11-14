@@ -101,6 +101,9 @@ const newsText = await encode("Secret message", "password123", {
 News templates cover sentence lengths from 5 to 19 words. Three of the fifteen structures use
 quantitative language (multipliers, percentages, or numeric metrics); the others focus on market,
 policy, and diplomatic developments.
+Role-specific news vocabularies use 8, 16, or 32 choices instead of broad 256-word pools. This
+reduces per-sentence capacity in exchange for more contextually plausible word choices, so a
+payload may require more carrier sentences.
 
 ### Poetry Style (`"poetry"`)
 
@@ -264,7 +267,7 @@ const text = await encode("Secret message", "password", options);
 2. **AES-256-GCM Encryption**: Key derived via PBKDF2 with SHA-256 (100,000 rounds).
 3. **Binary Framing & Checksum**: Header, versioning, payload length, and CRC32 checksum are added.
 4. **Stego Whitening Layer**: XOR key-stream whitening scrambles binary pattern artifacts before word mapping.
-5. **Dynamic Power-of-Two N-Gram Mapping**: Payload bits are encoded in the selected words' ranks within POS candidate pools ($2^n$ capacity slots), scored using N-gram continuation probabilities from Google Books datasets, and rendered into natural English sentences. News candidates are narrowed by local noun/verb roles and singular-count agreement before ranking; trend percentages use degree adverbs. News templates are selected to favor higher payload capacity per word while retaining varied, long-form sentence structures.
+5. **Dynamic Power-of-Two N-Gram Mapping**: Payload bits are encoded in the selected words' ranks within POS candidate pools ($2^n$ capacity slots), scored using N-gram continuation probabilities from Google Books datasets, and rendered into natural English sentences. News templates use curated, role-specific dictionaries of 8, 16, or 32 choices, with noun/verb agreement and context-aware ranking. This deliberately trades per-sentence capacity for more plausible word choices and can require more carrier sentences. Template selection balances capacity with varied sentence lengths and journalistic structures.
 
 ---
 

@@ -93,45 +93,23 @@ export const PROPER_NOUNS: string[] = [
   "washington","london","beijing","moscow","berlin","paris","tokyo","ottawa","brussels","geneva","vienna","madrid","rome","seoul","ankara","cairo","dublin","warsaw","prague","stockholm","oslo","helsinki","lisbon","athens","sydney","melbourne","toronto","vancouver","montreal","auckland","mumbai","delhi","shanghai","taipei","singapore","bangkok","jakarta","manila","hanoi","riyadh","tehran","baghdad","kabul","nairobi","lagos","pretoria","accra","addis","congress","parliament","pentagon","kremlin","downing","westminster","capitol","senate","bloomberg","reuters","guardian","chronicle","tribune","herald","observer","gazette","johnson","williams","thompson","anderson","mitchell","campbell","robinson","stewart","harrison","jackson","kennedy","morrison","sullivan","patterson","henderson","crawford","marshall","spencer","tucker","wallace","andrews","douglas","fleming","gardner","hamilton","lambert","maxwell","pearson","richards","sanders","warren","webster","stanford","harvard","oxford","cambridge","princeton","columbia","cornell","berkeley","amazon","microsoft","google","tesla","apple","samsung","intel","oracle","goldman","morgan","barclays","deutsche","citibank","nomura","fidelity","schwab","boeing","airbus","lockheed","raytheon","northrop","siemens","philips","hitachi","ferrari","porsche","honda","toyota","nissan","volvo","hyundai","renault","pfizer","moderna","novartis","merck","abbott","bristol","roche","sanofi","atlantic","pacific","arctic","mediterranean","caribbean","baltic","adriatic","caspian","sahara","congo","danube","thames","rhine","nile","ganges","yangtze","clinton","carter","nixon","reagan","lincoln","churchill","macron","trudeau","merkel","erdogan","netanyahu","kishida","albanese","starmer","scholz","sunak","africa","europe","america","australia","canada","mexico","brazil","argentina","colombia","chile","peru","ecuador","bolivia","uruguay","paraguay","venezuela","china","india","japan","korea","taiwan","thailand","vietnam","malaysia","indonesia","philippines","myanmar","pakistan","bangladesh","nepal","lanka","cambodia","germany","france","britain","spain","italy","poland","ukraine","romania","sweden","norway","denmark","finland","ireland","scotland","belgium","austria","egypt","turkey","iran","iraq","syria","jordan","lebanon","israel","nigeria","kenya","ghana","ethiopia","tanzania","uganda","rwanda","senegal","russia","georgia","belarus","armenia","serbia","croatia","bulgaria","hungary","nato","asean","opec","unesco","unicef","brics","interpol","europol"
 ];
 
-// -- PERCENTAGES (256 clean financial and news percentage / statistic figures) ----------
-export const PERCENTAGES: string[] = Array.from(new Set([
-  "0.1%","0.2%","0.25%","0.3%","0.4%","0.5%","0.6%","0.7%","0.75%","0.8%","0.9%","1.0%",
-  "1.1%","1.2%","1.25%","1.3%","1.4%","1.5%","1.6%","1.7%","1.75%","1.8%","1.9%","2.0%",
-  "2.1%","2.2%","2.25%","2.3%","2.4%","2.5%","2.6%","2.7%","2.75%","2.8%","2.9%","3.0%",
-  "3.1%","3.2%","3.25%","3.3%","3.4%","3.5%","3.6%","3.7%","3.75%","3.8%","3.9%","4.0%",
-  "4.1%","4.2%","4.25%","4.3%","4.4%","4.5%","4.6%","4.7%","4.75%","4.8%","4.9%","5.0%",
-  "5.1%","5.2%","5.25%","5.3%","5.4%","5.5%","5.6%","5.7%","5.75%","5.8%","5.9%","6.0%",
-  "6.1%","6.2%","6.25%","6.3%","6.4%","6.5%","6.6%","6.7%","6.75%","6.8%","6.9%","7.0%",
-  "7.1%","7.2%","7.25%","7.3%","7.4%","7.5%","7.6%","7.7%","7.75%","7.8%","7.9%","8.0%",
-  "8.1%","8.2%","8.25%","8.3%","8.4%","8.5%","8.6%","8.7%","8.75%","8.8%","8.9%","9.0%",
-  "9.1%","9.2%","9.25%","9.3%","9.4%","9.5%","9.6%","9.7%","9.75%","9.8%","9.9%","10.0%",
-  "10.1%","10.2%","10.25%","10.5%","10.8%","11.0%","11.2%","11.25%","11.5%","11.8%","12.0%",
-  "12.1%","12.25%","12.5%","12.8%","13.0%","13.25%","13.5%","13.8%","14.0%","14.25%","14.5%",
-  "14.8%","15.0%","15.2%","15.23%","15.25%","15.5%","15.8%","16.0%","16.25%","16.5%","16.8%",
-  "17.0%","17.25%","17.5%","18.0%","18.25%","18.5%","19.0%","19.25%","19.5%","20.0%","20.25%",
-  "20.5%","21.0%","21.5%","22.0%","22.5%","23.0%","23.5%","24.0%","24.5%","25.0%","25.5%",
-  "26.0%","26.5%","27.0%","27.5%","28.0%","28.5%","29.0%","29.5%","30.0%","30.5%","31.0%",
-  "31.5%","32.0%","32.5%","33.0%","33.5%","34.0%","34.5%","35.0%","35.5%","36.0%","36.5%",
-  "37.0%","37.5%","38.0%","38.5%","39.0%","39.5%","40.0%","40.5%","41.0%","41.5%","42.0%",
-  "42.5%","43.0%","43.5%","44.0%","44.5%","45.0%","45.5%","46.0%","46.5%","47.0%","47.5%",
-  "48.0%","48.5%","49.0%","49.5%","50.0%","51.0%","52.0%","53.0%","54.0%","55.0%","56.0%",
-  "57.0%","58.0%","59.0%","60.0%","62.0%","64.0%","65.0%","66.0%","68.0%","70.0%","72.0%",
-  "75.0%","78.0%","80.0%","82.0%","85.0%","88.0%","90.0%","92.0%","95.0%","98.0%","100.0%",
-  "101.0%","102.0%","105.0%","110.0%"
-])).slice(0, 256);
+// News templates use smaller role-specific power-of-two lists to keep every
+// encoded choice plausible in its sentence context.
+export const PERCENTAGES: string[] = [
+  "0.5%","0.75%","1.0%","1.25%","1.5%","1.75%","2.0%","2.25%",
+  "2.5%","2.75%","3.0%","3.25%","3.5%","4.0%","4.5%","5.0%",
+  "5.5%","6.0%","6.5%","7.0%","7.5%","8.0%","9.0%","10.0%",
+  "12.0%","15.0%","20.0%","25.0%","30.0%","50.0%","75.0%","100.0%"
+];
 
-export const RATIOS_AND_MULTIPLIERS: string[] = enforce256List([
-  "double","triple","twofold","threefold","fourfold","fivefold","sixfold","sevenfold",
-  "eightfold","ninefold","tenfold","hundredfold","half","quarter","twice","thrice",
-  "multiples","double-digit","triple-digit","multi-fold","manyfold","manifold"
-], Array.from({ length: 256 }, (_, index) => `${index + 1}x`));
+export const RATIOS_AND_MULTIPLIERS: string[] = [
+  "double","triple","twofold","threefold","fourfold","fivefold","sixfold","tenfold"
+];
 
-export const NATURAL_NUMBERS_AND_METRICS: string[] = enforce256List([
-  "fivefold","fifty-points","fifteen-percent","twenty-percent","hundreds","thousands",
-  "billions","50bps","100bps","500m","10x","2x","1,000","250","50","100",
-  "500","1,000m","1bn","25bps","75bps","200bps","500bps","1,000bps",
-  "1.5%","2.5%","5%","10%","15%","20%","25%","50%"
-], Array.from({ length: 256 }, (_, index) => String(index + 1)));
+export const NATURAL_NUMBERS_AND_METRICS: string[] = [
+  "0.5%","1.0%","1.5%","2.0%","2.5%","5.0%","10.0%","20.0%",
+  "25bps","50bps","75bps","100bps","150bps","200bps","250","1,000"
+];
 
 // Function-word lists (exact fixed length for deterministic bits)
 export const DETERMINERS: string[] = [
@@ -527,55 +505,160 @@ const AFTER_EVENTS_RAW = [
 ];
 export const AFTER_EVENTS = enforce256List(AFTER_EVENTS_RAW, NOUNS);
 
-const CONDITION_DETERMINERS = ["the","some","no","any"];
 const OBJECT_DETERMINERS = ["the","some","no","any"];
+
+const NEWS_MARKET_ADJECTIVES = [
+  "domestic","national","regional","global","local","financial","industrial","foreign"
+];
+const NEWS_MARKET_SUBJECTS = [
+  "market","economy","industry","sector","company","agency","coalition","committee"
+];
+const NEWS_PRESSURE_NOUNS = [
+  "pressure","uncertainty","volatility","disruption","weakness","strain","turbulence","instability"
+];
+const NEWS_METRIC_NOUNS = [
+  "market","economy","price","rate","sector","industry","investment","stock"
+];
+const NEWS_METRIC_PLURALS = [
+  "prices","rates","output","sales","supply","demand","profits","production"
+];
+const NEWS_METRIC_VERBS = [
+  "rose","fell","grew","declined","increased","dropped","surged","recovered"
+];
+const NEWS_MULTIPLIER_VERBS = [
+  "grew","rose","increased","expanded","climbed","surged","recovered","advanced"
+];
+const NEWS_RATE_ADVERBS = [
+  "sharply","steadily","rapidly","gradually","modestly","slightly","dramatically","substantially"
+];
+export const NEWS_LOCATIONS = [
+  "london","washington","beijing","paris","berlin","tokyo","brussels","geneva"
+];
+const NEWS_CAUSE_ADJECTIVES = [
+  "severe","prolonged","ongoing","growing","renewed","acute","persistent","widespread"
+];
+const NEWS_CAUSE_NOUNS = [
+  "shortage","crisis","drought","conflict","storm","dispute","recession","disruption"
+];
+const NEWS_CAUSE_VERBS = [
+  "worsened","persisted","deepened","continued","escalated","eased","intensified","spread"
+];
+const NEWS_ORGANIZATIONS = [
+  "government","council","agency","committee","commission","parliament","company","coalition"
+];
+const NEWS_PLURAL_AGENTS = [
+  "officials","lawmakers","regulators","ministers","delegates","analysts","agencies","authorities"
+];
+const NEWS_APPOSITIVE_GROUPS = [
+  "representatives","advisers","observers","negotiators","envoys","diplomats","experts","specialists"
+];
+const NEWS_ACTION_ADVERBS = [
+  "recently","publicly","formally","promptly","unanimously","officially","earlier","ultimately"
+];
+const NEWS_ACTION_VERBS = [
+  "approved","rejected","adopted","proposed","revised","delayed","backed","issued"
+];
+const NEWS_POLICY_NOUNS = [
+  "policy","plan","proposal","measure","reform","treaty","framework","agreement"
+];
+const NEWS_POLICY_PLURALS = [
+  "guidelines","measures","reforms","restrictions","proposals","amendments","plans","regulations"
+];
+const NEWS_OBJECT_ADJECTIVES = [
+  "new","formal","regional","national","joint","revised","broader","unique"
+];
+const NEWS_ORGANIZATION_ADJECTIVES = [
+  "national","regional","federal","local","central","joint","opposition","state"
+];
+const NEWS_AGENT_ADJECTIVES = [
+  "senior","regional","national","local","government","opposition","foreign","independent"
+];
+const NEWS_EVENT_NOUNS = [
+  "talks","negotiations","hearings","meetings","discussions","consultations","elections","investigations"
+];
+const NEWS_RELATIVE_VERBS = [
+  "criticized","backed","rejected","approved","supported","challenged","welcomed","opposed"
+];
+const NEWS_REQUEST_VERBS = [
+  "requested","sought","demanded","proposed","submitted","prepared","drafted","issued"
+];
+const NEWS_REQUEST_OBJECTS = [
+  "statement","agreement","proposal","plan","report","response","framework","briefing"
+];
+const NEWS_REPORTERS = [
+  "reuters","bloomberg","johnson","williams","thompson","anderson","campbell","robinson"
+];
+const NEWS_REPORTING_VERBS = [
+  "said","reported","noted","added","explained","confirmed","stated","announced"
+];
+const NEWS_STATUS_ADJECTIVES = [
+  "unresolved","ongoing","inconclusive","uncertain","unsettled","contentious","unfinished","unproductive"
+];
+const NEWS_MEASUREMENT_SUBJECTS = [
+  "report","survey","study","analysis","index","forecast","poll","review"
+];
+const NEWS_MEASUREMENT_VERBS = [
+  "reported","recorded","estimated","projected","measured","showed","indicated","produced"
+];
+const NEWS_REVIEW_OBJECTS = [
+  "review","scrutiny","assessment","examination","oversight","consultation","evaluation","investigation"
+];
+const NEWS_EFFECT_NOUNS = [
+  "prices","output","supply","demand","wages","costs","profits","production"
+];
+const NEWS_EFFECT_VERBS = [
+  "rose","fell","increased","declined","stabilized","recovered","improved","weakened"
+];
+const NEWS_SECTOR_MODIFIERS = [
+  "food","energy","consumer","fuel","housing","labor","industrial","export"
+];
 
 // Distinct sentence word counts allow deterministic template identification.
 export const TEMPLATES: Slot[][] = [
-  // 0 / 6 words: The domestic market faced persistent pressure.
-  [D(DETERMINERS, "d"), D(EFFECT_SCOPE_ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N")],
+  // 0 / 6: The domestic market faced persistent pressure.
+  [D(DETERMINERS, "d"), D(NEWS_MARKET_ADJECTIVES, "A"), D(NEWS_MARKET_SUBJECTS, "N"), F(["faced"], "VP"), F(["persistent"], "A"), D(NEWS_PRESSURE_NOUNS, "N")],
 
-  // 1 / 8 words: The major market rose sharply 5.1% in London.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), D(PERCENTAGES, "PCT"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
+  // 1 / 8: The major market rose sharply 5.1% this quarter.
+  [D(DETERMINERS, "d"), D(NEWS_MARKET_ADJECTIVES, "A"), D(NEWS_METRIC_NOUNS, "N"), D(NEWS_METRIC_VERBS, "VP"), D(NEWS_RATE_ADVERBS, "R"), D(PERCENTAGES, "PCT"), F(["this"], "d"), F(["quarter"], "N")],
 
-  // 2 / 7 words: If the shortage worsened, officials drafted guidelines.
-  [F(["if"], "c"), D(CONDITION_DETERMINERS, "d"), D(CONDITION_NOUNS, "N"), D(CONDITION_VERBS, "VP", ","), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ACTION_OBJECTS_EXTENDED, "N")],
+  // 2 / 7: If the shortage worsened, officials issued guidelines.
+  [F(["if"], "c"), F(["the"], "d"), D(NEWS_CAUSE_NOUNS, "N"), D(NEWS_CAUSE_VERBS, "VP", ","), D(NEWS_PLURAL_AGENTS, "NPL"), F(["issued"], "VP"), D(NEWS_POLICY_PLURALS, "NPL")],
 
-  // 3 / 9 words: After talks, however, the official recently raised the strategy.
-  [F(["after"], "p"), D(AFTER_EVENTS, "N", ","), D(DISCOURSE_ADVERBS, "R", ","), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
+  // 3 / 9: After talks, senior officials recently announced the new policy.
+  [F(["after"], "p"), D(NEWS_EVENT_NOUNS, "NPL", ","), D(NEWS_AGENT_ADJECTIVES, "A"), D(NEWS_PLURAL_AGENTS, "NPL"), D(NEWS_ACTION_ADVERBS, "R"), D(NEWS_ACTION_VERBS, "VP"), F(["the"], "d"), D(NEWS_OBJECT_ADJECTIVES, "A"), D(NEWS_POLICY_NOUNS, "N")],
 
-  // 4 / 10 words: The coalition, which officials publicly criticized, eventually backed the reform.
-  [D(DETERMINERS, "d"), D(RELATIVE_ANTECEDENTS, "N", ","), F(["which"], "c"), D(RELATIVE_SUBJECTS, "N"), D(ACTION_ADVERBS, "R"), D(RELATIVE_VERBS, "VP", ","), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
+  // 4 / 10: The council, which lawmakers publicly criticized, later approved the policy.
+  [D(DETERMINERS, "d"), D(NEWS_ORGANIZATIONS, "N", ","), F(["which"], "c"), D(NEWS_PLURAL_AGENTS, "NPL"), D(NEWS_ACTION_ADVERBS, "R"), D(NEWS_RELATIVE_VERBS, "VP", ","), D(NEWS_ACTION_ADVERBS, "R"), D(NEWS_ACTION_VERBS, "VP"), F(["the"], "d"), D(NEWS_POLICY_NOUNS, "N")],
 
-  // 5 / 12 words: Local food prices rose sharply in London as the severe shortage persisted.
-  [D(EFFECT_SCOPE_ADJECTIVES, "A"), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP"), D(CAUSE_LINKERS, "c"), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP")],
+  // 5 / 12: Local food prices rose sharply in London as the severe shortage persisted.
+  [D(NEWS_MARKET_ADJECTIVES, "A"), D(NEWS_SECTOR_MODIFIERS, "A"), D(NEWS_METRIC_PLURALS, "NPL"), D(NEWS_EFFECT_VERBS, "VP"), D(NEWS_RATE_ADVERBS, "R"), F(["in"], "p"), D(NEWS_LOCATIONS, "NP"), D(CAUSE_LINKERS, "c"), F(["the"], "d"), D(NEWS_CAUSE_ADJECTIVES, "A"), D(NEWS_CAUSE_NOUNS, "N"), D(NEWS_CAUSE_VERBS, "VPR")],
 
-  // 6 / 14 words: "The central bank raised interest rates 50bps", Johnson announced recently in an interview in Washington.
-  [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(METRIC_ACTION_VERBS, "VP"), D(CORE_TREND_NOUNS, "N"), D(NATURAL_NUMBERS_AND_METRICS, "NUM", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(ACTION_ADVERBS, "R"), F(["in"], "p"), F(["an"], "d"), F(["interview"], "N"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
+  // 6 / 14: The report recorded a figure of 50bps, Reuters said during an interview in London.
+  [D(DETERMINERS, "d"), D(NEWS_MEASUREMENT_SUBJECTS, "N"), D(NEWS_MEASUREMENT_VERBS, "VPR"), F(["a"], "d"), F(["figure"], "N"), F(["of"], "p"), D(NATURAL_NUMBERS_AND_METRICS, "NUM", ","), D(NEWS_REPORTERS, "NP"), D(NEWS_REPORTING_VERBS, "VPR"), F(["during"], "p"), F(["an"], "d"), F(["interview"], "N"), F(["in"], "p"), D(NEWS_LOCATIONS, "NP")],
 
-  // 7 / 15 words: Johnson explained that the central bank approved crucial measures, but the council delayed the proposal.
-  [D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
+  // 7 / 15: Johnson explained that the national government approved new guidelines, but the council delayed the proposal.
+  [D(NEWS_REPORTERS, "NP"), D(NEWS_REPORTING_VERBS, "VPR"), F(["that"], "c"), F(["the"], "d"), D(NEWS_ORGANIZATION_ADJECTIVES, "A"), D(NEWS_ORGANIZATIONS, "N"), D(NEWS_ACTION_VERBS, "VP"), D(NEWS_OBJECT_ADJECTIVES, "A"), D(NEWS_POLICY_PLURALS, "NPL", ","), F(["but"], "c"), F(["the"], "d"), D(NEWS_ORGANIZATIONS, "N"), D(NEWS_ACTION_VERBS, "VP"), F(["the"], "d"), D(NEWS_POLICY_NOUNS, "N")],
 
-  // 8 / 17 words: "The major company backed the proposal," Johnson said in London, "since the severe shortage persisted in Geneva."
-  [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", ","), D(CAUSE_LINKERS, "c", undefined, '"'), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", '"')],
+  // 8 / 17: "The regional council approved the policy," Johnson said in London, "while the severe crisis continued through winter."
+  [D(DETERMINERS, "d", undefined, '"'), D(NEWS_ORGANIZATION_ADJECTIVES, "A"), D(NEWS_ORGANIZATIONS, "N"), D(NEWS_ACTION_VERBS, "VP"), F(["the"], "d"), D(NEWS_POLICY_NOUNS, "N", '",'), D(NEWS_REPORTERS, "NP"), D(NEWS_REPORTING_VERBS, "VPR"), F(["in"], "p"), D(NEWS_LOCATIONS, "NP", ","), D(CAUSE_LINKERS, "c", undefined, '"'), F(["the"], "d"), D(NEWS_CAUSE_ADJECTIVES, "A"), D(NEWS_CAUSE_NOUNS, "N"), D(NEWS_CAUSE_VERBS, "VPR"), F(["through"], "p"), F(["winter"], "N", '"')],
 
-  // 9 / 18 words: "The officials, including some delegates, requested a formal statement because the talks remained unresolved," Reuters reported on Friday.
-  [D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), F(["including"], "c"), D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), D(APPOSITIVE_REQUEST_VERBS, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["because"], "c"), D(OBJECT_DETERMINERS, "d"), D(AFTER_EVENTS, "N"), D(UNRESOLVED_COMPLEMENT_VERBS, "VP"), D(COMPLEMENT_ADJECTIVES, "A", ","), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["on"], "p"), F(["Friday"], "NP")],
+  // 9 / 18: The officials, including some delegates, requested a formal statement because the talks remained unresolved, Reuters reported on Friday.
+  [D(OBJECT_DETERMINERS, "d"), D(NEWS_PLURAL_AGENTS, "NPL", ","), F(["including"], "c"), F(["some"], "d"), D(NEWS_APPOSITIVE_GROUPS, "NPL", ","), D(NEWS_REQUEST_VERBS, "VPR"), F(["a"], "d"), D(NEWS_OBJECT_ADJECTIVES, "A"), D(NEWS_REQUEST_OBJECTS, "N"), F(["because"], "c"), F(["the"], "d"), F(["talks"], "NPL"), F(["remained"], "VP"), D(NEWS_STATUS_ADJECTIVES, "A", ","), D(NEWS_REPORTERS, "NP"), D(NEWS_REPORTING_VERBS, "VPR"), F(["on"], "p"), F(["Friday"], "NP")],
 
-  // 10 / 5 words: The market grew nearly twofold.
-  [D(DETERMINERS, "d"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), F(["nearly"], "R"), D(RATIOS_AND_MULTIPLIERS, "RATIO")],
+  // 10 / 5: The market grew nearly twofold.
+  [D(DETERMINERS, "d"), D(NEWS_METRIC_NOUNS, "N"), D(NEWS_MULTIPLIER_VERBS, "VP"), F(["nearly"], "R"), D(RATIOS_AND_MULTIPLIERS, "RATIO")],
 
-  // 11 / 11 words: Officials recently said the proposal remained unresolved after the talks ended.
-  [D(RELATIVE_SUBJECTS, "N"), D(ACTION_ADVERBS, "R"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N"), D(VERBS_PAST, "VP"), D(COMPLEMENT_ADJECTIVES, "A"), F(["after"], "p"), D(OBJECT_DETERMINERS, "d"), D(AFTER_EVENTS, "N"), D(CAUSE_VERBS, "VP")],
+  // 11 / 11: Officials said the proposal remained unresolved after the regional talks ended.
+  [D(NEWS_PLURAL_AGENTS, "NPL"), D(NEWS_REPORTING_VERBS, "VPR"), F(["the"], "d"), D(NEWS_POLICY_NOUNS, "N"), F(["remained"], "VP"), F(["unresolved"], "A"), F(["after"], "p"), F(["the"], "d"), F(["regional"], "A"), D(NEWS_EVENT_NOUNS, "NPL"), F(["ended"], "VP")],
 
-  // 12 / 13 words: The government recently revised the emergency framework after the storm disrupted regional services.
-  [D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["after"], "p"), D(OBJECT_DETERMINERS, "d"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP"), D(ADJECTIVES, "A"), D(EFFECT_NOUNS, "N")],
+  // 12 / 13: The government recently revised its emergency framework after the storm disrupted regional services.
+  [D(DETERMINERS, "d"), D(NEWS_ORGANIZATIONS, "N"), D(NEWS_ACTION_ADVERBS, "R"), D(NEWS_ACTION_VERBS, "VP"), F(["its"], "d"), D(NEWS_OBJECT_ADJECTIVES, "A"), D(NEWS_POLICY_NOUNS, "N"), F(["after"], "p"), F(["the"], "d"), D(NEWS_CAUSE_NOUNS, "N"), D(NEWS_CAUSE_VERBS, "VPR"), D(NEWS_MARKET_ADJECTIVES, "A"), D(NEWS_EFFECT_NOUNS, "NPL")],
 
-  // 13 / 16 words: Officials said the agreement required further review while the council prepared revised guidelines for regional agencies.
-  [D(RELATIVE_SUBJECTS, "N"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N"), D(VERBS_PAST, "VP"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["while"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["for"], "p"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N")],
+  // 13 / 16: Officials said the agreement required further review while the council prepared revised guidelines for regional agencies.
+  [D(NEWS_PLURAL_AGENTS, "NPL"), D(NEWS_REPORTING_VERBS, "VPR"), F(["the"], "d"), D(NEWS_POLICY_NOUNS, "N"), F(["required"], "VP"), F(["further"], "A"), D(NEWS_REVIEW_OBJECTS, "N"), F(["while"], "c"), F(["the"], "d"), D(NEWS_ORGANIZATIONS, "N"), D(NEWS_ACTION_VERBS, "VP"), D(NEWS_OBJECT_ADJECTIVES, "A"), D(NEWS_POLICY_PLURALS, "NPL"), F(["for"], "p"), D(NEWS_AGENT_ADJECTIVES, "A"), D(NEWS_PLURAL_AGENTS, "NPL")],
 
-  // 14 / 19 words: The officials, including some regional delegates, requested a formal statement because the talks remained unresolved, Reuters reported on Friday.
-  [D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), F(["including"], "c"), D(OBJECT_DETERMINERS, "d"), D(ADJECTIVES, "A"), D(RELATIVE_SUBJECTS, "N", ","), D(APPOSITIVE_REQUEST_VERBS, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["because"], "c"), D(OBJECT_DETERMINERS, "d"), D(AFTER_EVENTS, "N"), D(UNRESOLVED_COMPLEMENT_VERBS, "VP"), D(COMPLEMENT_ADJECTIVES, "A", ","), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["on"], "p"), F(["Friday"], "NP")],
+  // 14 / 19: The officials, including some regional delegates, requested a formal statement because the talks remained unresolved, Reuters reported on Friday.
+  [D(OBJECT_DETERMINERS, "d"), D(NEWS_PLURAL_AGENTS, "NPL", ","), F(["including"], "c"), F(["some"], "d"), D(NEWS_AGENT_ADJECTIVES, "A"), D(NEWS_APPOSITIVE_GROUPS, "NPL", ","), D(NEWS_REQUEST_VERBS, "VPR"), F(["a"], "d"), D(NEWS_OBJECT_ADJECTIVES, "A"), D(NEWS_REQUEST_OBJECTS, "N"), F(["because"], "c"), F(["the"], "d"), F(["talks"], "NPL"), F(["remained"], "VP"), D(NEWS_STATUS_ADJECTIVES, "A", ","), D(NEWS_REPORTERS, "NP"), D(NEWS_REPORTING_VERBS, "VPR"), F(["on"], "p"), F(["Friday"], "NP")],
 ];
 
 const POETRY_NOUNS = [

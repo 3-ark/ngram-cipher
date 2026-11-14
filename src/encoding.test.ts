@@ -37,6 +37,7 @@ describe("Reversible Encoding and Decoding Module", () => {
         return state & 0xff;
       });
       const text = bytesToEnglishText(payload);
+      expect(text).not.toMatch(/\b\d+(?:\.\d+)?x\b/i);
       for (const sentence of text.split(/(?<=[;…\.]["'”’]*)\s+/)) {
         const words = sentence.replace(/^[ "'“‘]+|[ "'”’.,!?;:]+$/g, "").split(/\s+/);
         observedLengths.add(words.length);

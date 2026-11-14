@@ -56,6 +56,7 @@ export declare const EFFECT_TYPE_ADJECTIVES: string[];
 export declare const EFFECT_NOUNS: string[];
 export declare const EFFECT_VERBS: string[];
 export declare const AFTER_EVENTS: string[];
+export declare const NEWS_LOCATIONS: string[];
 export declare const TEMPLATES: Slot[][];
 export declare const POETRY_TEMPLATES: Slot[][];
 /**

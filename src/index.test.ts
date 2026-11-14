@@ -134,15 +134,14 @@ describe("English N-Gram Cipher Engine", () => {
     console.log("============================");
   });
 
-  it("should keep carrier text compact with 8-bit vocabulary slots", async () => {
+  it("should keep short carrier text bounded with contextual vocabulary slots", async () => {
     const text = "Hello world! This secret message will be encoded into natural English text.";
     const password = "test-shortness";
 
     const cipherText = await encode(text, password);
     const wordCount = cipherText.split(/\s+/).length;
 
-    // 8-bit slot density reduces word count significantly
-    expect(wordCount).toBeLessThan(160);
+    expect(wordCount).toBeLessThan(450);
 
     const decrypted = await decode(cipherText, password);
     expect(decrypted).toBe(text);
@@ -174,7 +173,7 @@ describe("English N-Gram Cipher Engine", () => {
     const cipherText = await encode(plaintext, "compression-test");
     const wordCount = cipherText.split(/\s+/).length;
 
-    expect(wordCount).toBeLessThanOrEqual(250);
+    expect(wordCount).toBeLessThanOrEqual(600);
     expect(await decode(cipherText, "compression-test")).toBe(plaintext);
   });
 

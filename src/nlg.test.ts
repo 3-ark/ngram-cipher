@@ -60,35 +60,34 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(PREPOSITIONS).not.toContain("backwardsward");
     expect(CONJUNCTIONS).not.toContain("ability");
     expect(RELATIVES).not.toContain("aircraft");
-    expect(TEMPLATES[0][3].list).toContain("grew");
+    expect(TEMPLATES[0][3].list).toEqual(["faced"]);
     expect(PRONOUNS).toContain("it");
     expect(PRONOUNS).toContain("they");
     expect(TEMPLATES[0][4].label).toBe("A");
     expect(TEMPLATES[0][5].label).toBe("N");
     expect(TEMPLATES[1][0]).toEqual({ type: "data", list: DETERMINERS, label: "d" });
-    expect(TEMPLATES[1][1].list).toHaveLength(256);
-    expect(TEMPLATES[1][2].list).toHaveLength(256);
-    expect(TEMPLATES[1][3].list).toHaveLength(256);
-    expect(TEMPLATES[1][4].list).toHaveLength(256);
+    expect(TEMPLATES[1][1].list).toHaveLength(8);
+    expect(TEMPLATES[1][2].list).toHaveLength(8);
+    expect(TEMPLATES[1][3].list).toHaveLength(8);
+    expect(TEMPLATES[1][4].list).toHaveLength(8);
     expect(TEMPLATES[4][2]).toEqual({ type: "filler", list: ["which"], label: "c" });
     expect(TEMPLATES[3][0]).toEqual({ type: "filler", list: ["after"], label: "p" });
-    expect(TEMPLATES[3][3]).toEqual({ type: "data", list: DETERMINERS, label: "d" });
+    expect(TEMPLATES[3][3].label).toBe("NPL");
     expect(TEMPLATES[5]).toHaveLength(12);
     expect(TEMPLATES[9]).toHaveLength(18);
     expect(TEMPLATES[9][2]).toEqual({ type: "filler", list: ["including"], label: "c" });
     expect(TEMPLATES[9][9]).toEqual({ type: "filler", list: ["because"], label: "c" });
     expect(TEMPLATES[9][5].list).toContain("requested");
-    expect(TEMPLATES[9][5].list).toHaveLength(256);
-    expect(TEMPLATES[9][12].list).toContain("remained");
-    expect(TEMPLATES[9][12].list).toHaveLength(256);
+    expect(TEMPLATES[9][5].list).toHaveLength(8);
+    expect(TEMPLATES[9][12]).toEqual({ type: "filler", list: ["remained"], label: "VP" });
     expect(TEMPLATES[2].map(slot => slot.label)).toEqual([
-      "c", "d", "N", "VP", "N", "VP", "N"
+      "c", "d", "N", "VP", "NPL", "VP", "NPL"
     ]);
   });
 
-  it("should use role-matched 256-word vocabularies in transitive and trend clauses", () => {
+  it("should use role-matched compact vocabularies in journalistic clauses", () => {
     expect(TEMPLATES[0][2].list).toContain("market");
-    expect(TEMPLATES[0][3].list).toContain("rose");
+    expect(TEMPLATES[0][3].list).toEqual(["faced"]);
     expect(TEMPLATES[1][2].list).toContain("market");
     expect(TEMPLATES[1][3].list).toContain("rose");
     expect(TEMPLATES[1][4].label).toBe("R");
@@ -98,20 +97,20 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(TEMPLATES[5][6].list.map(w => w.toLowerCase())).toContain("london");
     expect(TEMPLATES[7][9]).toEqual({ type: "filler", list: ["but"], label: "c" });
     expect(TEMPLATES[0][1].label).toBe("A");
-    expect(TEMPLATES[0][2].list).toHaveLength(256);
-    expect(TEMPLATES[0][3].list).toHaveLength(256);
+    expect(TEMPLATES[0][2].list).toHaveLength(8);
+    expect(TEMPLATES[0][5].list).toHaveLength(8);
     const longTemplateDataBits = TEMPLATES[7]
       .filter(slot => slot.type === "data")
       .reduce((bits, slot) => bits + Math.log2(slot.list.length), 0);
-    expect(longTemplateDataBits).toBeGreaterThanOrEqual(60);
+    expect(longTemplateDataBits).toBeGreaterThanOrEqual(24);
     const causalTemplate = TEMPLATES[5];
     expect(causalTemplate[7].list).toEqual(["because", "as", "since", "while"]);
-    expect(causalTemplate[6].list).toHaveLength(256);
+    expect(causalTemplate[6].list).toHaveLength(8);
     expect(causalTemplate.filter(slot => slot.type === "data")
       .filter(slot => slot.list.some(word => ["therefore", "hence", "whereas"].includes(word))))
       .toHaveLength(0);
     expect(causalTemplate.map(slot => slot.list.length)).toEqual([
-      256, 256, 256, 256, 256, 1, 256, 4, 8, 256, 256, 256
+      8, 8, 8, 8, 8, 1, 8, 4, 1, 8, 8, 8
     ]);
   });
 
@@ -126,6 +125,7 @@ describe("Natural Language Generation & Analysis Module", () => {
       for (const slot of template) {
         if (slot.type === "data") {
           expect(Number.isInteger(Math.log2(slot.list.length))).toBe(true);
+          expect(slot.list.length).toBeLessThanOrEqual(32);
           expect(new Set(slot.list.map(word => word.toLowerCase())).size).toBe(slot.list.length);
         } else {
           expect(slot.list.length).toBeGreaterThan(0);
@@ -135,16 +135,17 @@ describe("Natural Language Generation & Analysis Module", () => {
   });
 
   it("should reserve quantitative vocabularies for three journalistic templates", () => {
-    expect(PERCENTAGES).toHaveLength(256);
-    expect(RATIOS_AND_MULTIPLIERS).toHaveLength(256);
-    expect(NATURAL_NUMBERS_AND_METRICS).toHaveLength(256);
+    expect(PERCENTAGES).toHaveLength(32);
+    expect(RATIOS_AND_MULTIPLIERS).toHaveLength(8);
+    expect(NATURAL_NUMBERS_AND_METRICS).toHaveLength(16);
     expect(RATIOS_AND_MULTIPLIERS).toEqual(expect.arrayContaining([
-      "double", "triple", "twofold", "threefold", "half"
+      "double", "triple", "twofold", "threefold", "fivefold"
     ]));
     expect(NATURAL_NUMBERS_AND_METRICS).toEqual(expect.arrayContaining([
-      "fivefold", "fifty-points", "fifteen-percent", "twenty-percent",
-      "hundreds", "thousands", "billions", "50bps", "100bps", "500m", "10x", "2x", "1,000", "250"
+      "25bps", "50bps", "100bps", "200bps", "1,000", "250", "5.0%"
     ]));
+    expect(RATIOS_AND_MULTIPLIERS.some(word => /^\d+(?:\.\d+)?x$/i.test(word))).toBe(false);
+    expect(NATURAL_NUMBERS_AND_METRICS.some(word => /^\d+(?:\.\d+)?x$/i.test(word))).toBe(false);
 
     const quantitativeTemplates = TEMPLATES.filter(template =>
       template.some(slot => ["PCT", "RATIO", "NUM"].includes(slot.label))
