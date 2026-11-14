@@ -65,9 +65,10 @@ for (let count = 8; count <= TEMPLATES.length; count++) {
     ...TEMPLATE_CODES_BY_COUNT[count - 1].map(code => `1${code}`),
   ];
 }
-const LESS_COMMON_TEMPLATE_INDEX = 3;
 const TEMPLATE_LOCATION_PENALTY = 1.5;
 const TEMPLATE_WORD_COUNT_PENALTY = 0.25;
+const TEMPLATE_CAUSAL_CLAUSE_BONUS = 1.5;
+const TEMPLATE_LONG_FORM_BONUS = 1.5;
 
 function estimateTemplateBitDensity(template: Slot[]): number {
   let bits = 0;
@@ -91,9 +92,14 @@ function estimateTemplateSelectionScore(template: Slot[]): number {
   const locationSlots = template.filter(
     slot => slot.type === "data" && slot.list === LOCATION_PROPER_NOUNS
   ).length;
+  const hasCausalClause = template.some(
+    slot => slot.type === "data" && slot.label === "c" && slot.list.length === 4
+  );
   return estimateTemplateBitDensity(template)
     - template.length * TEMPLATE_WORD_COUNT_PENALTY
-    - locationSlots * TEMPLATE_LOCATION_PENALTY;
+    - locationSlots * TEMPLATE_LOCATION_PENALTY
+    + (hasCausalClause ? TEMPLATE_CAUSAL_CLAUSE_BONUS : 0)
+    + (template.length >= 14 ? TEMPLATE_LONG_FORM_BONUS : 0);
 }
 
 // Cache static template scores so the candidate ranking sort does not recompute them per sentence.
@@ -131,19 +137,11 @@ function getTemplateCodes(
   }
 
   const codesByLength = [...availableCodes].sort((a, b) => a.length - b.length);
-  const lessCommonCode = candidates.includes(LESS_COMMON_TEMPLATE_INDEX)
-    ? codesByLength.pop()
-    : undefined;
   const templateScores = getTemplateScores(templates);
-  const rankedCandidates = candidates
-    .filter(index => index !== LESS_COMMON_TEMPLATE_INDEX || lessCommonCode === undefined)
-    .sort((a, b) =>
-      templateScores[b] - templateScores[a] || a - b
-    );
+  const rankedCandidates = candidates.sort((a, b) =>
+    templateScores[b] - templateScores[a] || a - b
+  );
   rankedCandidates.forEach((index, rank) => codes.set(index, codesByLength[rank]));
-  if (lessCommonCode !== undefined) {
-    codes.set(LESS_COMMON_TEMPLATE_INDEX, lessCommonCode);
-  }
   return codes;
 }
 

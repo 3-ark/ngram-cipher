@@ -11,6 +11,9 @@ import {
   CONJUNCTIONS,
   RELATIVES,
   PRONOUNS,
+  PERCENTAGES,
+  RATIOS_AND_MULTIPLIERS,
+  NATURAL_NUMBERS_AND_METRICS,
   TEMPLATES,
   POETRY_TEMPLATES,
   analyzeCarrierText,
@@ -36,6 +39,9 @@ describe("Natural Language Generation & Analysis Module", () => {
       { name: "CONJUNCTIONS", list: CONJUNCTIONS },
       { name: "RELATIVES", list: RELATIVES },
       { name: "PRONOUNS", list: PRONOUNS },
+      { name: "PERCENTAGES", list: PERCENTAGES },
+      { name: "RATIOS_AND_MULTIPLIERS", list: RATIOS_AND_MULTIPLIERS },
+      { name: "NATURAL_NUMBERS_AND_METRICS", list: NATURAL_NUMBERS_AND_METRICS },
     ];
 
     for (const { name, list } of posLists) {
@@ -57,8 +63,8 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(TEMPLATES[0][3].list).toContain("grew");
     expect(PRONOUNS).toContain("it");
     expect(PRONOUNS).toContain("they");
-    expect(TEMPLATES[0][4].label).toBe("R");
-    expect(TEMPLATES[0][5].label).toBe("PCT");
+    expect(TEMPLATES[0][4].label).toBe("A");
+    expect(TEMPLATES[0][5].label).toBe("N");
     expect(TEMPLATES[1][0]).toEqual({ type: "data", list: DETERMINERS, label: "d" });
     expect(TEMPLATES[1][1].list).toHaveLength(256);
     expect(TEMPLATES[1][2].list).toHaveLength(256);
@@ -76,7 +82,7 @@ describe("Natural Language Generation & Analysis Module", () => {
     expect(TEMPLATES[9][12].list).toContain("remained");
     expect(TEMPLATES[9][12].list).toHaveLength(256);
     expect(TEMPLATES[2].map(slot => slot.label)).toEqual([
-      "c", "d", "N", "VP", "N", "VP", "PCT"
+      "c", "d", "N", "VP", "N", "VP", "N"
     ]);
   });
 
@@ -112,7 +118,9 @@ describe("Natural Language Generation & Analysis Module", () => {
   it("should contain valid templates with 100% data slots carrying bits", () => {
     expect(TEMPLATES.length).toBeGreaterThan(0);
     expect(new Set(TEMPLATES.map(template => template.length)).size).toBe(TEMPLATES.length);
-    expect(TEMPLATES.map(template => template.length)).toEqual([6, 8, 7, 9, 10, 12, 14, 15, 17, 18, 5]);
+    expect(TEMPLATES.map(template => template.length)).toEqual([
+      6, 8, 7, 9, 10, 12, 14, 15, 17, 18, 5, 11, 13, 16, 19
+    ]);
     for (const template of TEMPLATES) {
       expect(template.length).toBeGreaterThan(0);
       for (const slot of template) {
@@ -124,6 +132,36 @@ describe("Natural Language Generation & Analysis Module", () => {
         }
       }
     }
+  });
+
+  it("should reserve quantitative vocabularies for three journalistic templates", () => {
+    expect(PERCENTAGES).toHaveLength(256);
+    expect(RATIOS_AND_MULTIPLIERS).toHaveLength(256);
+    expect(NATURAL_NUMBERS_AND_METRICS).toHaveLength(256);
+    expect(RATIOS_AND_MULTIPLIERS).toEqual(expect.arrayContaining([
+      "double", "triple", "twofold", "threefold", "half"
+    ]));
+    expect(NATURAL_NUMBERS_AND_METRICS).toEqual(expect.arrayContaining([
+      "fivefold", "fifty-points", "fifteen-percent", "twenty-percent",
+      "hundreds", "thousands", "billions", "50bps", "100bps", "500m", "10x", "2x", "1,000", "250"
+    ]));
+
+    const quantitativeTemplates = TEMPLATES.filter(template =>
+      template.some(slot => ["PCT", "RATIO", "NUM"].includes(slot.label))
+    );
+    expect(quantitativeTemplates).toHaveLength(3);
+    expect(TEMPLATES.filter(template => template.some(slot => slot.label === "PCT"))).toHaveLength(1);
+    expect(TEMPLATES.filter(template => template.some(slot => slot.label === "RATIO"))).toHaveLength(1);
+    expect(TEMPLATES.filter(template => template.some(slot => slot.label === "NUM"))).toHaveLength(1);
+    expect(quantitativeTemplates.length / TEMPLATES.length).toBeLessThan(0.25);
+  });
+
+  it("should rank ratio language naturally after multiplier qualifiers", () => {
+    const ranked = rankCandidates(
+      ["market", "double", "twofold"],
+      ["the", "market", "grew", "nearly"]
+    );
+    expect(ranked.slice(0, 2)).toEqual(expect.arrayContaining(["double", "twofold"]));
   });
 
   it("should provide eight poetry templates with distinct sentence lengths and power-of-two slot lists", () => {

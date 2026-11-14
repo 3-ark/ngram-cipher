@@ -16,6 +16,8 @@ export declare const ADJECTIVES: string[];
 export declare const ADVERBS: string[];
 export declare const PROPER_NOUNS: string[];
 export declare const PERCENTAGES: string[];
+export declare const RATIOS_AND_MULTIPLIERS: string[];
+export declare const NATURAL_NUMBERS_AND_METRICS: string[];
 export declare const DETERMINERS: string[];
 export declare const PREPOSITIONS: string[];
 export declare const CONJUNCTIONS: string[];

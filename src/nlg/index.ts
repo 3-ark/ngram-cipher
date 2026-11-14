@@ -120,6 +120,19 @@ export const PERCENTAGES: string[] = Array.from(new Set([
   "101.0%","102.0%","105.0%","110.0%"
 ])).slice(0, 256);
 
+export const RATIOS_AND_MULTIPLIERS: string[] = enforce256List([
+  "double","triple","twofold","threefold","fourfold","fivefold","sixfold","sevenfold",
+  "eightfold","ninefold","tenfold","hundredfold","half","quarter","twice","thrice",
+  "multiples","double-digit","triple-digit","multi-fold","manyfold","manifold"
+], Array.from({ length: 256 }, (_, index) => `${index + 1}x`));
+
+export const NATURAL_NUMBERS_AND_METRICS: string[] = enforce256List([
+  "fivefold","fifty-points","fifteen-percent","twenty-percent","hundreds","thousands",
+  "billions","50bps","100bps","500m","10x","2x","1,000","250","50","100",
+  "500","1,000m","1bn","25bps","75bps","200bps","500bps","1,000bps",
+  "1.5%","2.5%","5%","10%","15%","20%","25%","50%"
+], Array.from({ length: 256 }, (_, index) => String(index + 1)));
+
 // Function-word lists (exact fixed length for deterministic bits)
 export const DETERMINERS: string[] = [
   "the","a","this","some","any","no","one","its"
@@ -151,6 +164,8 @@ export const POS_LISTS: Record<string, string[]> = {
   R: ADVERBS,
   NP: PROPER_NOUNS,
   PCT: PERCENTAGES,
+  RATIO: RATIOS_AND_MULTIPLIERS,
+  NUM: NATURAL_NUMBERS_AND_METRICS,
   d: DETERMINERS,
   p: PREPOSITIONS,
   c: CONJUNCTIONS,
@@ -233,7 +248,7 @@ export const ACTION_OBJECTS_EXTENDED = enforce256List(ACTION_OBJECTS_RAW, NOUNS)
 
 // 6. ACTION_VERBS_EXTENDED: 256 clean transitive action verbs performed by human/institutional agents
 const ACTION_VERBS_RAW = [
-  "announced","supported","proposed","rejected","approved","launched","created","developed","introduced",
+  "faced","weathered","confronted","endured","experienced","sustained","grew","rose","fell","declined","announced","supported","proposed","rejected","approved","launched","created","developed","introduced",
   "published","released","signed","adopted","defended","backed","changed","submitted","issued","authorized",
   "sanctioned","passed","ratified","endorsed","promoted","reviewed","revised","updated","modified","expanded",
   "drafted","enacted","implemented","accepted","considered","presented","delayed","withdrew","suspended","challenged",
@@ -387,7 +402,7 @@ export const ACTION_ADVERBS = enforce256List(ACTION_ADVERBS_RAW, ADVERBS);
 
 // 18. DISCOURSE_ADVERBS: 256 clean discourse connectors
 const DISCOURSE_ADVERBS_RAW = [
-  "however","meanwhile","nevertheless","nonetheless","instead","also","indeed","similarly","furthermore","additionally","still","otherwise","rather","likewise","conversely","ultimately","consequently","accordingly","thus","therefore","hence","besides","moreover","then","further","finally","initially","originally","subsequently","thereafter","afterward","contrariwise","alternatively","notwithstanding","regardlessly","anyway","anyhow","equally","correspondingly","identically","uniformly","consistently","compatibly","harmoniously","eventually","undoubtedly","assuredly","certainly","definitely","plainly","clearly","evidently","manifestly","patently","unmistakably","decisively","conclusively","emphatically","resolutely","firmly","steadfastly","unwaveringly","firstly","secondly","thirdly","lastly","incidentally","parenthetically","tangentially","coincidentally","admittedly","concededly","doubtless","indubitably","indisputably","unquestionably","now","already","just","even","only","recently","currently","previously","immediately","promptly","often","usually","always","never","sometimes","rarely","frequently","occasionally","here","there","anywhere","everywhere","abroad","overseas","locally","nationally","very","quite","fairly","extremely","highly","deeply","significantly","well","badly","carefully","quickly","slowly","steadily","rapidly","gradually","soon","early","late","again","once","twice","daily","annually","together","alone","apart","aside","ahead","behind","forward","backward","likely","possibly","probably","obviously","apparently","officially","formally","publicly","privately","openly","secretly","directly","indirectly","strongly","sharply","broadly","widely","largely","mostly","primarily","simply","merely","barely","hardly","nearly","almost","approximately","roughly","particularly","especially","specifically","notably","remarkably","increasingly","dramatically","substantially","successfully","effectively","efficiently","actively","continuously","repeatedly","persistently","separately","independently","collectively","jointly","mutually","simultaneously","respectively","fortunately","unfortunately","surprisingly","interestingly","reportedly","allegedly","supposedly","presumably","typically","normally","generally","commonly","traditionally","historically","conventionally","routinely","relatively","comparatively","proportionally","marginally","slightly","moderately","considerably","tremendously","exactly","precisely","accurately","correctly","properly","appropriately","adequately","sufficiently","surely","absolutely","entirely","completely","totally","fully","wholly","thoroughly","partly","partially","somewhat","modestly","mildly","minimally","nominally","technically","naturally","automatically","systematically","strategically","deliberately","intentionally","voluntarily","willingly","temporarily","permanently","indefinitely","briefly","momentarily","periodically","intermittently","sporadically","safely","securely","peacefully","calmly","quietly","silently","gently","smoothly","urgently"
+  "however","meanwhile","nevertheless","nonetheless","instead","also","indeed","similarly","furthermore","additionally","still","otherwise","rather","likewise","conversely","ultimately","consequently","accordingly","besides","moreover","then","further","finally","initially","originally","subsequently","thereafter","afterward","alternatively","notwithstanding","anyway","anyhow","equally","correspondingly","identically","uniformly","consistently","compatibly","harmoniously","eventually","undoubtedly","assuredly","certainly","definitely","plainly","clearly","evidently","manifestly","patently","unmistakably","decisively","conclusively","emphatically","resolutely","firmly","steadfastly","unwaveringly","firstly","secondly","thirdly","lastly","incidentally","parenthetically","tangentially","coincidentally","admittedly","concededly","doubtless","indubitably","indisputably","unquestionably","now","already","just","even","only","recently","currently","previously","immediately","promptly","often","usually","always","never","sometimes","rarely","frequently","occasionally","here","there","anywhere","everywhere","abroad","overseas","locally","nationally","very","quite","fairly","extremely","highly","deeply","significantly","well","badly","carefully","quickly","slowly","steadily","rapidly","gradually","soon","early","late","again","once","twice","daily","annually","together","alone","apart","aside","ahead","behind","forward","backward","likely","possibly","probably","obviously","apparently","officially","formally","publicly","privately","openly","secretly","directly","indirectly","strongly","sharply","broadly","widely","largely","mostly","primarily","simply","merely","barely","hardly","nearly","almost","approximately","roughly","particularly","especially","specifically","notably","remarkably","increasingly","dramatically","substantially","successfully","effectively","efficiently","actively","continuously","repeatedly","persistently","separately","independently","collectively","jointly","mutually","simultaneously","respectively","fortunately","unfortunately","surprisingly","interestingly","reportedly","allegedly","supposedly","presumably","typically","normally","generally","commonly","traditionally","historically","conventionally","routinely","relatively","comparatively","proportionally","marginally","slightly","moderately","considerably","tremendously","exactly","precisely","accurately","correctly","properly","appropriately","adequately","sufficiently","surely","absolutely","entirely","completely","totally","fully","wholly","thoroughly","partly","partially","somewhat","modestly","mildly","minimally","nominally","technically","naturally","automatically","systematically","strategically","deliberately","intentionally","voluntarily","willingly","temporarily","permanently","indefinitely","briefly","momentarily","periodically","intermittently","sporadically","safely","securely","peacefully","calmly","quietly","silently","gently","smoothly","urgently"
 ];
 export const DISCOURSE_ADVERBS = enforce256List(DISCOURSE_ADVERBS_RAW, ADVERBS);
 
@@ -517,14 +532,14 @@ const OBJECT_DETERMINERS = ["the","some","no","any"];
 
 // Distinct sentence word counts allow deterministic template identification.
 export const TEMPLATES: Slot[][] = [
-  // 0 / 6 words: The major market rose sharply 5.1%.
-  [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), D(PERCENTAGES, "PCT")],
+  // 0 / 6 words: The domestic market faced persistent pressure.
+  [D(DETERMINERS, "d"), D(EFFECT_SCOPE_ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N")],
 
   // 1 / 8 words: The major market rose sharply 5.1% in London.
   [D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), D(PERCENTAGES, "PCT"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
 
-  // 2 / 7 words: If the drought worsened, prices rose 5.1%.
-  [F(["if"], "c"), D(CONDITION_DETERMINERS, "d"), D(CONDITION_NOUNS, "N"), D(CONDITION_VERBS, "VP", ","), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP"), D(PERCENTAGES, "PCT")],
+  // 2 / 7 words: If the shortage worsened, officials drafted guidelines.
+  [F(["if"], "c"), D(CONDITION_DETERMINERS, "d"), D(CONDITION_NOUNS, "N"), D(CONDITION_VERBS, "VP", ","), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
   // 3 / 9 words: After talks, however, the official recently raised the strategy.
   [F(["after"], "p"), D(AFTER_EVENTS, "N", ","), D(DISCOURSE_ADVERBS, "R", ","), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
@@ -532,14 +547,14 @@ export const TEMPLATES: Slot[][] = [
   // 4 / 10 words: The coalition, which officials publicly criticized, eventually backed the reform.
   [D(DETERMINERS, "d"), D(RELATIVE_ANTECEDENTS, "N", ","), F(["which"], "c"), D(RELATIVE_SUBJECTS, "N"), D(ACTION_ADVERBS, "R"), D(RELATIVE_VERBS, "VP", ","), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
-  // 5 / 12 words: Local food prices rose 5.1% in London as the severe shortage persisted.
-  [D(EFFECT_SCOPE_ADJECTIVES, "A"), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP"), D(PERCENTAGES, "PCT"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP"), D(CAUSE_LINKERS, "c"), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP")],
+  // 5 / 12 words: Local food prices rose sharply in London as the severe shortage persisted.
+  [D(EFFECT_SCOPE_ADJECTIVES, "A"), D(EFFECT_TYPE_ADJECTIVES, "A"), D(EFFECT_NOUNS, "N"), D(EFFECT_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP"), D(CAUSE_LINKERS, "c"), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP")],
 
-  // 6 / 14 words: "The central bank raised interest rates 5.1%", Johnson announced recently in an interview in Washington.
-  [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(METRIC_ACTION_VERBS, "VP"), D(CORE_TREND_NOUNS, "N"), D(PERCENTAGES, "PCT", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(ACTION_ADVERBS, "R"), F(["in"], "p"), F(["an"], "d"), F(["interview"], "N"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
+  // 6 / 14 words: "The central bank raised interest rates 50bps", Johnson announced recently in an interview in Washington.
+  [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(METRIC_ACTION_VERBS, "VP"), D(CORE_TREND_NOUNS, "N"), D(NATURAL_NUMBERS_AND_METRICS, "NUM", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(ACTION_ADVERBS, "R"), F(["in"], "p"), F(["an"], "d"), F(["interview"], "N"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP")],
 
-  // 7 / 15 words: Johnson said that the central bank raised interest rates 5.1%, but the agency rejected the proposal.
-  [D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(METRIC_ACTION_VERBS, "VP"), D(CORE_TREND_NOUNS, "N"), D(PERCENTAGES, "PCT", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
+  // 7 / 15 words: Johnson explained that the central bank approved crucial measures, but the council delayed the proposal.
+  [D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["that"], "c"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N", ","), F(["but"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N")],
 
   // 8 / 17 words: "The major company backed the proposal," Johnson said in London, "since the severe shortage persisted in Geneva."
   [D(DETERMINERS, "d", undefined, '"'), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(OBJECT_DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N", '",'), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", ","), D(CAUSE_LINKERS, "c", undefined, '"'), D(DETERMINERS, "d"), D(CAUSE_ADJECTIVES, "A"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP"), F(["in"], "p"), D(LOCATION_PROPER_NOUNS, "NP", '"')],
@@ -547,8 +562,20 @@ export const TEMPLATES: Slot[][] = [
   // 9 / 18 words: "The officials, including some delegates, requested a formal statement because the talks remained unresolved," Reuters reported on Friday.
   [D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), F(["including"], "c"), D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), D(APPOSITIVE_REQUEST_VERBS, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["because"], "c"), D(OBJECT_DETERMINERS, "d"), D(AFTER_EVENTS, "N"), D(UNRESOLVED_COMPLEMENT_VERBS, "VP"), D(COMPLEMENT_ADJECTIVES, "A", ","), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["on"], "p"), F(["Friday"], "NP")],
 
-  // 10 / 5 words: The market rose sharply 5.1%.
-  [D(DETERMINERS, "d"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), D(EFFECT_ADVERBS, "R"), D(PERCENTAGES, "PCT")]
+  // 10 / 5 words: The market grew nearly twofold.
+  [D(DETERMINERS, "d"), D(CORE_TREND_NOUNS, "N"), D(CORE_TREND_VERBS, "VP"), F(["nearly"], "R"), D(RATIOS_AND_MULTIPLIERS, "RATIO")],
+
+  // 11 / 11 words: Officials recently said the proposal remained unresolved after the talks ended.
+  [D(RELATIVE_SUBJECTS, "N"), D(ACTION_ADVERBS, "R"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N"), D(VERBS_PAST, "VP"), D(COMPLEMENT_ADJECTIVES, "A"), F(["after"], "p"), D(OBJECT_DETERMINERS, "d"), D(AFTER_EVENTS, "N"), D(CAUSE_VERBS, "VP")],
+
+  // 12 / 13 words: The government recently revised the emergency framework after the storm disrupted regional services.
+  [D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_ADVERBS, "R"), D(ACTION_VERBS_EXTENDED, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["after"], "p"), D(OBJECT_DETERMINERS, "d"), D(CAUSE_NOUNS, "N"), D(CAUSE_VERBS, "VP"), D(ADJECTIVES, "A"), D(EFFECT_NOUNS, "N")],
+
+  // 13 / 16 words: Officials said the agreement required further review while the council prepared revised guidelines for regional agencies.
+  [D(RELATIVE_SUBJECTS, "N"), D(REPORTING_CLAUSE_VERBS, "VPR"), D(DETERMINERS, "d"), D(ACTION_OBJECTS_EXTENDED, "N"), D(VERBS_PAST, "VP"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["while"], "c"), D(DETERMINERS, "d"), D(ACTION_SUBJECTS_EXTENDED, "N"), D(ACTION_VERBS_EXTENDED, "VP"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["for"], "p"), D(ADJECTIVES, "A"), D(ACTION_SUBJECTS_EXTENDED, "N")],
+
+  // 14 / 19 words: The officials, including some regional delegates, requested a formal statement because the talks remained unresolved, Reuters reported on Friday.
+  [D(OBJECT_DETERMINERS, "d"), D(RELATIVE_SUBJECTS, "N", ","), F(["including"], "c"), D(OBJECT_DETERMINERS, "d"), D(ADJECTIVES, "A"), D(RELATIVE_SUBJECTS, "N", ","), D(APPOSITIVE_REQUEST_VERBS, "VP"), D(DETERMINERS, "d"), D(ADJECTIVES, "A"), D(ACTION_OBJECTS_EXTENDED, "N"), F(["because"], "c"), D(OBJECT_DETERMINERS, "d"), D(AFTER_EVENTS, "N"), D(UNRESOLVED_COMPLEMENT_VERBS, "VP"), D(COMPLEMENT_ADJECTIVES, "A", ","), D(REPORTING_SUBJECTS_PROPER, "NP"), D(REPORTING_CLAUSE_VERBS, "VPR"), F(["on"], "p"), F(["Friday"], "NP")],
 ];
 
 const POETRY_NOUNS = [

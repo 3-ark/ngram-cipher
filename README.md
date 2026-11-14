@@ -98,6 +98,10 @@ const newsText = await encode("Secret message", "password123", {
 });
 ```
 
+News templates cover sentence lengths from 5 to 19 words. Three of the fifteen structures use
+quantitative language (multipliers, percentages, or numeric metrics); the others focus on market,
+policy, and diplomatic developments.
+
 ### Poetry Style (`"poetry"`)
 
 Generates structured stanzas with poetic rhythm, evocative vocabulary, and varied punctuation (`—`, `...`, `,`).

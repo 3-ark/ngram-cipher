@@ -174,12 +174,13 @@ const METRIC_ACTION_VERBS = new Set([
   "revived","settled","softened","stagnated","steepened","subsided","swelled","tapered",
   "accumulated","bounded","consolidated","dampened","faltered","lagged","lengthened","mounted",
   "overtook","paced","pivoted","poised","prospered","quickened","regained","relapsed","renewed",
-  "retrenched","spurred","stiffened","swung","thrived","topped","trailed","trended","wavered"
+  "retrenched","spurred","stiffened","swung","thrived","topped","trailed","trended","wavered",
+  "faced","weathered","confronted","endured","experienced","sustained"
 ]);
 
 const POLICY_DOCUMENT_VERBS = new Set([
   "adopted","approved","amended","enacted","implemented","introduced","issued","passed","proposed",
-  "ratified","rejected","revised","signed","upheld"
+  "ratified","rejected","revised","signed","upheld","remained","required"
 ]);
 
 const EFFECT_RATE_ADVERBS = new Set([
@@ -424,7 +425,17 @@ const FUNCTION_WORDS_SET = new Set([
 // Common English Bigram Transitions (w1 -> Set/Map of w2 -> weight)
 const BIGRAM_MAP: Record<string, Record<string, number>> = {
   report: { showed: 10, indicated: 10, revealed: 10, confirmed: 10, suggested: 9, detailed: 9, published: 8, released: 8 },
-  market: { rose: 10, fell: 10, grew: 10, declined: 10, expanded: 9, dropped: 9, surged: 9, recovered: 9 },
+  market: { rose: 10, fell: 10, grew: 10, declined: 10, expanded: 9, dropped: 9, surged: 9, recovered: 9, faced: 8, weathered: 8 },
+  nearly: { double: 10, triple: 10, twofold: 10, threefold: 9, fourfold: 8, tenfold: 8 },
+  almost: { double: 10, triple: 9, twofold: 9, threefold: 8, half: 8 },
+  rates: { rose: 10, fell: 10, increased: 9, dropped: 9, "50bps": 10, "100bps": 10, "25bps": 9, "75bps": 9, "200bps": 9, "500bps": 8, "250": 8, "500": 8 },
+  faced: { pressure: 10, shortages: 9, opposition: 8, challenges: 8 },
+  persistent: { pressure: 10, shortages: 9, concerns: 8, weakness: 8 },
+  drafted: { guidelines: 10, proposal: 9, policy: 8, framework: 8 },
+  approved: { crucial: 10, key: 9, major: 8 },
+  crucial: { measures: 10, reforms: 9, guidelines: 8 },
+  remained: { unresolved: 10, uncertain: 9, unclear: 8 },
+  revised: { guidelines: 10, framework: 9, policy: 8 },
   economy: { grew: 10, expanded: 10, slowed: 9, recovered: 9, shrank: 8, declined: 8 },
   growth: { slowed: 10, accelerated: 10, continued: 9, remained: 8, dropped: 8 },
   // Agent nouns — each has a distinct primary verb set reflecting their real-world role
@@ -477,7 +488,6 @@ const BIGRAM_MAP: Record<string, Record<string, number>> = {
   negotiations: { stalled: 10, collapsed: 10, resumed: 9, continued: 9, broke: 8, concluded: 8 },
   proposal: { passed: 9, rejected: 10, approved: 10, accepted: 9 },
   reform: { backed: 10, approved: 9, passed: 9, proposed: 8 },
-  rates: { rose: 10, fell: 10, increased: 9, dropped: 9 },
   hearings: { concluded: 10, began: 9, resumed: 9, continued: 8, ended: 8 },
   discussions: { stalled: 10, resumed: 9, continued: 9, concluded: 8 },
   meetings: { concluded: 10, began: 9, continued: 9, resumed: 8 },

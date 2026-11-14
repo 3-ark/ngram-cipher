@@ -57,7 +57,7 @@ export const CORE_TREND_VERBS_RAW = [
 ];
 
 export const ACTION_SUBJECTS_RAW = [
-  "government","president","company","council","agency","coalition","commission","authority","parliament","court",
+  "government","president","company","bank","council","agency","coalition","commission","authority","parliament","court",
   "police","team","leader","minister","ambassador","official","alliance","foundation","union","journalist",
   "governor","senator","researcher","delegate","institution","academy","institute","administration","politician","statesman",
   "envoy","dignitary","representative","spokesman","spokesperson","spokeswoman","chairperson","chairman","chairwoman","officer",

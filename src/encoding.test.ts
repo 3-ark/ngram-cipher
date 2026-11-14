@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { bytesToEnglishText, englishTextToBytes } from "./encoding/index.js";
 import { EncodingError } from "./config/index.js";
-import { DETERMINERS, LOCATION_PROPER_NOUNS } from "./nlg/index.js";
+import { DETERMINERS, LOCATION_PROPER_NOUNS, TEMPLATES } from "./nlg/index.js";
 
 describe("Reversible Encoding and Decoding Module", () => {
   it("should round-trip byte arrays to English prose and back", () => {
@@ -22,6 +22,29 @@ describe("Reversible Encoding and Decoding Module", () => {
 
       expect(Array.from(englishTextToBytes(text)), `payload length ${length}`).toEqual(Array.from(payload));
     }
+  });
+
+  it("should round-trip every distinct news template length", () => {
+    const observedLengths = new Set<number>();
+    const expectedLengths = TEMPLATES.map(template => template.length).sort((a, b) => a - b);
+
+    for (let seed = 1; seed <= 64 && observedLengths.size < expectedLengths.length; seed++) {
+      let state = seed;
+      const payload = Uint8Array.from({ length: 128 }, () => {
+        state ^= state << 13;
+        state ^= state >>> 17;
+        state ^= state << 5;
+        return state & 0xff;
+      });
+      const text = bytesToEnglishText(payload);
+      for (const sentence of text.split(/(?<=[;…\.]["'”’]*)\s+/)) {
+        const words = sentence.replace(/^[ "'“‘]+|[ "'”’.,!?;:]+$/g, "").split(/\s+/);
+        observedLengths.add(words.length);
+      }
+      expect(Array.from(englishTextToBytes(text))).toEqual(Array.from(payload));
+    }
+
+    expect(Array.from(observedLengths).sort((a, b) => a - b)).toEqual(expectedLengths);
   });
 
   it("should avoid reusing a news sentence structure within the previous two sentences", () => {
