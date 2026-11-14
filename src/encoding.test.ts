@@ -241,6 +241,34 @@ describe("Reversible Encoding and Decoding Module", () => {
     expect(Array.from(englishTextToBytes(text, config))).toEqual(Array.from(testBytes));
   });
 
+  it("should encode question endings without punctuation and decode legacy markers", () => {
+    const testBytes = Uint8Array.from(
+      { length: 256 },
+      (_, index) => (index * 73 + 19) & 0xff
+    );
+    const config = { style: "poetry" as const, sentenceEndingVariance: true };
+    const text = bytesToEnglishText(testBytes, config);
+    const withEndingMarker = (ending: string) => text
+      .split("\n")
+      .map(line =>
+        line && !/[,.!?]$/.test(line) && !line.endsWith(" —")
+          ? `${line}${ending}`
+          : line
+      )
+      .join("\n");
+
+    expect(text.split("\n").some(line =>
+      line.length > 0 && !/[,.!?]$/.test(line) && !line.endsWith(" —")
+    )).toBe(true);
+    expect(Array.from(englishTextToBytes(text, config))).toEqual(Array.from(testBytes));
+    expect(Array.from(englishTextToBytes(withEndingMarker("?"), config)))
+      .toEqual(Array.from(testBytes));
+    expect(Array.from(englishTextToBytes(withEndingMarker("~"), config)))
+      .toEqual(Array.from(testBytes));
+    expect(Array.from(englishTextToBytes(withEndingMarker("..."), config)))
+      .toEqual(Array.from(testBytes));
+  });
+
   it("should support fixed period ending configuration", () => {
     const testBytes = new Uint8Array([10, 20, 30, 40, 50, 60]);
     const text = bytesToEnglishText(testBytes, { sentenceEndingVariance: false });

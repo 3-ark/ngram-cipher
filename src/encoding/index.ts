@@ -289,13 +289,14 @@ function buildOpeningCodes(
   return { wordToCode, codeToWord };
 }
 
-const POETRY_ENDINGS = [".", " —", "...", ","];
+const POETRY_ENDINGS = [".", " —", "", ","];
 const POETRY_ENDING_TO_CODE: Record<string, number> = {
   ".": 0,
   " —": 1,
+  "": 2,
   "~": 2,
   ",": 3,
-  "?": 0,
+  "?": 2,
 };
 
 function capitalise(w: string): string {
@@ -564,11 +565,11 @@ export function englishTextToBytes(
     const lines = cleanText.split("\n").map(l => l.trim()).filter(l => l.length > 0);
     for (const line of lines) {
       let sentenceStr = line;
-      let endingStr = ".";
+      let endingStr = "";
 
-      if (line.endsWith("...")) {
-        endingStr = "...";
-        sentenceStr = line.slice(0, -3).trim();
+      if (line.endsWith("~") || line.endsWith("...")) {
+        endingStr = "~";
+        sentenceStr = line.slice(0, line.endsWith("~") ? -1 : -3).trim();
       } else if (line.endsWith(" —")) {
         endingStr = " —";
         sentenceStr = line.slice(0, -2).trim();
